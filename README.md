@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # VarthaNow Telugu AI News
 
 Production-grade React + Supabase + Gemini AI Telugu news platform.
@@ -82,3 +83,7 @@ The cron schedule runs every 15 minutes.
 ## Copyright Safety
 
 The `auto-news` function only uses RSS metadata as input. Gemini rewrites original Telugu summaries, headings, bullet points, FAQs and conclusions. It does not copy full copyrighted articles.
+=======
+# VarthaNow
+ai powered telugu news platform
+>>>>>>> b93777b50252445cc29e44699f81a7300ac44b37
