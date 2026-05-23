@@ -79,7 +79,7 @@ export function NewsPage() {
             </span>
           </div>
         </div>
-        {post.og_image && <img src={post.og_image} alt={post.title} className="max-h-[32rem] w-full object-cover" />}
+        {post.og_image && <img src={post.og_image} alt={post.title} referrerPolicy="no-referrer" className="max-h-[32rem] w-full object-cover" />}
         <div className="article-content px-4 py-6 md:px-8">
           <div dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }} />
         </div>

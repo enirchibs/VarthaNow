@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { Moon, Search, Sun, Globe } from "lucide-react";
+import { Moon, Search, Sun, Globe, Home } from "lucide-react";
 import { useEffect, useState } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
@@ -66,6 +66,30 @@ export function Layout() {
           </Link>
         </div>
         <nav className="container-shell no-scrollbar flex gap-2 overflow-x-auto pb-3">
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `shrink-0 rounded-full p-2.5 text-sm font-black transition ${
+                isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
+              }`
+            }
+          >
+            <Home className="size-4.5" />
+          </NavLink>
+          
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${
+                isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
+              }`
+            }
+          >
+            {lang === "te" ? "తాజా వార్తలు" : lang === "en" ? "Latest News" : lang === "hi" ? "ताज़ा समाचार" : lang === "ta" ? "சமீபத்திய செய்திகள்" : "ಇತ್ತೀಚಿನ ಸುದ್ದಿ"}
+          </NavLink>
+
           {categories.map((category) => (
             <NavLink
               key={category.slug}
@@ -83,14 +107,21 @@ export function Layout() {
       </header>
       <Outlet />
       <footer className="container-shell border-t border-[hsl(var(--border))] py-8 text-sm text-[hsl(var(--muted-foreground))]">
-        <div className="font-black text-[hsl(var(--foreground))]">VarthaNow</div>
-        <p className="mt-1">
-          {lang === "te" && "గూగుల్ న్యూస్ RSS + జెమిని AI + సుపాబేస్ పోస్ట్‌గ్రేస్ తో నడిచే తెలుగు AI వార్తల వేదిక."}
-          {lang === "en" && "Google News RSS + Gemini AI + Supabase PostgreSQL powered Multilingual AI news platform."}
-          {lang === "hi" && "गूगल न्यूज RSS + जेमिनी एआई + सुपरबेस पोस्टग्रेस द्वारा संचालित बहुभाषी एआई समाचार मंच।"}
-          {lang === "ta" && "கூகுள் நியூஸ் ஆர்எஸ்எஸ் + ஜெமினி ஏஐ + சூப்பர்பேஸ் போஸ்ட்கிரெஸ் மூலம் இயங்கும் பல்மொழி ஏஐ செய்தி தளம்."}
-          {lang === "kn" && "ಗೂಗಲ್ ನ್ಯೂಸ್ ಆರ್‌ಎಸ್‌ಎಸ್ + ಜೆಮಿನಿ ಎಐ + ಸುಪರ್‌ಬೇಸ್ ಪೋಸ್ಟ್‌ಗ್ರೆಸ್ ಆಧಾರಿತ ಬಹುಭಾಷಾ ಎಐ ಸುದ್ದಿ ವೇದಿಕೆ."}
-        </p>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <div className="font-black text-[hsl(var(--foreground))]">VarthaNow</div>
+            <p className="mt-1">
+              {lang === "te" && "గూగుల్ న్యూస్ RSS + జెమిని AI + సుపాబేస్ పోస్ట్‌గ్రేస్ తో నడిచే తెలుగు AI వార్తల వేదిక."}
+              {lang === "en" && "Google News RSS + Gemini AI + Supabase PostgreSQL powered Multilingual AI news platform."}
+              {lang === "hi" && "गूगल न्यूज RSS + जेमिनी एआई + सुपरबेस पोस्टग्रेस द्वारा संचालित बहुभाषी एआई समाचार मंच।"}
+              {lang === "ta" && "கூகுள் நியூஸ் ஆர்எஸ்எஸ் + ஜெமினி ஏஐ + சூப்பர்பேஸ் போஸ்ட்கிரெஸ் மூலம் இயங்கும் பல்மொழி ஏஐ செய்தி தளம்."}
+              {lang === "kn" && "ಗೂಗಲ್ ನ್ಯೂಸ್ ಆರ್‌ಎಸ್‌ಎಸ್ + ಜೆಮಿನಿ ಎಐ + ಸುಪರ್‌ಬೇಸ್ ಪೋಸ್ಟ್‌ಗ್ರೆಸ್ ಆಧಾರಿತ ಬಹುಭಾಷಾ ಎಐ ಸುದ್ದಿ ವೇದಿಕೆ."}
+            </p>
+          </div>
+          <Link to="/admin" className="text-xs bg-[hsl(var(--muted))] hover:bg-[hsl(var(--primary))] hover:text-white px-3 py-1.5 rounded-full font-black tracking-wide uppercase transition shrink-0">
+            ⚙️ Admin Panel
+          </Link>
+        </div>
       </footer>
     </div>
   );

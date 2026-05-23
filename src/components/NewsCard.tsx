@@ -11,45 +11,69 @@ export function NewsCard({ post, priority = false }: { post: BlogPost; priority?
   const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`;
 
   return (
-    <article className="overflow-hidden rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-[0_12px_30px_rgba(37,99,235,0.08)]">
+    <article className="group overflow-hidden rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-[0_12px_30px_rgba(37,99,235,0.08)] transition-all duration-300 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
       <Link to={`/news/${post.slug}`} className="block">
-        <div className="relative aspect-[4/3] overflow-hidden bg-[hsl(var(--muted))]">
-          {post.og_image && (
+        <div className="relative aspect-[16/10] overflow-hidden bg-[hsl(var(--muted))]">
+          {post.og_image ? (
             <img
               src={post.og_image}
               alt={post.title}
               loading={priority ? "eager" : "lazy"}
-              className="size-full object-cover transition duration-500 hover:scale-105"
+              referrerPolicy="no-referrer"
+              className="size-full object-cover transition duration-700 group-hover:scale-105"
             />
+          ) : (
+            <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-2xl">
+              VarthaNow
+            </div>
           )}
-          <div className="absolute left-3 top-3">
-            <Badge>{categoryLabel(post.category)}</Badge>
+          
+          {/* Subtle Dark Vignette & Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+          
+          {/* Category Badge on Top-Left */}
+          <div className="absolute left-3 top-3 z-10">
+            <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-0 font-extrabold text-[10px] tracking-wide uppercase px-2.5 py-1">
+              {categoryLabel(post.category)}
+            </Badge>
+          </div>
+
+          {/* Redesigned Telugu/Active Headline Overlayed on Image */}
+          <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
+            <h2 className="text-base md:text-lg font-black leading-snug text-white line-clamp-2 drop-shadow-md group-hover:text-blue-200 transition-colors duration-300">
+              {post.title}
+            </h2>
           </div>
         </div>
       </Link>
+      
       <div className="space-y-3 p-4">
-        <Link to={`/news/${post.slug}`}>
-          <h2 className="line-clamp-2 text-xl font-black leading-snug">{post.title}</h2>
-          <p className="mt-2 line-clamp-3 text-sm leading-6 text-[hsl(var(--muted-foreground))]">{post.excerpt}</p>
+        {/* News Excerpt */}
+        <Link to={`/news/${post.slug}`} className="block">
+          <p className="line-clamp-2 text-xs leading-5 text-[hsl(var(--muted-foreground))] font-medium">
+            {post.excerpt}
+          </p>
         </Link>
-        <div className="flex items-center gap-3 text-xs font-bold text-[hsl(var(--muted-foreground))]">
-          <span>{timeAgo(post.published_at)}</span>
-          <span className="flex items-center gap-1">
-            <Clock3 className="size-3" />
-            {post.reading_time_min} min
-          </span>
-        </div>
-        <div className="flex items-center justify-between gap-2">
-          <Button variant="secondary" className="h-9 px-3">
-            <Bookmark className="size-4" />
-            సేవ్
-          </Button>
-          <div className="flex gap-2">
-            <a href={whatsappUrl} target="_blank" rel="noreferrer" className="grid size-9 place-items-center rounded-full bg-emerald-500 text-white" aria-label="WhatsApp share">
-              <Share2 className="size-4" />
+        
+        {/* Metadata and Action Section */}
+        <div className="flex items-center justify-between border-t border-[hsl(var(--border))/40] pt-3 text-[11px] font-bold text-[hsl(var(--muted-foreground))]">
+          <div className="flex items-center gap-3">
+            <span>{timeAgo(post.published_at)}</span>
+            <span className="flex items-center gap-1">
+              <Clock3 className="size-3" />
+              {post.reading_time_min} min
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" className="h-7 w-7 rounded-full p-0 hover:bg-[hsl(var(--muted))]" aria-label="Save post">
+              <Bookmark className="size-3.5" />
+            </Button>
+            <a href={whatsappUrl} target="_blank" rel="noreferrer" className="grid h-7 w-7 place-items-center rounded-full bg-emerald-500 text-white transition-transform hover:scale-105" aria-label="WhatsApp share">
+              <Share2 className="size-3.5" />
             </a>
-            <a href={telegramUrl} target="_blank" rel="noreferrer" className="grid size-9 place-items-center rounded-full bg-blue-500 text-white" aria-label="Telegram share">
-              <Send className="size-4" />
+            <a href={telegramUrl} target="_blank" rel="noreferrer" className="grid h-7 w-7 place-items-center rounded-full bg-blue-500 text-white transition-transform hover:scale-105" aria-label="Telegram share">
+              <Send className="size-3.5" />
             </a>
           </div>
         </div>

@@ -144,7 +144,7 @@ serve(async (request) => {
           tags: ai.tags,
           meta_title: ai.meta_title,
           meta_description: ai.meta_description,
-          og_image: ai.image_prompt ? `https://image.pollinations.ai/prompt/${encodeURIComponent(ai.image_prompt)}?width=1200&height=675&nologo=true&private=true` : null,
+          og_image: ai.image_prompt ? `https://image.pollinations.ai/prompt/${encodeURIComponent(`${ai.image_prompt} with the text '${ai.title}'`)}?width=1200&height=675&nologo=true&private=true` : null,
           author_name: "VarthaNow AI Desk",
           language: item.language,
           published: true,
@@ -176,6 +176,7 @@ async function fetchRss(url: string, category: Category, language: "te" | "en" |
 
   const xml = await response.text();
   const doc = new DOMParser().parseFromString(xml, "text/xml");
+  if (!doc) throw new Error("Failed to parse RSS XML");
   const items = [...doc.querySelectorAll("item")].map((item) => ({
     title: text(item, "title"),
     link: text(item, "link"),
@@ -216,7 +217,7 @@ Rules:
 slug, title, excerpt, content, tags, meta_title, meta_description, reading_time_min, image_prompt, featured.
 
 Provide description for the keys:
-- image_prompt: A descriptive English prompt (2-3 sentences) for a text-to-image generator, describing a realistic, professional, editorial news photograph about this event. Specify clear visual subjects, professional framing, high detail, and explicitly specify 'no text, no logos, no watermarks'.
+- image_prompt: A highly descriptive, realistic, and cinematic prompt (2-3 sentences) in English for a text-to-image generator representing the news. If the category or news is about Vizag (Visakhapatnam), describe a scenic photograph of the Visakhapatnam sea corridor, R.K. Beach road overlooking the blue Bay of Bengal, palm trees, coastal highway, or Kailasagiri, with professional lighting. If the category or news is about Telangana, describe Hyderabad landmarks such as the Charminar, Tank Bund with the Hussainsagar lake, Birla Mandir, the new Secretariat building, or the Legislative Assembly, beautiful sunset, highly detailed. If the category or news is about Andhra Pradesh, describe Prakasam Barrage, Tirumala hills, or Amaravati administrative buildings. For other categories, describe a realistic, professional, editorial news photograph representing the event. Always specify 'no text, no logos, no watermarks, realistic photojournalism style'.
 - featured: A boolean indicating if this represents a major, high-profile, breaking or highly trending news story of significant public interest.
 
 RSS item:
@@ -227,7 +228,7 @@ Published: ${item.pubDate}
 Category: ${item.category}
 `;
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

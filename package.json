@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
-    "sitemap": "tsx scripts/generate-sitemap.ts"
+    "sitemap": "tsx scripts/generate-sitemap.ts",
+    "cron": "tsx scripts/cron-local.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

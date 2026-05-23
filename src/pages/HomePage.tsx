@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Newspaper, TrendingUp } from "lucide-react";
+import { ArrowRight, Newspaper, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { BreakingTicker } from "@/components/BreakingTicker";
 import { NewsGrid } from "@/components/NewsGrid";
 import { Button } from "@/components/ui";
@@ -13,7 +13,19 @@ export function HomePage() {
   const { lang } = useLanguage();
   const feed = useInfinitePosts();
   const { featured, trending } = useHomeData();
-  const hero = featured[0] ?? feed.posts[0];
+  
+  const [activeSlide, setActiveSlide] = useState(0);
+  const slides = useMemo(() => feed.posts.slice(0, 7), [feed.posts]);
+
+  useEffect(() => {
+    if (slides.length <= 1) return;
+    const interval = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [slides]);
+
+  const currentSlide = slides[activeSlide];
 
   useEffect(() => {
     const titles: Record<string, string> = {
@@ -41,32 +53,97 @@ export function HomePage() {
     <main className="container-shell space-y-5 py-4">
       <BreakingTicker posts={trending.length ? trending : feed.posts} />
 
-      {hero && (
-        <section className="overflow-hidden rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-[0_12px_30px_rgba(37,99,235,0.08)]">
-          <Link to={`/news/${hero.slug}`} className="grid gap-0 lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="relative aspect-[16/10] bg-[hsl(var(--muted))] lg:aspect-auto">
-              {hero.og_image && <img src={hero.og_image} alt={hero.title} className="size-full object-cover" />}
-            </div>
-            <div className="flex flex-col justify-center p-5 md:p-7">
-              <span className="mb-3 inline-flex w-fit rounded-full bg-emerald-500 px-3 py-1 text-xs font-black text-white">
-                {lang === "te" && "ఫీచర్డ్"}
-                {lang === "en" && "Featured"}
-                {lang === "hi" && "विशेष"}
-                {lang === "ta" && "சிறப்பு"}
-                {lang === "kn" && "ವಿಶೇಷ"}
-              </span>
-              <h1 className="text-3xl font-black leading-tight md:text-4xl">{hero.title}</h1>
-              <p className="mt-3 text-base leading-7 text-[hsl(var(--muted-foreground))]">{hero.excerpt}</p>
-              <div className="mt-5 flex items-center gap-2 text-sm font-black text-[hsl(var(--primary))]">
-                {lang === "te" && "పూర్తి కథనం చదవండి"}
-                {lang === "en" && "Read Full Story"}
-                {lang === "hi" && "पूरी कहानी पढ़ें"}
-                {lang === "ta" && "முழு செய்தியையும் படிக்க"}
-                {lang === "kn" && "ಪೂರ್ಣ ವರದಿ ಓದಿ"}
-                <ArrowRight className="size-4" />
+      {slides.length > 0 && currentSlide && (
+        <section className="grid gap-4 lg:grid-cols-[1.85fr_1.15fr]">
+          {/* 📸 Flash Cards Image Gallery */}
+          <div className="flex flex-col justify-between overflow-hidden rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 shadow-[0_12px_30px_rgba(37,99,235,0.08)] transition-all duration-300 hover:shadow-[0_20px_40px_rgba(37,99,235,0.14)]">
+            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.2rem] bg-[hsl(var(--muted))] border border-[hsl(var(--border))]/50">
+              <Link to={`/news/${currentSlide.slug}`} className="block size-full">
+                {currentSlide.og_image ? (
+                  <img
+                    src={currentSlide.og_image}
+                    alt={currentSlide.title}
+                    referrerPolicy="no-referrer"
+                    className="size-full object-cover transition-transform duration-700 hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-2xl">
+                    VarthaNow
+                  </div>
+                )}
+              </Link>
+
+              {/* Red Outlined Circular Index Indicator (e.g. 2/7) */}
+              <div className="absolute top-4 right-4 z-10 bg-white dark:bg-zinc-950 border-2 border-red-600 dark:border-red-500 rounded-full w-10 h-10 flex items-center justify-center text-xs font-black text-red-600 dark:text-red-500 shadow-md">
+                {activeSlide + 1}/{slides.length}
               </div>
+
+              {/* Navigation Chevrons */}
+              <button
+                onClick={() => setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
+                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-black/55 text-white flex items-center justify-center hover:bg-black/80 transition-all border border-white/20 shadow-md active:scale-95 animate-fade-in"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+              <button
+                onClick={() => setActiveSlide((prev) => (prev + 1) % slides.length)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-black/55 text-white flex items-center justify-center hover:bg-black/80 transition-all border border-white/20 shadow-md active:scale-95 animate-fade-in"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="size-5" />
+              </button>
             </div>
-          </Link>
+
+            {/* Slide Caption / Title */}
+            <div className="mt-4 text-center px-2">
+              <Link to={`/news/${currentSlide.slug}`} className="hover:text-red-600 dark:hover:text-red-500 transition-colors">
+                <h2 className="text-base md:text-lg font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2">
+                  {currentSlide.title}
+                </h2>
+              </Link>
+            </div>
+
+            {/* Dots Indicator */}
+            <div className="flex justify-center gap-2 mt-4">
+              {slides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveSlide(idx)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    activeSlide === idx ? "w-6 bg-red-600 dark:bg-red-500" : "w-2 bg-[hsl(var(--border))]/80 dark:bg-zinc-800"
+                  }`}
+                  aria-label={`Go to slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* 📰 Beside Flashcards: Latest News Headlines (తాజా వార్తలు) */}
+          <div className="flex flex-col rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 shadow-[0_12px_30px_rgba(37,99,235,0.08)] transition-all duration-300 hover:shadow-[0_20px_40px_rgba(37,99,235,0.14)]">
+            {/* Elegant Header with styled red text & gradient lines */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-[2px] flex-1 bg-gradient-to-r from-transparent to-red-600" />
+              <h3 className="text-base font-black text-red-600 dark:text-red-500 uppercase tracking-wider">
+                {lang === "te" ? "తాజా వార్తలు" : "Latest Headlines"}
+              </h3>
+              <div className="h-[2px] flex-1 bg-gradient-to-l from-transparent to-red-600" />
+            </div>
+
+            <ul className="space-y-3.5 flex-1 pr-1 overflow-y-auto max-h-[380px] no-scrollbar">
+              {slides.map((post, idx) => (
+                <li key={post.slug} className="border-b border-[hsl(var(--border))]/40 pb-3 last:border-0 last:pb-0">
+                  <Link to={`/news/${post.slug}`} className="flex items-start gap-3 group">
+                    {/* Crimson Square Bullet */}
+                    <span className="mt-1.5 size-2 shrink-0 bg-red-600 dark:bg-red-500 transition-transform group-hover:scale-110 shadow-sm" />
+                    <span className="text-sm font-extrabold text-[hsl(var(--foreground))] group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors line-clamp-2 leading-relaxed">
+                      {post.title}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       )}
 
