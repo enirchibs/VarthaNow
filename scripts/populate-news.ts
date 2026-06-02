@@ -314,123 +314,6 @@ async function validateImageWithGemini(
       reason: "Gemini analysis error fallback"
     };
   }
-async function generateGpt2Image(headline: string, summary: string): Promise<string | null> {
-  const apiKey = process.env.LEONARDO_API_KEY || "caa189c3-0676-41f4-9095-11c7eac9ca28";
-  const imagePrompt = `Create a professional digital news portal card.
-  
-Article Headline:
-"${headline}"
-
-Article Context:
-${summary}
-
-Design Layout Requirements:
-1. Headline on Top: Write the exact Article Headline prominently at the very top of the image (top 20-25% height) in clear, highly legible bold typography.
-2. Related Visual Scene: Place a highly realistic, professional editorial news photograph representing the article context directly below the headline.
-3. Portal Footer/Other Info: Place a clean news portal design or minimal channel strip at the bottom of the card if needed.
-4. Professional photorealistic journalism style, natural lighting, high detail, 1024x1024 square, dynamic style, low contrast.`;
-  const negativePrompt = "cartoon, anime, painting, illustration, blurry text, distorted text, low quality, unrealistic faces, AI artifacts, cluttered layout.";
-
-  try {
-    console.log(`\n🚀 Requesting GPT Image 2 generation for: "${headline.slice(0, 40)}..."`);
-    const response = await fetch("https://cloud.leonardo.ai/api/rest/v2/generations", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-image-2",
-        public: false,
-        parameters: {
-          prompt: imagePrompt,
-          width: 1024,
-          height: 1024,
-          presetStyle: "DYNAMIC",
-          contrast: 3.0,
-          negative_prompt: negativePrompt
-        }
-      })
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error(`Leonardo AI GPT-2 generation failed:`, response.statusText, errText);
-      return null;
-    }
-
-    const data = await response.json();
-    const generationId = data.generate?.generationId || data.sdGenerationJob?.generationId || data.generation?.id;
-    if (!generationId) {
-      console.error("Leonardo AI did not return a generationId in response.");
-      return null;
-    }
-
-    console.log(`✓ Image generation queued. ID: ${generationId}. Polling...`);
-
-    let attempts = 0;
-    let imageUrl: string | null = null;
-    
-    while (attempts < 18) {
-      await new Promise(resolve => setTimeout(resolve, 4000));
-      attempts++;
-      
-      const pollRes = await fetch(`https://cloud.leonardo.ai/api/rest/v1/generations/${generationId}`, {
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Accept": "application/json"
-        }
-      });
-      
-      if (!pollRes.ok) continue;
-      const pollData = await pollRes.json();
-      const generation = pollData.generations_by_pk;
-      
-      if (generation) {
-        if (generation.status === "COMPLETE") {
-          imageUrl = generation.generated_images?.[0]?.url || null;
-          break;
-        } else if (generation.status === "FAILED") {
-          console.error("Leonardo AI image generation failed.");
-          return null;
-        }
-      }
-    }
-
-    if (!imageUrl) {
-      console.error("Leonardo AI image generation timed out.");
-      return null;
-    }
-
-    console.log(`✓ Image generated successfully. Downloading: ${imageUrl}`);
-    const imgRes = await fetch(imageUrl);
-    if (!imgRes.ok) throw new Error("Failed to download image from Leonardo CDN");
-    const arrayBuffer = await imgRes.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    const fileName = `${Date.now()}-gpt2.jpg`;
-    const filePath = `article-images/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("news-images")
-      .upload(filePath, buffer, {
-        contentType: "image/jpeg",
-        cacheControl: "3600",
-        upsert: false
-      });
-
-    if (uploadError) {
-      console.error("Supabase Storage upload error:", uploadError.message);
-      return null;
-    }
-
-    const { data: urlData } = supabase.storage.from("news-images").getPublicUrl(filePath);
-    return urlData.publicUrl;
-  } catch (error) {
-    console.error("generateGpt2Image error:", error instanceof Error ? error.message : String(error));
-    return null;
-  }
 }
 
 // -------------------------------------------------------------
@@ -611,22 +494,9 @@ async function run() {
             }
           }
 
-          // If no custom image passed validation, generate cover using GPT-Image-2 instead of static placeholders!
+          // If no custom image passed validation, use default category placeholder
           if (chosenImageUrl.startsWith("/images/") || !chosenImageUrl) {
-            console.log(`  ⚠ All image candidates failed or were missing. Generating premium visual using Leonardo GPT-Image-2...`);
-            const generatedGptUrl = await generateGpt2Image(ai.title || item.title, ai.summary_medium || item.title);
-            if (generatedGptUrl) {
-              chosenImageUrl = generatedGptUrl;
-              validationReport = {
-                relevance_score: 100,
-                person_match_score: 100,
-                quality_score: 100,
-                safety_score: 100,
-                clickbait_score: 0,
-                decision: "approve",
-                reason: "Premium Leonardo GPT-Image-2 cover generation approved."
-              };
-            }
+            chosenImageUrl = CATEGORY_PLACEHOLDERS[feed.category] || "/images/placeholder.jpg";
           }
 
           const payload = {
