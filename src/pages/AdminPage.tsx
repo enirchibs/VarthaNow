@@ -184,7 +184,7 @@ export function AdminPage() {
         tags: Array.isArray(parsed.tags) ? parsed.tags : [writerCategory, "News"],
         meta_title: parsed.meta_title || parsed.title || subject,
         meta_description: parsed.meta_description || parsed.excerpt || subject,
-        og_image: parsed.image_prompt ? `https://image.pollinations.ai/prompt/${encodeURIComponent(`${parsed.image_prompt} with the text '${parsed.title || subject}'`)}?width=1200&height=675&nologo=true&private=true` : null,
+        og_image: `/images/${writerCategory}-fallback.jpg`,
         author_name: "VarthaNow AI Writer",
         language: writerLanguage,
         published: true,
@@ -194,8 +194,8 @@ export function AdminPage() {
       };
 
       setDraft(draftArticle);
-      setCurrentPrompt(parsed.image_prompt || "");
-      setMessage("AI Draft generated successfully! Please review below and click publish.");
+      setCurrentPrompt("");
+      setMessage("AI Draft generated successfully! Cover image fallback applied.");
     } catch (error) {
       setMessage(error instanceof Error ? `Generation failed: ${error.message}` : "Generation failed.");
     } finally {
@@ -203,84 +203,15 @@ export function AdminPage() {
     }
   };
 
-  const generateGoogleImage = async (promptText: string): Promise<string> => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-    if (!apiKey) throw new Error("VITE_GEMINI_API_KEY is not configured.");
-
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        instances: [{ prompt: promptText }],
-        parameters: {
-          sampleCount: 1,
-          aspectRatio: "16:9",
-          outputMimeType: "image/jpeg"
-        }
-      })
-    });
-
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `Google Imagen failed with status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const base64 = data.predictions?.[0]?.bytesBase64Encoded || data.predictions?.[0]?.imageBytes;
-    if (!base64) throw new Error("No image data returned in Google response.");
-
-    // Convert base64 to Blob
-    const byteCharacters = atob(base64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: "image/jpeg" });
-
-    // Upload to Supabase Storage bucket 'news-images'
-    if (!supabase) throw new Error("Supabase client is not initialized.");
-    const fileName = `${Date.now()}-google-imagen.jpg`;
-    const filePath = `article-images/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from("news-images")
-      .upload(filePath, blob, {
-        cacheControl: "3600",
-        upsert: false
-      });
-
-    if (uploadError) throw uploadError;
-
-    const { data: urlData } = supabase.storage.from("news-images").getPublicUrl(filePath);
-    return urlData.publicUrl;
-  };
-
   const regenerateDraftImage = async (promptToUse: string) => {
-    setMessage("Generating premium cover image using Google Imagen...");
-    try {
-      const publicUrl = await generateGoogleImage(`${promptToUse.trim()} with the text '${draft?.title || ""}'`);
-      setDraft({ ...draft, og_image: publicUrl } as any);
-      setMessage("Google Imagen cover image generated and saved successfully!");
-    } catch (error) {
-      console.warn("Google Imagen generation failed, falling back to free Pollinations AI:", error);
-      const fallbackUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(`${promptToUse.trim()} with the text '${draft?.title || ""}'`)}?width=1200&height=675&nologo=true&private=true&t=${Date.now()}`;
-      setDraft({ ...draft, og_image: fallbackUrl } as any);
-      setMessage(`Notice: using fallback image generator. (${error instanceof Error ? error.message : "Error"})`);
-    }
+    setMessage("Notice: AI cover generation disabled. Category fallback applied.");
+    setDraft({ ...draft, og_image: `/images/${writerCategory}-fallback.jpg` } as any);
   };
 
   const regenerateEditImage = async (promptToUse: string) => {
-    setMessage("Generating premium cover image using Google Imagen...");
-    try {
-      const publicUrl = await generateGoogleImage(`${promptToUse.trim()} with the text '${editing?.title || ""}'`);
-      setEditing({ ...editing, og_image: publicUrl } as any);
-      setMessage("Google Imagen cover image generated and saved successfully!");
-    } catch (error) {
-      console.warn("Google Imagen generation failed, falling back to free Pollinations AI:", error);
-      const fallbackUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(`${promptToUse.trim()} with the text '${editing?.title || ""}'`)}?width=1200&height=675&nologo=true&private=true&t=${Date.now()}`;
-      setEditing({ ...editing, og_image: fallbackUrl } as any);
-      setMessage(`Notice: using fallback image generator. (${error instanceof Error ? error.message : "Error"})`);
+    setMessage("Notice: AI cover generation disabled. Category fallback applied.");
+    if (editing) {
+      setEditing({ ...editing, og_image: `/images/${editing.category}-fallback.jpg` } as any);
     }
   };
 

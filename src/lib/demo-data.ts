@@ -6,6 +6,149 @@ const minutesAgo = (minutes: number) => new Date(now - minutes * 60_000).toISOSt
 
 const basePosts: BlogPost[] = [
   {
+    slug: "reducing-bp-sugar-stress-naturally",
+    title: "బిపి, షుగర్ మరియు మానసిక ఒత్తిడిని సహజంగా తగ్గించుకునే మార్గాలు",
+    excerpt: "ఈ రోజుల్లో అధిక రక్తపోటు (BP), డయాబెటిస్ (షుగర్), మరియు మానసిక ఒత్తిడి (Stress) సర్వసాధారణం అయ్యాయి. వీటిని నియంత్రించే ఆయుర్వేద మరియు యోగా చిట్కాలు ఇక్కడ చూడండి.",
+    content: `## రక్తపోటును (BP) ఎలా తగ్గించాలి?
+
+రక్తపోటును అదుపులో ఉంచుకోవడానికి ప్రతిరోజూ వ్యాయామం చేయడం అవసరం. ఆహారంలో కొన్ని మార్పులు చేయడం ద్వారా దీన్ని సహజంగా నియంత్రించవచ్చు:
+
+- **ఉప్పు వాడకం తగ్గించండి:** రోజువారీ ఉప్పు శాతాన్ని తగ్గించడం వల్ల రక్తనాళాలపై ఒత్తిడి తగ్గుతుంది.
+- **పొటాషియం సమృద్ధిగా తీసుకోండి:** అరటిపండ్లు, ఆకుకూరలు, బీట్‌రూట్ రసం రక్తపోటును చాలా త్వరగా నియంత్రిస్తాయి.
+- **ధ్యానం (Meditation):** రోజుకు 15 నిమిషాల ప్రాణాయామం రక్తపోటును తగ్గిస్తుంది.
+
+## బ్లడ్ షుగర్ (డయాబెటిస్) నివారణలు
+
+బ్లడ్ షుగర్ నియంత్రణకు ఇన్సులిన్ స్థాయిలను సహజంగా పెంచుకోవాలి:
+
+- **మెంతులు మరియు దాల్చినచెక్క:** రాత్రిపూట నానబెట్టిన మెంతులు లేదా దాల్చినచెక్క పొడి ఉదయాన్నే నీటితో కలిపి తీసుకుంటే షుగర్ నియంత్రణలో ఉంటుంది.
+- **పీచు పదార్థాలు (Fiber):** పీచు ఎక్కువగా ఉండే తృణధాన్యాలు, బ్రౌన్ రైస్, కూరగాయలు తీసుకోండి.
+- **తీపికి దూరంగా ఉండండి:** పంచదార మరియు కృత్రిమ తీపి పదార్థాలను పూర్తిగా నివారించండి.
+
+## మానసిక ఒత్తిడి (Stress) నుండి ఉపశమనం
+
+ఒత్తిడిని తగ్గించుకోవడానికి ఈ క్రింది మార్గాలు ఉపయోగపడతాయి:
+
+- **తగినంత నిద్ర:** రోజుకు కనీసం 7-8 గంటల నిద్ర మైండ్‌ను ఫ్రెష్‌గా ఉంచుతుంది.
+- **హెర్బల్ టీ:** గ్రీన్ టీ లేదా చామంతి టీ తాగడం వల్ల మెదడు కండరాలు రిలాక్స్ అవుతాయి.
+- **శారీరక శ్రమ:** నడక లేదా నచ్చిన సంగీతం వినడం ద్వారా ఒత్తిడి హార్మోన్లు తగ్గుతాయి.`,
+    category: "health",
+    tags: ["Health Tips", "Reduce BP", "Manage Diabetes", "Stress Relief"],
+    meta_title: "బిపి, షుగర్, ఒత్తిడి తగ్గించే సహజ చిట్కాలు",
+    meta_description: "హైపర్ టెన్షన్, డయాబెటిస్ మరియు మానసిక ఒత్తిడిని యోగా, ఆయుర్వేద పద్ధతులతో తగ్గించుకునే మార్గాలు.",
+    og_image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80",
+    author_name: "VaartaNow Health Desk",
+    language: "te",
+    published: true,
+    featured: true,
+    reading_time_min: 4,
+    published_at: minutesAgo(5)
+  },
+  {
+    slug: "stock-market-sensex-green-energy-investment",
+    title: "వ్యాపార విశేషాలు: బంగారం, వెండి ధరల పరుగులు.. దీర్గకాలిక లాభాల కోసం సోలార్ & గ్రీన్ ఎనర్జీ షేర్లు!",
+    excerpt: "ఈ రోజు షేర్ మార్కెట్లో సెన్సెక్స్ మరియు నిఫ్టీ లాభాల బాట పట్టాయి. మరోవైపు బంగారం ధరలు రికార్డు స్థాయికి చేరాయి. సోలార్ మరియు గ్రీన్ ఎనర్జీ రంగానికి చెందిన ఉత్తమ షేర్ల వివరాలు ఇక్కడ ఉన్నాయి.",
+    content: `## సెన్సెక్స్ మరియు నిఫ్టీ తాజా అప్‌డేట్స్
+
+నేడు స్టాక్ మార్కెట్ ట్రేడింగ్ సానుకూలంగా ముగిసింది. ఐటీ మరియు బ్యాంకింగ్ రంగ షేర్లు మంచి లాభాలను సాధించాయి.
+
+## బంగారం మరియు వెండి రికార్డ్ రేట్లు
+
+అంతర్జాతీయ పరిణామాల నేపథ్యంలో బంగారం, వెండి ధరలు కొత్త రికార్డులను సృష్టించాయి. నిపుణుల అభిప్రాయం ప్రకారం, రాబోయే రోజుల్లో బంగారం ధర 10 గ్రాములకు రూ. 80,000 మార్కును తాకే అవకాశం ఉంది.
+
+## దీర్ఘకాలిక పెట్టుబడుల కోసం గ్రీన్ ఎనర్జీ షేర్లు
+
+గ్రీన్ ఎనర్జీ మరియు సోలార్ ఎనర్జీ రంగాల్లో కేంద్ర ప్రభుత్వం భారీగా సబ్సిడీలను ఇస్తోంది. దీంతో ఈ రంగాల షేర్లు మల్టీబ్యాగర్లుగా మారనున్నాయి:
+
+- **టాటా పవర్ (Tata Power):** సోలార్ ప్యానెల్స్ మరియు ఈవీ ఛార్జింగ్ కేంద్రాల నెట్‌వర్క్‌తో ఈ షేరు భారీ వృద్ధిని నమోదు చేయనుంది.
+- **అదానీ గ్రీన్ ఎనర్జీ (Adani Green Energy):** పవన మరియు సౌర విద్యుత్ ఉత్పాదనలో దేశంలోనే అతిపెద్ద కంపెనీగా ఉంది. దీర్ఘకాలిక అవసరాలకు ఇది మంచి ఎంపిక.
+- **సుజ్లాన్ ఎనర్జీ (Suzlon Energy):** విండ్ పవర్ మార్కెట్లో తనకంటూ ఒక తిరుగులేని స్థానాన్ని సంపాదించుకుంది.
+
+## నేటి ట్రేడింగ్ చిట్కాలు (Daily Stock Picks)
+
+నిఫ్టీ భవిష్యత్ ట్రెండ్ బట్టి ఇంట్రాడే కోసం ఐటీ కంపెనీలైన ఇన్ఫోసిస్ లేదా విప్రోలపై నిపుణులు మొగ్గు చూపుతున్నారు.`,
+    category: "business",
+    tags: ["Share Market", "Sensex", "Gold Silver Rates", "Green Energy Stocks", "Solar Shares"],
+    meta_title: "బంగారం రేట్లు, గ్రీన్ ఎనర్జీ సోలార్ స్టాక్స్ అప్‌డేట్స్",
+    meta_description: "సెన్సెక్స్ తాజా వార్తలు, బంగారం మరియు వెండి రేట్లు, దీర్ఘకాలిక పెట్టుబడులకు సరిపోయే గ్రీన్ ఎనర్జీ షేర్లు.",
+    og_image: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80",
+    author_name: "VaartaNow Business Desk",
+    language: "te",
+    published: true,
+    featured: true,
+    reading_time_min: 5,
+    published_at: minutesAgo(10)
+  },
+  {
+    slug: "tirumala-brahmotsavam-ekadasi-vastu-sastra",
+    title: "భక్తి & వాస్తు: తిరుమల బ్రహ్మోత్సవాలు, ఏకాదశి వ్రత విధానం మరియు శ్రేయస్సును తెచ్చే ఇంటి వాస్తు చిట్కాలు",
+    excerpt: "హిందూ సంప్రదాయాల ప్రకారం పండుగలు, ఏకాదశి ఉపవాస నియమాలు మరియు ఇంటి ప్రధాన ద్వారానికి సంబంధించిన వాస్తు నియమాలను ఇక్కడ తెలుసుకోండి.",
+    content: `## తిరుమల శ్రీవారి బ్రహ్మోత్సవాల షెడ్యూల్
+
+తిరుమల కొండపై శ్రీ వెంకటేశ్వర స్వామి వారి బ్రహ్మోత్సవాలు అత్యంత వైభవంగా జరగనున్నాయి. వాహన సేవల వివరాలు:
+- **గరుడ సేవ:** బ్రహ్మోత్సవాలలో ఐదవ రోజు రాత్రి జరిగే గరుడ వాహన సేవకు లక్షలాది మంది భక్తులు తరలివస్తాయి.
+- **రథోత్సవం:** ఎనిమిదవ రోజు ఉదయం రథోత్సవంలో స్వామి వారు భక్తులకు దర్శనమిస్తారు.
+
+## ఏకాదశి వ్రత నియమాలు మరియు ఫలితాలు
+
+ఏకాదశి రోజున ఉపవాసం ఉండటం వల్ల శారీరక రుగ్మతలు తొలగిపోయి మానసిక ప్రశాంతత లభిస్తుంది:
+- **ఉపవాస నియమం:** ఏకాదశి రోజున తృణధాన్యాలు, అన్నం తినకూడదు. పండ్లు మరియు పాలు తీసుకోవచ్చు.
+- **ద్వాదశి పారణ:** మరుసటి రోజు ద్వాదశి తిథి సమయంలోనే ఉపవాస దీక్షను విరమించాలి.
+
+## శ్రేయస్సు కలిగించే ముఖ్యమైన వాస్తు చిట్కాలు
+
+ఇంట్లో సానుకూల శక్తిని పెంచుకోవడానికి వాస్తు నిపుణుల సలహాలు:
+- **సింహద్వారం:** ఇంటి ప్రధాన ద్వారం ఎల్లప్పుడూ తూర్పు లేదా ఉత్తర దిశలో ఉండాలి. ద్వారం వద్ద చెప్పులు, చెత్త వేయకూడదు.
+- **పూజా గది:** ఈశాన్య మూలలో పూజా మందిరం నిర్మించడం వల్ల ఇంట్లో ప్రశాంతత, లక్ష్మీదేవి అనుగ్రహం లభిస్తుంది.
+- **అద్దాల అమరిక:** బెడ్‌రూమ్‌లో మంచానికి ఎదురుగా అద్దాలు పెట్టరాదు. ఇది నిద్రలేమికి కారణమవుతుంది.`,
+    category: "devotional",
+    tags: ["Tirumala Brahmotsavam", "Ekadasi Fasting", "Vastu Shastra Tips", "Bhakti Devotional"],
+    meta_title: "తిరుమల బ్రహ్మోత్సవాలు, ఏకాదశి ఉపవాసం, ఇంటి వాస్తు చిట్కాలు",
+    meta_description: "శ్రీవారి గరుడ సేవ సమయాలు, ఏకాదశి వ్రత పద్ధతులు మరియు సంపదను తెచ్చే సింహద్వార వాస్తు నియమాలు.",
+    og_image: "https://images.unsplash.com/photo-1608976328267-e673d3ec06ce?auto=format&fit=crop&w=1200&q=80",
+    author_name: "VaartaNow Bhakti Desk",
+    language: "te",
+    published: true,
+    featured: true,
+    reading_time_min: 4,
+    published_at: minutesAgo(12)
+  },
+  {
+    slug: "seasonal-healthcare-summer-monsoon-winter",
+    title: "రుతువుల వారీగా ఆరోగ్యం: ఎండకాలం, వర్షాకాలంలో రోగనిరోధక శక్తిని పెంచే ఆయుర్వేద రక్షణ సూత్రాలు",
+    excerpt: "మారుతున్న కాలానికి అనుగుణంగా వచ్చే వ్యాధుల నుండి మనల్ని మనం రక్షించుకోవడానికి నిపుణులు అందించిన అద్భుతమైన ఆరోగ్య నియమాలు ఇక్కడ ఉన్నాయి.",
+    content: `## ఎండకాలం (Summer) రక్షణ సూత్రాలు
+
+వేసవి కాలంలో శరీరం డీహైడ్రేషన్‌కు గురి కాకుండా కాపాడుకోవడం చాలా ముఖ్యం:
+
+- **సహజ పానీయాలు:** కొబ్బరి నీళ్లు, మజ్జిగ, రాగి జావ, మరియు చెరకు రసం ఎక్కువగా తీసుకోండి. ఇవి శరీర ఉష్ణోగ్రతను వెంటనే తగ్గిస్తాయి.
+- **లేత రంగు కాటన్ దుస్తులు:** వదులుగా ఉండే కాటన్ బట్టలు ధరించడం వల్ల చర్మ సమస్యలు దరిచేరవు.
+- **సూర్య కిరణాల నుండి రక్షణ:** మధ్యాహ్నం 12 నుండి 3 గంటల మధ్య ప్రత్యక్ష ఎండలో తిరగవద్దు.
+
+## వర్షాకాలం (Monsoon) మరియు శీతాకాలంలో తీసుకోవలసిన జాగ్రత్తలు
+
+వర్షాకాలంలో జీర్ణక్రియ బలహీనపడటం వల్ల ఇన్ఫెక్షన్లు త్వరగా వ్యాపిస్తాయి:
+
+- **веడి వేడి ఆహారం తీసుకోండి:** ఎల్లప్పుడూ వేడి చేసిన మరియు తాజాగా వండిన ఆహారాన్నే తినాలి.
+- **రోగనిరోధక శక్తిని పెంచే డ్రింక్స్:** ప్రతిరోజూ రాత్రి పూట వేడి పాలలో చిటికెడు పసుపు మరియు మిరియాల పొడి వేసి తాగితే జలుబు, దగ్గు త్వరగా తగ్గుతాయి.
+- **కాచి చల్లార్చిన నీరు:** తాగునీటిని ఎల్లప్పుడూ కాచి చల్లార్చిన తర్వాతే తాగాలి. ఇది కలుషిత నీటి వల్ల వచ్చే టైఫాయిడ్, కలరా వంటి జ్వరాన్ని నివారిస్తుంది.
+
+## ముగింపు
+
+చిన్నపాటి నియమాల ద్వారా మన రోగనిరోధక శక్తిని పెంచుకుని డాక్టర్ వద్దకు వెళ్లే అవసరం లేకుండా జీవించవచ్చు.`,
+    category: "health",
+    tags: ["Seasonal Health", "Immunity Boosters", "Summer Healthcare", "Monsoon Diseases Prevention"],
+    meta_title: "ఎండకాలం, వర్షాకాలం ఆయుర్వేద ఆరోగ్య నియమాలు",
+    meta_description: "వేసవిలో శరీర వేడిని తగ్గించే మజ్జిగ కొబ్బరి నీళ్ల ప్రయోజనాలు మరియు వర్షాకాల జ్వరాన్ని నివారించే చిట్కాలు.",
+    og_image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=1200&q=80",
+    author_name: "VaartaNow Health Desk",
+    language: "te",
+    published: true,
+    featured: false,
+    reading_time_min: 3,
+    published_at: minutesAgo(15)
+  },
+  {
     slug: "ap-government-new-scheme-2026",
     title: "ఏపీలో కొత్త సంక్షేమ పథకం: లబ్ధిదారులకు ముఖ్యమైన మార్పులు",
     excerpt: "రాష్ట్ర ప్రభుత్వం ప్రకటించిన కొత్త మార్గదర్శకాలతో అర్హుల జాబితా, దరఖాస్తు విధానం, చెల్లింపు షెడ్యూల్‌పై స్పష్టత వచ్చింది.",
@@ -16,7 +159,7 @@ const basePosts: BlogPost[] = [
     meta_title: "ఏపీ కొత్త సంక్షేమ పథకం 2026 - పూర్తి వివరాలు",
     meta_description: "ఏపీ ప్రభుత్వ కొత్త సంక్షేమ పథకం వివరాలు, అర్హత, దరఖాస్తు విధానం, తాజా తెలుగు వార్తలు.",
     og_image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80",
-    author_name: "VarthaNow AI Desk",
+    author_name: "VaartaNow AI Desk",
     language: "te",
     published: true,
     featured: true,
@@ -34,7 +177,7 @@ const basePosts: BlogPost[] = [
     meta_title: "విశాఖ రియల్ ఎస్టేట్ తాజా ట్రెండ్స్",
     meta_description: "విశాఖలో రియల్ ఎస్టేట్ డిమాండ్, కొత్త ప్రాజెక్టులు, ప్రాంతాల వారీ తాజా సమాచారం.",
     og_image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
-    author_name: "VarthaNow Local Desk",
+    author_name: "VaartaNow Local Desk",
     language: "te",
     published: true,
     featured: true,
@@ -52,7 +195,7 @@ const basePosts: BlogPost[] = [
     meta_title: "టాలీవుడ్ బ్రేకింగ్ న్యూస్ - కొత్త సినిమా అప్‌డేట్",
     meta_description: "టాలీవుడ్ తాజా వార్తలు, సినిమా విడుదల తేదీలు, OTT అప్డేట్స్, సెలెబ్రిటీ వార్తలు.",
     og_image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1200&q=80",
-    author_name: "VarthaNow Cinema Desk",
+    author_name: "VaartaNow Cinema Desk",
     language: "te",
     published: true,
     featured: false,
@@ -117,6 +260,7 @@ const basePosts: BlogPost[] = [
 ];
 
 const mockImages: Record<NewsCategory, string> = {
+  viralshorts: "https://images.unsplash.com/photo-1598257006458-087169a1f08d?auto=format&fit=crop&w=1200&q=80",
   "andhra-pradesh": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80",
   "telangana": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=80",
   cinema: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1200&q=80",
@@ -124,11 +268,20 @@ const mockImages: Record<NewsCategory, string> = {
   technology: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
   jobs: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=1200&q=80",
   cricket: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&w=1200&q=80",
-  politics: "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=1200&q=80"
+  politics: "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=1200&q=80",
+  health: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80",
+  business: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80",
+  devotional: "https://images.unsplash.com/photo-1608976328267-e673d3ec06ce?auto=format&fit=crop&w=1200&q=80"
 };
 
 const templates: Record<Language, Record<NewsCategory, { title: string; excerpt: string; content: string; tags: string[] }>> = {
   te: {
+    viralshorts: {
+      title: "ట్రెండింగ్ వైరల్ షార్ట్స్ వార్తలు",
+      excerpt: "సోషల్ మీడియాలో విపరీతంగా హల్‌చల్ చేస్తున్న క్రేజీ వీడియోలు మరియు బ్రేకింగ్ అప్‌డేట్స్.",
+      content: "## వైరల్ వీడియోలు\n\nనేటి సోషల్ మీడియా ట్రెండ్స్ మరియు వైరల్ అవుతున్న క్రేజీ క్లిప్స్ ఇక్కడ చూడండి.",
+      tags: ["వైరల్ షార్ట్స్", "వైరల్ వీడియోలు", "ట్రెండింగ్"]
+    },
     "andhra-pradesh": {
       title: "ఆంధ్రప్రదేశ్ తాజా అభివృద్ధి ప్రాజెక్టులు",
       excerpt: "రాష్ట్రంలో మౌలిక వసతుల పెంపునకు ప్రభుత్వం తీసుకుంటున్న చర్యలపై సమీక్ష.",
@@ -176,9 +329,33 @@ const templates: Record<Language, Record<NewsCategory, { title: string; excerpt:
       excerpt: "ప్రతిపక్షాల ఆరోపణలకు అధికార పక్షం కౌంటర్, వేడెక్కిన పొలిటికల్ వాతావరణం.",
       content: "## పొలిటికల్ హీట్\n\nఅభివృద్ధి మరియు సంక్షేమం అంశాలపై నాయకుల మధ్య మాటల యుద్ధం సాగుతోంది. ఎన్నికల సమీపిస్తున్న కొద్దీ వేడి పెరుగుతోంది.",
       tags: ["రాజకీయాలు", "విశ్లేషణ", "వార్తలు"]
+    },
+    health: {
+      title: "ఆరోగ్య సూత్రాలు: వేసవిలో వడదెబ్బ తగలకుండా తీసుకోవాల్సిన జాగ్రత్తలు",
+      excerpt: "веసవి తీవ్రత పెరుగుతున్న నేపథ్యంలో ఆరోగ్య నిపుణులు సూచించిన కీలక జాగ్రత్తలు.",
+      content: "## వడదెబ్బ నివారణ\n\nఎండ కాలంలో శరీరాన్ని చల్లగా ఉంచుకోవడానికి ద్రవపదార్థాలు ఎక్కువగా తీసుకోవాలి. రోజుకు కనీసం 3-4 లీటర్ల నీరు తాగాలి. కొబ్బరి నీరు, మజ్జిగ శ్రేష్ఠం.",
+      tags: ["ఆరోగ్యం", "హెల్త్ టిప్స్", "వేసవి రక్షణ"]
+    },
+    business: {
+      title: "నేటి వ్యాపార సమాచారం: స్టాక్ మార్కెట్ ఒడిదుడుకులు మరియు బంగారం ధరల అప్‌డేట్",
+      excerpt: "సెన్సెక్స్ మరియు నిఫ్టీ తాజా విశ్లేషణ, బంగారం, వెండి నూతన ధరల వివరాలు.",
+      content: "## స్టాక్ మార్కెట్\n\nఈరోజు దేశీయ మార్కెట్లు స్వల్ప లాభాలతో ముగిశాయి. బంగారం ధర తులం రూ. 75,000 మార్కును తాకింది.",
+      tags: ["వ్యాపారం", "స్టాక్ మార్కెట్", "బంగారం ధరలు"]
+    },
+    devotional: {
+      title: "నేటి పంచాంగం మరియు ద్వాదశ రాశిఫలాలు",
+      excerpt: "ఈరోజు శుభ సమయాలు, రాహుకాలం, మరియు మీ రాశి యొక్క ఫలితాలు ఇక్కడ తెలుసుకోండి.",
+      content: "## పంచాంగం\n\nనేటి తిథి, నక్షత్రం మరియు శుభ ముహూర్తాల వివరాలు. రాహుకాలంలో ముఖ్యమైన పనులను వాయిదా వేసుకోవడం మంచిది.",
+      tags: ["ఆధ్యాత్మికం", "పంచాంగం", "రాశిఫలాలు"]
     }
   },
   en: {
+    viralshorts: {
+      title: "Trending Viral Shorts & Clips",
+      excerpt: "Catch up on the latest viral video updates and hot social media trends in real-time.",
+      content: "## Viral Trends\n\nExplore what's capturing attention across social media channels and trending platforms.",
+      tags: ["Viral Shorts", "Trending Videos", "Social Media"]
+    },
     "andhra-pradesh": {
       title: "Andhra Pradesh Launches New Smart City Initiatives",
       excerpt: "Urban development department outlines new sustainability frameworks for major municipal corporations.",
@@ -226,9 +403,33 @@ const templates: Record<Language, Record<NewsCategory, { title: string; excerpt:
       excerpt: "Parliamentary sessions discuss land, logistics, and digital tax frameworks for foreign direct investments.",
       content: "## Parliament Updates\n\nBipartisan committees are discussing clauses to ensure minor business protection while keeping borders friendly.",
       tags: ["Politics", "Reforms", "Parliament"]
+    },
+    health: {
+      title: "Daily Health Tips: Natural Ways to Manage Stress and Reduce Blood Pressure",
+      excerpt: "Simple breathing exercises, stress management routines, and diet changes to control hypertension naturally.",
+      content: "## Stress Management\n\nPracticing deep breathing for 10 minutes daily can significantly drop cortisol levels. Reducing sodium and adding potassium-rich foods like bananas helps lower blood pressure.",
+      tags: ["Health", "Wellness", "Reduce BP", "Stress Relief"]
+    },
+    business: {
+      title: "Business Focus: Green Energy Stocks for Long-Term Multi-bagger Returns",
+      excerpt: "An analysis of solar and wind energy shares that are poised for significant growth in the future energy transition.",
+      content: "## Green Energy Investment\n\nWith heavy government subsidies, solar and wind power companies like Tata Power and Adani Green are prime long-term picks. Financial analysts recommend systematic investing.",
+      tags: ["Business", "Stock Market", "Green Energy", "Solar Shares"]
+    },
+    devotional: {
+      title: "Spiritual Living: Daily Panchangam and Auspicious Rahu Kalam Timings",
+      excerpt: "Start your day with spiritual clarity. Check daily tithi, nakshatra, and customized horoscope highlights.",
+      content: "## Panchangam Guidelines\n\nAligning your daily schedules with auspicious timings like Amrutha Ghadiyalu can bring positivity. Avoid major transactions during Rahu Kalam and Durmuhurtham.",
+      tags: ["Spiritual", "Astrology", "Panchangam", "Horoscope"]
     }
   },
   hi: {
+    viralshorts: {
+      title: "ट्रेंडिंग वायरल शॉर्ट्स और मजेदार वीडियो",
+      excerpt: "सोशल मीडिया पर धूम मचाने वाले वायरल वीडियो और ताज़ा ट्रेंड्स का संग्रह।",
+      content: "## वायरल वीडियो\n\nआज के सबसे चर्चित सोशल मीडिया वीडियो और मजेदार क्लिप्स की खास रिपोर्ट।",
+      tags: ["वायरल शॉर्ट्स", "ट्रेंडिंग वीडियो", "सोशल मीडिया"]
+    },
     "andhra-pradesh": {
       title: "आंध्र प्रदेश में नए औद्योगिक गलियारों की मंजूरी",
       excerpt: "राज्य सरकार ने औद्योगिक विकास और रोजगार सृजन को बढ़ावा देने के लिए नए बुनियादी ढांचे को मंजूरी दी।",
@@ -276,9 +477,33 @@ const templates: Record<Language, Record<NewsCategory, { title: string; excerpt:
       excerpt: "सत्तापक्ष ने सुधारों की उपलब्धियां गिनाईं, विपक्ष ने बेरोजगारी और महंगाई पर उठाए सवाल।",
       content: "## संसदीय कार्यवाही\n\nआर्थिक नीतियों और वित्तीय विधेयकों पर विभिन्न दलों के सदस्यों के बीच तीखी बहस देखने को मिली।",
       tags: ["राजनीति", "संसद", "आर्थिक सुधार"]
+    },
+    health: {
+      title: "स्वास्थ्य युक्तियाँ: तनाव और उच्च रक्तचाप को प्राकृतिक रूप से नियंत्रित करने के उपाय",
+      excerpt: "तनाव कम करने और रक्तचाप को सामान्य रखने के लिए आसान जीवनशैली बदलाव और योग अभ्यास।",
+      content: "## प्राकृतिक स्वास्थ्य\n\nयोग और प्राणायाम के दैनिक अभ्यास से रक्तचाप और तनाव का स्तर नियंत्रित रहता है। संतुलित आहार और ताजे फल आपके स्वास्थ्य के लिए लाभकारी हैं।",
+      tags: ["स्वास्थ्य", "योग", "तनाव से राहत"]
+    },
+    business: {
+      title: "बिज़नेस अपडेट: सोने-चांदी की कीमतें रिकॉर्ड स्तर पर, ग्रीन एनर्जी शेयरों में उछाल",
+      excerpt: "शेयर बाजार का ताजा विश्लेषण, सेंसेक्स में बढ़त और सौर ऊर्जा क्षेत्र में निवेश के नए विकल्प।",
+      content: "## बाजार विश्लेषण\n\nआज के कारोबारी सत्र में शेयर बाजार में उछाल देखा गया। नवीकरणीय ऊर्जा के बढ़ते चलन के कारण सोलर शेयरों में निवेशकों की दिलचस्पी बढ़ रही है।",
+      tags: ["बिज़नेस", "शेयर बाजार", "सोना चांदी", "निवेश"]
+    },
+    devotional: {
+      title: "आज का पंचांग और दैनिक राशिफल: जानें शुभ मुहूर्त",
+      excerpt: "दैनिक राहुकाल, शुभ मुहूर्त, तिथि, नक्षत्र और सभी 12 राशियों के आज के सितारे।",
+      content: "## दैनिक पंचांग\n\nआज का दिन शुभ कार्य शुरू करने के लिए कैसा रहेगा, और किस समय राहुकाल का प्रभाव रहेगा, इसकी विस्तृत जानकारी दी गई है।",
+      tags: ["आध्यात्मिक", "पंचांग", "राशिफल"]
     }
   },
   ta: {
+    viralshorts: {
+      title: "டிரெண்டிங் வைரல் ஷார்ட்ஸ் மற்றும் வீடியோக்கள்",
+      excerpt: "சமூக வலைதளங்களில் வைரலாகி வரும் சுவாரஸ்யமான சிறு வீடியோக்கள் மற்றும் முக்கிய செய்திகள்.",
+      content: "## வைரல் செய்திகள்\n\nஇன்றைய சமூக ஊடகங்களின் டிரெண்டுகள் மற்றும் வைரலாகும் வீடியோ கிளிப்புகள்.",
+      tags: ["வைரல் ஷார்ட்ஸ்", "டிரெண்டிங்", "சமூக ஊடகம்"]
+    },
     "andhra-pradesh": {
       title: "ஆந்திரப் பிரதேசத்தில் புதிய பசுமைச் சாலைத் திட்டம்",
       excerpt: "கிராமப்புற மேம்பாட்டை ஊக்குவிக்கும் வகையில் புதிய நெடுஞ்சாலைத் திட்டங்களுக்கு நிதி ஒதுக்கீடு.",
@@ -326,9 +551,33 @@ const templates: Record<Language, Record<NewsCategory, { title: string; excerpt:
       excerpt: "கல்வி மற்றும் மருத்துவ துறைகளில் புதிய சீர்திருத்தங்கள் குறித்த முக்கிய மசோதாக்கள் தாக்கல்.",
       content: "## சட்டமன்ற செய்திகள்\n\nமக்களுக்கான இலவச மருத்துவ வசதிகள் மற்றும் அரசு பள்ளி உட்கட்டமைப்பு மேம்பாடு குறித்த விவாதங்கள் நடைபெற்றன.",
       tags: ["அரசியல்", "சட்டமன்றம்", "மசோதா"]
+    },
+    health: {
+      title: "ஆரோக்கிய குறிப்புகள்: இரத்த அழுத்தத்தை கட்டுப்படுத்த எளிய இயற்கை வழிகள்",
+      excerpt: "மன அழுத்தத்தைக் குறைக்கவும், உயர் இரத்த அழுத்தத்தைக் கட்டுப்படுத்தவும் மருத்துவர்கள் வழங்கும் எளிய ஆலோசனைகள்.",
+      content: "## ஆரோக்கிய வாழ்வு\n\nதினசரி உடற்பயிற்சி மற்றும் தியானம் இரத்த அழுத்தத்தைக் கட்டுப்படுத்த உதவுகிறது. உப்பு மற்றும் எண்ணெய் பலகாரங்களை தவிர்த்து காய்கறிகளை அதிகம் சேர்க்கவும்.",
+      tags: ["ஆரோக்கியம்", "இயற்கை மருத்துவம்", "மன அழுத்தம்"]
+    },
+    business: {
+      title: "வர்த்தக செய்திகள்: தங்கம் மற்றும் வெள்ளி விலையில் மாற்றம், பசுமை ஆற்றல் பங்குகள்",
+      excerpt: "பங்குச் சந்தை நிலவரம், சென்செக்ஸ் ஏற்ற இறக்கம், மற்றும் நீண்ட கால முதலீட்டிற்கான சோலார் பங்குகள்.",
+      content: "## பங்குச் சந்தை\n\nஇன்றைய பங்குச் சந்தைகள் ஏற்றத்துடன் முடிவடைந்தன. சோலார் மற்றும் புதுப்பிக்கத்தக்க ஆற்றல் பங்குகளின் மதிப்பு தொடர்ந்து உயர்ந்து வருகிறது.",
+      tags: ["வர்த்தகம்", "பங்குச்சந்தை", "தங்கம் விலை", "முதலீடு"]
+    },
+    devotional: {
+      title: "இன்றைய பஞ்சாங்கம் மற்றும் தினசரி ராசிபலன்கள்",
+      excerpt: "இன்றைய நல்ல நேரம், ராகு காலம், எமகண்டம் மற்றும் 12 ராசிகளுக்கான பலன்கள்.",
+      content: "## பஞ்சாங்கம்\n\nசுப காரியங்களைத் தொடங்க உகந்த நேரங்கள் மற்றும் தவிர்க்க வேண்டிய நேரங்கள் பற்றிய முழுமையான விபரம்.",
+      tags: ["ஆன்மீகம்", "பஞ்சாங்கம்", "ராசிபலன்"]
     }
   },
   kn: {
+    viralshorts: {
+      title: "ಟ್ರೆಂಡಿಂಗ್ ವೈರಲ್ ಶಾರ್ಟ್ಸ್ ಮತ್ತು ವಿಡಿಯೋಗಳು",
+      excerpt: "ಸಾಮಾಜಿಕ ಜಾಲತಾಣಗಳಲ್ಲಿ ಸದ್ದು ಮಾಡುತ್ತಿರುವ ವೈರಲ್ ವಿಡಿಯೋಗಳು ಮತ್ತು ಬ್ರೇಕಿಂಗ್ ಅಪ್‌ಡೇಟ್ಸ್.",
+      content: "## ವೈರಲ್ ವಿಡಿಯೋಗಳು\n\nಇಂದಿನ ಸಾಮಾಜಿಕ ಜಾಲತಾಣಗಳ ಟ್ರೆಂಡ್ಸ್ ಮತ್ತು ವೈರಲ್ ಆಗುತ್ತಿರುವ ಕ್ರೇಜಿ ಕ್ಲಿಪ್ಸ್ ವಿವರ ಇಲ್ಲಿದೆ.",
+      tags: ["ವೈರಲ್ ಶಾರ್ಟ್ಸ್", "ವೈರಲ್ ವಿಡಿಯೋ", "ಟ್ರೆಂಡಿಂಗ್"]
+    },
     "andhra-pradesh": {
       title: "ಆಂಧ್ರಪ್ರದೇಶದಲ್ಲಿ ಕೃಷಿ ಯಾಂತ್ರೀಕರಣಕ್ಕೆ ಚಾಲನೆ",
       excerpt: "ರೈತರಿಗೆ ರಿಯಾಯಿತಿ ದರದಲ್ಲಿ ಆಧುನಿಕ ಟ್ರ್ಯಾಕ್ಟರ್ ಮತ್ತು ಬಿತ್ತನೆ ಯಂತ್ರಗಳ ವಿತರಣೆ.",
@@ -376,13 +625,44 @@ const templates: Record<Language, Record<NewsCategory, { title: string; excerpt:
       excerpt: "ರೈತರು, ಮಹಿಳೆಯರು ಮತ್ತು ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ವಿಶೇಷ ಆರ್ಥಿಕ ನೆರವು ಮತ್ತು ಯೋಜನೆಗಳ ಕೊಡುಗೆ.",
       content: "## ರಾಜಕೀಯ ಬೆಳವಣಿಗೆ\n\nವಿರೋಧ ಪಕ್ಷಗಳು ಬಜೆಟ್ ಅನ್ನು ಕೇವಲ ಚುನಾವಣಾ ಆಕರ್ಷಣೆ ಎಂದು ಟೀಕಿಸಿದರೆ, ಆಡಳಿತ ಪಕ್ಷವು ಇದು ಅಭಿವೃದ್ಧಿ ಬಜೆಟ್ ಎಂದು ಸಮರ್ಥಿಸಿಕೊಂಡಿದೆ.",
       tags: ["ರಾಜಕೀಯ", "ಬಜೆಟ್", "ಸುದ್ದಿ"]
+    },
+    health: {
+      title: "ಆರೋಗ್ಯ ಸಲಹೆಗಳು: ರಕ್ತದೊತ್ತಡ ಮತ್ತು ಮಾನಸಿಕ ಒತ್ತಡ ನಿವಾರಣೆಗೆ ಸುಲಭ ಮಾರ್ಗಗಳು",
+      excerpt: "ಬಿಪಿ ಮತ್ತು ಮಧುಮೇಹವನ್ನು ನೈಸರ್ಗಿಕವಾಗಿ ನಿಯಂತ್ರಿಸಲು ವೈದ್ಯರು ಸೂಚಿಸಿದ ಅತ್ಯುತ್ತಮ ಸಲಹೆಗಳು.",
+      content: "## ಆರೋಗ್ಯ ರಕ್ಷಣೆ\n\nದಿನನಿತ್ಯದ ನಡಿಗೆ, ಧ್ಯಾನ ಮತ್ತು ಪೌಷ್ಟಿಕ ಆಹಾರದ ಸೇವನೆಯಿಂದ ಬಿಪಿ ಹಾಗೂ ಒತ್ತಡವನ್ನು ಸುಲಭವಾಗಿ ನಿಯಂತ್ರಿಸಬಹುದು.",
+      tags: ["ಆರೋಗ್ಯ", "ಯೋಗ", "ಒತ್ತಡ ನಿವಾರಣೆ"]
+    },
+    business: {
+      title: "ವ್ಯಾಪಾರ ಮಾಹಿತಿ: ಚಿನ್ನ ಮತ್ತು ಬೆಳ್ಳಿ ದರ ಏರಿಕೆ, ಗ್ರೀನ್ ಎನರ್ಜಿ ಷೇರುಗಳ ಹೂಡಿಕೆ",
+      excerpt: "ಷೇರು ಮಾರುಕಟ್ಟೆ ತಾಜಾ ಸುದ್ದಿ, ಸೆನ್ಸೆಕ್ಸ್ ಏರಿಕೆ ಮತ್ತು ದೀರ್ಘಕಾಲದ ಹೂಡಿಕೆಗೆ ಯೋಗ್ಯವಾದ ಸೋಲಾರ್ ಷೇರುಗಳು.",
+      content: "## ಮಾರುಕಟ್ಟೆ ವಿಶ್ಲೇಷಣೆ\n\nಭಾರತೀಯ ಷೇರು ಮಾರುಕಟ್ಟೆಯು ಇಂದು ಸಾಲದಾಯಕ ಲಾಭ ಕಂಡಿದೆ. ಹಸಿರು ಇಂಧನ ವಲಯದ ಷೇರುಗಳಿಗೆ ಬೇಡಿಕೆ ಹೆಚ್ಚುತ್ತಿದೆ.",
+      tags: ["ವ್ಯಾಪಾರ", "ಷೇರು ಮಾರುಕಟ್ಟೆ", "ಚಿನ್ನದ ದರ", "ಹೂಡಿಕೆ"]
+    },
+    devotional: {
+      title: "ಇಂದಿನ ಪಂಚಾಂಗ ಮತ್ತು ದೈನಂದಿನ ರಾಶಿ ಭವಿಷ್ಯ",
+      excerpt: "ಇಂದಿನ ಶುಭ ಸಮಯ, ರಾಹುಕಾಲ, ತಿಥಿ, ನಕ್ಷತ್ರ ಮತ್ತು ದ್ವಾದಶ ರಾಶಿಗಳ ಫಲ.",
+      content: "## ಪಂಚಾಂಗ\n\nಶುಭ ಕಾರ್ಯಗಳಿಗೆ ಉತ್ತಮ ಸಮಯ ಹಾಗೂ ರಾಹುಕಾಲದಂತಹ ಅಶುಭ ಸಮಯಗಳ ಸಂಪೂರ್ಣ ವಿವರ ಇಲ್ಲಿದೆ.",
+      tags: ["ಅಧ್ಯಾತ್ಮಿಕ", "ಪಂಚಾಂಗ", "ರಾಶಿ ಭವಿಷ್ಯ"]
     }
   }
 };
 
 const generatedPosts: BlogPost[] = [];
 const langList: Language[] = ["te", "en", "hi", "ta", "kn"];
-const categoriesList: NewsCategory[] = ["andhra-pradesh", "telangana", "cinema", "vizag", "technology", "jobs", "cricket", "politics"];
+const categoriesList: NewsCategory[] = [
+  "viralshorts",
+  "andhra-pradesh",
+  "telangana",
+  "cinema",
+  "vizag",
+  "technology",
+  "jobs",
+  "cricket",
+  "politics",
+  "health",
+  "business",
+  "devotional"
+];
 
 langList.forEach((lang) => {
   categoriesList.forEach((cat) => {
@@ -399,7 +679,7 @@ langList.forEach((lang) => {
         meta_title: template.title,
         meta_description: template.excerpt,
         og_image: mockImages[cat],
-        author_name: "VarthaNow AI Editor",
+        author_name: "VaartaNow AI Editor",
         language: lang,
         published: true,
         featured: cat === "andhra-pradesh" || cat === "technology",

@@ -8,14 +8,18 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.VITE_SU
 const staticRoutes = [
   "/",
   "/search",
+  "/category/viralshorts",
   "/category/andhra-pradesh",
   "/category/telangana",
+  "/category/devotional",
+  "/category/health",
+  "/category/cricket",
+  "/category/jobs",
+  "/category/politics",
   "/category/cinema",
   "/category/vizag",
   "/category/technology",
-  "/category/jobs",
-  "/category/cricket",
-  "/category/politics"
+  "/category/business"
 ];
 
 async function main() {

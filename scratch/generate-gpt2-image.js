@@ -1,0 +1,185 @@
+import { createClient } from "@supabase/supabase-js";
+import Parser from "rss-parser";
+import * as fs from "fs";
+
+// Load .env
+try {
+  const envText = fs.readFileSync(".env", "utf8");
+  for (const line of envText.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const idx = trimmed.indexOf("=");
+    if (idx < 0) continue;
+    const key = trimmed.slice(0, idx).trim();
+    const value = trimmed.slice(idx + 1).trim().replace(/^['"]|['"]$/g, "");
+    if (key && value) process.env[key] = value;
+  }
+} catch {}
+
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const leonardoKey = process.env.LEONARDO_API_KEY || "caa189c3-0676-41f4-9095-11c7eac9ca28";
+
+const supabase = createClient(supabaseUrl, serviceRole, { auth: { persistSession: false } });
+const parser = new Parser();
+
+async function runGPT2Generation() {
+  console.log("============================================================");
+  console.log("🚀 STARTING GPT-IMAGE-2 GENERATION (1024x1024, DYNAMIC, LOW)");
+  console.log("============================================================");
+
+  // 1. Fetch upcoming article from RSS (third item!)
+  console.log("\n1. Fetching latest Andhra Pradesh RSS feeds...");
+  const feedUrl = "https://news.google.com/rss/search?q=andhra+pradesh+latest+breaking&hl=te&gl=IN&ceid=IN:te";
+  const rss = await parser.parseURL(feedUrl);
+  
+  const item = rss.items[2] || rss.items[0];
+  if (!item || !item.title) {
+    console.error("No news articles found in RSS feed.");
+    return;
+  }
+  console.log(`   ✓ Found news article: "${item.title}"`);
+
+  // 2. Generate image using Leonardo with GPT Image 2 on v2/generations
+  console.log("\n2. Dispatching GPT Image 2 generation to Leonardo REST v2 API...");
+  const cleanTitle = item.title.split(" - ")[0].trim();
+  const imagePrompt = `Create a professional Telugu news website banner image. Realistic editorial news photograph representing: ${cleanTitle}. Place high-quality, photorealistic journalism photography. Natural lighting and colors, suitable for news, high quality, no text, no logo.`;
+  const negativePrompt = "cartoon, anime, painting, illustration, blurry text, distorted text, watermark, logo, low quality, unrealistic faces, AI artifacts.";
+
+  // Hit the v2 API with standard parameters, nesting prompt in parameters
+  const response = await fetch("https://cloud.leonardo.ai/api/rest/v2/generations", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${leonardoKey}`,
+      "Content-Type": "application/json",
+      "Accept": "application/json"
+    },
+    body: JSON.stringify({
+      model: "gpt-image-2", // REST v2 style model parameter
+      public: false,
+      parameters: {
+        prompt: imagePrompt,  // Nested inside parameters for v2
+        width: 1024,
+        height: 1024,          // Widescreen 1024x1024 square
+        presetStyle: "DYNAMIC", // Dynamic style
+        contrast: 3.0,          // Low contrast as specified
+        negative_prompt: negativePrompt
+      }
+    })
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    console.error(`   ✗ Leonardo AI v2 API failed:`, response.statusText, errText);
+    return;
+  }
+
+  const data = await response.json();
+  // Check in data.generate.generationId (v2 structure!)
+  const generationId = data.generate?.generationId || data.sdGenerationJob?.generationId || data.generation?.id;
+  if (!generationId) {
+    console.log("Response payload structure:", JSON.stringify(data, null, 2));
+    console.error("   ✗ No generationId returned.");
+    return;
+  }
+  console.log(`   ✓ Generation queued via v2 API. ID: ${generationId}. Polling...`);
+  await pollAndComplete(generationId, cleanTitle);
+}
+
+async function pollAndComplete(generationId, cleanTitle) {
+  // 3. Poll Leonardo
+  let attempts = 0;
+  let imageUrl = null;
+  while (attempts < 15) {
+    await new Promise(resolve => setTimeout(resolve, 4000));
+    attempts++;
+    
+    const pollRes = await fetch(`https://cloud.leonardo.ai/api/rest/v1/generations/${generationId}`, {
+      headers: {
+        "Authorization": `Bearer ${leonardoKey}`,
+        "Accept": "application/json"
+      }
+    });
+    
+    if (!pollRes.ok) continue;
+    const pollData = await pollRes.json();
+    const generation = pollData.generations_by_pk;
+    
+    if (generation) {
+      console.log(`   [Attempt ${attempts}/15] Status: ${generation.status}`);
+      if (generation.status === "COMPLETE") {
+        imageUrl = generation.generated_images?.[0]?.url || null;
+        break;
+      } else if (generation.status === "FAILED") {
+        console.error("   ✗ Image generation failed.");
+        return;
+      }
+    }
+  }
+
+  if (!imageUrl) {
+    console.error("   ✗ Image generation timed out.");
+    return;
+  }
+  console.log(`   ✓ Image generated by Leonardo: ${imageUrl}`);
+
+  // 4. Download and Upload to Supabase
+  console.log("\n3. Uploading image to Supabase Storage...");
+  const imgRes = await fetch(imageUrl);
+  if (!imgRes.ok) {
+    console.error("Failed to download image from Leonardo CDN.");
+    return;
+  }
+  const arrayBuffer = await imgRes.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  const fileName = `${Date.now()}-gpt2-leonardo.jpg`;
+  const filePath = `article-images/${fileName}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("news-images")
+    .upload(filePath, buffer, {
+      contentType: "image/jpeg",
+      cacheControl: "3600",
+      upsert: false
+    });
+
+  if (uploadError) {
+    console.error("   ✗ Supabase upload error:", uploadError.message);
+    return;
+  }
+
+  const { data: urlData } = supabase.storage.from("news-images").getPublicUrl(filePath);
+  const publicImageUrl = urlData.publicUrl;
+  console.log(`   ✓ Uploaded! Public URL: ${publicImageUrl}`);
+
+  // 5. Insert Post into Database
+  console.log("\n4. Inserting article into database...");
+  const slug = `gpt2-news-${Date.now()}`;
+  const { error: insertError } = await supabase.from("blog_posts").insert({
+    slug,
+    title: cleanTitle,
+    excerpt: "తాజా వార్తలు",
+    content: `## ${cleanTitle}\n\nవివరాలు త్వరలోనే నవీకరించబడతాయి.`,
+    category: "andhra-pradesh",
+    tags: ["andhra-pradesh", "politics", "gpt-image-2"],
+    meta_title: cleanTitle,
+    meta_description: "తాజా వార్తలు",
+    og_image: publicImageUrl,
+    author_name: "VarthaNow Auto Desk",
+    language: "te",
+    published: true,
+    featured: false,
+    reading_time_min: 3,
+    published_at: new Date().toISOString()
+  });
+
+  if (insertError) {
+    console.error("   ✗ Database insertion failed:", insertError.message);
+  } else {
+    console.log(`\n🎉 SUCCESS! Generated post successfully with GPT Image 2:`);
+    console.log(`👉 COVER IMAGE URL: ${publicImageUrl}`);
+  }
+}
+
+runGPT2Generation().catch(console.error);

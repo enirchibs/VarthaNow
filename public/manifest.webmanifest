@@ -1,12 +1,24 @@
 {
-  "name": "VarthaNow Telugu AI News",
-  "short_name": "VarthaNow",
-  "description": "AI powered Telugu news for Andhra Pradesh, Telangana, cinema, Vizag, technology, jobs, cricket and politics.",
+  "name": "VaartaNow Telugu AI News",
+  "short_name": "VaartaNow",
+  "description": "VaartaNow is an AI-powered Telugu news platform delivering breaking updates for Andhra Pradesh, Telangana, cinema, jobs, and technology. తెలుగు బ్రేకింగ్ వార్తలు.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#2563eb",
   "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "/icons/icon-192.svg",
       "sizes": "192x192",

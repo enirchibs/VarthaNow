@@ -144,7 +144,7 @@ serve(async (request) => {
           tags: ai.tags,
           meta_title: ai.meta_title,
           meta_description: ai.meta_description,
-          og_image: ai.image_prompt ? `https://image.pollinations.ai/prompt/${encodeURIComponent(`${ai.image_prompt} with the text '${ai.title}'`)}?width=1200&height=675&nologo=true&private=true` : null,
+          og_image: `/images/${item.category}-fallback.jpg`,
           author_name: "VarthaNow AI Desk",
           language: item.language,
           published: true,

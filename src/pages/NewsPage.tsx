@@ -40,6 +40,18 @@ export function NewsPage() {
     };
   }, [slug, lang]);
 
+  useEffect(() => {
+    if (!post) return;
+    try {
+      const viewsRaw = localStorage.getItem("vaartanow-category-views");
+      const views = viewsRaw ? JSON.parse(viewsRaw) : {};
+      views[post.category] = (views[post.category] || 0) + 1;
+      localStorage.setItem("vaartanow-category-views", JSON.stringify(views));
+    } catch (e) {
+      console.error("Failed to track category view:", e);
+    }
+  }, [post]);
+
   if (loading) {
     return (
       <main className="container-shell py-6 text-sm font-bold">
@@ -72,14 +84,59 @@ export function NewsPage() {
           <h1 className="mt-4 text-3xl font-black leading-tight md:text-5xl">{post.title}</h1>
           <p className="mt-4 text-lg leading-8 text-[hsl(var(--muted-foreground))]">{post.excerpt}</p>
           <div className="mt-4 flex flex-wrap items-center gap-3 text-sm font-bold text-[hsl(var(--muted-foreground))]">
-            <span>{post.author_name}</span>
+            {/* Source with logo */}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 dark:bg-blue-400/10 px-2.5 py-1 text-xs font-black text-blue-600 dark:text-blue-400 tracking-wide">
+              {post.source_logo ? (
+                <img
+                  src={post.source_logo}
+                  alt={post.author_name}
+                  width={16}
+                  height={16}
+                  className="rounded object-contain"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                />
+              ) : (
+                <span className="size-4 rounded bg-blue-500 grid place-items-center text-white text-[8px] font-black">
+                  {post.author_name.charAt(0).toUpperCase()}
+                </span>
+              )}
+              {post.author_name}
+              <span className="text-sm">✓</span>
+            </span>
+            <span className="text-gray-300 dark:text-zinc-700">·</span>
             <span>{timeAgo(post.published_at)}</span>
+            <span className="text-gray-300 dark:text-zinc-700">·</span>
             <span>
-              {post.reading_time_min} {lang === "te" ? "నిమిషాల పఠనం" : lang === "en" ? "min read" : lang === "hi" ? "मिनट पठन" : lang === "ta" ? "நிமிட வாசிப்பு" : "ನಿಮಿಷ ಓದುವಿಕೆ"}
+              {post.reading_time_min} {lang === "te" ? "నిమిషాల పఠనం" : lang === "en" ? "min read" : lang === "hi" ? "మినీ పఠనం" : lang === "ta" ? "நிமிட வாசிப்பு" : "ನಿಮಿಷ ಓದುವಿಕೆ"}
             </span>
           </div>
         </div>
-        {post.og_image && <img src={post.og_image} alt={post.title} referrerPolicy="no-referrer" className="max-h-[32rem] w-full object-cover" />}
+        {(() => {
+          const ytId = (() => {
+            const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\s]{11})/i;
+            const match = post.content?.match(youtubeRegex) || post.excerpt?.match(youtubeRegex) || post.slug?.match(youtubeRegex);
+            return match ? match[1] : null;
+          })();
+          
+          if (ytId) {
+            return (
+              <div className="relative aspect-video w-full overflow-hidden bg-black shadow-inner border-y border-[hsl(var(--border))]/50">
+                <iframe
+                  src={`https://www.youtube.com/embed/${ytId}?autoplay=0&rel=0`}
+                  title={post.title}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="absolute inset-0 size-full"
+                />
+              </div>
+            );
+          }
+          
+          return post.og_image ? (
+            <img src={post.og_image} alt={post.title} referrerPolicy="no-referrer" className="max-h-[32rem] w-full object-cover animate-in fade-in duration-500" />
+          ) : null;
+        })()}
         <div className="article-content px-4 py-6 md:px-8">
           <div dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }} />
         </div>

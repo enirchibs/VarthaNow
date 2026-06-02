@@ -1,4 +1,5 @@
 export type NewsCategory =
+  | "viralshorts"
   | "andhra-pradesh"
   | "telangana"
   | "cinema"
@@ -6,7 +7,10 @@ export type NewsCategory =
   | "technology"
   | "jobs"
   | "cricket"
-  | "politics";
+  | "politics"
+  | "health"
+  | "business"
+  | "devotional";
 
 export type BlogPost = {
   id?: string;
@@ -20,6 +24,7 @@ export type BlogPost = {
   meta_description: string;
   og_image: string | null;
   author_name: string;
+  source_logo?: string | null;
   language: "te" | "en" | "hi" | "ta" | "kn";
   published: boolean;
   featured: boolean;

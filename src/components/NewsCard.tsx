@@ -24,7 +24,7 @@ export function NewsCard({ post, priority = false }: { post: BlogPost; priority?
             />
           ) : (
             <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-2xl">
-              VarthaNow
+              VaartaNow
             </div>
           )}
           
@@ -56,13 +56,25 @@ export function NewsCard({ post, priority = false }: { post: BlogPost; priority?
         </Link>
         
         {/* Metadata and Action Section */}
-        <div className="flex items-center justify-between border-t border-[hsl(var(--border))/40] pt-3 text-[11px] font-bold text-[hsl(var(--muted-foreground))]">
-          <div className="flex items-center gap-3">
-            <span>{timeAgo(post.published_at)}</span>
-            <span className="flex items-center gap-1">
-              <Clock3 className="size-3" />
-              {post.reading_time_min} min
+        <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-3 text-[11px] font-bold text-[hsl(var(--muted-foreground))]">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Source chip with favicon logo */}
+            <span className="inline-flex items-center gap-1 rounded bg-blue-500/10 dark:bg-blue-400/10 px-1.5 py-0.5 text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+              {post.source_logo ? (
+                <img
+                  src={post.source_logo}
+                  alt={post.author_name}
+                  width={12}
+                  height={12}
+                  className="rounded-sm object-contain"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                />
+              ) : null}
+              {post.author_name}
+              <span className="text-[10px]">✓</span>
             </span>
+            <span className="text-gray-300 dark:text-zinc-700">·</span>
+            <span>{timeAgo(post.published_at)}</span>
           </div>
           
           <div className="flex items-center gap-2">

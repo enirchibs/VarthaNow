@@ -38,7 +38,7 @@ export function Feed() {
             <Sparkles className="size-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="truncate font-[var(--font-poppins)] text-2xl font-black">VarthaNow</h1>
+            <h1 className="truncate font-[var(--font-poppins)] text-2xl font-black">VaartaNow</h1>
             <p className="truncate font-[var(--font-telugu)] text-sm text-muted-foreground">{copy.tagline}</p>
           </div>
           <Button variant="secondary" size="iconSm" onClick={refresh} aria-label="Pull to refresh">

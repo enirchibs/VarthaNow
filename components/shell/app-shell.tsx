@@ -25,7 +25,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link href="/" className="flex min-w-0 flex-1 items-center gap-2">
               <span className="grid size-10 place-items-center rounded-2xl bg-primary text-lg font-black text-white shadow-glow">V</span>
               <span className="min-w-0">
-                <span className="block truncate font-[var(--font-poppins)] text-lg font-bold leading-tight">VarthaNow</span>
+                <span className="block truncate font-[var(--font-poppins)] text-lg font-bold leading-tight">VaartaNow</span>
                 <span className="block truncate font-[var(--font-telugu)] text-[11px] text-muted-foreground">
                   {copy.tagline}
                 </span>

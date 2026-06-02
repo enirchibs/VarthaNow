@@ -166,6 +166,35 @@ export async function createPost(post: Omit<BlogPost, "id" | "created_at" | "upd
   return data as BlogPost;
 }
 
+export async function getFavoritePosts(page = 0, categoriesList: string[], lang?: Language) {
+  const activeLang = lang ?? getActiveLanguage();
+
+  if (categoriesList.length === 0) return [];
+
+  if (!supabase) {
+    const filtered = demoPosts.filter((post) => post.language === activeLang && categoriesList.includes(post.category));
+    return sortPublished(filtered).slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  }
+
+  const { data, error } = await supabase
+    .from("blog_posts")
+    .select("*")
+    .eq("published", true)
+    .eq("language", activeLang)
+    .in("category", categoriesList)
+    .order("published_at", { ascending: false })
+    .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+
+  if (error || !data || data.length === 0) {
+    if (error) console.error("Supabase getFavoritePosts error:", error);
+    const filtered = demoPosts.filter((post) => post.language === activeLang && categoriesList.includes(post.category));
+    return sortPublished(filtered).slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  }
+
+  return data as BlogPost[];
+}
+
+
 function filterPosts(posts: BlogPost[], filters?: Partial<SearchFilters>) {
   const activeLang = filters?.language ?? getActiveLanguage();
   return posts.filter((post) => {

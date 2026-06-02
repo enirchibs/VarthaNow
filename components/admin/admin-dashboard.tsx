@@ -21,7 +21,7 @@ export function AdminDashboard() {
             <ShieldAlert className="size-5" />
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-black">VarthaNow Admin</h1>
+            <h1 className="text-2xl font-black">VaartaNow Admin</h1>
             <p className="truncate text-sm text-muted-foreground">Moderation, ingestion, notifications, analytics and ads</p>
           </div>
           <Button>

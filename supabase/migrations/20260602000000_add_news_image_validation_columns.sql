@@ -1,0 +1,15 @@
+ALTER TABLE public.blog_posts 
+  ADD COLUMN IF NOT EXISTS source_image_url text,
+  ADD COLUMN IF NOT EXISTS thumbnail_url text,
+  ADD COLUMN IF NOT EXISTS featured_image_url text,
+  ADD COLUMN IF NOT EXISTS social_thumbnail_url text,
+  ADD COLUMN IF NOT EXISTS summary_short text,
+  ADD COLUMN IF NOT EXISTS summary_medium text,
+  ADD COLUMN IF NOT EXISTS summary_long text,
+  ADD COLUMN IF NOT EXISTS image_validation_status text DEFAULT 'review',
+  ADD COLUMN IF NOT EXISTS image_validation_reason text,
+  ADD COLUMN IF NOT EXISTS relevance_score integer,
+  ADD COLUMN IF NOT EXISTS quality_score integer,
+  ADD COLUMN IF NOT EXISTS safety_score integer,
+  ADD COLUMN IF NOT EXISTS clickbait_score integer,
+  ADD COLUMN IF NOT EXISTS validated_at timestamptz;

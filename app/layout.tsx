@@ -12,22 +12,22 @@ const notoTelugu = Noto_Sans_Telugu({ subsets: ["telugu"], variable: "--font-tel
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   title: {
-    default: "VarthaNow - తెలుగు ప్రజల Daily AI Updates",
-    template: "%s | VarthaNow"
+    default: "VaartaNow - తెలుగు ప్రజల Daily AI Updates",
+    template: "%s | VaartaNow"
   },
   description: "Telugu-first AI news, shorts, jobs, local alerts, utilities and daily updates.",
-  applicationName: "VarthaNow",
+  applicationName: "VaartaNow",
   manifest: "/manifest.webmanifest",
   openGraph: {
-    title: "VarthaNow",
+    title: "VaartaNow",
     description: "A Telugu-first AI-powered news super app.",
-    siteName: "VarthaNow",
+    siteName: "VaartaNow",
     type: "website",
     locale: "te_IN"
   },
   twitter: {
     card: "summary_large_image",
-    title: "VarthaNow",
+    title: "VaartaNow",
     description: "తెలుగు ప్రజల Daily AI Updates"
   },
   alternates: {

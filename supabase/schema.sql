@@ -231,3 +231,71 @@ create index articles_published_idx on public.articles (status, published_at des
 create index articles_trending_idx on public.articles (trending_score desc);
 create index article_translations_lookup_idx on public.article_translations (article_id, language);
 create index ai_summaries_lookup_idx on public.ai_summaries (article_id, language);
+
+-- ============================================================================
+-- EXPLICIT GRANTS FOR POST-MAY 30, 2026 SUPABASE COMPLIANCE
+-- ============================================================================
+GRANT SELECT ON TABLE public.blog_posts TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.blog_posts TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.blog_posts TO service_role;
+
+GRANT SELECT ON TABLE public.users TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.users TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.users TO service_role;
+
+GRANT SELECT ON TABLE public.categories TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.categories TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.categories TO service_role;
+
+GRANT SELECT ON TABLE public.cities TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.cities TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.cities TO service_role;
+
+GRANT SELECT ON TABLE public.scraping_sources TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.scraping_sources TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.scraping_sources TO service_role;
+
+GRANT SELECT ON TABLE public.articles TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.articles TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.articles TO service_role;
+
+GRANT SELECT ON TABLE public.ai_summaries TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.ai_summaries TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.ai_summaries TO service_role;
+
+GRANT SELECT ON TABLE public.article_translations TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.article_translations TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.article_translations TO service_role;
+
+GRANT SELECT ON TABLE public.bookmarks TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.bookmarks TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.bookmarks TO service_role;
+
+GRANT SELECT ON TABLE public.reactions TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.reactions TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.reactions TO service_role;
+
+GRANT SELECT ON TABLE public.notifications TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.notifications TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.notifications TO service_role;
+
+GRANT SELECT ON TABLE public.jobs TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.jobs TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.jobs TO service_role;
+
+GRANT SELECT ON TABLE public.properties TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.properties TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.properties TO service_role;
+
+GRANT SELECT ON TABLE public.polls TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.polls TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.polls TO service_role;
+
+GRANT SELECT ON TABLE public.comments TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.comments TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.comments TO service_role;
+
+GRANT SELECT ON TABLE public.user_reports TO anon;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.user_reports TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.user_reports TO service_role;
+

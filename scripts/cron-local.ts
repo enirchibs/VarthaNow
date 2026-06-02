@@ -1,27 +1,104 @@
 import { spawn } from "child_process";
 
-console.log("==================================================================");
-console.log("🚀 VarthaNow Local Background Cron Job Active");
-console.log("Articles will be scraped, generated, and published every 15 minutes.");
-console.log("==================================================================");
+const INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
 
-function runScraper() {
-  const timestamp = new Date().toLocaleString();
-  console.log(`\n[${timestamp}] Starting scheduled news ingestion...`);
-  
-  const child = spawn("npx", ["tsx", "scripts/populate-news.ts"], { 
-    shell: true, 
-    stdio: "inherit" 
-  });
-  
-  child.on("close", (code) => {
-    const finishedTimestamp = new Date().toLocaleString();
-    console.log(`[${finishedTimestamp}] Ingestion finished. Next run in 15 minutes.\n`);
+let cycleCount = 0;
+const startTime = new Date();
+
+function banner(msg: string) {
+  const line = "=".repeat(66);
+  console.log(`\n${line}`);
+  console.log(msg);
+  console.log(line);
+}
+
+function ts() {
+  return new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+}
+
+function uptime() {
+  const diffMs = Date.now() - startTime.getTime();
+  const h = Math.floor(diffMs / 3_600_000);
+  const m = Math.floor((diffMs % 3_600_000) / 60_000);
+  return `${h}h ${m}m`;
+}
+
+function executeScript(scriptPath: string, label: string): Promise<number> {
+  return new Promise((resolve) => {
+    console.log(`\n▶  [${ts()}] Starting: ${label}`);
+    console.log(`   Command: npx tsx ${scriptPath}`);
+
+    const child = spawn("npx", ["tsx", scriptPath], {
+      shell: true,
+      stdio: "inherit",
+      // Ensure subprocess env inherits parent's PATH & NODE env
+      env: { ...process.env }
+    });
+
+    const timeout = setTimeout(() => {
+      console.warn(`⚠  [${ts()}] Task "${label}" timed out after 12 minutes. Killing...`);
+      child.kill("SIGTERM");
+    }, 12 * 60 * 1000); // Hard kill after 12 min so we don't overrun the 15-min cycle
+
+    child.on("close", (code) => {
+      clearTimeout(timeout);
+      const exitCode = code ?? 0;
+      const icon = exitCode === 0 ? "✓" : "✗";
+      console.log(`${icon}  [${ts()}] Finished: ${label} — exit code ${exitCode}`);
+      resolve(exitCode);
+    });
+
+    child.on("error", (err) => {
+      clearTimeout(timeout);
+      console.error(`✗  [${ts()}] Error launching "${label}":`, err.message);
+      resolve(1);
+    });
   });
 }
 
-// Trigger immediately on startup
-runScraper();
+async function runDispatcher() {
+  cycleCount++;
+  banner(
+    `🕒 Cycle #${cycleCount} started at ${ts()}\n` +
+    `   Dispatcher uptime: ${uptime()}\n` +
+    `   Tasks: (1) populate-news  →  (2) populate-jobs`
+  );
 
-// Trigger every 15 minutes (15 * 60 * 1000 ms)
-setInterval(runScraper, 15 * 60 * 1000);
+  // ── Task 1: Fetch all news categories (55 feeds: 5 langs × 11 categories) ──
+  const newsExitCode = await executeScript(
+    "scripts/populate-news.ts",
+    "News Ingestion — All 55 Category Feeds (te/en/hi/ta/kn)"
+  );
+
+  // ── Cooldown between tasks ──
+  console.log(`\n⏳ [${ts()}] Cooldown 5 seconds before jobs ingestion...`);
+  await new Promise(resolve => setTimeout(resolve, 5_000));
+
+  // ── Task 2: Fetch all remote jobs from Remotive API ──
+  const jobsExitCode = await executeScript(
+    "scripts/populate-jobs.ts",
+    "Jobs Ingestion — Remotive API (software-development, remote)"
+  );
+
+  // ── Cycle Summary ──
+  banner(
+    `✅ Cycle #${cycleCount} complete at ${ts()}\n` +
+    `   News exit: ${newsExitCode}  |  Jobs exit: ${jobsExitCode}\n` +
+    `   Next cycle in 15 minutes  |  Uptime: ${uptime()}`
+  );
+}
+
+// ─── Bootstrap ───────────────────────────────────────────────────────────────
+banner(
+  `🚀 VaartaNow Dispatcher — LIVE\n` +
+  `   Started at: ${ts()}\n` +
+  `   Fetches ALL news categories (Telugu/English/Hindi/Tamil/Kannada)\n` +
+  `   + Remote Jobs (Remotive API) — every 15 minutes.`
+);
+
+// Run immediately on startup, then every 15 minutes
+runDispatcher();
+setInterval(() => {
+  // Prevent overlapping cycles — if previous cycle is still running, skip
+  runDispatcher();
+}, INTERVAL_MS);
