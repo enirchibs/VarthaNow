@@ -604,7 +604,8 @@ async function generateArticleContent(
 ): Promise<GeminiArticleOutput> {
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   const prompt = `You are VaartaNow, a leading Telugu digital news platform.
-Rewrite the following news item into premium, plagiarism-free Telugu journalism content based on the provided source text.
+Rewrite and expand the following news item into premium, plagiarism-free Telugu journalism content based on the provided source text.
+If the SOURCE TEXT CONTENT is short or only a snippet, expand it intelligently and write a complete, detailed, and professionally written Telugu news article (at least 3 detailed paragraphs) using your general knowledge about the topic, context, and entities mentioned, while ensuring it is factually logical, plagiarism-free, and engaging.
 
 RSS Title: "${rssTitle}"
 Category: "${category}"
@@ -837,7 +838,24 @@ async function run() {
             console.warn(`  ⚠ Failed to fetch article HTML: ${e.message}`);
           }
 
-          const sourceText = articleHtml ? extractParagraphsText(articleHtml) : "";
+          let sourceText = articleHtml ? extractParagraphsText(articleHtml) : "";
+          if (sourceText.length < 100) {
+            const fallbackText = [
+              item.contentSnippet || "",
+              item.description || "",
+              item.content || ""
+            ].filter(Boolean).join("\n\n");
+            
+            if (fallbackText) {
+              const cleanFallback = fallbackText
+                .replace(/<[^>]+>/g, "")
+                .replace(/\s+/g, " ")
+                .trim();
+              if (cleanFallback.length > sourceText.length) {
+                sourceText = cleanFallback;
+              }
+            }
+          }
           console.log(`  📝 Extracted ${sourceText.length} characters of source text.`);
 
           // Step 2: Extract source info
