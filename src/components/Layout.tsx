@@ -221,16 +221,14 @@ export function Layout() {
         <div className="fixed bottom-4 left-4 right-4 z-[9998] max-w-md mx-auto md:left-4 md:right-auto animate-in fade-in slide-in-from-bottom duration-300">
           <div className="relative overflow-hidden rounded-3xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-zinc-950/95 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.15)] backdrop-blur-xl">
             <p className="text-[11px] font-bold text-[hsl(var(--muted-foreground))] leading-relaxed">
-              {lang === "te"
-                ? "మేము ప్రకటనలు (Google AdSense) వ్యక్తిగతీకరించడానికి మరియు వెబ్ ట్రాఫిక్ విశ్లేషణల కోసం కుకీలను ఉపయోగిస్తాము. మా సైట్‌ను ఉపయోగించడం ద్వారా, మీరు మా గోప్యతా విధానాన్ని అంగీకరిస్తున్నారు."
-                : "We use cookies to personalize content, customize third-party ads (Google AdSense), and analyze web traffic. By using our site, you consent to our Privacy Policy."}
+              We use cookies to personalize content, customize third-party ads (Google AdSense), and analyze web traffic. By using our site, you consent to our Privacy Policy.
             </p>
             <div className="flex gap-2.5 mt-3 justify-end">
               <Link to="/privacy" className="h-8 px-3 rounded-xl text-[10px] font-black border border-[hsl(var(--border))] flex items-center text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]">
-                {lang === "te" ? "మరింత చదవండి" : "Read Policy"}
+                Read Policy
               </Link>
               <button onClick={handleAcceptCookies} className="h-8 px-4 rounded-xl text-[10px] font-black bg-[hsl(var(--primary))] text-white shadow-sm hover:shadow-indigo-500/10 active:scale-95 transition">
-                {lang === "te" ? "అంగీకరిస్తున్నాను" : "Accept"}
+                Accept
               </button>
             </div>
           </div>
