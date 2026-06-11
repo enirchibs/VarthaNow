@@ -92,7 +92,7 @@ export function Layout() {
             <span className="min-w-0">
               <span className="block truncate text-lg font-black">VaartaNow</span>
               <span className="block truncate text-xs font-semibold text-[hsl(var(--muted-foreground))]">
-                {lang === "te" && "తెలుగు AI వార్తలు"}
+                {lang === "te" && "తాజా వార్తలు, తక్షణం"}
                 {lang === "en" && "Multilingual AI News"}
                 {lang === "hi" && "बहुभाषी एआई समाचार"}
                 {lang === "ta" && "பல்மொழி ஏஐ செய்திகள்"}
