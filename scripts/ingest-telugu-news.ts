@@ -864,7 +864,7 @@ async function run() {
           // Step 3: Generate article content via Gemini
           console.log(`  🤖 Generating article content via Gemini...`);
           const ai = await generateArticleContent(item.title, resolvedUrl, feed.category, sourceText);
-          await delay(2000); // Rate limit
+          await delay(5000); // Rate limit (safely under 15 requests per minute)
 
           // Step 4: Run image pipeline
           const imageResult = await runImagePipeline(
