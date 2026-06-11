@@ -5,6 +5,7 @@ import { CategoryPage } from "@/pages/CategoryPage";
 import { HomePage } from "@/pages/HomePage";
 import { NewsPage } from "@/pages/NewsPage";
 import { SearchPage } from "@/pages/SearchPage";
+import { LoginPage } from "@/pages/LoginPage";
 import {
   JobsMainPage,
   JobsWFHPage,
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: "/", element: <HomePage /> },
+      { path: "/login", element: <LoginPage /> },
       { path: "/category/:category", element: <CategoryPage /> },
       { path: "/news/:slug", element: <NewsPage /> },
       { path: "/search", element: <SearchPage /> },

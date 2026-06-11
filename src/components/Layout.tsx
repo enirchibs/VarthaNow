@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
 import { useLanguage } from "@/hooks/useLanguage";
+import { supabase } from "@/lib/supabase";
 
 export function Layout() {
   const [dark, setDark] = useState(false);
@@ -11,6 +12,25 @@ export function Layout() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    if (!supabase) return;
+    await supabase.auth.signOut();
+  };
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
@@ -84,11 +104,29 @@ export function Layout() {
             <Button variant="secondary" className="hidden sm:inline-flex" onClick={() => setDark((value) => !value)}>
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
               {dark ? (
-                lang === "te" ? "కాంతి" : lang === "en" ? "Light" : lang === "hi" ? "लाइट" : lang === "ta" ? "ஒளி" : "లೈట్"
+                lang === "te" ? "కాంతి" : lang === "en" ? "Light" : lang === "hi" ? "लाइट" : lang === "ta" ? "ஒளி" : "లైట్"
               ) : (
                 lang === "te" ? "చీకటి" : lang === "en" ? "Dark" : lang === "hi" ? "डार्क" : lang === "ta" ? "இருள்" : "ಡಾರ್ಕ್"
               )}
             </Button>
+
+            {user ? (
+              <Button 
+                variant="secondary" 
+                onClick={handleSignOut}
+                className="h-10 px-4 rounded-xl text-xs font-black border border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]"
+              >
+                {lang === "te" ? "సైన్ అవుట్" : "Sign Out"}
+              </Button>
+            ) : (
+              <Link to="/login">
+                <Button 
+                  className="h-10 px-4 rounded-xl text-xs font-black bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
+                >
+                  {lang === "te" ? "లాగిన్" : "Sign In"}
+                </Button>
+              </Link>
+            )}
           </div>
           <Link to="/search" className="grid size-11 place-items-center rounded-full bg-[hsl(var(--muted))]" aria-label="Search">
             <Search className="size-4" />
