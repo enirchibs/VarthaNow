@@ -40,7 +40,7 @@ async function validateImageWithGemini(
   category: string
 ): Promise<ImageValidationReport> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
     const prompt = `
     Analyze if the following image candidate matches the news article content.
     ARTICLE HEADLINE: "${headline}"
@@ -94,102 +94,19 @@ async function fetchOgImage(articleUrl: string): Promise<string | null> {
   } catch {
     return null;
   }
-async function generateGpt2Image(headline: string, summary: string): Promise<string | null> {
-  const apiKey = process.env.LEONARDO_API_KEY || "caa189c3-0676-41f4-9095-11c7eac9ca28";
-  const imagePrompt = `Create a professional digital news portal card.
-  
-Article Headline:
-"${headline}"
+}
 
-Article Context:
-${summary}
-
-Design Layout Requirements:
-1. Headline on Top: Write the exact Article Headline prominently at the very top of the image (top 20-25% height) in clear, highly legible bold typography.
-2. Related Visual Scene: Place a highly realistic, professional editorial news photograph representing the article context directly below the headline.
-3. Portal Footer/Other Info: Place a clean news portal design or minimal channel strip at the bottom of the card if needed.
-4. Professional photorealistic journalism style, natural lighting, high detail, 1024x1024 square, dynamic style, low contrast.`;
-  const negativePrompt = "cartoon, anime, painting, illustration, blurry text, distorted text, low quality, unrealistic faces, AI artifacts, cluttered layout.";
-
+async function uploadImageToSupabase(imageUrl: string, fileNamePrefix: string): Promise<string | null> {
   try {
-    console.log(`  🚀 Requesting GPT Image 2 generation for: "${headline.slice(0, 40)}..."`);
-    const response = await fetch("https://cloud.leonardo.ai/api/rest/v2/generations", {
-      method: "POST",
+    const res = await fetch(imageUrl, {
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify({
-        model: "gpt-image-2",
-        public: false,
-        parameters: {
-          prompt: imagePrompt,
-          width: 1024,
-          height: 1024,
-          presetStyle: "DYNAMIC",
-          contrast: 3.0,
-          negative_prompt: negativePrompt
-        }
-      })
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error(`  ✗ Leonardo AI GPT-2 generation failed:`, response.statusText, errText);
-      return null;
-    }
-
-    const data = await response.json();
-    const generationId = data.generate?.generationId || data.sdGenerationJob?.generationId || data.generation?.id;
-    if (!generationId) {
-      console.error("  ✗ Leonardo AI did not return a generationId in response.");
-      return null;
-    }
-
-    console.log(`  ✓ Image generation queued. ID: ${generationId}. Polling...`);
-
-    let attempts = 0;
-    let imageUrl: string | null = null;
-    
-    while (attempts < 18) {
-      await new Promise(resolve => setTimeout(resolve, 4000));
-      attempts++;
-      
-      const pollRes = await fetch(`https://cloud.leonardo.ai/api/rest/v1/generations/${generationId}`, {
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Accept": "application/json"
-        }
-      });
-      
-      if (!pollRes.ok) continue;
-      const pollData = await pollRes.json();
-      const generation = pollData.generations_by_pk;
-      
-      if (generation) {
-        if (generation.status === "COMPLETE") {
-          imageUrl = generation.generated_images?.[0]?.url || null;
-          break;
-        } else if (generation.status === "FAILED") {
-          console.error("  ✗ Leonardo AI image generation failed.");
-          return null;
-        }
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
       }
-    }
-
-    if (!imageUrl) {
-      console.error("  ✗ Leonardo AI image generation timed out.");
-      return null;
-    }
-
-    console.log(`  ✓ Image generated successfully. Downloading: ${imageUrl}`);
-    const imgRes = await fetch(imageUrl);
-    if (!imgRes.ok) throw new Error("Failed to download image from Leonardo CDN");
-    const arrayBuffer = await imgRes.arrayBuffer();
+    });
+    if (!res.ok) return null;
+    const arrayBuffer = await res.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-
-    const fileName = `${Date.now()}-gpt2.jpg`;
+    const fileName = `${fileNamePrefix}-${Date.now()}.jpg`;
     const filePath = `article-images/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -200,22 +117,20 @@ Design Layout Requirements:
         upsert: false
       });
 
-    if (uploadError) {
-      console.error("  ✗ Supabase Storage upload error:", uploadError.message);
-      return null;
-    }
+    if (uploadError) return null;
 
     const { data: urlData } = supabase.storage.from("news-images").getPublicUrl(filePath);
     return urlData.publicUrl;
-  } catch (error) {
-    console.error("  ✗ generateGpt2Image error:", error instanceof Error ? error.message : String(error));
+  } catch {
     return null;
   }
 }
 
+
+
 async function backfill() {
   console.log("=".repeat(60));
-  console.log("🔄 Upgrading Historical Banners to Validated Publisher Photos");
+  console.log("🔄 Upgrading to Validated Publisher Photos");
   console.log("=".repeat(60));
 
   const { data: posts, error } = await supabase
@@ -263,25 +178,13 @@ async function backfill() {
           validated_at: new Date().toISOString()
         };
       } else {
-        console.log(`  ✗ Publisher image rejected by Gemini: ${check.reason}. Triggering GPT-Image-2 banner fallback...`);
+        console.log(`  ✗ Publisher image rejected by Gemini: ${check.reason}`);
       }
     }
 
     if (!payload) {
-      console.log("  🔍 Generating premium banner using Leonardo GPT-Image-2...");
-      const generatedGptUrl = await generateGpt2Image(post.title, post.excerpt || post.title);
-      if (generatedGptUrl) {
-        payload = {
-          og_image: generatedGptUrl,
-          image_validation_status: "approve",
-          image_validation_reason: "Premium Leonardo GPT-Image-2 cover generation approved.",
-          relevance_score: 100,
-          quality_score: 100,
-          safety_score: 100,
-          clickbait_score: 0,
-          validated_at: new Date().toISOString()
-        };
-      }
+      console.log('  ⚠ No valid publisher image found. Skipping article.');
+      continue;
     }
 
     if (payload) {

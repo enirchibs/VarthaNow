@@ -6,18 +6,24 @@ const STORAGE_KEY = "varthanow-language";
 const EVENT_NAME = "varthanow-language-change";
 
 export function getActiveLanguage(): Language {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored === "te" || stored === "en" || stored === "hi" || stored === "ta" || stored === "kn") return stored;
-  return "te"; // default to Telugu
+  return "te"; // restricted to Telugu only
 }
 
 export function setActiveLanguage(lang: Language) {
-  localStorage.setItem(STORAGE_KEY, lang);
+  try {
+    localStorage.setItem(STORAGE_KEY, lang);
+  } catch (e) {
+    console.warn("Failed to write language to localStorage:", e);
+  }
   window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: lang }));
 }
 
 export function useLanguage() {
   const [lang, setLang] = useState<Language>(getActiveLanguage);
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   useEffect(() => {
     const handler = (event: Event) => {

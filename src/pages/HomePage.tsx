@@ -75,8 +75,7 @@ export function HomePage() {
     <main className="container-shell space-y-5 py-4">
       <BreakingTicker posts={trending.length ? trending : feed.posts} />
 
-      {/* 🏏 Immersive IPL Live Scoreboard Card Banner */}
-      <StickyCricketWidget mode="banner" />
+
 
       {/* 🚀 Header Banner: మీ వార్తలు (Your News) Branding */}
       <section className="relative overflow-hidden rounded-3xl border border-white/20 dark:border-white/10 bg-white/70 dark:bg-zinc-950/70 p-5 md:p-6 shadow-md backdrop-blur-xl">
@@ -253,8 +252,7 @@ export function HomePage() {
         />
       )}
 
-      {/* Floating Live Status sports bubble & scorecard */}
-      <StickyCricketWidget />
+
     </main>
   );
 }

@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 
-const INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
+const INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
 let cycleCount = 0;
 const startTime = new Date();
@@ -36,9 +36,9 @@ function executeScript(scriptPath: string, label: string): Promise<number> {
     });
 
     const timeout = setTimeout(() => {
-      console.warn(`⚠  [${ts()}] Task "${label}" timed out after 12 minutes. Killing...`);
+      console.warn(`⚠  [${ts()}] Task "${label}" timed out after 45 minutes. Killing...`);
       child.kill("SIGTERM");
-    }, 12 * 60 * 1000); // Hard kill after 12 min so we don't overrun the 15-min cycle
+    }, 45 * 60 * 1000); // Hard kill after 45 min so we don't overrun the 1-hour cycle
 
     child.on("close", (code) => {
       clearTimeout(timeout);
@@ -61,15 +61,19 @@ async function runDispatcher() {
   banner(
     `🕒 Cycle #${cycleCount} started at ${ts()}\n` +
     `   Dispatcher uptime: ${uptime()}\n` +
-    `   Tasks: (1) populate-news  →  (2) populate-jobs`
+    `   Tasks: (1) populate-news (Telugu)  →  (2) Telugu deep ingestion`
   );
 
-  // ── Task 1: Fetch all news categories (55 feeds: 5 langs × 11 categories) ──
+  // ── Task 1: Fetch all news categories for Telugu ──
+  /*
   const newsExitCode = await executeScript(
     "scripts/populate-news.ts",
-    "News Ingestion — All 55 Category Feeds (te/en/hi/ta/kn)"
+    "News Ingestion — Telugu Category Feeds"
   );
+  */
+  const newsExitCode = 0;
 
+  /*
   // ── Cooldown between tasks ──
   console.log(`\n⏳ [${ts()}] Cooldown 5 seconds before jobs ingestion...`);
   await new Promise(resolve => setTimeout(resolve, 5_000));
@@ -79,21 +83,31 @@ async function runDispatcher() {
     "scripts/populate-jobs.ts",
     "Jobs Ingestion — Remotive API (software-development, remote)"
   );
+  */
+
+  // ── Cooldown between tasks ──
+  console.log(`\n⏳ [${ts()}] Cooldown 5 seconds before Telugu news deep ingestion...`);
+  await new Promise(resolve => setTimeout(resolve, 5_000));
+
+  // ── Task 3: Deep Telugu News Ingestion Pipeline ──
+  const teluguExitCode = await executeScript(
+    "scripts/ingest-telugu-news.ts",
+    "Telugu News Deep Ingestion — 9 Category Feeds with Image Validation"
+  );
 
   // ── Cycle Summary ──
   banner(
     `✅ Cycle #${cycleCount} complete at ${ts()}\n` +
-    `   News exit: ${newsExitCode}  |  Jobs exit: ${jobsExitCode}\n` +
-    `   Next cycle in 15 minutes  |  Uptime: ${uptime()}`
+    `   News exit: ${newsExitCode}  |  Telugu exit: ${teluguExitCode}\n` +
+    `   Next cycle in 60 minutes  |  Uptime: ${uptime()}`
   );
 }
 
-// ─── Bootstrap ───────────────────────────────────────────────────────────────
 banner(
   `🚀 VaartaNow Dispatcher — LIVE\n` +
   `   Started at: ${ts()}\n` +
-  `   Fetches ALL news categories (Telugu/English/Hindi/Tamil/Kannada)\n` +
-  `   + Remote Jobs (Remotive API) — every 15 minutes.`
+  `   Fetches News Ingestion + Telugu Deep Ingestion (All Categories)\n` +
+  `   — every 1 hour.`
 );
 
 // Run immediately on startup, then every 15 minutes

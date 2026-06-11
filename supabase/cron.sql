@@ -2,8 +2,8 @@ create extension if not exists pg_cron;
 create extension if not exists pg_net;
 
 select cron.schedule(
-  'varthanow-auto-news-every-15-minutes',
-  '*/15 * * * *',
+  'varthanow-auto-news-every-hour',
+  '0 * * * *',
   $$
   select
     net.http_post(

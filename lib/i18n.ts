@@ -1,12 +1,7 @@
 import type { Language } from "@/lib/types";
 
 export const languages: { code: Language; label: string; native: string }[] = [
-  { code: "te", label: "Telugu", native: "తెలుగు" },
-  { code: "en", label: "English", native: "English" },
-  { code: "hi", label: "Hindi", native: "हिन्दी" },
-  { code: "ta", label: "Tamil", native: "தமிழ்" },
-  { code: "kn", label: "Kannada", native: "ಕನ್ನಡ" },
-  { code: "ml", label: "Malayalam", native: "മലയാളം" }
+  { code: "te", label: "Telugu", native: "తెలుగు" }
 ];
 
 export const uiCopy = {

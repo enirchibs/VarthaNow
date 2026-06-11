@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bell, Bot, Search } from "lucide-react";
 import { BottomNav } from "@/components/shell/bottom-nav";
-import { LanguageSwitcher } from "@/components/shell/language-switcher";
 import { Button } from "@/components/ui/button";
 import { useApp } from "@/components/providers/app-provider";
 import { uiCopy } from "@/lib/i18n";
@@ -34,7 +33,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Button variant="glass" size="iconSm" aria-label="Search">
               <Search className="size-4" />
             </Button>
-            <LanguageSwitcher />
             <Button asChild variant="glass" size="iconSm" aria-label="Notifications">
               <Link href="/profile">
                 <Bell className="size-4" />

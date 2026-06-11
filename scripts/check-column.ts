@@ -18,10 +18,18 @@ const supabaseUrl = process.env.VITE_SUPABASE_URL!;
 const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, serviceRole, { auth: { persistSession: false } });
 
-const { error } = await supabase.from("blog_posts").select("source_logo").limit(1);
+const { data, error } = await supabase
+  .from("blog_posts")
+  .select("id, title, language, og_image, published_at")
+  .order("published_at", { ascending: false })
+  .limit(10);
+
 if (error) {
-  console.log("Column source_logo does NOT exist yet:", error.message);
+  console.error("Error querying blog posts:", error.message);
 } else {
-  console.log("✅ Column source_logo EXISTS in blog_posts!");
+  console.log("Recent Blog Posts:");
+  data?.forEach((post) => {
+    console.log(`- [${post.language}] ${post.title}\n  Image: ${post.og_image}\n  Published At: ${post.published_at}\n`);
+  });
 }
 process.exit(0);

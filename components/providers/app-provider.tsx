@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { Language } from "@/lib/types";
 
-const supportedLanguages: Language[] = ["te", "en", "hi", "ta", "kn", "ml"];
+const supportedLanguages: Language[] = ["te"];
 
 type AppContextValue = {
   language: Language;

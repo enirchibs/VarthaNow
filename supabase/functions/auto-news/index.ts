@@ -43,43 +43,7 @@ const feeds: { category: Category; url: string; language: "te" | "en" | "hi" | "
   { category: "technology", url: "https://news.google.com/rss/search?q=technology+latest+trending&hl=te&gl=IN&ceid=IN:te", language: "te" },
   { category: "jobs", url: "https://news.google.com/rss/search?q=jobs+careers+hiring&hl=te&gl=IN&ceid=IN:te", language: "te" },
   { category: "cricket", url: "https://news.google.com/rss/search?q=cricket+latest+trending&hl=te&gl=IN&ceid=IN:te", language: "te" },
-  { category: "politics", url: "https://news.google.com/rss/search?q=politics+latest+trending&hl=te&gl=IN&ceid=IN:te", language: "te" },
-  // English feeds
-  { category: "andhra-pradesh", url: "https://news.google.com/rss/search?q=andhra+pradesh+latest+breaking&hl=en&gl=IN&ceid=IN:en", language: "en" },
-  { category: "telangana", url: "https://news.google.com/rss/search?q=telangana+latest+breaking&hl=en&gl=IN&ceid=IN:en", language: "en" },
-  { category: "cinema", url: "https://news.google.com/rss/search?q=bollywood+tollywood+latest+trending&hl=en&gl=IN&ceid=IN:en", language: "en" },
-  { category: "vizag", url: "https://news.google.com/rss/search?q=visakhapatnam+latest+news&hl=en&gl=IN&ceid=IN:en", language: "en" },
-  { category: "technology", url: "https://news.google.com/rss/search?q=technology+latest+trending&hl=en&gl=IN&ceid=IN:en", language: "en" },
-  { category: "jobs", url: "https://news.google.com/rss/search?q=careers+jobs+hiring&hl=en&gl=IN&ceid=IN:en", language: "en" },
-  { category: "cricket", url: "https://news.google.com/rss/search?q=cricket+latest+trending&hl=en&gl=IN&ceid=IN:en", language: "en" },
-  { category: "politics", url: "https://news.google.com/rss/search?q=indian+politics+latest+trending&hl=en&gl=IN&ceid=IN:en", language: "en" },
-  // Hindi feeds
-  { category: "andhra-pradesh", url: "https://news.google.com/rss/search?q=andhra+pradesh+latest+breaking&hl=hi&gl=IN&ceid=IN:hi", language: "hi" },
-  { category: "telangana", url: "https://news.google.com/rss/search?q=telangana+latest+breaking&hl=hi&gl=IN&ceid=IN:hi", language: "hi" },
-  { category: "cinema", url: "https://news.google.com/rss/search?q=bollywood+cinema+latest+trending&hl=hi&gl=IN&ceid=IN:hi", language: "hi" },
-  { category: "vizag", url: "https://news.google.com/rss/search?q=vizag+latest+news&hl=hi&gl=IN&ceid=IN:hi", language: "hi" },
-  { category: "technology", url: "https://news.google.com/rss/search?q=technology+latest+trending&hl=hi&gl=IN&ceid=IN:hi", language: "hi" },
-  { category: "jobs", url: "https://news.google.com/rss/search?q=jobs+careers+hiring&hl=hi&gl=IN&ceid=IN:hi", language: "hi" },
-  { category: "cricket", url: "https://news.google.com/rss/search?q=cricket+latest+trending&hl=hi&gl=IN&ceid=IN:hi", language: "hi" },
-  { category: "politics", url: "https://news.google.com/rss/search?q=politics+latest+trending&hl=hi&gl=IN&ceid=IN:hi", language: "hi" },
-  // Tamil feeds
-  { category: "andhra-pradesh", url: "https://news.google.com/rss/search?q=andhra+pradesh+latest+breaking&hl=ta&gl=IN&ceid=IN:ta", language: "ta" },
-  { category: "telangana", url: "https://news.google.com/rss/search?q=telangana+latest+breaking&hl=ta&gl=IN&ceid=IN:ta", language: "ta" },
-  { category: "cinema", url: "https://news.google.com/rss/search?q=cinema+latest+trending&hl=ta&gl=IN&ceid=IN:ta", language: "ta" },
-  { category: "vizag", url: "https://news.google.com/rss/search?q=visakhapatnam+latest+news&hl=ta&gl=IN&ceid=IN:ta", language: "ta" },
-  { category: "technology", url: "https://news.google.com/rss/search?q=technology+latest+trending&hl=ta&gl=IN&ceid=IN:ta", language: "ta" },
-  { category: "jobs", url: "https://news.google.com/rss/search?q=careers+jobs+hiring&hl=ta&gl=IN&ceid=IN:ta", language: "ta" },
-  { category: "cricket", url: "https://news.google.com/rss/search?q=cricket+latest+trending&hl=ta&gl=IN&ceid=IN:ta", language: "ta" },
-  { category: "politics", url: "https://news.google.com/rss/search?q=politics+latest+trending&hl=ta&gl=IN&ceid=IN:ta", language: "ta" },
-  // Kannada feeds
-  { category: "andhra-pradesh", url: "https://news.google.com/rss/search?q=andhra+pradesh+latest+breaking&hl=kn&gl=IN&ceid=IN:kn", language: "kn" },
-  { category: "telangana", url: "https://news.google.com/rss/search?q=telangana+latest+breaking&hl=kn&gl=IN&ceid=IN:kn", language: "kn" },
-  { category: "cinema", url: "https://news.google.com/rss/search?q=cinema+latest+trending&hl=kn&gl=IN&ceid=IN:kn", language: "kn" },
-  { category: "vizag", url: "https://news.google.com/rss/search?q=visakhapatnam+latest+news&hl=kn&gl=IN&ceid=IN:kn", language: "kn" },
-  { category: "technology", url: "https://news.google.com/rss/search?q=technology+latest+trending&hl=kn&gl=IN&ceid=IN:kn", language: "kn" },
-  { category: "jobs", url: "https://news.google.com/rss/search?q=careers+jobs+hiring&hl=kn&gl=IN&ceid=IN:kn", language: "kn" },
-  { category: "cricket", url: "https://news.google.com/rss/search?q=cricket+latest+trending&hl=kn&gl=IN&ceid=IN:kn", language: "kn" },
-  { category: "politics", url: "https://news.google.com/rss/search?q=politics+latest+trending&hl=kn&gl=IN&ceid=IN:kn", language: "kn" }
+  { category: "politics", url: "https://news.google.com/rss/search?q=politics+latest+trending&hl=te&gl=IN&ceid=IN:te", language: "te" }
 ];
 
 serve(async (request) => {
@@ -135,6 +99,33 @@ serve(async (request) => {
         const ai = await rewriteWithGemini(item, geminiKey);
         const slug = await uniqueSlug(supabase, ai.slug || baseSlug);
 
+        // Resolve original article URL and extract banner image metadata
+        const resolvedUrl = await resolveUrl(item.link);
+        const categoryFallbacks: Record<string, string> = {
+          "politics": "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=800&auto=format&fit=crop&q=60",
+          "andhra-pradesh": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=800&auto=format&fit=crop&q=60",
+          "telangana": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=800&auto=format&fit=crop&q=60",
+          "national": "https://images.unsplash.com/photo-1532375811409-905115e3b5a9?w=800&auto=format&fit=crop&q=60",
+          "international": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=800&auto=format&fit=crop&q=60",
+          "business": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&auto=format&fit=crop&q=60",
+          "sports": "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&auto=format&fit=crop&q=60",
+          "entertainment": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=60",
+          "cinema": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=60",
+          "technology": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60",
+          "jobs": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=60",
+          "cricket": "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&auto=format&fit=crop&q=60",
+          "vizag": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=800&auto=format&fit=crop&q=60"
+        };
+
+        let chosenImageUrl = categoryFallbacks[item.category] || "/og-image.png";
+        const scrapedImg = await fetchOgImage(resolvedUrl);
+        if (scrapedImg) {
+          const uploadedUrl = await uploadImageToStorage(supabase, scrapedImg, slug);
+          if (uploadedUrl) {
+            chosenImageUrl = uploadedUrl;
+          }
+        }
+
         const { error } = await supabase.from("blog_posts").insert({
           slug,
           title: ai.title,
@@ -144,7 +135,7 @@ serve(async (request) => {
           tags: ai.tags,
           meta_title: ai.meta_title,
           meta_description: ai.meta_description,
-          og_image: `/images/${item.category}-fallback.jpg`,
+          og_image: chosenImageUrl,
           author_name: "VarthaNow AI Desk",
           language: item.language,
           published: true,
@@ -228,7 +219,7 @@ Published: ${item.pubDate}
 Category: ${item.category}
 `;
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -320,3 +311,79 @@ function corsHeaders() {
     "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
   };
 }
+
+async function fetchOgImage(articleUrl: string): Promise<string | null> {
+  try {
+    const response = await fetch(articleUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      }
+    });
+    if (!response.ok) return null;
+    const html = await response.text();
+    
+    // 1. og:image
+    let match = html.match(/<meta\s+[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i);
+    if (!match) match = html.match(/<meta\s+[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
+    if (match && match[1]) {
+      let imgUrl = match[1].trim().replace(/&amp;/g, "&");
+      if (imgUrl.startsWith("//")) imgUrl = "https:" + imgUrl;
+      return imgUrl;
+    }
+  } catch {}
+  return null;
+}
+
+async function resolveUrl(googleUrl: string): Promise<string> {
+  try {
+    const response = await fetch(googleUrl, {
+      method: "GET",
+      redirect: "follow",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      }
+    });
+    return response.url || googleUrl;
+  } catch {
+    return googleUrl;
+  }
+}
+
+async function uploadImageToStorage(supabase: any, imageUrl: string, slug: string): Promise<string | null> {
+  try {
+    const res = await fetch(imageUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+      }
+    });
+    if (!res.ok) return null;
+    const arrayBuffer = await res.arrayBuffer();
+    const buffer = new Uint8Array(arrayBuffer);
+
+    const now = new Date();
+    const datePath = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
+    const fileName = `${slug.slice(0, 60)}-${Date.now()}.jpg`;
+    const storagePath = `article-images/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("news-images")
+      .upload(storagePath, buffer, {
+        contentType: "image/jpeg",
+        cacheControl: "3600",
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error(`Storage upload error: ${uploadError.message}`);
+      return null;
+    }
+
+    const { data: urlData } = supabase.storage.from("news-images").getPublicUrl(storagePath);
+    return urlData.publicUrl;
+  } catch (error) {
+    console.error(`Upload error:`, error);
+    return null;
+  }
+}
+
+

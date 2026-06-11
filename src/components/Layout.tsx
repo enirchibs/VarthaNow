@@ -81,27 +81,6 @@ export function Layout() {
             </span>
           </Link>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 rounded-full bg-[hsl(var(--muted))] p-1">
-              {(["te", "en", "hi", "ta", "kn"] as const).map((code) => {
-                const names: Record<string, string> = { te: "TE", en: "EN", hi: "HI", ta: "TA", kn: "KN" };
-                const fullName: Record<string, string> = { te: "తెలుగు", en: "English", hi: "हिंदी", ta: "தமிழ்", kn: "ಕನ್ನಡ" };
-                const active = lang === code;
-                return (
-                  <button
-                    key={code}
-                    onClick={() => changeLanguage(code)}
-                    title={fullName[code]}
-                    className={`rounded-full px-2.5 py-1.5 text-xs font-black transition ${
-                      active
-                        ? "bg-[hsl(var(--primary))] text-white shadow-sm"
-                        : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--background))]/50 hover:text-[hsl(var(--foreground))]"
-                    }`}
-                  >
-                    {names[code]}
-                  </button>
-                );
-              })}
-            </div>
             <Button variant="secondary" className="hidden sm:inline-flex" onClick={() => setDark((value) => !value)}>
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
               {dark ? (
