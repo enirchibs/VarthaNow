@@ -1,4 +1,4 @@
-import { Bookmark, Clock3, Send, Share2 } from "lucide-react";
+import { Bookmark, Send, Share2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { categoryLabel } from "@/lib/categories";
 import { timeAgo } from "@/lib/format";
@@ -12,6 +12,7 @@ export function NewsCard({ post, priority = false }: { post: BlogPost; priority?
 
   return (
     <article className="group overflow-hidden rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-[0_12px_30px_rgba(37,99,235,0.08)] transition-all duration-300 hover:shadow-[0_20px_40px_rgba(37,99,235,0.15)]">
+      {/* 1. Image Banner */}
       <Link to={`/news/${post.slug}`} className="block">
         <div className="relative aspect-[16/10] overflow-hidden bg-[hsl(var(--muted))]">
           {post.og_image ? (
@@ -28,31 +29,22 @@ export function NewsCard({ post, priority = false }: { post: BlogPost; priority?
             </div>
           )}
           
-          {/* Subtle Dark Vignette & Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-          
           {/* Category Badge on Top-Left */}
           <div className="absolute left-3 top-3 z-10">
             <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-0 font-extrabold text-[10px] tracking-wide uppercase px-2.5 py-1">
               {categoryLabel(post.category)}
             </Badge>
           </div>
-
-          {/* Redesigned Telugu/Active Headline Overlayed on Image */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-            <h2 className="text-base md:text-lg font-black leading-snug text-white line-clamp-2 drop-shadow-md group-hover:text-blue-200 transition-colors duration-300">
-              {post.title}
-            </h2>
-          </div>
         </div>
       </Link>
       
+      {/* 2. Headline & Metadata (Dailyhunt Style - Below Image) */}
       <div className="space-y-3 p-4">
-        {/* News Excerpt */}
+        {/* Headline Title */}
         <Link to={`/news/${post.slug}`} className="block">
-          <p className="line-clamp-2 text-xs leading-5 text-[hsl(var(--muted-foreground))] font-medium">
-            {post.excerpt}
-          </p>
+          <h2 className="text-base md:text-lg font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 hover:text-[hsl(var(--primary))] transition-colors duration-300">
+            {post.title}
+          </h2>
         </Link>
         
         {/* Metadata and Action Section */}
