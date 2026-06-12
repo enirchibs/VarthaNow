@@ -146,24 +146,24 @@ export function Layout() {
             <Search className="size-4" />
           </Link>
         </div>
-        <nav className="container-shell no-scrollbar flex gap-1.5 md:gap-2 overflow-x-auto pb-3">
+        <nav className="container-shell no-scrollbar flex gap-1 md:gap-2 overflow-x-auto pb-3">
           <NavLink
             to="/"
             end
             className={({ isActive }) =>
-              `shrink-0 rounded-full p-1.5 md:p-2.5 text-[10px] md:text-sm font-black transition ${
+              `shrink-0 rounded-full p-1 md:p-2.5 text-[9px] md:text-sm font-black transition ${
                 isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
-            <Home className="size-3.5 md:size-4.5" />
+            <Home className="size-3 md:size-4.5" />
           </NavLink>
           
           <NavLink
             to="/"
             end
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-2 py-1 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition ${
+              `shrink-0 rounded-full px-1.5 py-0.5 md:px-4 md:py-2 text-[9px] md:text-sm font-black transition ${
                 isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
               }`
             }
@@ -174,7 +174,7 @@ export function Layout() {
           <NavLink
             to="/jobs"
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-2 py-1 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition ${
+              `shrink-0 rounded-full px-1.5 py-0.5 md:px-4 md:py-2 text-[9px] md:text-sm font-black transition ${
                 isActive ? "bg-[hsl(var(--primary))] text-white shadow-sm shadow-indigo-500/15" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]/80 hover:text-[hsl(var(--foreground))]"
               }`
             }
@@ -187,7 +187,7 @@ export function Layout() {
               key={category.slug}
               to={`/category/${category.slug}`}
               className={({ isActive }) =>
-                `shrink-0 rounded-full px-2 py-1 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition ${
+                `shrink-0 rounded-full px-1.5 py-0.5 md:px-4 md:py-2 text-[9px] md:text-sm font-black transition ${
                   isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
                 }`
               }

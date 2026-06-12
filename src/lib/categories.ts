@@ -15,11 +15,35 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     rssQuery: "viral news shorts trending video clips"
   },
   {
+    slug: "devotional",
+    label: {
+      te: "జ్యోతిష్యం",
+      en: "Astrology",
+      hi: "ज्योतिष",
+      ta: "ஜோதிடம்",
+      kn: "ಜ್ಯೋತಿಷ್ಯ"
+    },
+    short: "Jyotisham",
+    rssQuery: "panchangam rasi phalalu vastu bhakti temple"
+  },
+  {
+    slug: "health",
+    label: {
+      te: "ఆరోగ్యం",
+      en: "Health",
+      hi: "स्वास्थ्य",
+      ta: "சுகாதாரம்",
+      kn: "ಆರೋಗ್ಯ"
+    },
+    short: "Health",
+    rssQuery: "health wellness seasonal tips BP diabetes stress"
+  },
+  {
     slug: "andhra-pradesh",
     label: {
       te: "ఆంధ్రప్రదేశ్",
       en: "Andhra Pradesh",
-      hi: "आंध्र प्रदेश",
+      hi: "आंध प्रदेश",
       ta: "ஆந்திரப் பிரதேசம்",
       kn: "ಆಂಧ್ರಪ್ರದೇಶ್"
     },
@@ -37,30 +61,6 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     },
     short: "TG",
     rssQuery: "telangana"
-  },
-  {
-    slug: "devotional",
-    label: {
-      te: "జ్యోతిష్యం & ఆధ్యాత్మికం",
-      en: "Astrology & Spirituality",
-      hi: "ज्योतिष और आध्यात्मिकता",
-      ta: "ஜோதிடம் & ஆன்மீகம்",
-      kn: "ಜ್ಯೋತಿಷ್ಯ ಮತ್ತು ಅಧ್ಯಾತ್ಮ"
-    },
-    short: "Jyotisham",
-    rssQuery: "panchangam rasi phalalu vastu bhakti temple"
-  },
-  {
-    slug: "health",
-    label: {
-      te: "ఆరోగ్యం",
-      en: "Health",
-      hi: "स्वास्थ्य",
-      ta: "சுகாதாரம்",
-      kn: "ಆರೋಗ್ಯ"
-    },
-    short: "Health",
-    rssQuery: "health wellness seasonal tips BP diabetes stress"
   },
   {
     slug: "cricket",
