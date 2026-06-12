@@ -769,18 +769,8 @@ async function run() {
   console.log("═".repeat(66));
   console.log("📡 VaartaNow Telugu Deep Ingestion Pipeline — STARTED");
 
-  // Cleanup older articles (keep last 1 hour)
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-  console.log(`🧹 Truncating articles older than ${oneHourAgo}...`);
-  const { error: deleteError } = await supabase
-    .from("blog_posts")
-    .delete()
-    .lt("published_at", oneHourAgo);
-  if (deleteError) {
-    console.error(`   ❌ Failed to truncate old articles: ${deleteError.message}`);
-  } else {
-    console.log(`   ✅ Old articles truncated successfully.`);
-  }
+  // Cleanup older articles disabled (web site testing mode)
+  console.log(`🧹 Truncation of old articles is disabled during testing.`);
   console.log(`   ${TELUGU_FEEDS.length} categories × up to ${ITEMS_PER_FEED} articles = ${TELUGU_FEEDS.length * ITEMS_PER_FEED} max articles`);
   console.log("═".repeat(66));
 
