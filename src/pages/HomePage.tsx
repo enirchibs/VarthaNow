@@ -77,30 +77,7 @@ export function HomePage() {
 
 
 
-      {/* 🚀 Header Banner: మీ వార్తలు (Your News) Branding */}
-      <section className="relative overflow-hidden rounded-3xl border border-white/20 dark:border-white/10 bg-white/70 dark:bg-zinc-950/70 p-5 md:p-6 shadow-md backdrop-blur-xl">
-        <div className="absolute -left-16 -top-16 -z-10 size-36 rounded-full bg-blue-500/10 blur-3xl" />
-        <div className="absolute -right-16 -bottom-16 -z-10 size-36 rounded-full bg-red-500/10 blur-3xl" />
-        
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="space-y-1">
-            <h1 className="flex items-center gap-2.5 text-2xl md:text-3xl font-black text-[hsl(var(--foreground))]">
-              <Sparkles className="size-6 text-red-600 dark:text-red-500 animate-pulse" />
-              {translations.title[lang] || translations.title.te}
-            </h1>
-            <p className="text-sm font-bold text-[hsl(var(--muted-foreground))]">
-              {translations.tagline[lang] || translations.tagline.te}
-            </p>
-          </div>
-          <button
-            onClick={() => setIsSwiperOpen(true)}
-            className="h-11 rounded-full px-5 text-xs font-black transition flex items-center gap-2 shadow-sm bg-gradient-to-r from-red-600 to-indigo-600 hover:from-red-700 hover:to-indigo-700 text-white shadow-red-500/20 active:scale-95 duration-200 shrink-0"
-          >
-            <Sparkles className="size-4 animate-pulse" />
-            {lang === "te" ? "కార్డ్స్ రీడర్ 📱" : "Cards Reader 📱"}
-          </button>
-        </div>
-      </section>
+
 
       {slides.length > 0 && currentSlide && (
         <section className="grid gap-4 lg:grid-cols-[1.85fr_1.15fr]">

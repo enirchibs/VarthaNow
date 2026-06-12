@@ -14,7 +14,7 @@ export function NewsGrid({ posts, loading }: { posts: BlogPost[]; loading?: bool
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-1.5 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
       {posts.map((post, index) => (
         <NewsCard key={post.slug} post={post} priority={index === 0} />
       ))}
