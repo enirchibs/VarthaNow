@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 
-const INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+const INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
 
 let cycleCount = 0;
 const startTime = new Date();
@@ -99,7 +99,7 @@ async function runDispatcher() {
   banner(
     `✅ Cycle #${cycleCount} complete at ${ts()}\n` +
     `   News exit: ${newsExitCode}  |  Telugu exit: ${teluguExitCode}\n` +
-    `   Next cycle in 60 minutes  |  Uptime: ${uptime()}`
+    `   Next cycle in 15 minutes  |  Uptime: ${uptime()}`
   );
 }
 
@@ -107,7 +107,7 @@ banner(
   `🚀 VaartaNow Dispatcher — LIVE\n` +
   `   Started at: ${ts()}\n` +
   `   Fetches News Ingestion + Telugu Deep Ingestion (All Categories)\n` +
-  `   — every 1 hour.`
+  `   — every 15 minutes.`
 );
 
 // Run immediately on startup, then every 15 minutes
