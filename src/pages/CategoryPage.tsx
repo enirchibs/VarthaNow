@@ -382,6 +382,8 @@ export function CategoryPage() {
         </p>
       </section>
 
+      {category === "health" && <HealthInteractiveTool />}
+
       {category === "devotional" && <DevotionalHub />}
 
       {category === "cricket" && <CricketLiveScoreHub />}
@@ -433,10 +435,7 @@ export function CategoryPage() {
             <PoliticsInteractiveTool />
           )}
 
-          {/* Health tools */}
-          {category === "health" && (
-            <HealthInteractiveTool />
-          )}
+
 
           {/* Fallback standard AdSense block */}
           <div className="rounded-[1.4rem] border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 text-center text-sm font-bold text-[hsl(var(--muted-foreground))]">
