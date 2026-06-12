@@ -170,7 +170,7 @@ export function HomePage() {
           </div>
 
           {/* 📰 Beside Flashcards: Latest news (మీ వార్తలు) */}
-          <div className="flex flex-col rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 shadow-sm hover:shadow-md transition duration-300">
+          <div className="hidden lg:flex flex-col rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 shadow-sm hover:shadow-md transition duration-300">
             <div className="flex items-center gap-3 mb-4">
               <div className="h-[2px] flex-1 bg-gradient-to-r from-transparent to-red-600" />
               <h3 className="text-base font-black text-red-600 dark:text-red-500 uppercase tracking-wider">
