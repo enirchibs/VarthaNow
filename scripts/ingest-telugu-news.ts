@@ -3,6 +3,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import Parser from "rss-parser";
 import * as fs from "fs";
 import * as crypto from "crypto";
+import { JSDOM } from "jsdom";
+import { Readability } from "@mozilla/readability";
+// @ts-ignore
+import postlightParser from "@postlight/parser";
 
 // ═══════════════════════════════════════════════════════════════════
 //  VaartaNow — Production Telugu News Deep Ingestion Pipeline
@@ -583,91 +587,61 @@ async function uploadImageToStorage(imageUrl: string, slug: string): Promise<{ p
 
 interface GeminiArticleOutput {
   title: string;
-  excerpt: string;
+  summary: string;
   content: string;
-  tags: string[];
-  image_tags: string[];
-  meta_title: string;
-  meta_description: string;
-  reading_time_min: number;
-  featured: boolean;
-  summary_short: string;
-  summary_medium: string;
-  summary_long: string;
 }
 
 async function generateArticleContent(
-  rssTitle: string,
-  rssLink: string,
-  category: string,
   sourceText: string
 ): Promise<GeminiArticleOutput> {
+  console.log(`[GEMINI REQUEST SENT] Article length: ${sourceText.length}`);
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-  const prompt = `You are VaartaNow, a leading Telugu digital news platform.
-Rewrite and expand the following news item into premium, plagiarism-free Telugu journalism content based on the provided source text.
-If the SOURCE TEXT CONTENT is short or only a snippet, expand it intelligently and write a complete, detailed, and professionally written Telugu news article (at least 3 detailed paragraphs) using your general knowledge about the topic, context, and entities mentioned, while ensuring it is factually logical, plagiarism-free, and engaging.
+  const prompt = `You are a professional Telugu news editor.
 
-RSS Title: "${rssTitle}"
-Category: "${category}"
-Link: "${rssLink}"
+You will receive the FULL ARTICLE CONTENT below.
 
-SOURCE TEXT CONTENT:
-"""
-${sourceText || rssTitle}
-"""
+Rewrite the article completely in your own words.
 
-Generate ALL of these fields based on the source text:
-1. title: Engaging, premium Telugu headline
-2. excerpt: Brief Telugu snippet (1-2 sentences summarizing the news)
-3. content: Full markdown-rich article body in Telugu (at least 3-6 detailed paragraphs, properly formatted with markdown headings if necessary)
-4. tags: Array of 5-10 SEO tags (mix of Telugu and English — locations, people, topics, organizations)
-5. image_tags: Array of 5-8 image search keywords in English (for reverse image search and SEO)
-6. meta_title: SEO meta title in Telugu
-7. meta_description: SEO meta description in Telugu
-8. reading_time_min: Estimated reading time in minutes (integer)
-9. featured: boolean (true only for major breaking news)
-10. summary_short: Single punchy one-liner in Telugu
-11. summary_medium: 1-2 paragraph Telugu description
-12. summary_long: Rich 4-8 paragraph detailed Telugu breakdown with key facts, timelines, names, locations
+Requirements:
 
-Ensure strict factual accuracy. No hallucination. Return ONLY valid JSON matching this schema:
+* Generate a new headline.
+* Generate a 50-word summary.
+* Generate 3 detailed paragraphs.
+* Minimum 250 words.
+* Maximum 500 words.
+* Preserve facts.
+* Do not copy source sentences.
+* Never output markdown.
+* Never output source URLs.
+* Never say "according to the report".
+* Return valid JSON only.
+
+JSON Format:
+
 {
-  "title": "string",
-  "excerpt": "string",
-  "content": "string",
-  "tags": ["string"],
-  "image_tags": ["string"],
-  "meta_title": "string",
-  "meta_description": "string",
-  "reading_time_min": number,
-  "featured": boolean,
-  "summary_short": "string",
-  "summary_medium": "string",
-  "summary_long": "string"
-}`;
+"title": "",
+"summary": "",
+"content": ""
+}
+
+ARTICLE CONTENT:
+
+${sourceText}`;
 
   try {
     const text = await withRetry(async () => {
       const result = await model.generateContent(prompt);
-      return result.response.text().replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+      return result.response.text()
+        .replace(/^```json\s*/i, "")
+        .replace(/```\s*$/i, "")
+        .trim();
     });
-    return JSON.parse(text);
+    console.log(`[GEMINI RESPONSE RECEIVED] Raw response preview: ${text.slice(0, 200)}...`);
+    const parsed = JSON.parse(text);
+    return parsed;
   } catch (error: any) {
     console.warn(`    ⚠ Gemini content generation failed: ${error.message}`);
-    return {
-      title: rssTitle,
-      excerpt: rssTitle,
-      content: `## ${rssTitle}\n\nRead more at [source](${rssLink})`,
-      tags: [category, "News", "Telugu"],
-      image_tags: [category, "news", "telugu"],
-      meta_title: rssTitle,
-      meta_description: rssTitle,
-      reading_time_min: 2,
-      featured: false,
-      summary_short: rssTitle,
-      summary_medium: rssTitle,
-      summary_long: `Detailed report on ${rssTitle}. Source: ${rssLink}. Error: ${error.message}`
-    };
+    throw error;
   }
 }
 
@@ -761,6 +735,94 @@ async function runImagePipeline(
   return fallbackResult;
 }
 
+async function extractFullArticleContent(url: string, html: string): Promise<string> {
+  console.log(`[ARTICLE EXTRACTION] Starting extraction pipeline for: ${url}`);
+  
+  // Method 1: Mozilla Readability
+  if (html) {
+    try {
+      console.log(`[ARTICLE EXTRACTION] Attempting Method 1: Mozilla Readability...`);
+      const dom = new JSDOM(html, { url });
+      const reader = new Readability(dom.window.document);
+      const article = reader.parse();
+      if (article && article.textContent && article.textContent.trim().length >= 500) {
+        console.log(`[ARTICLE EXTRACTION SUCCESS] Method 1 (Mozilla Readability) extracted ${article.textContent.trim().length} chars.`);
+        return article.textContent.trim();
+      }
+      console.log(`[ARTICLE EXTRACTION] Method 1 (Mozilla Readability) returned insufficient content (<500 chars).`);
+    } catch (e: any) {
+      console.log(`[ARTICLE EXTRACTION] Method 1 (Mozilla Readability) failed: ${e.message}`);
+    }
+  }
+
+  // Method 2: Firecrawl
+  const firecrawlKey = process.env.FIRECRAWL_API_KEY;
+  if (firecrawlKey) {
+    try {
+      console.log(`[ARTICLE EXTRACTION] Attempting Method 2: Firecrawl...`);
+      const res = await fetch("https://api.firecrawl.dev/v0/scrape", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${firecrawlKey}`
+        },
+        body: JSON.stringify({ url, pageOptions: { onlyMainContent: true } }),
+        signal: AbortSignal.timeout(15_000)
+      });
+      if (res.ok) {
+        const json: any = await res.json();
+        const content = json?.data?.content || "";
+        if (content.trim().length >= 500) {
+          console.log(`[ARTICLE EXTRACTION SUCCESS] Method 2 (Firecrawl) extracted ${content.trim().length} chars.`);
+          return content.trim();
+        }
+      }
+      console.log(`[ARTICLE EXTRACTION] Method 2 (Firecrawl) returned insufficient content.`);
+    } catch (e: any) {
+      console.log(`[ARTICLE EXTRACTION] Method 2 (Firecrawl) failed: ${e.message}`);
+    }
+  } else {
+    console.log(`[ARTICLE EXTRACTION] Method 2 (Firecrawl) skipped: Missing FIRECRAWL_API_KEY.`);
+  }
+
+  // Method 3: Jina AI Reader
+  try {
+    console.log(`[ARTICLE EXTRACTION] Attempting Method 3: Jina AI Reader...`);
+    const jinaRes = await fetch(`https://r.jina.ai/${url}`, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+      },
+      signal: AbortSignal.timeout(15_000)
+    });
+    if (jinaRes.ok) {
+      const content = await jinaRes.text();
+      if (content.trim().length >= 500) {
+        console.log(`[ARTICLE EXTRACTION SUCCESS] Method 3 (Jina AI Reader) extracted ${content.trim().length} chars.`);
+        return content.trim();
+      }
+    }
+    console.log(`[ARTICLE EXTRACTION] Method 3 (Jina AI Reader) returned insufficient content.`);
+  } catch (e: any) {
+    console.log(`[ARTICLE EXTRACTION] Method 3 (Jina AI Reader) failed: ${e.message}`);
+  }
+
+  // Method 4: Mercury Parser
+  try {
+    console.log(`[ARTICLE EXTRACTION] Attempting Method 4: Mercury Parser...`);
+    const result = await postlightParser.parse(url, { html });
+    if (result && result.textContent && result.textContent.trim().length >= 500) {
+      console.log(`[ARTICLE EXTRACTION SUCCESS] Method 4 (Mercury Parser) extracted ${result.textContent.trim().length} chars.`);
+      return result.textContent.trim();
+    }
+    console.log(`[ARTICLE EXTRACTION] Method 4 (Mercury Parser) returned insufficient content.`);
+  } catch (e: any) {
+    console.log(`[ARTICLE EXTRACTION] Method 4 (Mercury Parser) failed: ${e.message}`);
+  }
+
+  console.log(`[ARTICLE EXTRACTION FAILED] All 4 methods failed to extract >=500 chars.`);
+  return "";
+}
+
 // ═══════════════════════════════════════════════════════════════════
 //  MAIN PIPELINE
 // ═══════════════════════════════════════════════════════════════════
@@ -781,7 +843,7 @@ async function run() {
 
       const rss = await parser.parseURL(feed.url);
       const items = (rss.items || []).slice(0, ITEMS_PER_FEED);
-      console.log(`   Found ${items.length} items`);
+      console.log(`[RSS FETCH SUCCESS] Category: ${feed.category}, Found ${items.length} items`);
 
       for (const item of items) {
         if (!item.title || !item.link) continue;
@@ -828,87 +890,75 @@ async function run() {
             console.warn(`  ⚠ Failed to fetch article HTML: ${e.message}`);
           }
 
-          // Fetch full text content via Jina Reader to bypass scraping blocks and get clean text
-          console.log(`  📡 Fetching clean article content via Jina Reader...`);
-          let sourceText = "";
-          try {
-            const jinaUrl = `https://r.jina.ai/${resolvedUrl}`;
-            const jinaRes = await fetch(jinaUrl, {
-              headers: {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-              },
-              signal: AbortSignal.timeout(15_000)
-            });
-            if (jinaRes.ok) {
-              sourceText = await jinaRes.text();
-            }
-          } catch (e: any) {
-            console.warn(`  ⚠ Jina Reader fetch failed: ${e.message}`);
+          // Step 2: Extract FULL ARTICLE CONTENT from source URL
+          const sourceText = await extractFullArticleContent(resolvedUrl, articleHtml);
+          
+          console.log(`Source URL: ${resolvedUrl}`);
+          console.log(`Extracted text length: ${sourceText.length}`);
+          if (sourceText.length > 0) {
+            console.log(`First 500 characters of extracted content:`);
+            console.log(sourceText.slice(0, 500));
           }
 
-          // Fallback 1: Local HTML parser
-          if (!sourceText || sourceText.length < 150) {
-            console.log(`  📝 Jina Reader content short or failed. Falling back to local paragraph parser...`);
-            sourceText = articleHtml ? extractParagraphsText(articleHtml) : "";
+          if (sourceText.length < 500) {
+            console.log(`[FAILED_EXTRACTION] Source URL: ${resolvedUrl}. Text length (${sourceText.length}) is under 500 characters.`);
+            stats.failed++;
+            continue;
           }
 
-          // Fallback 2: RSS metadata snippet
-          if (sourceText.length < 100) {
-            console.log(`  📝 Local parser text short. Falling back to RSS snippets...`);
-            const fallbackText = [
-              item.contentSnippet || "",
-              item.description || "",
-              item.content || ""
-            ].filter(Boolean).join("\n\n");
-            
-            if (fallbackText) {
-              const cleanFallback = fallbackText
-                .replace(/<[^>]+>/g, "")
-                .replace(/\s+/g, " ")
-                .trim();
-              if (cleanFallback.length > sourceText.length) {
-                sourceText = cleanFallback;
-              }
-            }
+          // Step 3: Verify articleText.length > 1000 before publishing
+          if (sourceText.length <= 1000) {
+            console.log(`[SKIP_PUBLISHING] Source URL: ${resolvedUrl}. Text length (${sourceText.length}) is not > 1000 characters.`);
+            stats.skipped++;
+            continue;
           }
-          console.log(`  📝 Final extracted source text: ${sourceText.length} characters.`);
 
-          // Step 2: Extract source info
+          console.log(`[ARTICLE EXTRACTION SUCCESS] Extracted length: ${sourceText.length}`);
+          console.log(`[ARTICLE LENGTH] ${sourceText.length} characters.`);
+
+          // Extract source info
           const { name: sourceName, logoUrl: sourceLogoUrl } = extractSource(item.title, (item as any).source);
 
-          // Step 3: Generate article content via Gemini
+          // Step 4: Send FULL ARTICLE TEXT to Gemini
           console.log(`  🤖 Generating article content via Gemini...`);
-          const ai = await generateArticleContent(item.title, resolvedUrl, feed.category, sourceText);
+          const ai = await generateArticleContent(sourceText);
           await delay(5000); // Rate limit (safely under 15 requests per minute)
 
-          // Step 4: Run image pipeline
+          // Step 5: Validate Gemini response
+          if (!ai.title || !ai.summary || !ai.content || ai.content.length < 200) {
+            console.log(`[FAILED_GEMINI_GENERATION] Title exists: ${!!ai.title}, Summary exists: ${!!ai.summary}, Content length: ${ai.content?.length || 0}`);
+            stats.failed++;
+            continue;
+          }
+
+          // Run image pipeline
           const imageResult = await runImagePipeline(
             resolvedUrl,
             item.enclosure?.url || null,
-            ai.title || item.title,
-            ai.summary_short || item.title,
+            ai.title,
+            ai.summary,
             feed.category,
             baseSlug,
             articleHtml
           );
 
-          // Step 5: Build payload
+          // Step 6: Build payload and validate before insert
           const payload: Record<string, any> = {
             slug: baseSlug,
-            title: ai.title || item.title,
-            excerpt: ai.excerpt || item.title,
-            content: ai.content || item.title,
+            title: ai.title,
+            excerpt: ai.summary,
+            content: ai.content,
             category: feed.category,
-            tags: ai.tags || [feed.category],
-            meta_title: ai.meta_title || item.title,
-            meta_description: ai.meta_description || item.title,
+            tags: [feed.category, "వార్తలు", "news"],
+            meta_title: ai.title,
+            meta_description: ai.summary,
             og_image: imageResult.imageUrl,
             author_name: sourceName,
             source_logo: sourceLogoUrl,
             language: "te",
             published: true,
-            featured: ai.featured || false,
-            reading_time_min: ai.reading_time_min || 2,
+            featured: false,
+            reading_time_min: Math.max(2, Math.ceil(ai.content.split(/\s+/).length / 200)),
             published_at: item.isoDate || new Date().toISOString(),
 
             // Extended columns
@@ -917,11 +967,11 @@ async function run() {
             thumbnail_url: imageResult.imageUrl,
             featured_image_url: imageResult.imageUrl,
             image_storage_path: imageResult.storagePath,
-            image_tags: ai.image_tags || [],
+            image_tags: [feed.category],
             content_hash: hash,
-            summary_short: ai.summary_short,
-            summary_medium: ai.summary_medium,
-            summary_long: ai.summary_long,
+            summary_short: ai.summary.slice(0, 100),
+            summary_medium: ai.summary,
+            summary_long: ai.content,
 
             // Validation fields
             image_validation_status: imageResult.validationReport?.decision || "review",
@@ -933,7 +983,7 @@ async function run() {
             validated_at: imageResult.validationReport ? new Date().toISOString() : null
           };
 
-          // Step 6: Database insert with fallback
+          // Step 7: Save to Supabase
           console.log(`  💾 Inserting into database...`);
           let { error } = await supabase.from("blog_posts").insert(payload);
 
@@ -965,7 +1015,7 @@ async function run() {
             console.error(`  ❌ Insert failed: ${error.message}`);
             stats.failed++;
           } else {
-            console.log(`  ✅ Inserted: "${(ai.title || item.title).slice(0, 50)}..."`);
+            console.log(`[SUPABASE INSERT SUCCESS] Inserted: "${ai.title.slice(0, 50)}..."`);
             stats.inserted++;
           }
         } catch (articleError: any) {
