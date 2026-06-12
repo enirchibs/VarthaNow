@@ -151,7 +151,7 @@ export function Layout() {
             to="/"
             end
             className={({ isActive }) =>
-              `hidden md:inline-flex shrink-0 rounded-full p-2.5 text-sm font-black transition ${
+              `shrink-0 rounded-full p-2.5 text-sm font-black transition ${
                 isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
               }`
             }
@@ -163,7 +163,7 @@ export function Layout() {
             to="/"
             end
             className={({ isActive }) =>
-              `hidden md:inline-flex shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${
+              `shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${
                 isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
               }`
             }
@@ -174,7 +174,7 @@ export function Layout() {
           <NavLink
             to="/jobs"
             className={({ isActive }) =>
-              `hidden md:inline-flex shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${
+              `shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${
                 isActive ? "bg-[hsl(var(--primary))] text-white shadow-sm shadow-indigo-500/15" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]/80 hover:text-[hsl(var(--foreground))]"
               }`
             }
