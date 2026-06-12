@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Send, Share2 } from "lucide-react";
+import { ArrowLeft, Send, Share2, Instagram, MessageCircle } from "lucide-react";
 import type { BlogPost } from "@/types/news";
 import { getPostBySlug, getTrendingPosts } from "@/lib/news-api";
 import { categoryLabel } from "@/lib/categories";
@@ -70,6 +70,27 @@ export function NewsPage() {
 
   const shareUrl = `${window.location.origin}/news/${post.slug}`;
 
+  const shareToInstagram = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: post.title,
+          text: post.excerpt || post.title,
+          url: shareUrl,
+        });
+      } catch (err) {
+        console.log("Error sharing:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert(lang === "te" ? "లింక్ కాపీ చేయబడింది! మీరు దాన్ని ఇన్‌స్టాగ్రామ్‌లో షేర్ చేయవచ్చు." : "Link copied to clipboard! You can share it on Instagram.");
+      } catch (err) {
+        console.error("Failed to copy link: ", err);
+      }
+    }
+  };
+
   return (
     <main className="container-shell grid gap-5 py-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <article className="overflow-hidden rounded-[1.5rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
@@ -83,9 +104,9 @@ export function NewsPage() {
           </div>
           <h1 className="mt-4 text-3xl font-black leading-tight md:text-5xl">{post.title}</h1>
           <p className="mt-4 text-lg leading-8 text-[hsl(var(--muted-foreground))]">{post.excerpt}</p>
-          <div className="mt-4 flex flex-wrap items-center gap-3 text-sm font-bold text-[hsl(var(--muted-foreground))]">
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] sm:text-xs font-semibold text-[hsl(var(--muted-foreground))]">
             {/* Source with logo */}
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 dark:bg-blue-400/10 px-2.5 py-1 text-xs font-black text-blue-600 dark:text-blue-400 tracking-wide">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 dark:bg-blue-400/10 px-2 py-0.5 text-[9px] sm:text-[10px] font-black text-blue-600 dark:text-blue-400 tracking-wide">
               {post.source_logo ? (
                 <img
                   src={post.source_logo}
@@ -101,7 +122,7 @@ export function NewsPage() {
                 </span>
               )}
               {post.author_name}
-              <span className="text-sm">✓</span>
+              <span className="text-[10px]">✓</span>
             </span>
             <span className="text-gray-300 dark:text-zinc-700">·</span>
             <span>{timeAgo(post.published_at)}</span>
@@ -110,33 +131,77 @@ export function NewsPage() {
               {post.reading_time_min} {lang === "te" ? "నిమిషాల పఠనం" : lang === "en" ? "min read" : lang === "hi" ? "మినీ పఠనం" : lang === "ta" ? "நிமிட வாசிப்பு" : "ನಿಮಿಷ ಓದುವಿಕೆ"}
             </span>
           </div>
+          {/* Top Share Actions bar */}
+          <div className="mt-4 flex items-center gap-2 border-t border-b border-[hsl(var(--border))]/50 py-2.5">
+            <span className="text-[11px] font-bold text-[hsl(var(--muted-foreground))] mr-2">
+              {lang === "te" ? "షేర్ చేయండి:" : "Share:"}
+            </span>
+            <a 
+              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${post.title}\n${shareUrl}`)}`} 
+              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all duration-200" 
+              target="_blank" 
+              rel="noreferrer"
+            >
+              <MessageCircle className="size-3.5 fill-current" />
+              WhatsApp
+            </a>
+            <button 
+              onClick={shareToInstagram}
+              className="inline-flex items-center gap-1.5 rounded-full bg-pink-500/10 dark:bg-pink-400/10 px-3 py-1 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-500 hover:text-white transition-all duration-200"
+            >
+              <Instagram className="size-3.5" />
+              Instagram
+            </button>
+          </div>
         </div>
-        {(() => {
-          const ytId = (() => {
-            const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\s]{11})/i;
-            const match = post.content?.match(youtubeRegex) || post.excerpt?.match(youtubeRegex) || post.slug?.match(youtubeRegex);
-            return match ? match[1] : null;
-          })();
+        <div className="relative w-full">
+          {(() => {
+            const ytId = (() => {
+              const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\s]{11})/i;
+              const match = post.content?.match(youtubeRegex) || post.excerpt?.match(youtubeRegex) || post.slug?.match(youtubeRegex);
+              return match ? match[1] : null;
+            })();
+            
+            if (ytId) {
+              return (
+                <div className="relative aspect-video w-full overflow-hidden bg-black shadow-inner border-y border-[hsl(var(--border))]/50">
+                  <iframe
+                    src={`https://www.youtube.com/embed/${ytId}?autoplay=0&rel=0`}
+                    title={post.title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="absolute inset-0 size-full"
+                  />
+                </div>
+              );
+            }
+            
+            return post.og_image ? (
+              <img src={post.og_image} alt={post.title} referrerPolicy="no-referrer" className="max-h-[32rem] w-full object-cover animate-in fade-in duration-500" />
+            ) : null;
+          })()}
           
-          if (ytId) {
-            return (
-              <div className="relative aspect-video w-full overflow-hidden bg-black shadow-inner border-y border-[hsl(var(--border))]/50">
-                <iframe
-                  src={`https://www.youtube.com/embed/${ytId}?autoplay=0&rel=0`}
-                  title={post.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  className="absolute inset-0 size-full"
-                />
-              </div>
-            );
-          }
-          
-          return post.og_image ? (
-            <img src={post.og_image} alt={post.title} referrerPolicy="no-referrer" className="max-h-[32rem] w-full object-cover animate-in fade-in duration-500" />
-          ) : null;
-        })()}
+          {/* Floating Share Buttons on top of image/video banner */}
+          <div className="absolute right-3 top-3 z-10 flex gap-2">
+            <a 
+              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${post.title}\n${shareUrl}`)}`}
+              className="flex size-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-all hover:bg-emerald-500 hover:scale-105"
+              target="_blank"
+              rel="noreferrer"
+              title="Share on WhatsApp"
+            >
+              <MessageCircle className="size-3.5 fill-current" />
+            </a>
+            <button 
+              onClick={shareToInstagram}
+              className="flex size-8 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-sm transition-all hover:bg-pink-500 hover:scale-105"
+              title="Share on Instagram"
+            >
+              <Instagram className="size-3.5" />
+            </button>
+          </div>
+        </div>
         <div className="article-content px-4 py-6 md:px-8">
           <div dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }} />
         </div>
