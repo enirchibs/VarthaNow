@@ -821,8 +821,8 @@ async function run() {
           const resolvedUrl = await resolveUrl(item.link);
           console.log(`  🔗 Resolved: ${resolvedUrl.slice(0, 80)}...`);
 
-          // Fetch the article HTML once to extract text and images
-          console.log(`  📡 Fetching original article HTML...`);
+          // Fetch the article HTML once to extract images
+          console.log(`  📡 Fetching original article HTML for image extraction...`);
           let articleHtml = "";
           try {
             const pageRes = await fetch(resolvedUrl, {
@@ -838,8 +838,33 @@ async function run() {
             console.warn(`  ⚠ Failed to fetch article HTML: ${e.message}`);
           }
 
-          let sourceText = articleHtml ? extractParagraphsText(articleHtml) : "";
+          // Fetch full text content via Jina Reader to bypass scraping blocks and get clean text
+          console.log(`  📡 Fetching clean article content via Jina Reader...`);
+          let sourceText = "";
+          try {
+            const jinaUrl = `https://r.jina.ai/${resolvedUrl}`;
+            const jinaRes = await fetch(jinaUrl, {
+              headers: {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+              },
+              signal: AbortSignal.timeout(15_000)
+            });
+            if (jinaRes.ok) {
+              sourceText = await jinaRes.text();
+            }
+          } catch (e: any) {
+            console.warn(`  ⚠ Jina Reader fetch failed: ${e.message}`);
+          }
+
+          // Fallback 1: Local HTML parser
+          if (!sourceText || sourceText.length < 150) {
+            console.log(`  📝 Jina Reader content short or failed. Falling back to local paragraph parser...`);
+            sourceText = articleHtml ? extractParagraphsText(articleHtml) : "";
+          }
+
+          // Fallback 2: RSS metadata snippet
           if (sourceText.length < 100) {
+            console.log(`  📝 Local parser text short. Falling back to RSS snippets...`);
             const fallbackText = [
               item.contentSnippet || "",
               item.description || "",
@@ -856,7 +881,7 @@ async function run() {
               }
             }
           }
-          console.log(`  📝 Extracted ${sourceText.length} characters of source text.`);
+          console.log(`  📝 Final extracted source text: ${sourceText.length} characters.`);
 
           // Step 2: Extract source info
           const { name: sourceName, logoUrl: sourceLogoUrl } = extractSource(item.title, (item as any).source);
