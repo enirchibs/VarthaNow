@@ -27,6 +27,7 @@ export function Layout() {
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [showMoreCategories, setShowMoreCategories] = useState(false);
 
   useEffect(() => {
     if (!supabase) return;
@@ -115,6 +116,44 @@ export function Layout() {
             </span>
           </Link>
           <div className="flex items-center gap-3">
+            {/* 🌟 Bouncing Yellow Remaining Categories dropdown for mobile */}
+            <div className="relative md:hidden z-50">
+              <button
+                onClick={() => setShowMoreCategories(!showMoreCategories)}
+                className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-black rounded-full bg-yellow-400 hover:bg-yellow-500 text-black shadow-[0_0_12px_rgba(250,204,21,0.4)] border border-yellow-300 animate-bounce transition-all tracking-wide shrink-0"
+                style={{ animationDuration: "2s" }}
+              >
+                <span>➕ మరిన్ని విభాగాలు</span>
+              </button>
+              
+              {showMoreCategories && (
+                <div className="absolute right-0 mt-2.5 w-56 rounded-3xl border-2 border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-zinc-950 p-2.5 shadow-[0_20px_45px_rgba(0,0,0,0.15)] z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="text-[9px] font-black text-yellow-800 dark:text-yellow-400 border-b border-yellow-300/40 pb-1.5 mb-1.5 uppercase tracking-widest flex items-center justify-between">
+                    <span>Explore More</span>
+                    <span className="size-1.5 rounded-full bg-yellow-400 animate-ping" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {categories.slice(3).map((category) => (
+                      <NavLink
+                        key={category.slug}
+                        to={`/category/${category.slug}`}
+                        onClick={() => setShowMoreCategories(false)}
+                        className={({ isActive }) =>
+                          `block text-center rounded-2xl py-1.5 px-0.5 text-[9px] font-extrabold border transition ${
+                            isActive 
+                              ? "bg-yellow-400 text-black border-yellow-400 shadow-sm" 
+                              : "bg-white/80 dark:bg-zinc-900/80 text-yellow-950 dark:text-yellow-100 border-yellow-200/50 dark:border-zinc-800 hover:bg-yellow-400 hover:text-black hover:border-yellow-400"
+                          }`
+                        }
+                      >
+                        {categoryEmojis[category.slug] ? `${categoryEmojis[category.slug]} ` : ""}{category.short}
+                      </NavLink>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <Button variant="secondary" className="hidden sm:inline-flex" onClick={() => setDark((value) => !value)}>
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
               {dark ? (
