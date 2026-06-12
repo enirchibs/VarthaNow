@@ -1,10 +1,24 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { Moon, Search, Sun, Home, X, Smartphone } from "lucide-react";
+import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark } from "lucide-react";
 import { useEffect, useState } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
 import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
+
+const categoryEmojis: Record<string, string> = {
+  viralshorts: "🔥",
+  "andhra-pradesh": "🏛️",
+  telangana: "🏛️",
+  devotional: "🕉️",
+  health: "🏥",
+  cricket: "🏏",
+  politics: "📢",
+  cinema: "🎬",
+  vizag: "🌊",
+  technology: "💻",
+  business: "📈"
+};
 
 export function Layout() {
   const [dark, setDark] = useState(false);
@@ -84,7 +98,7 @@ export function Layout() {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(var(--background))]">
+    <div className="min-h-screen bg-[hsl(var(--background))] pb-16 md:pb-0">
       <header className="sticky top-0 z-50 border-b border-[hsl(var(--border))] bg-[hsl(var(--background))] backdrop-blur-xl">
         <div className="container-shell flex h-16 items-center gap-3">
           <Link to="/" className="flex min-w-0 flex-1 items-center gap-3">
@@ -106,7 +120,7 @@ export function Layout() {
               {dark ? (
                 lang === "te" ? "కాంతి" : lang === "en" ? "Light" : lang === "hi" ? "लाइट" : lang === "ta" ? "ஒளி" : "లైట్"
               ) : (
-                lang === "te" ? "చీకటి" : lang === "en" ? "Dark" : lang === "hi" ? "डार्क" : lang === "ta" ? "இருள்" : "ಡಾರ್ಕ್"
+                lang === "te" ? "చీకటి" : lang === "en" ? "Dark" : lang === "hi" ? "डार्क" : lang === "ta" ? "இருள்" : "డార్క్"
               )}
             </Button>
 
@@ -114,12 +128,12 @@ export function Layout() {
               <Button 
                 variant="secondary" 
                 onClick={handleSignOut}
-                className="h-10 px-4 rounded-xl text-xs font-black border border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]"
+                className="hidden md:inline-flex h-10 px-4 rounded-xl text-xs font-black border border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]"
               >
                 {lang === "te" ? "సైన్ అవుట్" : "Sign Out"}
               </Button>
             ) : (
-              <Link to="/login">
+              <Link to="/login" className="hidden md:inline-block">
                 <Button 
                   className="h-10 px-4 rounded-xl text-xs font-black bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
                 >
@@ -128,7 +142,7 @@ export function Layout() {
               </Link>
             )}
           </div>
-          <Link to="/search" className="grid size-11 place-items-center rounded-full bg-[hsl(var(--muted))]" aria-label="Search">
+          <Link to="/search" className="hidden md:grid size-11 place-items-center rounded-full bg-[hsl(var(--muted))]" aria-label="Search">
             <Search className="size-4" />
           </Link>
         </div>
@@ -137,7 +151,7 @@ export function Layout() {
             to="/"
             end
             className={({ isActive }) =>
-              `shrink-0 rounded-full p-2.5 text-sm font-black transition ${
+              `hidden md:inline-flex shrink-0 rounded-full p-2.5 text-sm font-black transition ${
                 isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
               }`
             }
@@ -149,7 +163,7 @@ export function Layout() {
             to="/"
             end
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${
+              `hidden md:inline-flex shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${
                 isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
               }`
             }
@@ -160,7 +174,7 @@ export function Layout() {
           <NavLink
             to="/jobs"
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${
+              `hidden md:inline-flex shrink-0 rounded-full px-4 py-2 text-sm font-black transition ${
                 isActive ? "bg-[hsl(var(--primary))] text-white shadow-sm shadow-indigo-500/15" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]/80 hover:text-[hsl(var(--foreground))]"
               }`
             }
@@ -178,7 +192,7 @@ export function Layout() {
                 }`
               }
             >
-              {category.label[lang]}
+              {categoryEmojis[category.slug] ? `${categoryEmojis[category.slug]} ` : ""}{category.label[lang]}
             </NavLink>
           ))}
         </nav>
@@ -309,6 +323,77 @@ export function Layout() {
           </div>
         </div>
       )}
+
+      {/* Sticky Bottom Navigation Bar for Mobile */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-[hsl(var(--border))] bg-[hsl(var(--background))/85] backdrop-blur-xl shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
+        <div className="flex h-16 items-center justify-around px-2">
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
+                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <Home className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
+            )}
+          </NavLink>
+
+          <NavLink
+            to="/search"
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
+                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <Search className={`size-6 ${isActive ? "stroke-[3px]" : ""}`} />
+            )}
+          </NavLink>
+
+          <NavLink
+            to="/category/viralshorts"
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
+                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <Video className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
+            )}
+          </NavLink>
+
+          <NavLink
+            to="/bookmarks"
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
+                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <Bookmark className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
+            )}
+          </NavLink>
+
+          <NavLink
+            to="/login"
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
+                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <User className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
+            )}
+          </NavLink>
+        </div>
+      </div>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { HomePage } from "@/pages/HomePage";
 import { NewsPage } from "@/pages/NewsPage";
 import { SearchPage } from "@/pages/SearchPage";
 import { LoginPage } from "@/pages/LoginPage";
+import { BookmarksPage } from "@/pages/BookmarksPage";
 import {
   JobsMainPage,
   JobsWFHPage,
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
     children: [
       { path: "/", element: <HomePage /> },
       { path: "/login", element: <LoginPage /> },
+      { path: "/bookmarks", element: <BookmarksPage /> },
       { path: "/category/:category", element: <CategoryPage /> },
       { path: "/news/:slug", element: <NewsPage /> },
       { path: "/search", element: <SearchPage /> },
