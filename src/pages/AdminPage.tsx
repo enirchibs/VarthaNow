@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { BarChart3, Edit3, Eye, Search, Star, Trash2, Sparkles, Upload } from "lucide-react";
+import { Link } from "react-router-dom";
+import { BarChart3, Edit3, Eye, Search, Star, Trash2, Sparkles, Upload, Activity } from "lucide-react";
 import type { BlogPost, NewsCategory } from "@/types/news";
 import { createPost, deletePost, getPosts, getAdminPosts, updatePost } from "@/lib/news-api";
 import { categories, categoryLabel } from "@/lib/categories";
@@ -276,9 +277,18 @@ export function AdminPage() {
 
   return (
     <main className="container-shell space-y-5 py-4">
-      <section className="rounded-[1.5rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5">
-        <h1 className="text-3xl font-black">Admin Dashboard</h1>
-        <p className="mt-2 text-[hsl(var(--muted-foreground))]">AI articles, publishing status, featured stories and analytics.</p>
+      <section className="rounded-[1.5rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-black">Admin Dashboard</h1>
+          <p className="mt-2 text-[hsl(var(--muted-foreground))]">AI articles, publishing status, featured stories and analytics.</p>
+        </div>
+        <Link
+          to="/admin/diagnostics"
+          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-amber-500 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 shrink-0 self-start sm:self-auto"
+        >
+          <Activity className="size-4" />
+          API Diagnostics
+        </Link>
       </section>
       <section className="grid gap-3 md:grid-cols-4">
         {[

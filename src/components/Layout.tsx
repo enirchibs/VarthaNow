@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark } from "lucide-react";
+import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
@@ -407,7 +407,7 @@ export function Layout() {
           </NavLink>
 
           <NavLink
-            to="/bookmarks"
+            to="/category/health"
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
                 isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
@@ -415,7 +415,7 @@ export function Layout() {
             }
           >
             {({ isActive }) => (
-              <Bookmark className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
+              <Heart className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
             )}
           </NavLink>
 

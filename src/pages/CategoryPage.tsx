@@ -10,6 +10,7 @@ import type { NewsCategory } from "@/types/news";
 import { DevotionalHub } from "@/components/DevotionalHub";
 import { ShortsReel } from "@/components/ShortsReel";
 import { CricketLiveScoreHub } from "@/components/CricketLiveScoreHub";
+import { HealthAssistant } from "@/components/HealthAssistant";
 import { Check } from "lucide-react";
 
 // 🏢 AP & Telangana Hyperlocal & Real Estate rates tool
@@ -364,7 +365,31 @@ export function CategoryPage() {
     setMeta({
       title: titles[lang] || titles.te,
       description: descriptions[lang] || descriptions.te,
-      canonical: `/category/${category}`
+      canonical: `/category/${category}`,
+      structuredData: category === "health" ? {
+        "@context": "https://schema.org",
+        "@type": "HealthArticle",
+        "headline": titles[lang] || titles.te,
+        "description": descriptions[lang] || descriptions.te,
+        "image": `${import.meta.env.VITE_SITE_URL ?? "http://localhost:3000"}/icons/icon-192.svg`,
+        "author": {
+          "@type": "Organization",
+          "name": "VarthaNow AI Health Desk"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "VarthaNow",
+          "logo": {
+            "@type": "ImageObject",
+            "url": `${import.meta.env.VITE_SITE_URL ?? "http://localhost:3000"}/icons/icon-192.svg`
+          }
+        },
+        "about": {
+          "@type": "MedicalCondition",
+          "name": "General Health Information"
+        },
+        "mainEntityOfPage": `${import.meta.env.VITE_SITE_URL ?? "http://localhost:3000"}/category/health`
+      } : undefined
     });
   }, [category, label, lang]);
 
@@ -382,7 +407,7 @@ export function CategoryPage() {
         </p>
       </section>
 
-      {category === "health" && <HealthInteractiveTool />}
+      {category === "health" && <HealthAssistant />}
 
       {category === "devotional" && <DevotionalHub />}
 

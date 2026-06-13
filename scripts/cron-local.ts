@@ -73,17 +73,16 @@ async function runDispatcher() {
   */
   const newsExitCode = 0;
 
-  /*
-  // ── Cooldown between tasks ──
-  console.log(`\n⏳ [${ts()}] Cooldown 5 seconds before jobs ingestion...`);
-  await new Promise(resolve => setTimeout(resolve, 5_000));
-
-  // ── Task 2: Fetch all remote jobs from Remotive API ──
-  const jobsExitCode = await executeScript(
-    "scripts/populate-jobs.ts",
-    "Jobs Ingestion — Remotive API (software-development, remote)"
-  );
-  */
+  // ── Task 2: YouTube Shorts Ingestion (Every 30 minutes / every second cycle) ──
+  let ytExitCode = 0;
+  if (cycleCount === 1 || cycleCount % 2 === 0) {
+    ytExitCode = await executeScript(
+      "scripts/ingest-youtube-shorts.ts",
+      "YouTube Shorts Ingestion — Telugu News Shorts"
+    );
+  } else {
+    console.log(`\n⏭  [${ts()}] Skipping YouTube Shorts ingestion this cycle (runs every 30 mins)`);
+  }
 
   // ── Cooldown between tasks ──
   console.log(`\n⏳ [${ts()}] Cooldown 5 seconds before Telugu news deep ingestion...`);
@@ -98,7 +97,7 @@ async function runDispatcher() {
   // ── Cycle Summary ──
   banner(
     `✅ Cycle #${cycleCount} complete at ${ts()}\n` +
-    `   News exit: ${newsExitCode}  |  Telugu exit: ${teluguExitCode}\n` +
+    `   News exit: ${newsExitCode}  |  YouTube exit: ${ytExitCode}  |  Telugu exit: ${teluguExitCode}\n` +
     `   Next cycle in 15 minutes  |  Uptime: ${uptime()}`
   );
 }

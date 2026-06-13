@@ -16,6 +16,12 @@ import {
 import { useLanguage } from "@/hooks/useLanguage";
 import { getShortVideos, type ShortVideoItem } from "@/lib/shorts-api";
 
+function getYoutubeId(url: string): string {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+  const match = url?.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : "";
+}
+
 export function ShortsReel() {
   const { lang } = useLanguage();
   const [videos, setVideos] = useState<ShortVideoItem[]>([]);
@@ -245,24 +251,33 @@ export function ShortsReel() {
             </div>
             
             {/* The Reel Video Player */}
-            <video 
-              ref={videoRef}
-              src={activeVideo.clip} 
-              autoPlay
-              loop 
-              muted={muted}
-              playsInline
-              className="w-full h-full object-cover cursor-pointer"
-              onClick={() => {
-                if (videoRef.current) {
-                  if (videoRef.current.paused) {
-                    videoRef.current.play();
-                  } else {
-                    videoRef.current.pause();
+            {activeVideo.clip.includes("youtube.com") || activeVideo.clip.includes("youtu.be") ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${getYoutubeId(activeVideo.clip)}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${getYoutubeId(activeVideo.clip)}&controls=0&modestbranding=1&rel=0&playsinline=1`}
+                className="w-full h-full object-cover pointer-events-none"
+                allow="autoplay; encrypted-media; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <video 
+                ref={videoRef}
+                src={activeVideo.clip} 
+                autoPlay
+                loop 
+                muted={muted}
+                playsInline
+                className="w-full h-full object-cover cursor-pointer"
+                onClick={() => {
+                  if (videoRef.current) {
+                    if (videoRef.current.paused) {
+                      videoRef.current.play();
+                    } else {
+                      videoRef.current.pause();
+                    }
                   }
-                }
-              }}
-            />
+                }}
+              />
+            )}
 
             {/* Top Navigation Bar inside phone */}
             <div className="absolute top-4 inset-x-4 flex justify-between items-center z-10">

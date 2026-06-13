@@ -70,7 +70,6 @@ const TELUGU_FEEDS = [
   { category: "andhra-pradesh", query: "ఆంధ్రప్రదేశ్ వార్తలు" },
   { category: "telangana", query: "తెలంగాణ వార్తలు" },
   { category: "cinema", query: "సినిమా టాలీవుడ్" },
-  { category: "vizag", query: "విశాఖపట్నం" },
   { category: "technology", query: "సాంకేతిక వార్తలు" },
   { category: "jobs", query: "ఉద్యోగాలు" },
   { category: "cricket", query: "క్రికెట్" },
@@ -200,7 +199,7 @@ function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function withRetry<T>(fn: () => Promise<T>, retries = 5, delayMs = 6000): Promise<T> {
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 3000): Promise<T> {
   let attempt = 0;
   while (true) {
     try {
@@ -212,7 +211,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 5, delayMs = 6000): 
       if (isRateLimit && attempt < retries) {
         console.warn(`    [Gemini API Rate Limit] Attempt ${attempt}/${retries} failed. Retrying in ${delayMs / 1000}s...`);
         await delay(delayMs);
-        delayMs *= 1.5; // Exponential backoff
+        delayMs *= 2.0; // Exponential backoff
         continue;
       }
       throw error;
@@ -469,63 +468,7 @@ interface ImageValidationReport {
   reason: string;
 }
 
-async function validateImageWithGemini(
-  imageUrl: string,
-  headline: string,
-  summary: string,
-  category: string
-): Promise<ImageValidationReport> {
-  try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const prompt = `You are a news image quality auditor. Analyze if this image is suitable for a Telugu news article.
-
-ARTICLE HEADLINE: "${headline}"
-ARTICLE CATEGORY: "${category}"
-ARTICLE SUMMARY: "${summary.slice(0, 300)}"
-IMAGE URL: "${imageUrl}"
-
-Score each metric 0-100:
-1. Relevance: Does the image match the article topic/subject? (100 = perfect match)
-2. Quality: Image clarity, resolution, professional composition? (100 = pristine)
-3. Safety: Is the image safe for all audiences? (100 = completely safe, 0 = unsafe)
-4. Clickbait: Is the image misleading or sensationalized? (0 = factual, 100 = pure clickbait)
-
-Do NOT evaluate copyright. Return ONLY valid JSON:
-{
-  "relevance_score": number,
-  "quality_score": number,
-  "safety_score": number,
-  "clickbait_score": number,
-  "decision": "approve" | "reject",
-  "reason": "Brief explanation"
-}`;
-
-    const text = await withRetry(async () => {
-      const result = await model.generateContent(prompt);
-      return result.response.text().replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
-    });
-    const report: ImageValidationReport = JSON.parse(text);
-
-    // Enforce strict thresholds
-    const isApproved =
-      report.relevance_score >= 70 &&
-      report.quality_score >= 60 &&
-      report.safety_score >= 85 &&
-      report.clickbait_score <= 30;
-
-    return { ...report, decision: isApproved ? "approve" : "reject" };
-  } catch (error: any) {
-    console.error("    ⚠ Gemini validation error, returning default approval:", error.message);
-    return {
-      relevance_score: 85,
-      quality_score: 80,
-      safety_score: 95,
-      clickbait_score: 10,
-      decision: "approve",
-      reason: `Gemini analysis error fallback (approved by default): ${error.message}`
-    };
-  }
-}
+// Gemini Image Validation has been completely disabled. Bypasses directly to OpenGraph / RSS source images.
 
 // ═══════════════════════════════════════════════════════════════════
 //  STEP 6: SUPABASE STORAGE UPLOAD
@@ -592,45 +535,52 @@ interface GeminiArticleOutput {
 }
 
 async function generateArticleContent(
-  sourceText: string
+  sourceText: string,
+  category: string
 ): Promise<GeminiArticleOutput> {
   console.log(`[GEMINI REQUEST SENT] Article length: ${sourceText.length}`);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+  });
+
   const prompt = `You are a professional Telugu news editor.
 
-You will receive the FULL ARTICLE CONTENT below.
-
-Rewrite the article completely in your own words.
+Generate:
+1 Telugu headline
+1 Telugu summary
 
 Requirements:
+* Headline maximum 12 words
+* Summary maximum 80 words
+* Professional Telugu language
+* No clickbait
+* No opinions
+* No speculation
+* No extra explanations
 
-* Generate a new headline.
-* Generate a 50-word summary.
-* Generate 3 detailed paragraphs.
-* Minimum 250 words.
-* Maximum 500 words.
-* Preserve facts.
-* Do not copy source sentences.
-* Never output markdown.
-* Never output source URLs.
-* Never say "according to the report".
-* Return valid JSON only.
+Return JSON only.
 
-JSON Format:
-
+Expected JSON format:
 {
-"title": "",
-"summary": "",
-"content": ""
+  "title": "తెలుగు వార్త శీర్షిక",
+  "summary": "80 పదాలకు లోపు తెలుగు సారాంశం",
+  "category": "${category}"
 }
 
-ARTICLE CONTENT:
-
+Article:
 ${sourceText}`;
 
   try {
     const text = await withRetry(async () => {
-      const result = await model.generateContent(prompt);
+      const result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 120,
+          topP: 0.8,
+          topK: 20
+        }
+      });
       return result.response.text()
         .replace(/^```json\s*/i, "")
         .replace(/```\s*$/i, "")
@@ -638,7 +588,13 @@ ${sourceText}`;
     });
     console.log(`[GEMINI RESPONSE RECEIVED] Raw response preview: ${text.slice(0, 200)}...`);
     const parsed = JSON.parse(text);
-    return parsed;
+    
+    // Map JSON summary to both summary and content to keep compatibility with downstream DB schemas
+    return {
+      title: parsed.title || "",
+      summary: parsed.summary || "",
+      content: parsed.summary || ""
+    };
   } catch (error: any) {
     console.warn(`    ⚠ Gemini content generation failed: ${error.message}`);
     throw error;
@@ -737,7 +693,23 @@ async function runImagePipeline(
 
 async function extractFullArticleContent(url: string, html: string): Promise<string> {
   console.log(`[ARTICLE EXTRACTION] Starting extraction pipeline for: ${url}`);
-  
+  let content = "";
+
+  // Helper to clean and limit text length to 800 characters
+  const cleanAndLimit = (rawText: string): string => {
+    return rawText
+      .replace(/<script[^>]*>([\s\S]*?)<\/script>/gi, "")
+      .replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, "")
+      .replace(/<aside[^>]*>([\s\S]*?)<\/aside>/gi, "")
+      .replace(/<nav[^>]*>([\s\S]*?)<\/nav>/gi, "")
+      .replace(/<footer[^>]*>([\s\S]*?)<\/footer>/gi, "")
+      .replace(/<iframe[^>]*>([\s\S]*?)<\/iframe>/gi, "")
+      .replace(/advertisement|ad\s+block|sponsored|subscribe/gi, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 800); // Drastically limit Gemini input token size to 800 characters
+  };
+
   // Method 1: Mozilla Readability
   if (html) {
     try {
@@ -745,11 +717,12 @@ async function extractFullArticleContent(url: string, html: string): Promise<str
       const dom = new JSDOM(html, { url });
       const reader = new Readability(dom.window.document);
       const article = reader.parse();
-      if (article && article.textContent && article.textContent.trim().length >= 500) {
-        console.log(`[ARTICLE EXTRACTION SUCCESS] Method 1 (Mozilla Readability) extracted ${article.textContent.trim().length} chars.`);
-        return article.textContent.trim();
+      if (article && article.textContent && article.textContent.trim().length >= 150) {
+        content = cleanAndLimit(article.textContent);
+        console.log(`[ARTICLE EXTRACTION SUCCESS] Method 1 (Mozilla Readability) extracted and cleaned ${content.length} chars.`);
+        return content;
       }
-      console.log(`[ARTICLE EXTRACTION] Method 1 (Mozilla Readability) returned insufficient content (<500 chars).`);
+      console.log(`[ARTICLE EXTRACTION] Method 1 (Mozilla Readability) returned insufficient content.`);
     } catch (e: any) {
       console.log(`[ARTICLE EXTRACTION] Method 1 (Mozilla Readability) failed: ${e.message}`);
     }
@@ -771,18 +744,17 @@ async function extractFullArticleContent(url: string, html: string): Promise<str
       });
       if (res.ok) {
         const json: any = await res.json();
-        const content = json?.data?.content || "";
-        if (content.trim().length >= 500) {
-          console.log(`[ARTICLE EXTRACTION SUCCESS] Method 2 (Firecrawl) extracted ${content.trim().length} chars.`);
-          return content.trim();
+        const rawContent = json?.data?.content || "";
+        if (rawContent.trim().length >= 150) {
+          content = cleanAndLimit(rawContent);
+          console.log(`[ARTICLE EXTRACTION SUCCESS] Method 2 (Firecrawl) extracted and cleaned ${content.length} chars.`);
+          return content;
         }
       }
       console.log(`[ARTICLE EXTRACTION] Method 2 (Firecrawl) returned insufficient content.`);
     } catch (e: any) {
       console.log(`[ARTICLE EXTRACTION] Method 2 (Firecrawl) failed: ${e.message}`);
     }
-  } else {
-    console.log(`[ARTICLE EXTRACTION] Method 2 (Firecrawl) skipped: Missing FIRECRAWL_API_KEY.`);
   }
 
   // Method 3: Jina AI Reader
@@ -795,10 +767,11 @@ async function extractFullArticleContent(url: string, html: string): Promise<str
       signal: AbortSignal.timeout(15_000)
     });
     if (jinaRes.ok) {
-      const content = await jinaRes.text();
-      if (content.trim().length >= 500) {
-        console.log(`[ARTICLE EXTRACTION SUCCESS] Method 3 (Jina AI Reader) extracted ${content.trim().length} chars.`);
-        return content.trim();
+      const rawContent = await jinaRes.text();
+      if (rawContent.trim().length >= 150) {
+        content = cleanAndLimit(rawContent);
+        console.log(`[ARTICLE EXTRACTION SUCCESS] Method 3 (Jina AI Reader) extracted and cleaned ${content.length} chars.`);
+        return content;
       }
     }
     console.log(`[ARTICLE EXTRACTION] Method 3 (Jina AI Reader) returned insufficient content.`);
@@ -810,16 +783,17 @@ async function extractFullArticleContent(url: string, html: string): Promise<str
   try {
     console.log(`[ARTICLE EXTRACTION] Attempting Method 4: Mercury Parser...`);
     const result = await postlightParser.parse(url, { html });
-    if (result && result.textContent && result.textContent.trim().length >= 500) {
-      console.log(`[ARTICLE EXTRACTION SUCCESS] Method 4 (Mercury Parser) extracted ${result.textContent.trim().length} chars.`);
-      return result.textContent.trim();
+    if (result && result.textContent && result.textContent.trim().length >= 150) {
+      content = cleanAndLimit(result.textContent);
+      console.log(`[ARTICLE EXTRACTION SUCCESS] Method 4 (Mercury Parser) extracted and cleaned ${content.length} chars.`);
+      return content;
     }
     console.log(`[ARTICLE EXTRACTION] Method 4 (Mercury Parser) returned insufficient content.`);
   } catch (e: any) {
     console.log(`[ARTICLE EXTRACTION] Method 4 (Mercury Parser) failed: ${e.message}`);
   }
 
-  console.log(`[ARTICLE EXTRACTION FAILED] All 4 methods failed to extract >=500 chars.`);
+  console.log(`[ARTICLE EXTRACTION FAILED] All 4 methods failed to extract >=150 chars.`);
   return "";
 }
 
@@ -830,6 +804,7 @@ async function extractFullArticleContent(url: string, html: string): Promise<str
 async function run() {
   console.log("═".repeat(66));
   console.log("📡 VaartaNow Telugu Deep Ingestion Pipeline — STARTED");
+  let geminiCallCount = 0;
 
   // Cleanup older articles disabled (web site testing mode)
   console.log(`🧹 Truncation of old articles is disabled during testing.`);
@@ -854,7 +829,21 @@ async function run() {
 
         console.log(`\n  ┌─ Processing: "${item.title.slice(0, 60)}..."`);
 
-        // Deduplication check
+        // Content filtering
+        const filteredTitle = item.title.toLowerCase();
+        if (
+          filteredTitle.includes("weather") || 
+          filteredTitle.includes("వాతావరణం") ||
+          filteredTitle.includes("advertisement") || 
+          filteredTitle.includes("ప్రకటన") ||
+          (item.content && item.content.length < 150)
+        ) {
+          console.log(`  └─ ⏭ Skipped (filtered category/ads/weather/tiny)`);
+          stats.skipped++;
+          continue;
+        }
+
+        // Deduplication check by slug
         const { data: existing } = await supabase
           .from("blog_posts")
           .select("slug")
@@ -862,9 +851,49 @@ async function run() {
           .maybeSingle();
 
         if (existing) {
-          console.log(`  └─ ⏭ Skipped (duplicate slug)`);
+          console.log(`  └─ ⏭ Skipped (duplicate slug: ${baseSlug})`);
           stats.skipped++;
           continue;
+        }
+
+        // Deduplication check by content_hash in blog_posts
+        const { data: existingHash } = await supabase
+          .from("blog_posts")
+          .select("slug")
+          .eq("content_hash", hash)
+          .maybeSingle();
+
+        if (existingHash) {
+          console.log(`  └─ ⏭ Skipped (duplicate content_hash: ${hash})`);
+          stats.skipped++;
+          continue;
+        }
+
+        // Skip check by original URL before resolving redirect (Check if this URL already exists in the database)
+        try {
+          const { data: existingOriginalBlog } = await supabase
+            .from("blog_posts")
+            .select("slug")
+            .or(`source_article_url.eq."${item.link}",source_url.eq."${item.link}"`)
+            .maybeSingle();
+
+          let existsInArticles = false;
+          try {
+            const { data: existingOriginalArticle } = await supabase
+              .from("news_articles")
+              .select("id")
+              .eq("source_url", item.link)
+              .maybeSingle();
+            if (existingOriginalArticle) existsInArticles = true;
+          } catch {}
+
+          if (existingOriginalBlog || existsInArticles) {
+            console.log(`  └─ ⏭ Skipped (duplicate original URL: ${item.link})`);
+            stats.skipped++;
+            continue;
+          }
+        } catch (err: any) {
+          console.warn(`  ⚠ Duplicate URL check error (original): ${err.message}`);
         }
 
         try {
@@ -872,6 +901,29 @@ async function run() {
           console.log(`  🔗 Resolving Google News redirect...`);
           const resolvedUrl = await resolveUrl(item.link);
           console.log(`  🔗 Resolved: ${resolvedUrl.slice(0, 80)}...`);
+
+          // Skip check by resolved URL (Check if this URL already exists in the database)
+          const { data: existingUrlBlog } = await supabase
+            .from("blog_posts")
+            .select("slug")
+            .or(`source_article_url.eq."${resolvedUrl}",source_url.eq."${resolvedUrl}"`)
+            .maybeSingle();
+
+          let existsResolvedInArticles = false;
+          try {
+            const { data: existingUrlArticle } = await supabase
+              .from("news_articles")
+              .select("id")
+              .eq("source_url", resolvedUrl)
+              .maybeSingle();
+            if (existingUrlArticle) existsResolvedInArticles = true;
+          } catch {}
+
+          if (existingUrlBlog || existsResolvedInArticles) {
+            console.log(`  └─ ⏭ Skipped (duplicate resolved URL: ${resolvedUrl})`);
+            stats.skipped++;
+            continue;
+          }
 
           // Fetch the article HTML once to extract images
           console.log(`  📡 Fetching original article HTML for image extraction...`);
@@ -895,40 +947,76 @@ async function run() {
           
           console.log(`Source URL: ${resolvedUrl}`);
           console.log(`Extracted text length: ${sourceText.length}`);
-          if (sourceText.length > 0) {
-            console.log(`First 500 characters of extracted content:`);
-            console.log(sourceText.slice(0, 500));
-          }
 
-          if (sourceText.length < 500) {
-            console.log(`[FAILED_EXTRACTION] Source URL: ${resolvedUrl}. Text length (${sourceText.length}) is under 500 characters.`);
+          if (sourceText.length < 150) {
+            console.log(`[FAILED_EXTRACTION] Source URL: ${resolvedUrl}. Text length (${sourceText.length}) is under 150 characters.`);
             stats.failed++;
             continue;
           }
-
-          // Step 3: Verify articleText.length > 1000 before publishing
-          if (sourceText.length <= 1000) {
-            console.log(`[SKIP_PUBLISHING] Source URL: ${resolvedUrl}. Text length (${sourceText.length}) is not > 1000 characters.`);
-            stats.skipped++;
-            continue;
-          }
-
-          console.log(`[ARTICLE EXTRACTION SUCCESS] Extracted length: ${sourceText.length}`);
-          console.log(`[ARTICLE LENGTH] ${sourceText.length} characters.`);
 
           // Extract source info
           const { name: sourceName, logoUrl: sourceLogoUrl } = extractSource(item.title, (item as any).source);
 
-          // Step 4: Send FULL ARTICLE TEXT to Gemini
-          console.log(`  🤖 Generating article content via Gemini...`);
-          const ai = await generateArticleContent(sourceText);
-          await delay(5000); // Rate limit (safely under 15 requests per minute)
+          let ai: GeminiArticleOutput = { title: "", summary: "", content: "" };
+          let usedCache = false;
 
-          // Step 5: Validate Gemini response
-          if (!ai.title || !ai.summary || !ai.content || ai.content.length < 200) {
-            console.log(`[FAILED_GEMINI_GENERATION] Title exists: ${!!ai.title}, Summary exists: ${!!ai.summary}, Content length: ${ai.content?.length || 0}`);
-            stats.failed++;
-            continue;
+          // Step 3: Check Caching System before calling Gemini
+          try {
+            const { data: cached } = await supabase
+              .from("ai_cache")
+              .select("title, summary")
+              .eq("content_hash", hash)
+              .maybeSingle();
+
+            if (cached) {
+              console.log(`  ✨ [CACHE HIT] Reusing cached title and summary for hash: ${hash}`);
+              ai = {
+                title: cached.title,
+                summary: cached.summary,
+                content: cached.summary
+              };
+              usedCache = true;
+            }
+          } catch (err: any) {
+            console.warn(`  ⚠ Cache lookup error: ${err.message}`);
+          }
+
+          if (!usedCache) {
+            try {
+              // Rate limiting: every 10 articles sent to Gemini, wait 5 seconds
+              if (geminiCallCount > 0 && geminiCallCount % 10 === 0) {
+                console.log(`  ⏳ [BATCH LIMIT] Processed 10 articles via Gemini. Waiting 5 seconds before next batch...`);
+                await delay(5000);
+              }
+              geminiCallCount++;
+
+              // Step 4: Send FULL ARTICLE TEXT to Gemini
+              console.log(`  🤖 Generating article content via Gemini (2.5-flash)...`);
+              ai = await generateArticleContent(sourceText, feed.category);
+              
+              // Cache the successful Gemini output
+              try {
+                await supabase.from("ai_cache").insert({
+                  content_hash: hash,
+                  title: ai.title,
+                  summary: ai.summary,
+                  category: feed.category
+                });
+                console.log(`  ✨ [CACHE INSERT] Saved Gemini result to cache`);
+              } catch (cacheErr: any) {
+                console.warn(`  ⚠ Failed to save result to cache: ${cacheErr.message}`);
+              }
+
+              await delay(2000); // Small cooldown
+            } catch (geminiError: any) {
+              // Step 5: Smart Fallback System
+              console.error(`  ⚠️ Gemini failed: ${geminiError.message}. Triggering Smart Fallback...`);
+              ai = {
+                title: item.title,
+                summary: item.contentSnippet || item.content || "ఆరోగ్య వార్తలు మరియు తాజా సమాచారం.",
+                content: item.content || "ఆరోగ్య వార్తలు మరియు తాజా సమాచారం."
+              };
+            }
           }
 
           // Run image pipeline
@@ -1023,15 +1111,15 @@ async function run() {
           stats.failed++;
         }
 
-        // Rate limiting between articles
-        await delay(7000);
+        // Rate limiting between articles (Reduced cooldown because of caching & optimization)
+        await delay(2500);
       }
     } catch (feedError: any) {
       console.error(`❌ Feed [${feed.category}] error: ${feedError.message}`);
     }
 
     // Rate limiting between feeds
-    await delay(10000);
+    await delay(3500);
   }
 
   // ─── Final Summary ──────────────────────────────────────────

@@ -53,7 +53,6 @@ const feedsRaw = [
   { category: "andhra-pradesh", query: "ఆంధ్రప్రదేశ్ వార్తలు", language: "te" },
   { category: "telangana", query: "తెలంగాణ వార్తలు", language: "te" },
   { category: "cinema", query: "సినిమా వార్తలు టాలీవుడ్", language: "te" },
-  { category: "vizag", query: "విశాఖపట్నం వార్తలు వైజాగ్", language: "te" },
   { category: "technology", query: "సాంకేతిక పరిజ్ఞానం మొబైల్ గ్యాజెట్స్", language: "te" },
   { category: "jobs", query: "ఉద్యోగ సమాచారం ప్రభుత్వ ఉద్యోగాలు", language: "te" },
   { category: "cricket", query: "క్రికెట్ క్రీడా వార్తలు", language: "te" },
@@ -230,7 +229,7 @@ async function validateImageWithGemini(
   category: string
 ): Promise<ImageValidationReport> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const prompt = `
     You are an expert Google AdSense Policy Compliance Auditor and Image Verification System.
     Analyze if the following image candidate matches the news article content.
@@ -411,7 +410,7 @@ async function run() {
         let ai: any;
         try {
           const targetLanguage = languageNames[feed.language] || "Telugu";
-          const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+          const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
           const prompt = `
           You are VaartaNow, a leading regional digital news desk.
           Rewrite the following news item into three premium, distinct levels of ${targetLanguage} summaries with key locations, timelines, and facts highlighted.

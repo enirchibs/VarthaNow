@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { AdminPage } from "@/pages/AdminPage";
+import { DiagnosticsPage } from "@/pages/DiagnosticsPage";
 import { CategoryPage } from "@/pages/CategoryPage";
 import { HomePage } from "@/pages/HomePage";
 import { NewsPage } from "@/pages/NewsPage";
@@ -32,6 +33,7 @@ const router = createBrowserRouter([
       { path: "/news/:slug", element: <NewsPage /> },
       { path: "/search", element: <SearchPage /> },
       { path: "/admin", element: <AdminPage /> },
+      { path: "/admin/diagnostics", element: <DiagnosticsPage /> },
       { path: "/jobs", element: <JobsMainPage /> },
       { path: "/jobs/work-from-home", element: <JobsWFHPage /> },
       { path: "/jobs/fresher-jobs", element: <JobsFresherPage /> },

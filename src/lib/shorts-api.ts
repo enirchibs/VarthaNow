@@ -74,50 +74,43 @@ const mockShortVideos: ShortVideoItem[] = [
   }
 ];
 
+import { supabase } from "./supabase";
+
 export async function getShortVideos(query: string = "telugu news"): Promise<ShortVideoItem[]> {
-  if (!serpApiKey) {
-    console.log("No SerpApi key found in environment, falling back to local Shorts catalog.");
+  if (!supabase) {
+    console.log("Supabase is not initialized. Falling back to local mock Shorts.");
     return mockShortVideos;
   }
 
   try {
-    const originalUrl = `https://serpapi.com/search?engine=google_short_videos&q=${encodeURIComponent(query)}&api_key=${serpApiKey}`;
-    
-    // Try primary proxy (AllOrigins) and backup proxy (ThingProxy)
-    const primaryProxy = `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`;
-    const backupProxy = `https://thingproxy.freeboard.io/fetch/${encodeURIComponent(originalUrl)}`;
-    
-    let response;
-    try {
-      response = await fetch(primaryProxy);
-      if (!response.ok) throw new Error("Primary proxy failed");
-    } catch (e) {
-      console.warn("AllOrigins proxy failed, trying backup proxy...");
-      response = await fetch(backupProxy);
-    }
-    
-    if (!response.ok) throw new Error("Both proxies failed to query SerpApi");
-    
-    const data = await response.json();
-    const results = data.short_videos || [];
+    const { data, error } = await supabase
+      .from("viral_videos")
+      .select("*")
+      .order("published_at", { ascending: false })
+      .limit(10);
 
-    if (results.length === 0) {
-      console.log("SerpApi returned empty results, falling back to mock short videos.");
+    if (error) {
+      throw error;
+    }
+
+    if (!data || data.length === 0) {
+      console.log("No videos found in viral_videos table, falling back to mock Shorts.");
       return mockShortVideos;
     }
 
-    return results.map((v: any, idx: number) => ({
-      title: v.title || "Telugu News Short",
-      link: v.link || "#",
-      thumbnail: v.thumbnail || "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=600&q=80",
-      clip: v.clip || stableClips[idx % stableClips.length],
-      source: v.source || "Google Short Videos",
+    return data.map((v: any) => ({
+      title: v.title,
+      link: v.video_url,
+      thumbnail: v.thumbnail_url || "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=600&q=80",
+      clip: v.clip || v.video_url,
+      source: "YouTube",
       source_icon: v.source_icon || "https://www.google.com/s2/favicons?domain=youtube.com&sz=64",
-      channel: v.channel || "News Publisher",
+      channel: v.channel || "YouTube Channel",
       duration: v.duration || "0:30"
     }));
   } catch (error) {
-    console.error("Failed to query SerpApi Google Short Videos, falling back to mock catalog:", error);
+    console.error("Failed to fetch viral videos from Supabase, falling back to mock catalog:", error);
     return mockShortVideos;
   }
 }
+

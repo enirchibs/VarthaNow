@@ -98,18 +98,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     short: "Cinema",
     rssQuery: "cinema"
   },
-  {
-    slug: "vizag",
-    label: {
-      te: "విశాఖ",
-      en: "Vizag",
-      hi: "वाइजाग",
-      ta: "விசாகப்பட்டினம்",
-      kn: "ವಿಶಾಖಪಟ್ಟಣಂ"
-    },
-    short: "Vizag",
-    rssQuery: "vizag"
-  },
+
   {
     slug: "technology",
     label: {
