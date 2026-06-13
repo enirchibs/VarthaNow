@@ -35,16 +35,11 @@ type AiArticle = {
 };
 
 const feeds: { category: Category; url: string; language: "te" | "en" | "hi" | "ta" | "kn" }[] = [
-  // Telugu feeds
-  { category: "andhra-pradesh", url: "https://news.google.com/rss/search?q=andhra+pradesh+latest+breaking&hl=te&gl=IN&ceid=IN:te", language: "te" },
-  { category: "telangana", url: "https://news.google.com/rss/search?q=telangana+latest+breaking&hl=te&gl=IN&ceid=IN:te", language: "te" },
-  { category: "cinema", url: "https://news.google.com/rss/search?q=telugu+cinema+latest+trending&hl=te&gl=IN&ceid=IN:te", language: "te" },
-  { category: "vizag", url: "https://news.google.com/rss/search?q=visakhapatnam+latest+news&hl=te&gl=IN&ceid=IN:te", language: "te" },
-  { category: "technology", url: "https://news.google.com/rss/search?q=technology+latest+trending&hl=te&gl=IN&ceid=IN:te", language: "te" },
-  { category: "jobs", url: "https://news.google.com/rss/search?q=jobs+careers+hiring&hl=te&gl=IN&ceid=IN:te", language: "te" },
-  { category: "cricket", url: "https://news.google.com/rss/search?q=cricket+latest+trending&hl=te&gl=IN&ceid=IN:te", language: "te" },
+  // Telugu feeds - POLITICS ONLY
   { category: "politics", url: "https://news.google.com/rss/search?q=politics+latest+trending&hl=te&gl=IN&ceid=IN:te", language: "te" }
 ];
+
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders() });
@@ -88,7 +83,16 @@ serve(async (request) => {
       result.fetched += items.length;
 
       // Slice to top 3 newest articles to keep news highly fresh, dynamic, and budget-friendly.
-      for (const item of items.slice(0, 3)) {
+      const targetItems = items.slice(0, 3);
+      for (let i = 0; i < targetItems.length; i++) {
+        const item = targetItems[i];
+        
+        // Delay each news article by 2 minutes (120 seconds) except the first one
+        if (i > 0) {
+          console.log(`Waiting 2 minutes before processing article ${i + 1}...`);
+          await delay(120 * 1000);
+        }
+
         const baseSlug = toSlug(item.title);
         const exists = await slugExists(supabase, baseSlug);
         if (exists) {
@@ -102,19 +106,7 @@ serve(async (request) => {
         // Resolve original article URL and extract banner image metadata
         const resolvedUrl = await resolveUrl(item.link);
         const categoryFallbacks: Record<string, string> = {
-          "politics": "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=800&auto=format&fit=crop&q=60",
-          "andhra-pradesh": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=800&auto=format&fit=crop&q=60",
-          "telangana": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=800&auto=format&fit=crop&q=60",
-          "national": "https://images.unsplash.com/photo-1532375811409-905115e3b5a9?w=800&auto=format&fit=crop&q=60",
-          "international": "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=800&auto=format&fit=crop&q=60",
-          "business": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&auto=format&fit=crop&q=60",
-          "sports": "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&auto=format&fit=crop&q=60",
-          "entertainment": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=60",
-          "cinema": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&auto=format&fit=crop&q=60",
-          "technology": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=60",
-          "jobs": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&auto=format&fit=crop&q=60",
-          "cricket": "https://images.unsplash.com/photo-1531415074968-036ba1b575da?w=800&auto=format&fit=crop&q=60",
-          "vizag": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?w=800&auto=format&fit=crop&q=60"
+          "politics": "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?w=800&auto=format&fit=crop&q=60"
         };
 
         let chosenImageUrl = categoryFallbacks[item.category] || "/og-image.png";
@@ -204,6 +196,7 @@ Rules:
 - Do not invent fake statistics.
 - Include markdown headings, bullet points, FAQ, and conclusion.
 - Optimize for ${langInfo.name} SEO.
+- The summary/excerpt field (excerpts of the news) MUST be between 40 words minimum and 80 words maximum.
 - Return only valid JSON with keys:
 slug, title, excerpt, content, tags, meta_title, meta_description, reading_time_min, image_prompt, featured.
 
