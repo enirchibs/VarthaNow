@@ -43,54 +43,41 @@ serve(async (req) => {
       auth: { persistSession: false }
     });
 
-    console.log("📺 Starting Edge-based YouTube Shorts ingestion...");
+    console.log("📺 Starting Edge-based Daily Trending Videos ingestion...");
 
-    // 1. Search for Telugu news shorts
-    const searchQuery = "Telugu news shorts";
-    const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&videoDuration=short&maxResults=5&order=date&key=${youtubeApiKey}`;
+    // 1. Fetch daily trending videos in India (regionCode=IN, chart=mostPopular)
+    const trendingUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&chart=mostPopular&regionCode=IN&maxResults=5&key=${youtubeApiKey}`;
     
-    const searchRes = await fetch(searchUrl);
-    if (!searchRes.ok) {
-      const errText = await searchRes.text();
-      throw new Error(`YouTube search failed: ${searchRes.status} - ${errText}`);
+    const trendingRes = await fetch(trendingUrl);
+    if (!trendingRes.ok) {
+      const errText = await trendingRes.text();
+      throw new Error(`YouTube trending fetch failed: ${trendingRes.status} - ${errText}`);
     }
     
-    const searchData = await searchRes.json();
-    const items = searchData.items || [];
+    const trendingData = await trendingRes.json();
+    const items = trendingData.items || [];
     
     if (items.length === 0) {
-      return new Response(JSON.stringify({ ok: true, message: "No YouTube Short videos found in search results.", count: 0 }), {
+      return new Response(JSON.stringify({ ok: true, message: "No trending videos found.", count: 0 }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
 
     const videosToUpsert = [];
     
-    // We fetch details with a 1-minute (60 seconds) delay to meet the API restriction.
-    // Processing up to 2 videos per request ensures we stay under the Deno Edge Function 150s timeout limit.
+    // Process top 2 trending videos. Wait 2 minutes (120 seconds) between each video processing
+    // to respect the API delay requirement and stay within the 150-second Edge Function execution timeout.
     const targetItems = items.slice(0, 2);
 
     for (let i = 0; i < targetItems.length; i++) {
       const item = targetItems[i];
-      const vId = item.id.videoId;
+      const vId = item.id;
       if (!vId) continue;
 
       if (i > 0) {
-        console.log(`Waiting 60 seconds (1 minute) before retrieving next video details (video ID: ${vId})...`);
-        await delay(60 * 1000);
+        console.log(`Waiting 2 minutes (120 seconds) before retrieving channel details for next video (video ID: ${vId})...`);
+        await delay(120 * 1000);
       }
-
-      // Fetch video details
-      const videosUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet&id=${vId}&key=${youtubeApiKey}`;
-      const videosRes = await fetch(videosUrl);
-      if (!videosRes.ok) {
-        console.warn(`⚠️ Failed to fetch video details for ${vId}: ${videosRes.status}`);
-        continue;
-      }
-      const videosData = await videosRes.json();
-      const videoDetail = videosData.items?.[0];
-      const durationISO = videoDetail?.contentDetails?.duration || "PT30S";
-      const durationFormatted = parseISO8601Duration(durationISO);
 
       // Fetch channel details for avatar
       const channelId = item.snippet.channelId;
@@ -104,16 +91,19 @@ serve(async (req) => {
         }
       }
 
+      const durationISO = item.contentDetails?.duration || "PT30S";
+      const durationFormatted = parseISO8601Duration(durationISO);
+
       videosToUpsert.push({
         id: vId,
-        title: item.snippet.title || "Telugu News Short",
+        title: item.snippet.title || "Trending YouTube Video",
         description: item.snippet.description || "",
-        video_url: `https://www.youtube.com/shorts/${vId}`,
+        video_url: `https://www.youtube.com/watch?v=${vId}`,
         thumbnail_url: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url || "",
         duration: durationFormatted,
-        channel: item.snippet.channelTitle || "News Channel",
+        channel: item.snippet.channelTitle || "Trending Channel",
         source_icon: channelIcon,
-        clip: `https://www.youtube.com/shorts/${vId}`,
+        clip: `https://www.youtube.com/watch?v=${vId}`,
         published_at: item.snippet.publishedAt || new Date().toISOString()
       });
     }
@@ -124,12 +114,12 @@ serve(async (req) => {
       if (error) throw error;
     }
 
-    return new Response(JSON.stringify({ ok: true, message: `Successfully processed and ingested ${videosToUpsert.length} videos.`, count: videosToUpsert.length }), {
+    return new Response(JSON.stringify({ ok: true, message: `Successfully processed and ingested ${videosToUpsert.length} trending videos.`, count: videosToUpsert.length }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 
   } catch (err: any) {
-    console.error("❌ Error during Edge YouTube Shorts Ingestion:", err.message);
+    console.error("❌ Error during Edge YouTube Trending Ingestion:", err.message);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }
