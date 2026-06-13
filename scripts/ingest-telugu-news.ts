@@ -1118,8 +1118,8 @@ async function run() {
       console.error(`❌ Feed [${feed.category}] error: ${feedError.message}`);
     }
 
-    // Rate limiting between feeds
-    await delay(3500);
+    // Rate limiting between feeds (1 minute delay to avoid 429 errors)
+    await delay(60000);
   }
 
   // ─── Final Summary ──────────────────────────────────────────

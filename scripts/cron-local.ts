@@ -1,6 +1,6 @@
 import { spawn } from "child_process";
 
-const INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
+const INTERVAL_MS = 30 * 60 * 1000; // 30 minutes
 
 let cycleCount = 0;
 const startTime = new Date();
