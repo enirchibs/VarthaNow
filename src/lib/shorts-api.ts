@@ -89,6 +89,10 @@ export async function getShortVideos(query: string = "telugu news"): Promise<Sho
       .order("published_at", { ascending: false })
       .limit(10);
 
+    console.log("SUPABASE URL", import.meta.env.VITE_SUPABASE_URL);
+    console.log("VIDEOS", data);
+    console.log("ERROR", error);
+
     if (error) {
       throw error;
     }
