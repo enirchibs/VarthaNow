@@ -54,8 +54,20 @@ export function BirthLocationSelector({ lang, onSelect, selectedLocation }: Birt
     setActiveIndex(-1);
     
     const resolved = await resolveLocationDetails(rawSuggestion);
-    setQuery(resolved.location_name);
-    onSelect(resolved);
+    
+    // Construct fully qualified name for clean textbox feedback
+    const displayParts = [
+      resolved.location_name,
+      resolved.district,
+      resolved.state
+    ].filter(Boolean);
+    const fullDisplayName = displayParts.join(", ");
+    
+    setQuery(fullDisplayName);
+    onSelect({
+      ...resolved,
+      location_name: fullDisplayName
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

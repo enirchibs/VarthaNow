@@ -68,34 +68,35 @@ export function useBirthLocation(lang: string = "te") {
       setIsLoading(true);
       setError(null);
       try {
-        // Step 1: Query Supabase locations table cache (fuzzy text matching)
-        let cacheData: any[] = [];
+        // Step 1: Query the production-ready India Location Database via RPC search_locations()
+        let databaseData: any[] = [];
         if (supabase) {
-          const { data, error: cacheErr } = await supabase
-            .from("locations")
-            .select("*")
-            .ilike("location_name", `%${trimmed}%`)
-            .limit(8);
+          const { data, error: dbErr } = await supabase.rpc("search_locations", {
+            search_text: trimmed
+          });
           
-          if (!cacheErr && data && data.length > 0) {
-            cacheData = data;
+          if (!dbErr && data && data.length > 0) {
+            databaseData = data;
           }
         }
 
-        if (cacheData.length > 0) {
-          const formattedSuggestions: LocationSuggestion[] = cacheData.map((item) => ({
-            location_name: item.location_name,
-            village: item.village || "",
-            mandal: item.mandal || "",
-            district: item.district || "",
-            state: item.state || "",
-            country: item.country || "",
-            pin_code: "",
-            latitude: item.latitude,
-            longitude: item.longitude,
-            timezone: item.timezone,
-            is_cached: true,
-          }));
+        if (databaseData.length > 0) {
+          const formattedSuggestions: LocationSuggestion[] = databaseData.map((item: any) => {
+            return {
+              location_name: item.location_name,
+              village: item.village || item.location_name || "",
+              mandal: item.mandal || "",
+              district: item.district || "",
+              state: item.state || "",
+              country: item.country || "India",
+              pin_code: "",
+              latitude: item.latitude || 0,
+              longitude: item.longitude || 0,
+              timezone: item.timezone || "Asia/Kolkata",
+              is_cached: true,
+            };
+          });
+
           setSuggestions(formattedSuggestions);
           setIsLoading(false);
           return;
@@ -219,7 +220,24 @@ export function useBirthLocation(lang: string = "te") {
           resolved.state = getComp(["administrative_area_level_1"]);
           resolved.district = getComp(["administrative_area_level_2"]);
           resolved.country = getComp(["country"]);
-          resolved.pin_code = ""; // Ensure empty for astrology
+          resolved.pin_code = "";
+        }
+      }
+
+      // If missing or invalid coordinates/timezone, resolve them using APIs
+      if ((!resolved.latitude || !resolved.longitude) && resolved.location_name) {
+        try {
+          // Fallback to nominatim resolving text
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(resolved.location_name)}&limit=1`, {
+            headers: { "User-Agent": "VaartaNow-Astrology/1.0" }
+          });
+          const osmData = await res.json();
+          if (osmData && osmData[0]) {
+            resolved.latitude = parseFloat(osmData[0].lat);
+            resolved.longitude = parseFloat(osmData[0].lon);
+          }
+        } catch (e) {
+          console.warn("Fuzzy geocoding failed", e);
         }
       }
 
@@ -243,6 +261,7 @@ export function useBirthLocation(lang: string = "te") {
         }
       }
 
+      // Cache resolving write back
       if (supabase && resolved.latitude && resolved.longitude && !suggestion.is_cached) {
         const { data: existing } = await supabase
           .from("locations")
