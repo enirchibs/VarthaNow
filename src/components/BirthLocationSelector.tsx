@@ -53,7 +53,6 @@ export function BirthLocationSelector({ lang, onSelect, selectedLocation }: Birt
     setIsOpen(false);
     setActiveIndex(-1);
     
-    // Resolve lat/lng and timezone, then fire callback
     const resolved = await resolveLocationDetails(rawSuggestion);
     setQuery(resolved.location_name);
     onSelect(resolved);
@@ -86,21 +85,19 @@ export function BirthLocationSelector({ lang, onSelect, selectedLocation }: Birt
     setIsOpen(true);
     setActiveIndex(-1);
     
-    // Notify parent if the user cleared the text or is typing (invalidating previous selection)
     if (!value) {
       onSelect(null);
     }
     handleSearch(value);
   };
 
-  // Helper values
   const isTe = lang === "te";
-  const label = isTe ? "పుట్టిన ఊరు" : "Birth Location";
+  const label = isTe ? "పుట్టిన స్థలం" : "Birth Location";
   const placeholder = isTe 
-    ? "పిన్ కోడ్, ఊరు లేదా నగరం ద్వారా వెతకండి" 
-    : "Search by PIN Code, Village, Town or City";
+    ? "జన్మ గ్రామం, పట్టణం, నగరం లేదా జిల్లా ద్వారా వెతకండి" 
+    : "Search Birth Village, Town, City or District";
   const helperLabel = isTe ? "ఉదాహరణలు:" : "Examples:";
-  const examples = ["530016", "Visakhapatnam", "Madhurawada", "Gajuwaka"];
+  const examples = ["Visakhapatnam", "Madhurawada", "Gajuwaka", "Rajahmundry", "Hyderabad", "Bengaluru"];
 
   return (
     <div ref={containerRef} className="space-y-1.5 relative w-full">
@@ -123,12 +120,10 @@ export function BirthLocationSelector({ lang, onSelect, selectedLocation }: Birt
           aria-expanded={isOpen}
         />
         
-        {/* Left Search Icon */}
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]">
           <Search className="size-4" />
         </div>
 
-        {/* Right Status Indicator (Loader) */}
         {isLoading && (
           <div className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-500">
             <Loader2 className="size-4 animate-spin" />
@@ -146,14 +141,12 @@ export function BirthLocationSelector({ lang, onSelect, selectedLocation }: Birt
           {suggestions.length > 0 ? (
             suggestions.map((item, idx) => {
               const active = idx === activeIndex;
-              // Format display text neatly
-              const locationParts = [
-                item.village, 
-                item.district, 
-                item.state, 
-                item.pin_code ? `PIN: ${item.pin_code}` : ""
-              ].filter(Boolean);
               
+              // Format display text - Location Name, with District and State underneath
+              const districtText = item.district 
+                ? `${item.district}${item.district.toLowerCase().includes("district") ? "" : " District"}` 
+                : "";
+              const locationParts = [districtText, item.state].filter(Boolean);
               const subtext = locationParts.join(", ");
               
               return (
