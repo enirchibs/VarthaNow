@@ -11,6 +11,7 @@ import {
   BookOpen
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { BirthLocationSelector } from "./BirthLocationSelector";
 
 type RasiKey = 
   | "mesha" | "vrishabha" | "mithuna" | "karka" 
@@ -233,6 +234,8 @@ export function DevotionalHub() {
   const [astroDob, setAstroDob] = useState("");
   const [astroTime, setAstroTime] = useState("");
   const [astroBirthPlace, setAstroBirthPlace] = useState("Visakhapatnam");
+  const [selectedLocation, setSelectedLocation] = useState<any>(null);
+  const [astroGender, setAstroGender] = useState<"male" | "female">("male");
 
   const [astroLoading, setAstroLoading] = useState(false);
   const [astroLoadingStep, setAstroLoadingStep] = useState("");
@@ -919,14 +922,23 @@ export function DevotionalHub() {
 
                       <div className="space-y-1.5">
                         <label className="text-xs font-black text-[hsl(var(--foreground))] uppercase tracking-wider block">
-                          {lang === "te" ? "పుట్టిన ఊరు" : "Place of Birth"}
+                          {lang === "te" ? "లింగము (Gender)" : "Gender"}
                         </label>
-                        <input 
-                          type="text" 
-                          value={astroBirthPlace}
-                          onChange={(e) => setAstroBirthPlace(e.target.value)}
-                          placeholder="Visakhapatnam"
+                        <select
+                          value={astroGender}
+                          onChange={(e) => setAstroGender(e.target.value as "male" | "female")}
                           className="w-full text-xs font-bold px-3.5 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--input))] text-[hsl(var(--foreground))] focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-none transition-all"
+                        >
+                          <option value="male">{lang === "te" ? "పురుషుడు (Male)" : "Male"}</option>
+                          <option value="female">{lang === "te" ? "స్త్రీ (Female)" : "Female"}</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <BirthLocationSelector 
+                          lang={lang} 
+                          onSelect={setSelectedLocation} 
+                          selectedLocation={selectedLocation} 
                         />
                       </div>
 
@@ -957,13 +969,29 @@ export function DevotionalHub() {
 
                     <button 
                       onClick={() => {
-                        if (!astroName || !astroDob || !astroTime || !astroBirthPlace) {
-                          alert(lang === "te" ? "దయచేసి అన్ని వివరాలను పూరించండి!" : "Please fill in all details!");
+                        if (!astroName || !astroDob || !astroTime || !selectedLocation) {
+                          alert(lang === "te" 
+                            ? "దయచేసి అన్ని వివరాలను పూరించండి మరియు సూచనల నుండి పుట్టిన స్థలాన్ని ఎంచుకోండి!" 
+                            : "Please fill in all details and select a birth location from the suggestions!"
+                          );
                           return;
                         }
 
+                        // Payload compilation for astrology API
+                        const payload = {
+                          latitude: selectedLocation.latitude,
+                          longitude: selectedLocation.longitude,
+                          timezone: selectedLocation.timezone,
+                          birth_date: astroDob,
+                          birth_time: astroTime,
+                          name: astroName,
+                          gender: astroGender,
+                        };
+
+                        console.log("Horoscope Generation Payload:", payload);
+
                         setAstroLoading(true);
-                        setAstroLoadingStep(lang === "te" ? "Google Maps ద్వారా స్థాన అక్షాంశాలను పొందుతోంది..." : "Geocoding location coordinates via Google Maps...");
+                        setAstroLoadingStep(lang === "te" ? "స్థాన కోఆర్డినేట్లు మరియు సమయ మండలిని సరిచూస్తోంది..." : "Validating coordinates and local timezone offsets...");
 
                         setTimeout(() => {
                           setAstroLoadingStep(lang === "te" ? "Prokerala వేద జ్యోతిష్య విభాగంతో కనెక్ట్ అవుతోంది..." : "Connecting to Prokerala Vedic Astrology Engine...");
@@ -972,35 +1000,19 @@ export function DevotionalHub() {
                             setAstroLoadingStep(lang === "te" ? "జన్మ నిమిషాల ఆధారంగా గ్రహ స్థానాలను లెక్కిస్తోంది..." : "Calculating planetary positions for birth coordinates...");
 
                             setTimeout(() => {
-                              let lat = 17.6868;
-                              let lng = 83.2185;
+                              const lat = selectedLocation.latitude;
+                              const lng = selectedLocation.longitude;
 
-                              const placeLower = astroBirthPlace.toLowerCase();
-                              if (placeLower.includes("hyderabad")) {
-                                lat = 17.3850; lng = 78.4867;
-                              } else if (placeLower.includes("vijayawada")) {
-                                lat = 16.5062; lng = 80.6480;
-                              } else if (placeLower.includes("tirupati")) {
-                                lat = 13.6288; lng = 79.4192;
-                              } else if (placeLower.includes("bengaluru") || placeLower.includes("bangalore")) {
-                                lat = 12.9716; lng = 77.5946;
-                              } else if (placeLower.includes("chennai")) {
-                                lat = 13.0827; lng = 80.2707;
-                              } else if (placeLower.includes("mumbai")) {
-                                lat = 19.0760; lng = 72.8777;
-                              } else if (placeLower.includes("delhi")) {
-                                lat = 28.6139; lng = 77.2090;
-                              }
-
-                              const details = getVedicDetails(astroName, astroDob, astroTime, astroBirthPlace, lat, lng);
+                              const details = getVedicDetails(astroName, astroDob, astroTime, selectedLocation.location_name, lat, lng);
                               
                               setAstroResult({
                                 name: astroName,
                                 dob: astroDob,
                                 time: astroTime,
-                                place: astroBirthPlace,
+                                place: selectedLocation.location_name,
                                 lat,
                                 lng,
+                                gender: astroGender,
                                 ...details
                               });
                               setAstroLoading(false);
