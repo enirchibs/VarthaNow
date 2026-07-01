@@ -23,8 +23,12 @@ import {
   Moon,
   Smile,
   Zap,
-  Info
+  Info,
+  Calendar,
+  Layers,
+  ChevronLeft
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 // =========================================================
 // MOCK DATA & SCHEMAS
@@ -96,6 +100,24 @@ const DISEASES: Record<string, DiseaseData> = {
     faqs: [
       { q: "గ్యాస్ గుండె నొప్పా ఎలా గుర్తించాలి?", a: "గుండె నొప్పి ఛాతీ మధ్యలో ఒత్తిడితో పాటు ఎడమ చేతికి వ్యాపిస్తుంది. గ్యాస్ నొప్పి సాధారణంగా పొట్ట పైభాగంలో ఉండి తేన్పులతో తగ్గుతుంది. అనుమానంగా ఉంటే వెంటనే ఈసీజీ చేయించుకోవాలి." }
     ]
+  },
+  diabetes: {
+    titleTe: "మధుమేహం",
+    titleEn: "Diabetes",
+    image: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80",
+    symptoms: ["అధిక దాహం మరియు ఆకలి", "తరచుగా మూత్రవిసర్జన", "కారణం లేకుండా బరువు తగ్గడం", "అలసట", "దృష్టి మసకబారడం"],
+    causes: ["ఇన్సులిన్ హార్మోన్ ఉత్పత్తి తగ్గడం", "ఇన్సులిన్ నిరోధకత (Insulin Resistance)", "వంశపారంపర్యత", "వ్యాయామం లేని జీవనశైలి"],
+    diagnosis: ["ఫాస్టింగ్ బ్లడ్ షుగర్ (FBS)", "HbA1c పరీక్ష (3 నెలల సగటు)"],
+    treatments: ["ఆహార నియంత్రణ", "రోజువారీ వ్యాయామం", "ఓరల్ మెడిసిన్ లేదా ఇన్సులిన్ థెరపీ"],
+    dietEat: ["ఆకుకూరలు", "నవధాన్యాలు (రైస్ బదులు రాగులు, జొన్నలు)", "పీచు పదార్థాలు", "మెంతులు"],
+    dietAvoid: ["స్వీట్లు, చక్కెర పానీయాలు", "మైదా, తెల్లటి బియ్యం", "అధిక కార్బోహైడ్రేట్లు ఉన్న కూరగాయలు (బంగాళాదుంప)"],
+    lifestyle: ["రోజుకు కనీసం 30-45 నిమిషాల వేగవంతమైన నడక", "ఒత్తిడి తగ్గించుకోవడం"],
+    traditional: ["పరిగడుపున కాకరకాయ రసం తాగడం", "రాత్రి నానబెట్టిన మెంతుల నీరు తాగడం"],
+    scientific: "Diabetes mellitus is a chronic metabolic condition where the body cannot properly regulate blood glucose levels either due to insufficient insulin production or ineffective insulin usage.",
+    emergency: ["స్పృహ కోల్పోవడం (Diabetic Coma)", "కళ్ళు తిరగడం మరియు విపరీతమైన చెమటలు (Hypoglycemia)"],
+    faqs: [
+      { q: "HbA1c సాధారణ విలువ ఎంత ఉండాలి?", a: "సాధారణంగా HbA1c 5.7% కంటే తక్కువ ఉండాలి. 6.5% అంతకంటే ఎక్కువ ఉంటే డయాబెటిస్ ఉన్నట్లు నిర్ధారిస్తారు." }
+    ]
   }
 };
 
@@ -133,6 +155,13 @@ const REMEDIES: Record<string, RemedyData> = {
   }
 };
 
+// Main Health Categories configuration
+const MAIN_CATEGORIES = [
+  { key: "fever", nameTe: "జ్వరం (Fever)", icon: Flame, color: "bg-red-500" },
+  { key: "gas", nameTe: "గ్యాస్ & ఎసిడిటీ (Gas & Acidity)", icon: Activity, color: "bg-orange-500" },
+  { key: "diabetes", nameTe: "మధుమేహం (Diabetes)", icon: Heart, color: "bg-blue-500" }
+];
+
 export function HealthPortal() {
   const { subpage } = useParams<{ subpage?: string }>();
   const navigate = useNavigate();
@@ -147,17 +176,62 @@ export function HealthPortal() {
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
-  // Health Calculators states
+  // Hero Slider
+  const [activeSlide, setActiveSlide] = useState(0);
+  const slides = [
+    { titleTe: "సహజంగా ఆరోగ్యంగా ఉండాలా?", titleEn: "Want to Stay Healthy Naturally?", descTe: "మీ వంటగదిలోని సహజ మూలికలతో ఆరోగ్య సంరక్షణ చేసుకోండి.", descEn: "Protect your wellness using daily kitchen ingredients.", bg: "from-emerald-950 via-teal-900 to-emerald-900" },
+    { titleTe: "AI ఆరోగ్య సహాయకుడు", titleEn: "AI Health Assistant", descTe: "మీ ఆరోగ్య సందేహాలకు తక్షణ సమాధానాలు పొందండి.", descEn: "Get instant wellness answers in Telugu and English.", bg: "from-blue-950 via-cyan-900 to-indigo-900" },
+    { titleTe: "పురుషులు & మహిళల ఆరోగ్యం", titleEn: "Men & Women Wellness", descTe: "ప్రత్యేకమైన జీవనశైలి చిట్కాలు, ఆహార ప్రణాళికలు.", descEn: "Specialized fertility guides, diet plans & daily exercises.", bg: "from-rose-950 via-pink-900 to-rose-900" }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Infertility Hub Sub-tabs
+  const [activeInfertilityTab, setActiveInfertilityTab] = useState<"male" | "female" | "ivf" | "iui" | "pcos">("male");
+  
+  // Calculators states & tab
+  const [activeCalcTab, setActiveCalcTab] = useState<"bmi" | "calories" | "pregnancy" | "ovulation" | "water" | "weight" | "sleep" | "diabetes" | "heart">("bmi");
+  
+  // Calculator values
   const [bmiHeight, setBmiHeight] = useState("170");
   const [bmiWeight, setBmiWeight] = useState("70");
   const [bmiResult, setBmiResult] = useState<string | null>(null);
 
+  const [calAge, setCalAge] = useState("25");
+  const [calWeight, setCalWeight] = useState("70");
+  const [calHeight, setCalHeight] = useState("170");
+  const [calGender, setCalGender] = useState("male");
+  const [calResult, setCalResult] = useState<string | null>(null);
+
+  const [pregLmp, setPregLmp] = useState("2026-07-02");
+  const [pregResult, setPregResult] = useState<string | null>(null);
+
+  const [ovulCycle, setOvulCycle] = useState("28");
+  const [ovulLmp, setOvulLmp] = useState("2026-07-02");
+  const [ovulResult, setOvulResult] = useState<string | null>(null);
+
   const [waterWeight, setWaterWeight] = useState("70");
   const [waterResult, setWaterResult] = useState<string | null>(null);
 
-  const [ovulationCycle, setOvulationCycle] = useState("28");
-  const [ovulationDate, setOvulationDate] = useState("2026-07-02");
-  const [ovulationResult, setOvulationResult] = useState<string | null>(null);
+  const [idealHeight, setIdealHeight] = useState("170");
+  const [idealResult, setIdealResult] = useState<string | null>(null);
+
+  const [sleepWake, setSleepWake] = useState("06:00");
+  const [sleepResult, setSleepResult] = useState<string | null>(null);
+
+  // Diabetes & Heart risk inputs
+  const [diabFamily, setDiabFamily] = useState("no");
+  const [diabBmi, setDiabBmi] = useState("24");
+  const [diabResult, setDiabResult] = useState<string | null>(null);
+
+  const [heartAge, setHeartAge] = useState("45");
+  const [heartSmoker, setHeartSmoker] = useState("no");
+  const [heartResult, setHeartResult] = useState<string | null>(null);
 
   // Sync / Search Filter
   useEffect(() => {
@@ -200,8 +274,8 @@ export function HealthPortal() {
     }, 1200);
   };
 
-  // Calculator Logic
-  const calcBMI = () => {
+  // Calculator Computations
+  const runBmi = () => {
     const h = parseFloat(bmiHeight) / 100;
     const w = parseFloat(bmiWeight);
     if (!h || !w) return;
@@ -210,29 +284,81 @@ export function HealthPortal() {
     if (bmi < 18.5) category = lang === "te" ? "తక్కువ బరువు" : "Underweight";
     else if (bmi >= 25 && bmi < 29.9) category = lang === "te" ? "అధిక బరువు" : "Overweight";
     else if (bmi >= 30) category = lang === "te" ? "స్థూలకాయం" : "Obese";
-    
     setBmiResult(`${bmi.toFixed(1)} (${category})`);
   };
 
-  const calcWater = () => {
-    const w = parseFloat(waterWeight);
-    if (!w) return;
-    const lit = (w * 0.033).toFixed(1);
-    setWaterResult(lang === "te" ? `ప్రతిరోజూ ${lit} లీటర్ల నీరు తాగాలి.` : `Should drink ${lit} Liters of water daily.`);
+  const runCalories = () => {
+    const h = parseFloat(calHeight);
+    const w = parseFloat(calWeight);
+    const a = parseFloat(calAge);
+    if (!h || !w || !a) return;
+    // BMR formula Harris-Benedict
+    let bmr = 10 * w + 6.25 * h - 5 * a;
+    bmr = calGender === "male" ? bmr + 5 : bmr - 161;
+    setCalResult(lang === "te" ? `${Math.round(bmr * 1.2)} Kcal రోజువారీ అవసరం` : `${Math.round(bmr * 1.2)} Kcal Daily Requirement`);
   };
 
-  const calcOvulation = () => {
-    if (!ovulationDate) return;
-    const cycle = parseInt(ovulationCycle);
-    const date = new Date(ovulationDate);
-    // Ovulation occurs roughly 14 days before the next period
-    // Safe estimate for fertile window is cycle - 14 and surrounding 4 days
-    const nextPeriodDate = new Date(date.getTime() + cycle * 24 * 60 * 60 * 1000);
-    const ovulationEst = new Date(nextPeriodDate.getTime() - 14 * 24 * 60 * 60 * 1000);
-    
-    setOvulationResult(lang === "te" 
-      ? `మీ అత్యంత సారవంతమైన విండో: ${ovulationEst.toLocaleDateString("te-IN")}` 
-      : `Your highly fertile window: ${ovulationEst.toLocaleDateString("en-US")}`
+  const runPregnancy = () => {
+    if (!pregLmp) return;
+    const lmp = new Date(pregLmp);
+    // Add 280 days
+    const due = new Date(lmp.getTime() + 280 * 24 * 60 * 60 * 1000);
+    setPregResult(lang === "te" ? `ప్రసవ అంచనా తేదీ: ${due.toLocaleDateString("te-IN")}` : `Estimated Due Date: ${due.toLocaleDateString("en-US")}`);
+  };
+
+  const runOvulation = () => {
+    if (!ovulLmp) return;
+    const lmp = new Date(ovulLmp);
+    const cycle = parseInt(ovulCycle);
+    const nextLmp = new Date(lmp.getTime() + cycle * 24 * 60 * 60 * 1000);
+    const ovDate = new Date(nextLmp.getTime() - 14 * 24 * 60 * 60 * 1000);
+    setOvulResult(lang === "te" ? `సారవంతమైన కాలం: ${ovDate.toLocaleDateString("te-IN")}` : `Fertile Window Starts: ${ovDate.toLocaleDateString("en-US")}`);
+  };
+
+  const runWater = () => {
+    const w = parseFloat(waterWeight);
+    if (!w) return;
+    setWaterResult(lang === "te" ? `ప్రతిరోజూ ${(w * 0.033).toFixed(1)} లీటర్లు తాగాలి` : `Drink ${(w * 0.033).toFixed(1)} Liters daily`);
+  };
+
+  const runIdealWeight = () => {
+    const h = parseFloat(idealHeight);
+    if (!h) return;
+    const inchesOver5Ft = Math.max(0, (h / 2.54) - 60);
+    const devineWeight = 50.0 + (2.3 * inchesOver5Ft);
+    setIdealResult(lang === "te" ? `ఆదర్శ బరువు: ${devineWeight.toFixed(1)} kg` : `Ideal Weight: ${devineWeight.toFixed(1)} kg`);
+  };
+
+  const runSleep = () => {
+    // 90 minutes sleep cycle calculator
+    const [h, m] = sleepWake.split(":").map(Number);
+    const wake = new Date();
+    wake.setHours(h, m, 0, 0);
+    // Subtract 5 cycles of 90m (7.5 hours)
+    const sleep = new Date(wake.getTime() - 450 * 60 * 1000);
+    setSleepResult(lang === "te" 
+      ? `పడక సమయం: ${sleep.toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}` 
+      : `Optimal Bedtime: ${sleep.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}`
+    );
+  };
+
+  const runDiabetesRisk = () => {
+    const bmi = parseFloat(diabBmi);
+    let score = diabFamily === "yes" ? 50 : 20;
+    if (bmi > 25) score += 40;
+    setDiabResult(score > 50 
+      ? (lang === "te" ? "మధ్యస్థ/అధిక ప్రమాదం. వ్యాయామం పెంచండి." : "Moderate/High Risk. Act now.") 
+      : (lang === "te" ? "తక్కువ ప్రమాదం." : "Low Risk.")
+    );
+  };
+
+  const runHeartRisk = () => {
+    const age = parseFloat(heartAge);
+    let score = age > 45 ? 40 : 10;
+    if (heartSmoker === "yes") score += 40;
+    setHeartResult(score > 40 
+      ? (lang === "te" ? "హృదయ రక్తనాళ ప్రమాదం ఉంది. వైద్యులను సంప్రదించండి." : "Cardiovascular Risk detected. Consult physician.") 
+      : (lang === "te" ? "తక్కువ గుండె జబ్బుల ప్రమాదం." : "Optimal Heart condition.")
     );
   };
 
@@ -265,10 +391,8 @@ export function HealthPortal() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Left Content Area */}
             <div className="md:col-span-2 space-y-6">
               
-              {/* Scientific info */}
               <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-6 rounded-2xl shadow-sm space-y-3">
                 <h2 className="text-lg font-black text-emerald-600 flex items-center gap-2">
                   <Info className="size-5" />
@@ -277,7 +401,6 @@ export function HealthPortal() {
                 <p className="text-xs sm:text-sm font-bold text-[hsl(var(--muted-foreground))] leading-relaxed">{d.scientific}</p>
               </div>
 
-              {/* Symptoms */}
               <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-6 rounded-2xl shadow-sm space-y-3">
                 <h3 className="text-base font-black text-[hsl(var(--foreground))]">{isTe ? "లక్షణాలు (Symptoms)" : "Symptoms"}</h3>
                 <ul className="list-disc list-inside space-y-1.5 text-xs sm:text-sm font-bold text-[hsl(var(--muted-foreground))]">
@@ -285,7 +408,6 @@ export function HealthPortal() {
                 </ul>
               </div>
 
-              {/* Causes */}
               <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-6 rounded-2xl shadow-sm space-y-3">
                 <h3 className="text-base font-black text-[hsl(var(--foreground))]">{isTe ? "కారణాలు (Causes)" : "Causes"}</h3>
                 <ul className="list-disc list-inside space-y-1.5 text-xs sm:text-sm font-bold text-[hsl(var(--muted-foreground))]">
@@ -293,7 +415,6 @@ export function HealthPortal() {
                 </ul>
               </div>
 
-              {/* Diet and remedies */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-emerald-500/5 border border-emerald-500/20 p-5 rounded-2xl space-y-3">
                   <h4 className="font-extrabold text-sm text-emerald-700">{isTe ? "తినాల్సిన ఆహారాలు" : "Foods to Eat"}</h4>
@@ -309,7 +430,6 @@ export function HealthPortal() {
                 </div>
               </div>
 
-              {/* Traditional Remedies & Ayurvedic Concepts */}
               <div className="bg-amber-500/5 border border-amber-500/20 p-6 rounded-2xl shadow-sm space-y-3">
                 <h3 className="text-base font-black text-amber-700 flex items-center gap-1.5">
                   <Compass className="size-5" />
@@ -323,7 +443,6 @@ export function HealthPortal() {
                 </ul>
               </div>
 
-              {/* Warning signs */}
               <div className="bg-red-500/5 border border-red-500/20 p-6 rounded-2xl shadow-sm space-y-3">
                 <h3 className="text-base font-black text-red-600 flex items-center gap-2">
                   <AlertTriangle className="size-5 animate-pulse" />
@@ -336,10 +455,7 @@ export function HealthPortal() {
 
             </div>
 
-            {/* Right Sidebar Area: AI Assistant */}
             <div className="space-y-6">
-              
-              {/* AI Chat Box */}
               <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[400px]">
                 <div className="bg-emerald-600 px-4 py-3 flex items-center gap-2">
                   <Sparkles className="size-4.5 text-white animate-pulse" />
@@ -365,7 +481,6 @@ export function HealthPortal() {
                   )}
                 </div>
 
-                {/* Pre-fill query suggestions */}
                 <div className="px-4 py-2 border-t border-[hsl(var(--border))]/40 flex flex-wrap gap-1.5 bg-[hsl(var(--muted))]/10">
                   <button 
                     onClick={() => handleAiSend(isTe ? `నాకు ${d.titleTe} ఉంది` : `I have ${d.titleEn}`)}
@@ -399,7 +514,6 @@ export function HealthPortal() {
                 </div>
               </div>
 
-              {/* Disclaimer */}
               <div className="bg-amber-500/5 border border-amber-500/20 p-4 rounded-xl space-y-2 text-[10px] text-amber-800 leading-normal font-bold">
                 <h5 className="font-extrabold flex items-center gap-1">
                   <ShieldAlert className="size-4 shrink-0 text-amber-700" />
@@ -468,7 +582,6 @@ export function HealthPortal() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))] font-sans relative overflow-hidden">
       
-      {/* Dynamic language selector */}
       <div className="absolute top-4 right-4 z-50 flex gap-2">
         <button 
           onClick={() => setLang("te")}
@@ -488,11 +601,9 @@ export function HealthPortal() {
         </button>
       </div>
 
-      {/* Hero Banner Section */}
-      <section className="relative min-h-[420px] bg-gradient-to-br from-emerald-950 via-teal-900 to-[hsl(var(--background))] flex items-center py-20 px-4 sm:px-6 lg:px-8 text-center text-white overflow-hidden">
-        {/* Glow vector backdrops */}
-        <div className="absolute top-[-10%] left-[-10%] size-[360px] rounded-full bg-emerald-500/10 blur-3xl" />
-        <div className="absolute bottom-[-10%] right-[-10%] size-[360px] rounded-full bg-teal-500/10 blur-3xl" />
+      {/* Hero Slider Banner */}
+      <section className={`relative min-h-[460px] bg-gradient-to-br ${slides[activeSlide].bg} flex items-center py-24 px-4 sm:px-6 lg:px-8 text-center text-white overflow-hidden transition-all duration-1000`}>
+        <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
         
         <div className="max-w-4xl mx-auto space-y-6 relative z-10">
           <span className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-400 bg-emerald-500/10 px-3.5 py-1.5 rounded-full border border-emerald-500/20 uppercase tracking-wider animate-fadeIn">
@@ -500,17 +611,13 @@ export function HealthPortal() {
             VaartaNow AI Health Hub
           </span>
           
-          <h1 className="text-3xl sm:text-5xl font-black leading-tight tracking-tight">
-            {isTe ? "సహజంగా ఆరోగ్యంగా ఉండాలా?" : "Live Naturally Healthy & Strong"}
+          <h1 className="text-3xl sm:text-5xl font-black leading-tight tracking-tight min-h-[80px]">
+            {isTe ? slides[activeSlide].titleTe : slides[activeSlide].titleEn}
           </h1>
           <p className="text-white/80 max-w-2xl mx-auto text-xs sm:text-base font-bold leading-relaxed">
-            {isTe 
-              ? "రోజూ వంటింట్లో ఉన్న పదార్థాలతో మీ ఆరోగ్యాన్ని కాపాడుకోండి. AI సహాయంతో నిమిషాల్లో ఆరోగ్య సలహాలను పొందండి."
-              : "Discover evidence-based traditional wellness secrets and get dynamic answers from our AI Health assistant."
-            }
+            {isTe ? slides[activeSlide].descTe : slides[activeSlide].descEn}
           </p>
 
-          {/* Search bar */}
           <div className="relative max-w-lg mx-auto">
             <input
               type="text"
@@ -521,7 +628,6 @@ export function HealthPortal() {
             />
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60 size-4.5" />
             
-            {/* Search Dropdown */}
             {searchResults.length > 0 && (
               <div className="absolute z-50 left-0 right-0 top-[calc(100%+6px)] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-2xl shadow-lg max-h-56 overflow-y-auto no-scrollbar">
                 {searchResults.map((item, idx) => (
@@ -540,6 +646,17 @@ export function HealthPortal() {
               </div>
             )}
           </div>
+
+          {/* Slide Indicator bullets */}
+          <div className="flex justify-center gap-2 pt-4">
+            {slides.map((_, idx) => (
+              <button 
+                key={idx} 
+                onClick={() => setActiveSlide(idx)}
+                className={`size-2.5 rounded-full transition ${idx === activeSlide ? "bg-white scale-125" : "bg-white/40"}`}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -550,28 +667,94 @@ export function HealthPortal() {
           <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "ప్రతి రోగానికి సంబంధించిన పూర్తి సమాచారం కనుగొనండి" : "Explore evidence-based health directories"}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Object.entries(DISEASES).map(([key, d]) => (
-            <Link
-              to={`/health/${key}`}
-              key={key}
-              className="group bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-2xl overflow-hidden hover:shadow-lg transition-all active:scale-[0.99]"
-            >
-              <div className="relative aspect-video">
-                <img src={d.image} alt={d.titleEn} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
-                  <p className="text-white text-xs font-black">{isTe ? d.titleTe : d.titleEn}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          {MAIN_CATEGORIES.map((cat) => {
+            const IconComp = cat.icon;
+            return (
+              <Link
+                to={`/health/${cat.key}`}
+                key={cat.key}
+                className="group flex gap-4 bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl shadow-sm hover:shadow-md transition active:scale-[0.99] text-left"
+              >
+                <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 text-white ${cat.color}`}>
+                  <IconComp className="size-6" />
                 </div>
-              </div>
-              <div className="p-4 space-y-2 text-xs font-bold text-[hsl(var(--muted-foreground))]">
-                <p className="truncate">Symptoms: {d.symptoms.join(", ")}</p>
-                <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-extrabold uppercase">
-                  <span>Explore disease info</span>
-                  <ChevronRight className="size-3.5 group-hover:translate-x-0.5 transition" />
+                <div className="space-y-1 py-0.5">
+                  <h3 className="text-xs font-black text-[hsl(var(--foreground))] group-hover:text-emerald-600 transition">{cat.nameTe}</h3>
+                  <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">వీక్షించడానికి క్లిక్ చేయండి</p>
                 </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Dedicated Infertility Hub Section */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8">
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-black text-rose-700 flex items-center justify-center gap-2">
+            <Users className="size-6" />
+            {isTe ? "సంతానలేమి విభాగం (Infertility Hub)" : "Infertility Hub"}
+          </h2>
+          <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "ఐవీఎఫ్ (IVF), ఐయూఐ (IUI) మరియు హార్మోన్ల సమస్యల పూర్తి సలహాలు" : "Fertility guides, sperm health, PCOS diet & treatment advice"}</p>
+        </div>
+
+        <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-3xl overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-4">
+          {/* Tabs Sidebar */}
+          <div className="bg-[hsl(var(--muted))]/30 border-r border-[hsl(var(--border))]/40 p-4 space-y-1 flex lg:flex-col overflow-x-auto lg:overflow-x-visible no-scrollbar">
+            {(["male", "female", "ivf", "iui", "pcos"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveInfertilityTab(tab)}
+                className={`w-full text-left text-xs font-black px-4 py-3 rounded-xl transition shrink-0 lg:shrink-1 ${
+                  activeInfertilityTab === tab 
+                    ? "bg-rose-500/10 text-rose-700" 
+                    : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
+                }`}
+              >
+                {tab.toUpperCase()} {isTe ? "సమాచారం" : "Guide"}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content Panels */}
+          <div className="lg:col-span-3 p-6 sm:p-8 space-y-4 text-xs font-bold text-[hsl(var(--muted-foreground))] leading-relaxed text-left">
+            {activeInfertilityTab === "male" && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-black text-rose-700">{isTe ? "పురుషుల సంతానోత్పత్తి (Male Fertility)" : "Male Fertility Guidelines"}</h3>
+                <p>మగవారిలో వీర్యకణాల సంఖ్య మరియు నాణ్యత సంతానోత్పత్తికి ఎంతో కీలకం. సమతుల్య ఆహారం మరియు వ్యాయామం ద్వారా వీటిని మెరుగుపరచవచ్చు.</p>
+                <p className="text-rose-600 font-extrabold">చిట్కాలు: జింక్ మరియు ఫోలిక్ యాసిడ్ ఎక్కువగా ఉండే గుడ్లు, పాలకూర, బాదం వంటివి తీసుకోండి. ధూమపానం మరియు మద్యపానానికి దూరంగా ఉండండి.</p>
               </div>
-            </Link>
-          ))}
+            )}
+            {activeInfertilityTab === "female" && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-black text-rose-700">{isTe ? "స్త్రీల సంతానోత్పత్తి (Female Fertility)" : "Female Fertility Guidelines"}</h3>
+                <p>స్త్రీలలో అండాల విడుదల (Ovulation) సక్రమంగా జరగడం ముఖ్యం. మానసిక ఒత్తిడి మరియు బరువు అండాల నాణ్యతను ప్రభావితం చేస్తాయి.</p>
+                <p className="text-rose-600 font-extrabold">చిట్కాలు: రోజూ ఫోలిక్ యాసిడ్ సప్లిమెంట్లు, ఆకుకూరలు, తాజా పండ్లు తీసుకోండి. పీరియడ్స్ ట్రాక్ చేయడం ద్వారా అండం విడుదలయ్యే సారవంతమైన రోజులను కనుగొనండి.</p>
+              </div>
+            )}
+            {activeInfertilityTab === "ivf" && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-black text-rose-700">IVF (In Vitro Fertilization)</h3>
+                <p>టెస్ట్ ట్యూబ్ బేబీ ప్రక్రియగా పిలవబడే ఐవీఎఫ్, గర్భధారణ కష్టంగా మారిన దంపతులకు ఒక ఆధునిక శాస్త్రీయ పరిష్కారం.</p>
+                <p className="text-rose-600 font-extrabold">సమాచారం: ల్యాబ్‌లో అండం మరియు వీర్యకణాల కలయిక జరిపి, పిండాన్ని గర్భాశయంలో ప్రవేశపెడతారు. దీని సక్సెస్ రేటు వయసు మరియు ఆరోగ్య స్థితిపై ఆధారపడి ఉంటుంది.</p>
+              </div>
+            )}
+            {activeInfertilityTab === "iui" && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-black text-rose-700">IUI (Intrauterine Insemination)</h3>
+                <p>శుద్ధి చేసిన వీర్యకణాలను నేరుగా గర్భాశయంలోకి ప్రవేశపెట్టే ఒక సాధారణ సంతానోత్పత్తి చికిత్స విధానం.</p>
+                <p className="text-rose-600 font-extrabold">సమాచారం: సహజ పద్ధతుల కంటే కణాలు వేగంగా అండాన్ని చేరుకోవడానికి ఈ పద్ధతి ఉపయోగపడుతుంది. తక్కువ వీర్యకణాల చలనశీలత ఉన్నప్పుడు ఇది సిఫార్సు చేయబడుతుంది.</p>
+              </div>
+            )}
+            {activeInfertilityTab === "pcos" && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-black text-rose-700">PCOS (Polycystic Ovary Syndrome)</h3>
+                <p>ఈ రోజుల్లో అనేకమంది స్త్రీలు ఎదుర్కొంటున్న హార్మోన్ల సమతుల్యత లోపమే పిసిఓఎస్. దీనివల్ల పీరియడ్స్ క్రమం తప్పుతాయి.</p>
+                <p className="text-rose-600 font-extrabold">చిట్కాలు: పిండి పదార్థాలు (కార్బోహైడ్రేట్లు) తగ్గించి వ్యాయామం పెంచడం ద్వారా బరువును నియంత్రణలో ఉంచుకోండి. ఇది సహజ ప్రసవ అవకాశాలను మెరుగుపరుస్తుంది.</p>
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
@@ -644,116 +827,216 @@ export function HealthPortal() {
         </div>
       </section>
 
-      {/* Interactive Calculators Section */}
+      {/* Dynamic 9-Tab Health Calculators Section */}
       <section className="py-12 bg-emerald-950/5 border-t border-b border-[hsl(var(--border))]/40 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="text-center space-y-2">
             <h2 className="text-2xl font-black text-emerald-700 flex items-center justify-center gap-2">
               <Calculator className="size-6 text-emerald-600" />
-              {isTe ? "ఆరోగ్య కాలిక్యులేటర్లు" : "Health Calculators"}
+              {isTe ? "ఆరోగ్య కాలిక్యులేటర్లు (9 Interactive Tools)" : "9 Health Calculators"}
             </h2>
-            <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "మీ శారీరక కొలతలతో నిమిషాల్లో ఆరోగ్య స్థితిని సరిచూసుకోండి" : "Verify body indexes instantly with tools"}</p>
+            <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "మీ శరీర ఆరోగ్య కొలతలు నిమిషాల్లో సరిచూసుకోండి" : "Run interactive diagnostics and check risks"}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-3xl overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-4">
             
-            {/* Calculator 1: BMI */}
-            <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl space-y-3">
-              <h3 className="text-xs font-black text-[hsl(var(--foreground))] uppercase tracking-wider">{isTe ? "బి.ఎమ్.ఐ (BMI) కాలిక్యులేటర్" : "BMI Calculator"}</h3>
-              <div className="grid grid-cols-2 gap-2 text-xs font-bold">
-                <div className="space-y-1">
-                  <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "ఎత్తు (cm)" : "Height (cm)"}</label>
-                  <input 
-                    type="number" 
-                    value={bmiHeight} 
-                    onChange={(e) => setBmiHeight(e.target.value)} 
-                    className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))]"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "బరువు (kg)" : "Weight (kg)"}</label>
-                  <input 
-                    type="number" 
-                    value={bmiWeight} 
-                    onChange={(e) => setBmiWeight(e.target.value)} 
-                    className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))]"
-                  />
-                </div>
-              </div>
-              <button 
-                onClick={calcBMI}
-                className="w-full text-xs font-black py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm active:scale-95 transition"
-              >
-                {isTe ? "లెక్కించు" : "Calculate"}
-              </button>
-              {bmiResult && (
-                <div className="text-xs font-bold text-emerald-700 bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-500/20 text-center">
-                  Result: {bmiResult}
-                </div>
-              )}
+            {/* Calculators Tabs list */}
+            <div className="bg-[hsl(var(--muted))]/30 border-r border-[hsl(var(--border))]/40 p-4 space-y-1 flex lg:flex-col overflow-x-auto lg:overflow-x-visible no-scrollbar">
+              {([
+                { key: "bmi", nameTe: "బి.ఎమ్.ఐ (BMI)", nameEn: "BMI" },
+                { key: "calories", nameTe: "క్యాలరీలు (Calories)", nameEn: "Calories" },
+                { key: "pregnancy", nameTe: "ప్రసవ తేదీ (Due Date)", nameEn: "Pregnancy Due Date" },
+                { key: "ovulation", nameTe: "అండాల విడుదల (Ovulation)", nameEn: "Ovulation" },
+                { key: "water", nameTe: "నీటి వినియోగం (Water)", nameEn: "Water Intake" },
+                { key: "weight", nameTe: "ఆదర్శ బరువు (Ideal Weight)", nameEn: "Ideal Weight" },
+                { key: "sleep", nameTe: "నిద్ర (Sleep Calculator)", nameEn: "Sleep Cycles" },
+                { key: "diabetes", nameTe: "డయాబెటిస్ రిస్క్ (Diabetes Risk)", nameEn: "Diabetes Risk" },
+                { key: "heart", nameTe: "గుండె రిస్క్ (Heart Risk)", nameEn: "Heart Risk" }
+              ] as const).map((calc) => (
+                <button
+                  key={calc.key}
+                  onClick={() => {
+                    setActiveCalcTab(calc.key);
+                  }}
+                  className={`w-full text-left text-xs font-black px-4 py-3 rounded-xl transition shrink-0 lg:shrink-1 ${
+                    activeCalcTab === calc.key 
+                      ? "bg-emerald-600 text-white shadow-sm" 
+                      : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
+                  }`}
+                >
+                  {isTe ? calc.nameTe : calc.nameEn}
+                </button>
+              ))}
             </div>
 
-            {/* Calculator 2: Water Intake */}
-            <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl space-y-3">
-              <h3 className="text-xs font-black text-[hsl(var(--foreground))] uppercase tracking-wider">{isTe ? "నీటి వినియోగం కాలిక్యులేటర్" : "Water Intake Calculator"}</h3>
-              <div className="space-y-1 text-xs font-bold">
-                <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "మీ బరువు (kg)" : "Your Weight (kg)"}</label>
-                <input 
-                  type="number" 
-                  value={waterWeight} 
-                  onChange={(e) => setWaterWeight(e.target.value)} 
-                  className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))]"
-                />
-              </div>
-              <button 
-                onClick={calcWater}
-                className="w-full text-xs font-black py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm active:scale-95 transition"
-              >
-                {isTe ? "లెక్కించు" : "Calculate"}
-              </button>
-              {waterResult && (
-                <div className="text-xs font-bold text-emerald-700 bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-500/20 text-center">
-                  {waterResult}
+            {/* Calculator input panels */}
+            <div className="lg:col-span-3 p-6 sm:p-8 space-y-4 text-left">
+              
+              {/* BMI */}
+              {activeCalcTab === "bmi" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "శరీర ద్రవ్యరాశి సూచిక (BMI Calculator)" : "Body Mass Index (BMI)"}</h3>
+                  <div className="grid grid-cols-2 gap-4 text-xs font-bold">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "ఎత్తు (cm)" : "Height (cm)"}</label>
+                      <input type="number" value={bmiHeight} onChange={(e) => setBmiHeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "బరువు (kg)" : "Weight (kg)"}</label>
+                      <input type="number" value={bmiWeight} onChange={(e) => setBmiWeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    </div>
+                  </div>
+                  <button onClick={runBmi} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {bmiResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{isTe ? "ఫలితం: " : "Result: "} {bmiResult}</div>}
                 </div>
               )}
-            </div>
 
-            {/* Calculator 3: Ovulation / Fertility */}
-            <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl space-y-3">
-              <h3 className="text-xs font-black text-[hsl(var(--foreground))] uppercase tracking-wider">{isTe ? "సంతానోత్పత్తి విండో (Fertility Calculator)" : "Fertility Calculator"}</h3>
-              <div className="grid grid-cols-2 gap-2 text-xs font-bold">
-                <div className="space-y-1">
-                  <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "చక్రం (రోజులు)" : "Cycle length (Days)"}</label>
-                  <input 
-                    type="number" 
-                    value={ovulationCycle} 
-                    onChange={(e) => setOvulationCycle(e.target.value)} 
-                    className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))]"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "చివరి పీరియడ్ తేదీ" : "Last Period Date"}</label>
-                  <input 
-                    type="date" 
-                    value={ovulationDate} 
-                    onChange={(e) => setOvulationDate(e.target.value)} 
-                    className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))]"
-                  />
-                </div>
-              </div>
-              <button 
-                onClick={calcOvulation}
-                className="w-full text-xs font-black py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm active:scale-95 transition"
-              >
-                {isTe ? "సారవంతమైన తేదీ కనుగొనండి" : "Calculate"}
-              </button>
-              {ovulationResult && (
-                <div className="text-xs font-bold text-emerald-700 bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-500/20 text-center">
-                  {ovulationResult}
+              {/* Calories */}
+              {activeCalcTab === "calories" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "క్యాలరీల కాలిక్యులేటర్ (BMR)" : "BMR Calorie Calculator"}</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-bold">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "వయసు" : "Age"}</label>
+                      <input type="number" value={calAge} onChange={(e) => setCalAge(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "బరువు (kg)" : "Weight (kg)"}</label>
+                      <input type="number" value={calWeight} onChange={(e) => setCalWeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "ఎత్తు (cm)" : "Height (cm)"}</label>
+                      <input type="number" value={calHeight} onChange={(e) => setCalHeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "లింగం" : "Gender"}</label>
+                      <select value={calGender} onChange={(e) => setCalGender(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" >
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button onClick={runCalories} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {calResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{calResult}</div>}
                 </div>
               )}
-            </div>
 
+              {/* Pregnancy Due Date */}
+              {activeCalcTab === "pregnancy" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "గర్భధారణ ప్రసవ తేదీ (Pregnancy Due Date)" : "Pregnancy Due Date Estimator"}</h3>
+                  <div className="space-y-1 text-xs font-bold max-w-sm">
+                    <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "చివరి పీరియడ్ మొదటి రోజు" : "First Day of Last Period"}</label>
+                    <input type="date" value={pregLmp} onChange={(e) => setPregLmp(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                  </div>
+                  <button onClick={runPregnancy} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {pregResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{pregResult}</div>}
+                </div>
+              )}
+
+              {/* Ovulation */}
+              {activeCalcTab === "ovulation" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "అండాల విడుదల కాలం (Ovulation Window)" : "Ovulation & Fertility Window"}</h3>
+                  <div className="grid grid-cols-2 gap-4 text-xs font-bold max-w-md">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "చక్రం పొడవు (రోజులు)" : "Cycle length (Days)"}</label>
+                      <input type="number" value={ovulCycle} onChange={(e) => setOvulCycle(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "చివరి పీరియడ్ తేదీ" : "Last Period Date"}</label>
+                      <input type="date" value={ovulLmp} onChange={(e) => setOvulLmp(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    </div>
+                  </div>
+                  <button onClick={runOvulation} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {ovulResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{ovulResult}</div>}
+                </div>
+              )}
+
+              {/* Water Intake */}
+              {activeCalcTab === "water" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "రోజువారీ నీటి పరిమాణం (Water Intake)" : "Water Intake Requirement"}</h3>
+                  <div className="space-y-1 text-xs font-bold max-w-sm">
+                    <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "బరువు (kg)" : "Weight (kg)"}</label>
+                    <input type="number" value={waterWeight} onChange={(e) => setWaterWeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                  </div>
+                  <button onClick={runWater} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {waterResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{waterResult}</div>}
+                </div>
+              )}
+
+              {/* Ideal Weight */}
+              {activeCalcTab === "weight" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "ఆదర్శ బరువు కాలిక్యులేటర్" : "Ideal Weight Calculator (Devine Formula)"}</h3>
+                  <div className="space-y-1 text-xs font-bold max-w-sm">
+                    <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "ఎత్తు (cm)" : "Height (cm)"}</label>
+                    <input type="number" value={idealHeight} onChange={(e) => setIdealHeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                  </div>
+                  <button onClick={runIdealWeight} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {idealResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{idealResult}</div>}
+                </div>
+              )}
+
+              {/* Sleep Cycles */}
+              {activeCalcTab === "sleep" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "నిద్ర చక్రం కాలిక్యులేటర్ (Sleep cycles)" : "Optimal Sleep Cycles Estimator"}</h3>
+                  <div className="space-y-1 text-xs font-bold max-w-sm">
+                    <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "నేను మేల్కొనే సమయం:" : "Wake up Time:"}</label>
+                    <input type="time" value={sleepWake} onChange={(e) => setSleepWake(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                  </div>
+                  <button onClick={runSleep} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {sleepResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{sleepResult}</div>}
+                </div>
+              )}
+
+              {/* Diabetes Risk */}
+              {activeCalcTab === "diabetes" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "మధుమేహ ప్రమాద సూచిక (Diabetes Risk)" : "Diabetes Risk Calculator"}</h3>
+                  <div className="grid grid-cols-2 gap-4 text-xs font-bold max-w-md">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "కుటుంబంలో డయాబెటిస్ ఉందా?" : "Family history of diabetes?"}</label>
+                      <select value={diabFamily} onChange={(e) => setDiabFamily(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" >
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "మీ బి.ఎమ్.ఐ (BMI)" : "Your BMI"}</label>
+                      <input type="number" value={diabBmi} onChange={(e) => setDiabBmi(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    </div>
+                  </div>
+                  <button onClick={runDiabetesRisk} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {diabResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{diabResult}</div>}
+                </div>
+              )}
+
+              {/* Heart Risk */}
+              {activeCalcTab === "heart" && (
+                <div className="space-y-4">
+                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "గుండె జబ్బుల ప్రమాద అంచనా (Heart Risk)" : "Heart & Cardiovascular Risk Assessment"}</h3>
+                  <div className="grid grid-cols-2 gap-4 text-xs font-bold max-w-md">
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "వయసు" : "Age"}</label>
+                      <input type="number" value={heartAge} onChange={(e) => setHeartAge(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "ధూమపాన అలవాటు ఉందా?" : "Active Smoker?"}</label>
+                      <select value={heartSmoker} onChange={(e) => setHeartSmoker(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" >
+                        <option value="no">No</option>
+                        <option value="yes">Yes</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button onClick={runHeartRisk} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {heartResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{heartResult}</div>}
+                </div>
+              )}
+
+            </div>
           </div>
         </div>
       </section>
