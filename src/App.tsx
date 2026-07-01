@@ -21,12 +21,15 @@ import {
   JobsAdminPage
 } from "@/pages/jobs/JobsPages";
 import { AboutPage, ContactPage, PrivacyPage, TermsPage, DisclaimerPage } from "@/pages/LegalPages";
+import { HealthPortal } from "@/pages/health/HealthPortal";
 
 const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
       { path: "/", element: <HomePage /> },
+      { path: "/health", element: <HealthPortal /> },
+      { path: "/health/:subpage", element: <HealthPortal /> },
       { path: "/login", element: <LoginPage /> },
       { path: "/bookmarks", element: <BookmarksPage /> },
       { path: "/category/:category", element: <CategoryPage /> },
