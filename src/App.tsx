@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { AdminPage } from "@/pages/AdminPage";
 import { DiagnosticsPage } from "@/pages/DiagnosticsPage";
@@ -28,6 +28,7 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: "/", element: <HomePage /> },
+      { path: "/category/health", element: <Navigate to="/health" replace /> },
       { path: "/health", element: <HealthPortal /> },
       { path: "/health/:subpage", element: <HealthPortal /> },
       { path: "/bookmarks", element: <BookmarksPage /> },

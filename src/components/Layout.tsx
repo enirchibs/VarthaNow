@@ -215,7 +215,7 @@ export function Layout() {
           {categories.map((category) => (
             <NavLink
               key={category.slug}
-              to={`/category/${category.slug}`}
+              to={category.slug === "health" ? "/health" : `/category/${category.slug}`}
               className={({ isActive }) =>
                 `shrink-0 rounded-full px-1.5 py-0.5 md:px-4 md:py-2 text-[9px] md:text-sm font-black transition ${
                   isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
