@@ -163,23 +163,14 @@ export function Layout() {
               )}
             </Button>
 
-            {user ? (
+            <Link to="/bookmarks" className="hidden md:inline-block">
               <Button 
                 variant="secondary" 
-                onClick={handleSignOut}
-                className="hidden md:inline-flex h-10 px-4 rounded-xl text-xs font-black border border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]"
+                className="h-10 px-4 rounded-xl text-xs font-black border border-[hsl(var(--border))] hover:bg-[hsl(var(--muted))]"
               >
-                {lang === "te" ? "సైన్ అవుట్" : "Sign Out"}
+                {lang === "te" ? "బుక్‌మార్క్‌లు" : "Bookmarks"}
               </Button>
-            ) : (
-              <Link to="/login" className="hidden md:inline-block">
-                <Button 
-                  className="h-10 px-4 rounded-xl text-xs font-black bg-[hsl(var(--primary))] text-white hover:bg-[hsl(var(--primary))]/90"
-                >
-                  {lang === "te" ? "లాగిన్" : "Sign In"}
-                </Button>
-              </Link>
-            )}
+            </Link>
           </div>
           <Link to="/search" className="hidden md:grid size-11 place-items-center rounded-full bg-[hsl(var(--muted))]" aria-label="Search">
             <Search className="size-4" />
@@ -407,7 +398,7 @@ export function Layout() {
           </NavLink>
 
           <NavLink
-            to="/category/health"
+            to="/health"
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
                 isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
@@ -420,7 +411,7 @@ export function Layout() {
           </NavLink>
 
           <NavLink
-            to="/login"
+            to="/bookmarks"
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
                 isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
@@ -428,7 +419,7 @@ export function Layout() {
             }
           >
             {({ isActive }) => (
-              <User className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
+              <Bookmark className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
             )}
           </NavLink>
         </div>
