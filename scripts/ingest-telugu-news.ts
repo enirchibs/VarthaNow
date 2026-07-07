@@ -81,7 +81,7 @@ const FEED_SOURCES: FeedSource[] = [
   { url: "https://tv9telugu.com/feed", category: "politics", priority: 1, publisher: "TV9 Telugu", directFeed: true },
   { url: "https://ntvtelugu.com/feed", category: "politics", priority: 1, publisher: "NTV Telugu", directFeed: true },
   { url: "https://www.etvbharat.com/rss/telugu/state/andhra-pradesh", category: "politics", priority: 1, publisher: "ETV Bharat", directFeed: true },
-  { url: "https://telanganatoday.com/feed", category: "politics", priority: 1, publisher: "Telangana Today", directFeed: true },
+
 
   // ── P1: Breaking / National ──────────────────────────────────────
   { url: "https://news.google.com/rss/search?q=breaking+news+telugu+when:6h&hl=te&gl=IN&ceid=IN:te", category: "national", priority: 1, publisher: "Google News", directFeed: false },
@@ -97,9 +97,9 @@ const FEED_SOURCES: FeedSource[] = [
 
   // ── P2: Telangana ───────────────────────────────────────────────
   { url: "https://news.google.com/rss/search?q=తెలంగాణ+వార్తలు+when:24h&hl=te&gl=IN&ceid=IN:te", category: "telangana", priority: 2, publisher: "Google News", directFeed: false },
-  { url: "https://telanganatoday.com/feed/category/telangana", category: "telangana", priority: 2, publisher: "Telangana Today", directFeed: true },
   { url: "https://www.etvbharat.com/rss/telugu/state/telangana", category: "telangana", priority: 2, publisher: "ETV Bharat TS", directFeed: true },
   { url: "https://hmtvlive.com/feed", category: "telangana", priority: 2, publisher: "HMTV Live", directFeed: true },
+
 
   // ── P2: Cricket / Sports ────────────────────────────────────────
   { url: "https://news.google.com/rss/search?q=క్రికెట్+IPL+T20+when:24h&hl=te&gl=IN&ceid=IN:te", category: "cricket", priority: 2, publisher: "Google News", directFeed: false },
@@ -108,8 +108,8 @@ const FEED_SOURCES: FeedSource[] = [
 
   // ── P2: Business ────────────────────────────────────────────────
   { url: "https://news.google.com/rss/search?q=వ్యాపారం+మార్కెట్+when:24h&hl=te&gl=IN&ceid=IN:te", category: "business", priority: 2, publisher: "Google News", directFeed: false },
-  { url: "https://telanganatoday.com/feed/category/business", category: "business", priority: 2, publisher: "Telangana Today Business", directFeed: true },
   { url: "https://www.etvbharat.com/rss/telugu/business", category: "business", priority: 2, publisher: "ETV Business", directFeed: true },
+
 
   // ── P3: Cinema ──────────────────────────────────────────────────
   { url: "https://news.google.com/rss/search?q=సినిమా+టాలీవుడ్+when:24h&hl=te&gl=IN&ceid=IN:te", category: "cinema", priority: 3, publisher: "Google News", directFeed: false },
@@ -119,7 +119,7 @@ const FEED_SOURCES: FeedSource[] = [
 
   // ── P3: Technology ──────────────────────────────────────────────
   { url: "https://news.google.com/rss/search?q=సాంకేతిక+వార్తలు+when:24h&hl=te&gl=IN&ceid=IN:te", category: "technology", priority: 3, publisher: "Google News", directFeed: false },
-  { url: "https://telanganatoday.com/feed/category/technology", category: "technology", priority: 3, publisher: "Telangana Today Tech", directFeed: true },
+
 
   // ── P3: Jobs ────────────────────────────────────────────────────
   { url: "https://news.google.com/rss/search?q=ఉద్యోగాలు+ప్రభుత్వ+when:48h&hl=te&gl=IN&ceid=IN:te", category: "jobs", priority: 3, publisher: "Google News Jobs", directFeed: false },
@@ -905,6 +905,14 @@ async function run() {
       for (const item of rssItems) {
         if (!item.title || !item.link) continue;
         stats.totalProcessed++;
+
+        // Language filter: Skip articles whose titles do not contain Telugu characters
+        const hasTelugu = /[\u0c00-\u0c7f]/.test(item.title);
+        if (!hasTelugu) {
+          console.log(`  └─ ⏭ Skipped non-Telugu article: "${item.title.slice(0, 50)}..."`);
+          stats.skipped++;
+          continue;
+        }
 
         const baseSlug = toSlug(item.title);
         const hash = urlHash(item.link);
