@@ -34,8 +34,10 @@ export function ShortsReel() {
   const [muted, setMuted] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const touchStartY = useRef(0);
+
   
   const activeIndex = videos.findIndex((v) => v.link === activeVideo?.link);
 
@@ -93,6 +95,17 @@ export function ShortsReel() {
   useEffect(() => {
     playNextVideoRef.current = playNextVideo;
   });
+
+  // Explicitly play HTML5 videos when activeVideo changes
+  useEffect(() => {
+    if (videoRef.current && activeVideo && !activeVideo.clip.includes("youtube.com") && !activeVideo.clip.includes("youtu.be")) {
+      videoRef.current.load();
+      videoRef.current.play().catch((err) => {
+        console.warn("HTML5 Video autoplay failed:", err);
+      });
+    }
+  }, [activeVideo]);
+
 
   // YouTube API integration to detect ended video from inside iframe
   useEffect(() => {
@@ -292,6 +305,20 @@ export function ShortsReel() {
             {/* The Reel Video Player */}
             {activeVideo.clip.includes("youtube.com") || activeVideo.clip.includes("youtu.be") ? (
               <iframe
+                ref={iframeRef}
+                onLoad={() => {
+                  if (iframeRef.current && iframeRef.current.contentWindow) {
+                    console.log("☎️ Sending listening handshake to YouTube IFrame...");
+                    iframeRef.current.contentWindow.postMessage(
+                      JSON.stringify({
+                        event: "listening",
+                        id: 1,
+                        channel: "widget"
+                      }),
+                      "*"
+                    );
+                  }
+                }}
                 src={`https://www.youtube.com/embed/${getYoutubeId(activeVideo.clip)}?autoplay=1&mute=${muted ? 1 : 0}&enablejsapi=1&controls=0&modestbranding=1&rel=0&playsinline=1`}
                 className="w-full h-full object-cover pointer-events-none"
                 allow="autoplay; encrypted-media; picture-in-picture"
@@ -317,6 +344,7 @@ export function ShortsReel() {
                 }}
               />
             )}
+
 
 
             {/* Top Navigation Bar inside phone */}
