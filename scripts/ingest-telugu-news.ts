@@ -1016,7 +1016,7 @@ async function run() {
             slug: baseSlug,
             title: item.title,
             excerpt: (item.contentSnippet || item.content || `${feed.category} వార్తలు.`).slice(0, 300),
-            content: sourceText,
+            content: rssSnippet,
             category: feed.category,
             tags: [feed.category, "వార్తలు", "news"],
             meta_title: item.title.slice(0, 70),
@@ -1038,10 +1038,11 @@ async function run() {
             image_tags: [feed.category],
             content_hash: hash,
             summary_short: (item.contentSnippet || "").slice(0, 120),
-            summary_medium: (item.contentSnippet || sourceText).slice(0, 400),
-            summary_long: sourceText,
+            summary_medium: (item.contentSnippet || rssSnippet).slice(0, 400),
+            summary_long: rssSnippet,
             social_thumbnail_url: aiQueueStatus, // backward compat
             ai_queue_status: aiQueueStatus,
+
             relevance_score: importanceScore,
             extraction_quality_score: extractionScore,
             word_count: wordCount,
