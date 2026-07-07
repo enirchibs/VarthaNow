@@ -10,7 +10,12 @@
     "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "sitemap": "tsx scripts/generate-sitemap.ts",
-    "cron": "tsx scripts/cron-local.ts"
+    "cron": "tsx scripts/cron-local.ts",
+    "ai-queue": "tsx scripts/process-ai-queue.ts",
+    "social": "tsx scripts/social-post-worker.ts",
+    "monitor": "tsx scripts/monitoring-dashboard.ts",
+    "dashboard": "tsx scripts/monitoring-dashboard.ts --watch",
+    "ingest": "tsx scripts/ingest-telugu-news.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
@@ -29,6 +34,7 @@
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.1",
     "rss-parser": "^3.13.0",
+    "sharp": "^0.35.3",
     "slugify": "^1.6.6",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
@@ -42,6 +48,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.1",
+    "pg": "^8.22.0",
     "playwright": "^1.49.1",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",

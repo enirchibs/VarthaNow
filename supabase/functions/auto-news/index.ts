@@ -46,8 +46,8 @@ serve(async (request) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const geminiKey = Deno.env.get("GEMINI_API_KEY");
-  if (!supabaseUrl || !serviceRole || !geminiKey) {
+  const geminiKey = Deno.env.get("GEMINI_API_KEY") || "";
+  if (!supabaseUrl || !serviceRole) {
     return json({ ok: false, error: "Missing required environment variables." }, 500);
   }
 
@@ -100,8 +100,7 @@ serve(async (request) => {
           continue;
         }
 
-        const ai = await rewriteWithGemini(item, geminiKey);
-        const slug = await uniqueSlug(supabase, ai.slug || baseSlug);
+        const slug = await uniqueSlug(supabase, baseSlug);
 
         // Resolve original article URL and extract banner image metadata
         const resolvedUrl = await resolveUrl(item.link);
@@ -118,30 +117,51 @@ serve(async (request) => {
           }
         }
 
-        const { error } = await supabase.from("blog_posts").insert({
+        const langInfo = languageConfig[item.language] || languageConfig.te;
+
+        // Step 3: Insert original raw article immediately
+        const { error: insertError } = await supabase.from("blog_posts").insert({
           slug,
-          title: ai.title,
-          excerpt: ai.excerpt,
-          content: ai.content,
+          title: item.title,
+          excerpt: `${langInfo.fallbackExcerpt}: ${item.title}`,
+          content: `## ${item.title}\n\n${langInfo.fallbackContent}\n\n*Source: ${item.source}*`,
           category: item.category,
-          tags: ai.tags,
-          meta_title: ai.meta_title,
-          meta_description: ai.meta_description,
+          tags: [item.category, langInfo.newsLabel],
+          meta_title: item.title,
+          meta_description: `${langInfo.latest}: ${item.title}`,
           og_image: chosenImageUrl,
           author_name: "VarthaNow AI Desk",
           language: item.language,
           published: true,
-          featured: ai.featured || false,
-          reading_time_min: ai.reading_time_min,
+          featured: false,
+          reading_time_min: 3,
           published_at: new Date().toISOString()
         });
 
-        if (error) {
-          result.errors.push(`${item.title}: ${error.message}`);
+        if (insertError) {
+          result.errors.push(`${item.title}: ${insertError.message}`);
           continue;
         }
 
         result.inserted += 1;
+
+        // Step 4: Run Gemini Rewrite as enhancement update
+        try {
+          const ai = await rewriteWithGemini(item, geminiKey);
+          await supabase.from("blog_posts").update({
+            title: ai.title,
+            excerpt: ai.excerpt,
+            content: ai.content,
+            tags: ai.tags,
+            meta_title: ai.meta_title,
+            meta_description: ai.meta_description,
+            featured: ai.featured || false,
+            reading_time_min: ai.reading_time_min
+          }).eq("slug", slug);
+          console.log(`🤖 Deployed Auto-News: enhanced article "${ai.title}" successfully.`);
+        } catch (geminiErr) {
+          console.warn(`🤖 Deployed Auto-News: Gemini rewrite failed:`, geminiErr);
+        }
       }
     } catch (error) {
       result.errors.push(error instanceof Error ? error.message : String(error));
@@ -182,12 +202,31 @@ const languageConfig = {
   en: { name: "English", latest: "Latest News", conclusion: "Conclusion", fallbackExcerpt: "Latest update", fallbackContent: "More details will be updated soon.", newsLabel: "English News" },
   hi: { name: "Hindi", latest: "ताज़ा समाचार", conclusion: "निष्कर्ष", fallbackExcerpt: "नवीनतम अपडेट", fallbackContent: "अधिक जानकारी जल्द ही अपडेट की जाएगी।", newsLabel: "हिंदी समाचार" },
   ta: { name: "Tamil", latest: "சமீபத்திய செய்தி", conclusion: "முடிவுரை", fallbackExcerpt: "சமீபத்திய புதுப்பிப்பு", fallbackContent: "கூடுதல் விவரங்கள் விரைவில் புதுப்பிக்கப்படும்.", newsLabel: "தமிழ் செய்திகள்" },
-  kn: { name: "Kannada", latest: "ಇತ್ತೀಚಿನ ಸುದ್ದಿ", conclusion: "ತೀರ್ಮಾನ", fallbackExcerpt: "ಇತ್ತೀಚಿನ ಅಪ್ಡೇಟ್", fallbackContent: "ಹೆಚ್ಚಿನ ವಿವರಗಳನ್ನು ಶೀಘ್ರದಲ್ಲೇ ನವೀಕರಿಸಲಾಗುವುದು.", newsLabel: "ಕನ್ನಡ ಸುದ್ದಿ" }
+  kn: { name: "Kannada", latest: "ಇತ್ತೀಚಿನ ಸುದ್ದಿ", conclusion: "ತೀರ್ಮಾನ", fallbackExcerpt: "ಇತ್ತೀಚಿನ అప్డేట్", fallbackContent: "ಹೆಚ್ಚಿನ ವಿವರಗಳನ್ನು ಶೀಘ్రದಲ್ಲೇ ನವೀಕರಿಸಲಾಗುವುದು.", newsLabel: "ಕನ್ನಡ ಸುದ್ದಿ" }
 };
 
 async function rewriteWithGemini(item: RssItem, apiKey: string): Promise<AiArticle> {
   const langInfo = languageConfig[item.language] || languageConfig.te;
-  const prompt = `
+  const fallbackArticle: AiArticle = {
+    slug: toSlug(item.title),
+    title: item.title,
+    excerpt: `${langInfo.fallbackExcerpt}: ${item.title}`,
+    content: `## ${langInfo.latest}\n\n${item.title}\n\n## ${langInfo.conclusion}\n\n${langInfo.fallbackContent}`,
+    tags: [item.category, langInfo.newsLabel],
+    meta_title: item.title,
+    meta_description: `${langInfo.latest}: ${item.title}`,
+    reading_time_min: 3,
+    image_prompt: `realistic professional editorial news photograph of ${item.title}, high detail, photojournalism style, no text`,
+    featured: false
+  };
+
+  if (!apiKey) {
+    console.warn("No GEMINI_API_KEY provided. Using RSS fallback.");
+    return fallbackArticle;
+  }
+
+  try {
+    const prompt = `
 You are VarthaNow, a professional ${langInfo.name} news editor. Rewrite the following Google News RSS item into an original, copyright-safe ${langInfo.name} SEO article.
 
 Rules:
@@ -212,35 +251,39 @@ Published: ${item.pubDate}
 Category: ${item.category}
 `;
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.7,
-        responseMimeType: "application/json"
-      }
-    })
-  });
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          responseMimeType: "application/json"
+        }
+      })
+    });
 
-  if (!response.ok) throw new Error(`Gemini failed: ${response.status}`);
-  const data = await response.json();
-  const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
-  const parsed = safeJson(textResponse) as Partial<AiArticle>;
+    if (!response.ok) throw new Error(`Gemini failed: ${response.status}`);
+    const data = await response.json();
+    const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+    const parsed = safeJson(textResponse) as Partial<AiArticle>;
 
-  return {
-    slug: toSlug(parsed.slug || item.title),
-    title: parsed.title || item.title,
-    excerpt: parsed.excerpt || `${langInfo.fallbackExcerpt}: ${item.title}`,
-    content: parsed.content || `## ${langInfo.latest}\n\n${item.title}\n\n## ${langInfo.conclusion}\n\n${langInfo.fallbackContent}`,
-    tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 8) : [item.category, langInfo.newsLabel],
-    meta_title: parsed.meta_title || item.title,
-    meta_description: parsed.meta_description || `${langInfo.latest}: ${item.title}`,
-    reading_time_min: Number(parsed.reading_time_min || 3),
-    image_prompt: parsed.image_prompt || `realistic professional editorial news photograph of ${item.title}, high detail, photojournalism style, no text`,
-    featured: Boolean(parsed.featured || false)
-  };
+    return {
+      slug: toSlug(parsed.slug || item.title),
+      title: parsed.title || item.title,
+      excerpt: parsed.excerpt || `${langInfo.fallbackExcerpt}: ${item.title}`,
+      content: parsed.content || `## ${langInfo.latest}\n\n${item.title}\n\n## ${langInfo.conclusion}\n\n${langInfo.fallbackContent}`,
+      tags: Array.isArray(parsed.tags) ? parsed.tags.slice(0, 8) : [item.category, langInfo.newsLabel],
+      meta_title: parsed.meta_title || item.title,
+      meta_description: parsed.meta_description || `${langInfo.latest}: ${item.title}`,
+      reading_time_min: Number(parsed.reading_time_min || 3),
+      image_prompt: parsed.image_prompt || `realistic professional editorial news photograph of ${item.title}, high detail, photojournalism style, no text`,
+      featured: Boolean(parsed.featured || false)
+    };
+  } catch (error) {
+    console.error("Gemini rewrite failed, using RSS fallback:", error);
+    return fallbackArticle;
+  }
 }
 
 async function slugExists(supabase: ReturnType<typeof createClient>, slug: string) {
@@ -378,5 +421,3 @@ async function uploadImageToStorage(supabase: any, imageUrl: string, slug: strin
     return null;
   }
 }
-
-

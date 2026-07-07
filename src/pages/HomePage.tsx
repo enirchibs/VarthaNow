@@ -15,6 +15,7 @@ import { useHomeData, useInfinitePosts } from "@/hooks/usePosts";
 import { useLanguage } from "@/hooks/useLanguage";
 import { StickyCricketWidget } from "@/components/StickyCricketWidget";
 import { Way2NewsSwiper } from "@/components/Way2NewsSwiper";
+import { DailyWidgetStrip } from "@/components/DailyWidgetStrip";
 
 export function HomePage() {
   const { lang } = useLanguage();
@@ -74,11 +75,7 @@ export function HomePage() {
   return (
     <main className="container-shell space-y-5 py-4">
       <BreakingTicker posts={trending.length ? trending : feed.posts} />
-
-
-
-
-
+      <DailyWidgetStrip />
       {slides.length > 0 && currentSlide && (
         <section className="grid gap-4 lg:grid-cols-[1.85fr_1.15fr]">
           {/* 📸 Flash Cards Image Gallery */}
@@ -97,20 +94,40 @@ export function HomePage() {
                     VaartaNow
                   </div>
                 )}
-                
+
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-opacity duration-300" />
-                
-                {/* Headline overlay */}
+
+                {/* Category badge — top left */}
+                <div className="absolute left-3 top-3 z-10 pointer-events-none">
+                  <span className="inline-flex items-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-2.5 py-1 text-[10px] font-black text-white uppercase tracking-wide">
+                    {currentSlide.category?.replace("-", " ")}
+                  </span>
+                </div>
+
+                {/* Breaking badge — top right (only if featured) */}
+                {currentSlide.featured && (
+                  <div className="absolute right-14 top-3 z-10 pointer-events-none">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-1 text-[10px] font-black text-white uppercase tracking-wide animate-pulse">
+                      🔴 BREAKING
+                    </span>
+                  </div>
+                )}
+
+                {/* Headline + time overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10 text-left">
                   <h2 className="text-base md:text-xl lg:text-2xl font-black leading-snug text-white drop-shadow-lg line-clamp-2 transition-colors duration-300 group-hover/slider:text-red-200">
                     {currentSlide.title}
                   </h2>
+                  <p className="mt-1 text-[11px] font-semibold text-white/70">
+                    {new Date(currentSlide.published_at).toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}
+                    {currentSlide.reading_time_min ? ` · ${currentSlide.reading_time_min} min read` : ""}
+                  </p>
                 </div>
               </Link>
 
               {/* Circular Index indicator */}
-              <div className="absolute top-4 right-4 z-10 bg-white dark:bg-zinc-950 border-2 border-red-600 dark:border-red-500 rounded-full w-10 h-10 flex items-center justify-center text-xs font-black text-red-600 dark:text-red-500 shadow-md">
+              <div className="absolute top-3 right-3 z-10 bg-white dark:bg-zinc-950 border-2 border-red-600 dark:border-red-500 rounded-full w-9 h-9 flex items-center justify-center text-xs font-black text-red-600 dark:text-red-500 shadow-md">
                 {activeSlide + 1}/{slides.length}
               </div>
 
@@ -197,7 +214,8 @@ export function HomePage() {
         </div>
         
         <aside className="space-y-4">
-          <div className="rounded-[1.4rem] border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 text-center text-sm font-bold text-[hsl(var(--muted-foreground))]">
+          {/* AdSense slot — hidden until script is live */}
+          <div className="hidden rounded-[1.4rem] border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 text-center text-sm font-bold text-[hsl(var(--muted-foreground))]">
             AdSense 300x250
           </div>
           

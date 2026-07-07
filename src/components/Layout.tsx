@@ -176,7 +176,7 @@ export function Layout() {
             <Search className="size-4" />
           </Link>
         </div>
-        <nav className="container-shell no-scrollbar flex gap-1 md:gap-2 overflow-x-auto pb-3">
+        <nav className="container-shell no-scrollbar flex gap-1 md:gap-2 overflow-x-auto pb-3 pt-1">
           <NavLink
             to="/"
             end
@@ -193,7 +193,7 @@ export function Layout() {
             to="/"
             end
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-1.5 py-0.5 md:px-4 md:py-2 text-[9px] md:text-sm font-black transition ${
+              `shrink-0 rounded-full px-2.5 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition ${
                 isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
               }`
             }
@@ -204,7 +204,7 @@ export function Layout() {
           <NavLink
             to="/jobs"
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-1.5 py-0.5 md:px-4 md:py-2 text-[9px] md:text-sm font-black transition ${
+              `shrink-0 rounded-full px-2.5 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition ${
                 isActive ? "bg-[hsl(var(--primary))] text-white shadow-sm shadow-indigo-500/15" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]/80 hover:text-[hsl(var(--foreground))]"
               }`
             }
@@ -217,7 +217,7 @@ export function Layout() {
               key={category.slug}
               to={category.slug === "health" ? "/health" : `/category/${category.slug}`}
               className={({ isActive }) =>
-                `shrink-0 rounded-full px-1.5 py-0.5 md:px-4 md:py-2 text-[9px] md:text-sm font-black transition ${
+                `shrink-0 rounded-full px-2.5 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition ${
                   isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
                 }`
               }
@@ -234,11 +234,11 @@ export function Layout() {
           <div>
             <div className="font-black text-[hsl(var(--foreground))]">VaartaNow</div>
             <p className="mt-1 max-w-xl text-xs">
-              {lang === "te" && "గూగుల్ న్యూస్ RSS + జెమిని AI + సుపాబేస్ పోస్ట్‌గ్రేస్ తో నడిచే తెలుగు AI వార్తల వేదిక."}
-              {lang === "en" && "Google News RSS + Gemini AI + Supabase PostgreSQL powered Multilingual AI news platform."}
-              {lang === "hi" && "गूगल न्यूज RSS + जेमिनी एआई + सुपरबेस पोस्टग्रेस द्वारा संचालित बहुभाषी एआई समाचार मंच।"}
-              {lang === "ta" && "கூகுள் நியூஸ் ஆர்எஸ்எஸ் + ஜெமினி ஏஐ + சூப்பர்பேಸ್ போஸ்ட்கிரெஸ் மூலம் இயங்கும் பல்மொழி ஏஐ செய்தி தளம்."}
-              {lang === "kn" && "ಗೂಗಲ್ ನ್ಯೂಸ್ ಆರ್‌ಎಸ್‌ಎಸ್ + ಜೆಮಿನಿ ಎಐ + ಸುಪರ್‌ಬೇಸ್ ಪೋಸ್ಟ್‌ಗ್ರೆಸ್ ಆಧಾರಿತ ಬಹುಭಾಷಾ ಎಐ ಸುದ್ದಿ ವೇದಿಕೆ."}
+              {lang === "te" && "AI-శక్తితో తెలుగు వార్తలు, 24/7 నిరంతరంగా."}
+              {lang === "en" && "AI-powered Telugu news, delivered 24/7."}
+              {lang === "hi" && "AI-संचालित तेलुगु समाचार, 24/7 उपलब्ध।"}
+              {lang === "ta" && "AI-இயக்கும் தెலுగு செய்திகள், 24/7."}
+              {lang === "kn" && "AI-ಚಾಲಿತ ತೆಲುಗು ಸುದ್ದಿ, 24/7."}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -397,18 +397,14 @@ export function Layout() {
             )}
           </NavLink>
 
-          <NavLink
-            to="/health"
-            className={({ isActive }) =>
-              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
-                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
-              }`
-            }
+          {/* Dark mode toggle — replaces Health in bottom nav for mobile accessibility */}
+          <button
+            onClick={() => setDark((v) => !v)}
+            className="flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+            aria-label="Toggle dark mode"
           >
-            {({ isActive }) => (
-              <Heart className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
-            )}
-          </NavLink>
+            {dark ? <Sun className="size-6" /> : <Moon className="size-6" />}
+          </button>
 
           <NavLink
             to="/bookmarks"
@@ -420,6 +416,19 @@ export function Layout() {
           >
             {({ isActive }) => (
               <Bookmark className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
+            )}
+          </NavLink>
+
+          <NavLink
+            to="/login"
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
+                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <User className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
             )}
           </NavLink>
         </div>

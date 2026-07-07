@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Send, Share2, Instagram, MessageCircle } from "lucide-react";
+import { ArrowLeft, Send, Instagram, MessageCircle, ExternalLink, Bookmark, BookmarkCheck } from "lucide-react";
 import type { BlogPost } from "@/types/news";
 import { getPostBySlug, getTrendingPosts } from "@/lib/news-api";
 import { categoryLabel } from "@/lib/categories";
@@ -8,6 +8,8 @@ import { markdownToHtml, timeAgo } from "@/lib/format";
 import { postStructuredData, setMeta } from "@/lib/seo";
 import { Badge } from "@/components/ui";
 import { useLanguage } from "@/hooks/useLanguage";
+import { ReadingProgress } from "@/components/ReadingProgress";
+import { useBookmarks } from "@/hooks/useBookmarks";
 
 export function NewsPage() {
   const { lang } = useLanguage();
@@ -15,6 +17,10 @@ export function NewsPage() {
   const [post, setPost] = useState<BlogPost | null>(null);
   const [related, setRelated] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fontSize, setFontSize] = useState<"small" | "medium" | "large">(() => {
+    return (localStorage.getItem("vaartanow-font-size") as any) || "medium";
+  });
+  const { isBookmarked, toggleBookmark } = useBookmarks();
 
   useEffect(() => {
     let mounted = true;
@@ -41,6 +47,15 @@ export function NewsPage() {
   }, [slug, lang]);
 
   useEffect(() => {
+    localStorage.setItem("vaartanow-font-size", fontSize);
+    document.documentElement.classList.remove("article-font-small", "article-font-medium", "article-font-large");
+    document.documentElement.classList.add(`article-font-${fontSize}`);
+    return () => {
+      document.documentElement.classList.remove(`article-font-${fontSize}`);
+    };
+  }, [fontSize]);
+
+  useEffect(() => {
     if (!post) return;
     try {
       const viewsRaw = localStorage.getItem("vaartanow-category-views");
@@ -54,8 +69,16 @@ export function NewsPage() {
 
   if (loading) {
     return (
-      <main className="container-shell py-6 text-sm font-bold">
-        {lang === "te" ? "లోడ్ అవుతోంది..." : lang === "en" ? "Loading..." : lang === "hi" ? "लोड हो रहा है..." : lang === "ta" ? "ஏற்றப்படுகிறது..." : "ಲೋಡ್ ಆಗುತ್ತಿದೆ..."}
+      <main className="container-shell py-10">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <div className="space-y-4">
+            <div className="skeleton h-5 w-24 rounded-full" />
+            <div className="skeleton h-9 w-full rounded-xl" />
+            <div className="skeleton h-9 w-3/4 rounded-xl" />
+            <div className="skeleton aspect-video w-full rounded-2xl" />
+            {[...Array(6)].map((_, i) => <div key={i} className="skeleton h-4 w-full rounded" />)}
+          </div>
+        </div>
       </main>
     );
   }
@@ -69,6 +92,15 @@ export function NewsPage() {
   }
 
   const shareUrl = `${window.location.origin}/news/${post.slug}`;
+  const bookmarked = isBookmarked(post.slug);
+  const hasSourceLink = (() => {
+    const url = (post as any).source_article_url;
+    if (!url) return false;
+    try {
+      const hostname = new URL(url).hostname;
+      return !hostname.includes("news.google.com") && !hostname.includes("google.com/url");
+    } catch { return false; }
+  })();
 
   const shareToInstagram = async () => {
     if (navigator.share) {
@@ -92,18 +124,42 @@ export function NewsPage() {
   };
 
   return (
-    <main className="container-shell grid gap-5 py-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <>
+      <ReadingProgress />
+      <main className="container-shell grid gap-5 py-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <article className="overflow-hidden rounded-[1.5rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))]">
         <div className="p-4 md:p-6">
-          <Link to="/" className="mb-4 inline-flex items-center gap-2 text-sm font-black text-[hsl(var(--primary))]">
-            <ArrowLeft className="size-4" />
-            {lang === "te" ? "హోమ్" : lang === "en" ? "Home" : lang === "hi" ? "होम" : lang === "ta" ? "முகப்பு" : "ಮುಖಪುಟ"}
-          </Link>
+          {/* Back + Breadcrumb */}
+          <div className="mb-4 flex items-center justify-between">
+            <Link to="/" className="inline-flex items-center gap-2 text-sm font-black text-[hsl(var(--primary))]">
+              <ArrowLeft className="size-4" />
+              {lang === "te" ? "హోమ్" : lang === "en" ? "Home" : lang === "hi" ? "होम" : lang === "ta" ? "முகப்பு" : "ಮುಖಪುಟ"}
+            </Link>
+
+            {/* Font size controls */}
+            <div className="flex items-center gap-1 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-1">
+              <button
+                onClick={() => setFontSize("small")}
+                className={`rounded-full px-2 py-0.5 text-[9px] font-black transition ${ fontSize === "small" ? "bg-[hsl(var(--primary))] text-white" : "text-[hsl(var(--muted-foreground))]" }`}
+                aria-label="Small font"
+              >A</button>
+              <button
+                onClick={() => setFontSize("medium")}
+                className={`rounded-full px-2 py-0.5 text-[11px] font-black transition ${ fontSize === "medium" ? "bg-[hsl(var(--primary))] text-white" : "text-[hsl(var(--muted-foreground))]" }`}
+                aria-label="Medium font"
+              >A</button>
+              <button
+                onClick={() => setFontSize("large")}
+                className={`rounded-full px-2 py-0.5 text-[14px] font-black transition ${ fontSize === "large" ? "bg-[hsl(var(--primary))] text-white" : "text-[hsl(var(--muted-foreground))]" }`}
+                aria-label="Large font"
+              >A</button>
+            </div>
+          </div>
           <div className="block">
             <Badge>{categoryLabel(post.category, lang)}</Badge>
           </div>
-          <h1 className="mt-4 text-3xl font-black leading-tight md:text-5xl">{post.title}</h1>
-          <p className="mt-4 text-lg leading-8 text-[hsl(var(--muted-foreground))]">{post.excerpt}</p>
+          <h1 className="mt-4 text-2xl font-black leading-tight md:text-4xl">{post.title}</h1>
+          <p className="mt-3 text-base leading-8 text-[hsl(var(--muted-foreground))]">{post.excerpt}</p>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] sm:text-xs font-semibold text-[hsl(var(--muted-foreground))]">
             {/* Source with logo */}
             <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 dark:bg-blue-400/10 px-2 py-0.5 text-[9px] sm:text-[10px] font-black text-blue-600 dark:text-blue-400 tracking-wide">
@@ -131,28 +187,54 @@ export function NewsPage() {
               {post.reading_time_min} {lang === "te" ? "నిమిషాల పఠనం" : lang === "en" ? "min read" : lang === "hi" ? "మినీ పఠనం" : lang === "ta" ? "நிமிட வாசிப்பு" : "ನಿಮಿಷ ಓದುವಿಕೆ"}
             </span>
           </div>
-          {/* Top Share Actions bar */}
-          <div className="mt-4 flex items-center gap-2 border-t border-b border-[hsl(var(--border))]/50 py-2.5">
-            <span className="text-[11px] font-bold text-[hsl(var(--muted-foreground))] mr-2">
-              {lang === "te" ? "షేర్ చేయండి:" : "Share:"}
+          {/* Share + Bookmark bar */}
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-b border-[hsl(var(--border))]/50 py-2.5">
+            <span className="text-[11px] font-bold text-[hsl(var(--muted-foreground))] mr-1">
+              {lang === "te" ? "షేర్:" : "Share:"}
             </span>
-            <a 
-              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${post.title}\n${shareUrl}`)}`} 
-              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 dark:bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all duration-200" 
-              target="_blank" 
-              rel="noreferrer"
+            <a
+              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${post.title}\n${shareUrl}`)}`}
+              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all duration-200"
+              target="_blank" rel="noreferrer"
             >
-              <MessageCircle className="size-3.5 fill-current" />
-              WhatsApp
+              <MessageCircle className="size-3.5 fill-current" /> WhatsApp
             </a>
-            <button 
-              onClick={shareToInstagram}
-              className="inline-flex items-center gap-1.5 rounded-full bg-pink-500/10 dark:bg-pink-400/10 px-3 py-1 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-500 hover:text-white transition-all duration-200"
+            <a
+              href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`}
+              className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/10 px-3 py-1 text-xs font-bold text-sky-600 dark:text-sky-400 hover:bg-sky-500 hover:text-white transition-all duration-200"
+              target="_blank" rel="noreferrer"
             >
-              <Instagram className="size-3.5" />
-              Instagram
+              <Send className="size-3.5" /> Telegram
+            </a>
+            <button
+              onClick={shareToInstagram}
+              className="inline-flex items-center gap-1.5 rounded-full bg-pink-500/10 px-3 py-1 text-xs font-bold text-pink-600 dark:text-pink-400 hover:bg-pink-500 hover:text-white transition-all duration-200"
+            >
+              <Instagram className="size-3.5" /> Instagram
+            </button>
+            {/* Bookmark */}
+            <button
+              onClick={() => toggleBookmark(post.slug)}
+              className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold transition-all duration-200 ${ bookmarked ? "bg-[hsl(var(--primary))]/15 text-[hsl(var(--primary))]" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--primary))]/15 hover:text-[hsl(var(--primary))]" }`}
+            >
+              {bookmarked
+                ? <><BookmarkCheck className="size-3.5" /> {lang === "te" ? "సేవ్ అయింది" : "Saved"}</>
+                : <><Bookmark className="size-3.5" /> {lang === "te" ? "సేవ్ చేయి" : "Save"}</>}
             </button>
           </div>
+
+          {/* Read Original Article link (copyright compliance) */}
+          {hasSourceLink && (
+            <a
+              href={(post as any).source_article_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] px-4 py-2 text-xs font-bold text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))]/10 hover:text-[hsl(var(--primary))] transition-all duration-200"
+            >
+              <ExternalLink className="size-3.5" />
+              {lang === "te" ? `మూల వార్త: ${post.author_name} లో చదవండి` : `Read original at ${post.author_name}`}
+            </a>
+          )}
         </div>
         <div className="relative w-full">
           {(() => {
@@ -206,11 +288,15 @@ export function NewsPage() {
           <div dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }} />
         </div>
         <div className="flex flex-wrap gap-2 border-t border-[hsl(var(--border))] p-4">
-          {post.tags.map((tag) => (
-            <span key={tag} className="rounded-full bg-[hsl(var(--muted))] px-3 py-1 text-xs font-bold">
-              #{tag}
-            </span>
-          ))}
+        {post.tags.map((tag) => (
+          <Link
+            key={tag}
+            to={`/search?q=${encodeURIComponent(tag)}`}
+            className="rounded-full bg-[hsl(var(--muted))] px-3 py-1 text-xs font-bold hover:bg-[hsl(var(--primary))]/15 hover:text-[hsl(var(--primary))] transition-colors"
+          >
+            #{tag}
+          </Link>
+        ))}
         </div>
       </article>
 
@@ -225,7 +311,7 @@ export function NewsPage() {
           </h2>
           <div className="flex gap-2">
             <a href={`https://wa.me/?text=${encodeURIComponent(`${post.title} ${shareUrl}`)}`} className="grid size-11 place-items-center rounded-full bg-emerald-500 text-white" target="_blank" rel="noreferrer">
-              <Share2 className="size-4" />
+              <MessageCircle className="size-4" />
             </a>
             <a href={`https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`} className="grid size-11 place-items-center rounded-full bg-blue-500 text-white" target="_blank" rel="noreferrer">
               <Send className="size-4" />
@@ -252,6 +338,7 @@ export function NewsPage() {
           </div>
         </div>
       </aside>
-    </main>
+      </main>
+    </>
   );
 }
