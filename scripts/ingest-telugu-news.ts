@@ -805,10 +805,13 @@ async function runImagePipeline(
     } catch { continue; }
 
     const uploaded = await uploadImageToStorage(candidate, slug);
-    if (uploaded) return uploaded;
+    if (uploaded) {
+      return { imageUrl: uploaded.publicUrl, storagePath: uploaded.storagePath };
+    }
   }
 
   console.log(`  ⚠️  All image candidates failed. Using category placeholder.`);
+
   stats.imagesRejected++;
   return fallback;
 }
