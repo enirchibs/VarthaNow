@@ -324,18 +324,20 @@ async function runRewriteWorker() {
 
 Rules:
 - Completely rewrite in natural, professional Telugu. Do NOT copy source text.
-- No fake statistics. Factual only.
-- Use markdown: headings, short paragraphs, bullet points where appropriate.
-- Include a 5-question FAQ section at the end.
+- Preserve facts, names, dates, places, and numbers accurately.
+- No fake statistics or invented details.
+- Use markdown with headings, short paragraphs, and bullet points only where useful.
+- Include a 3-question FAQ section at the end.
 - Title: max 12 Telugu words, compelling and factual.
-- Summary/excerpt: 50-80 words, captures the key news.
-- Content: minimum 400 words of rewritten Telugu content.
+- Summary/excerpt: 50-70 words.
+- Content target: 450-550 words of rewritten Telugu content.
 - Return ONLY valid raw JSON (no markdown fences):
 
-{"title": "Telugu title", "summary": "50-80 word excerpt", "content": "Full markdown article body"}
+{"title":"Telugu title","summary":"50-70 word excerpt","content":"Full markdown article body"}
 
 Source Article (${category}):
-${sourceText.slice(0, 5000)}`;
+${sourceText.slice(0, 3500)}`;
+
 
         const raw = await callAI(prompt, wordCount);
         const parsed = JSON.parse(raw);
