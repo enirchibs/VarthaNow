@@ -53,11 +53,12 @@ async function callGemini(prompt: string, model: string): Promise<string> {
 async function callOpenRouter(prompt: string): Promise<string> {
   const key = process.env.OPENROUTER_API_KEY || process.env.VITE_OPENROUTER_API_KEY;
   if (!key) throw new Error("OPENROUTER_API_KEY not configured");
+  const model = process.env.OPENROUTER_MODEL || "deepseek/deepseek-chat";
   const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${key}` },
     body: JSON.stringify({
-      model: "deepseek/deepseek-chat",
+      model: model,
       messages: [{ role: "user", content: prompt }],
       response_format: { type: "json_object" },
       temperature: 0.3
@@ -68,6 +69,7 @@ async function callOpenRouter(prompt: string): Promise<string> {
   const data = await res.json();
   return data.choices?.[0]?.message?.content || "{}";
 }
+
 
 async function callOpenAI(prompt: string): Promise<string> {
   const key = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
@@ -130,66 +132,78 @@ function parseRetryDelay(errorMessage: string): number {
   return 65000; // default: wait 65s on unknown 429
 }
 
-// Unified provider chain: Gemini Flash-Lite → Flash → OpenRouter → OpenAI → Claude
+// Dynamic provider chain: configured dynamically by environment variables
 async function callAI(prompt: string, wordCount: number = 0): Promise<string> {
   const errors: string[] = [];
+  
+  const primaryProvider = (process.env.PRIMARY_AI_PROVIDER || "gemini").toLowerCase().trim();
+  const fallbackProvider = (process.env.FALLBACK_AI_PROVIDER || "openrouter").toLowerCase().trim();
 
-  // Gemini model routing
-  if (geminiKey) {
-    const model = wordCount >= 1200 ? "gemini-2.5-flash" : "gemini-2.5-flash-lite";
+  // Order of providers to try
+  const chain: string[] = [primaryProvider, fallbackProvider];
+  
+  // Ultimate fallbacks (append unique providers that aren't already primary/fallback)
+  const allProviders = ["gemini", "openrouter", "openai", "claude"];
+  for (const p of allProviders) {
+    if (!chain.includes(p)) chain.push(p);
+  }
+
+  console.log(`    📋 AI Chain order: ${chain.join(" → ")}`);
+
+  for (const provider of chain) {
     try {
-      await rateLimitedDelay();
-      console.log(`    🤖 Trying Gemini (${model})...`);
-      return await callGemini(prompt, model);
-    } catch (e: any) {
-      const msg: string = e.message || "";
-      const is429 = msg.includes("429") || msg.includes("Too Many Requests") || msg.includes("quota");
-
-      if (is429) {
-        const waitMs = parseRetryDelay(msg);
-        console.warn(`    ⏳ Gemini rate limit. Waiting ${Math.round(waitMs / 1000)}s before fallback...`);
-        await delay(waitMs);
-        lastAiCallAt = Date.now();
-        // Retry once after waiting
+      if (provider === "gemini") {
+        if (!geminiKey) continue;
+        const model = wordCount >= 1200 ? "gemini-2.5-flash" : "gemini-2.5-flash-lite";
         try {
+          await rateLimitedDelay();
+          console.log(`    🤖 Trying Gemini (${model})...`);
           return await callGemini(prompt, model);
-        } catch (e2: any) {
-          errors.push(`Gemini (retry): ${e2.message}`);
-          console.warn(`    ⚠️  Gemini retry failed: ${e2.message}`);
+        } catch (e: any) {
+          const msg: string = e.message || "";
+          const is429 = msg.includes("429") || msg.includes("Too Many Requests") || msg.includes("quota");
+          if (is429) {
+            const waitMs = parseRetryDelay(msg);
+            console.warn(`    ⏳ Gemini rate limit. Waiting ${Math.round(waitMs / 1000)}s before retry...`);
+            await delay(waitMs);
+            lastAiCallAt = Date.now();
+            return await callGemini(prompt, model);
+          } else {
+            throw e;
+          }
         }
-      } else {
-        errors.push(`Gemini: ${msg}`);
-        console.warn(`    ⚠️  Gemini failed: ${msg}`);
       }
+
+      if (provider === "openrouter") {
+        const key = process.env.OPENROUTER_API_KEY || process.env.VITE_OPENROUTER_API_KEY;
+        if (!key) continue;
+        const model = process.env.OPENROUTER_MODEL || "deepseek/deepseek-chat";
+        console.log(`    🤖 Trying OpenRouter (${model})...`);
+        return await callOpenRouter(prompt);
+      }
+
+      if (provider === "openai") {
+        const key = process.env.OPENAI_API_KEY || process.env.VITE_OPENAI_API_KEY;
+        if (!key) continue;
+        console.log(`    🤖 Trying OpenAI (gpt-4o-mini)...`);
+        return await callOpenAI(prompt);
+      }
+
+      if (provider === "claude") {
+        const key = process.env.ANTHROPIC_API_KEY || process.env.VITE_ANTHROPIC_API_KEY;
+        if (!key) continue;
+        console.log(`    🤖 Trying Claude (haiku)...`);
+        return await callClaude(prompt);
+      }
+    } catch (err: any) {
+      errors.push(`${provider}: ${err.message}`);
+      console.warn(`    ⚠️  Provider "${provider}" failed: ${err.message}`);
     }
-  }
-
-  try {
-    console.log(`    🤖 Trying OpenRouter (DeepSeek)...`);
-    return await callOpenRouter(prompt);
-  } catch (e: any) {
-    errors.push(`OpenRouter: ${e.message}`);
-    console.warn(`    ⚠️  OpenRouter failed: ${e.message}`);
-  }
-
-  try {
-    console.log(`    🤖 Trying OpenAI (gpt-4o-mini)...`);
-    return await callOpenAI(prompt);
-  } catch (e: any) {
-    errors.push(`OpenAI: ${e.message}`);
-    console.warn(`    ⚠️  OpenAI failed: ${e.message}`);
-  }
-
-  try {
-    console.log(`    🤖 Trying Claude (haiku)...`);
-    return await callClaude(prompt);
-  } catch (e: any) {
-    errors.push(`Claude: ${e.message}`);
-    console.warn(`    ⚠️  Claude failed: ${e.message}`);
   }
 
   throw new Error(`All AI providers failed: ${errors.join("; ")}`);
 }
+
 
 // ═══════════════════════════════════════════════════════════════════
 //  JOB WORKER HELPERS
