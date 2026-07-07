@@ -40,10 +40,15 @@ export function ShortsReel() {
   const activeIndex = videos.findIndex((v) => v.link === activeVideo?.link);
 
   const playNextVideo = () => {
-    if (activeIndex !== -1 && activeIndex < videos.length - 1) {
-      setActiveVideo(videos[activeIndex + 1]);
+    if (activeIndex !== -1) {
+      if (activeIndex < videos.length - 1) {
+        setActiveVideo(videos[activeIndex + 1]);
+      } else {
+        setActiveVideo(videos[0]);
+      }
     }
   };
+
 
   const playPrevVideo = () => {
     if (activeIndex > 0) {
@@ -82,6 +87,24 @@ export function ShortsReel() {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [activeVideo, videos, activeIndex]);
+
+  // YouTube API integration to detect ended video from inside iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin.includes("youtube.com")) {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.event === "infoDelivery" && data.info && data.info.playerState === 0) {
+            console.log("📺 YouTube Short ended, auto-playing next...");
+            playNextVideo();
+          }
+        } catch {}
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [videos, activeIndex]);
+
 
   // Translations
   const ui = {
@@ -253,7 +276,7 @@ export function ShortsReel() {
             {/* The Reel Video Player */}
             {activeVideo.clip.includes("youtube.com") || activeVideo.clip.includes("youtu.be") ? (
               <iframe
-                src={`https://www.youtube.com/embed/${getYoutubeId(activeVideo.clip)}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${getYoutubeId(activeVideo.clip)}&controls=0&modestbranding=1&rel=0&playsinline=1`}
+                src={`https://www.youtube.com/embed/${getYoutubeId(activeVideo.clip)}?autoplay=1&mute=${muted ? 1 : 0}&enablejsapi=1&controls=0&modestbranding=1&rel=0&playsinline=1`}
                 className="w-full h-full object-cover pointer-events-none"
                 allow="autoplay; encrypted-media; picture-in-picture"
                 allowFullScreen
@@ -263,9 +286,9 @@ export function ShortsReel() {
                 ref={videoRef}
                 src={activeVideo.clip} 
                 autoPlay
-                loop 
                 muted={muted}
                 playsInline
+                onEnded={playNextVideo}
                 className="w-full h-full object-cover cursor-pointer"
                 onClick={() => {
                   if (videoRef.current) {
@@ -278,6 +301,7 @@ export function ShortsReel() {
                 }}
               />
             )}
+
 
             {/* Top Navigation Bar inside phone */}
             <div className="absolute top-4 inset-x-4 flex justify-between items-center z-10">
