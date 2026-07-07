@@ -88,22 +88,38 @@ export function ShortsReel() {
     };
   }, [activeVideo, videos, activeIndex]);
 
+  // Keep playNextVideo fresh for the listener without causing listener churn
+  const playNextVideoRef = useRef(playNextVideo);
+  useEffect(() => {
+    playNextVideoRef.current = playNextVideo;
+  });
+
   // YouTube API integration to detect ended video from inside iframe
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.origin.includes("youtube.com")) {
         try {
-          const data = JSON.parse(event.data);
-          if (data.event === "infoDelivery" && data.info && data.info.playerState === 0) {
-            console.log("📺 YouTube Short ended, auto-playing next...");
-            playNextVideo();
+          let data = event.data;
+          if (typeof data === "string") {
+            data = JSON.parse(data);
+          }
+          if (data && typeof data === "object") {
+            const isEnded =
+              (data.event === "onStateChange" && data.info === 0) ||
+              (data.event === "infoDelivery" && data.info && data.info.playerState === 0);
+
+            if (isEnded) {
+              console.log("📺 YouTube Short ended, auto-playing next...");
+              playNextVideoRef.current();
+            }
           }
         } catch {}
       }
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [videos, activeIndex]);
+  }, []);
+
 
 
   // Translations
