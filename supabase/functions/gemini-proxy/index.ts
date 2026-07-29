@@ -41,7 +41,7 @@ serve(async (req) => {
 
     // 2. Gemini Health Check
     if (action === "health_check") {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
       const prompt = "Generate one Telugu news headline about Andhra Pradesh.";
       const result = await model.generateContent(prompt);
       const headline = result.response.text().trim();
@@ -76,7 +76,7 @@ serve(async (req) => {
         See Doctor If: <Warning signs and when to consult a practitioner>
         Emergency Warning: <Emergency indicators where they must seek immediate emergency medical care>
       `;
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
       const result = await model.generateContent(prompt);
       const text = result.response.text();
       return new Response(JSON.stringify({ text }), {
@@ -96,7 +96,7 @@ serve(async (req) => {
         4. Keep the message helpful, friendly, and structured.
         5. Always end with or include a medical disclaimer that this is not a diagnostic tool.
       `;
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+      const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
       const chat = model.startChat({
         history: chatHistory.map((c: any) => ({
           role: c.role,

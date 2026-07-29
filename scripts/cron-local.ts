@@ -25,27 +25,27 @@ interface CategoryConfig {
 // P3: Medium — Cinema, Tech, Jobs, Health, Education
 // P4: Low — Devotional, Agriculture, Astrology
 const categories: CategoryConfig[] = [
-  // P1 — Default 2min, min 1min, max 5min
-  { category: "politics",      priority: 1, currentIntervalMs: 2*60000,  minIntervalMs: 60000,    maxIntervalMs: 5*60000,   lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
-  { category: "national",      priority: 1, currentIntervalMs: 2*60000,  minIntervalMs: 60000,    maxIntervalMs: 5*60000,   lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  // P1 — Checked every 120 minutes (Min: 60m, Max: 180m)
+  { category: "politics",      priority: 1, currentIntervalMs: 120*60000, minIntervalMs: 60*60000,  maxIntervalMs: 180*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  { category: "national",      priority: 1, currentIntervalMs: 120*60000, minIntervalMs: 60*60000,  maxIntervalMs: 180*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
 
-  // P2 — Default 5min, min 2min, max 15min
-  { category: "andhra-pradesh",priority: 2, currentIntervalMs: 5*60000,  minIntervalMs: 2*60000,  maxIntervalMs: 15*60000,  lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
-  { category: "telangana",     priority: 2, currentIntervalMs: 5*60000,  minIntervalMs: 2*60000,  maxIntervalMs: 15*60000,  lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
-  { category: "cricket",       priority: 2, currentIntervalMs: 5*60000,  minIntervalMs: 2*60000,  maxIntervalMs: 15*60000,  lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
-  { category: "business",      priority: 2, currentIntervalMs: 5*60000,  minIntervalMs: 2*60000,  maxIntervalMs: 15*60000,  lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  // P2 — Checked every 300 minutes (Min: 120m, Max: 480m)
+  { category: "andhra-pradesh",priority: 2, currentIntervalMs: 300*60000, minIntervalMs: 120*60000, maxIntervalMs: 480*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  { category: "telangana",     priority: 2, currentIntervalMs: 300*60000, minIntervalMs: 120*60000, maxIntervalMs: 480*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  { category: "cricket",       priority: 2, currentIntervalMs: 300*60000, minIntervalMs: 120*60000, maxIntervalMs: 480*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  { category: "business",      priority: 2, currentIntervalMs: 300*60000, minIntervalMs: 120*60000, maxIntervalMs: 480*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
 
-  // P3 — Default 20min, min 10min, max 45min
-  { category: "cinema",        priority: 3, currentIntervalMs: 20*60000, minIntervalMs: 10*60000, maxIntervalMs: 45*60000,  lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
-  { category: "technology",    priority: 3, currentIntervalMs: 20*60000, minIntervalMs: 10*60000, maxIntervalMs: 45*60000,  lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
-  { category: "jobs",          priority: 3, currentIntervalMs: 25*60000, minIntervalMs: 10*60000, maxIntervalMs: 60*60000,  lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
-  { category: "health",        priority: 3, currentIntervalMs: 25*60000, minIntervalMs: 15*60000, maxIntervalMs: 60*60000,  lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
-  { category: "education",     priority: 3, currentIntervalMs: 30*60000, minIntervalMs: 15*60000, maxIntervalMs: 60*60000,  lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  // P3 — Checked every 600 minutes (Min: 300m, Max: 900m)
+  { category: "cinema",        priority: 3, currentIntervalMs: 600*60000, minIntervalMs: 300*60000, maxIntervalMs: 900*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  { category: "technology",    priority: 3, currentIntervalMs: 600*60000, minIntervalMs: 300*60000, maxIntervalMs: 900*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  { category: "jobs",          priority: 3, currentIntervalMs: 600*60000, minIntervalMs: 300*60000, maxIntervalMs: 900*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  { category: "health",        priority: 3, currentIntervalMs: 600*60000, minIntervalMs: 300*60000, maxIntervalMs: 900*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  { category: "education",     priority: 3, currentIntervalMs: 600*60000, minIntervalMs: 300*60000, maxIntervalMs: 900*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
 
-  // P4 — Default 45min, min 30min, max 120min
-  { category: "devotional",    priority: 4, currentIntervalMs: 45*60000, minIntervalMs: 30*60000, maxIntervalMs: 120*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
-  { category: "agriculture",   priority: 4, currentIntervalMs: 60*60000, minIntervalMs: 30*60000, maxIntervalMs: 120*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
-  { category: "astrology",     priority: 4, currentIntervalMs: 60*60000, minIntervalMs: 30*60000, maxIntervalMs: 120*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  // P4 — Checked every 1200 minutes (Min: 600m, Max: 1800m)
+  { category: "devotional",    priority: 4, currentIntervalMs: 1200*60000, minIntervalMs: 600*60000, maxIntervalMs: 1800*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  { category: "agriculture",   priority: 4, currentIntervalMs: 1200*60000, minIntervalMs: 600*60000, maxIntervalMs: 1800*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
+  { category: "astrology",     priority: 4, currentIntervalMs: 1200*60000, minIntervalMs: 600*60000, maxIntervalMs: 1800*60000, lastPolledAt: 0, errorStreak: 0, consecutiveEmpty: 0, isRunning: false },
 ];
 
 const startTime = new Date();
@@ -128,6 +128,9 @@ function tuneInterval(cat: CategoryConfig, inserted: number, failed: number) {
 }
 
 // ─── INGESTION SCHEDULER LOOP ────────────────────────────────────
+let lastCategoryStartedAt = 0;
+const CATEGORY_START_DELAY_MS = 2 * 60000; // 2 minutes delay
+
 async function runIngestScheduler() {
   const now = Date.now();
 
@@ -138,6 +141,12 @@ async function runIngestScheduler() {
     // Check if this category is due
     if (now - cat.lastPolledAt < cat.currentIntervalMs) continue;
 
+    // Check if at least 2 minutes have passed since the last category started to stagger executions
+    if (now - lastCategoryStartedAt < CATEGORY_START_DELAY_MS) {
+      continue;
+    }
+
+    lastCategoryStartedAt = now;
     cat.lastPolledAt = now;
     cat.isRunning = true;
     totalCycles++;

@@ -229,7 +229,7 @@ async function validateImageWithGemini(
   category: string
 ): Promise<ImageValidationReport> {
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
     const prompt = `
     You are an expert Google AdSense Policy Compliance Auditor and Image Verification System.
     Analyze if the following image candidate matches the news article content.
@@ -410,7 +410,7 @@ async function run() {
         let ai: any;
         try {
           const targetLanguage = languageNames[feed.language] || "Telugu";
-          const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+          const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
           const prompt = `
           You are VaartaNow, a leading regional digital news desk.
           Rewrite the following news item into three premium, distinct levels of ${targetLanguage} summaries with key locations, timelines, and facts highlighted.

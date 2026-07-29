@@ -154,7 +154,7 @@ async function callAI(prompt: string, wordCount: number = 0): Promise<string> {
     try {
       if (provider === "gemini") {
         if (!geminiKey) continue;
-        const model = wordCount >= 1200 ? "gemini-2.5-flash" : "gemini-2.5-flash-lite";
+        const model = "gemini-3.5-flash-lite";
         try {
           await rateLimitedDelay();
           console.log(`    🤖 Trying Gemini (${model})...`);
