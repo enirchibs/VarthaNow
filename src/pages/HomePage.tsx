@@ -15,7 +15,7 @@ import { useHomeData, useInfinitePosts } from "@/hooks/usePosts";
 import { useLanguage } from "@/hooks/useLanguage";
 import { StickyCricketWidget } from "@/components/StickyCricketWidget";
 import { Way2NewsSwiper } from "@/components/Way2NewsSwiper";
-import { DailyWidgetStrip } from "@/components/DailyWidgetStrip";
+import { ViralShortsSwiper } from "@/components/ViralShortsSwiper";
 
 export function HomePage() {
   const { lang } = useLanguage();
@@ -25,8 +25,9 @@ export function HomePage() {
   const feed = useInfinitePosts();
   const [isSwiperOpen, setIsSwiperOpen] = useState(false);
 
+  const numSlides = useMemo(() => Math.floor(Math.random() * 4) + 4, []); // 4 to 7 slides
   const [activeSlide, setActiveSlide] = useState(0);
-  const slides = useMemo(() => feed.posts.slice(0, 7), [feed.posts]);
+  const slides = useMemo(() => feed.posts.slice(0, numSlides), [feed.posts, numSlides]);
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -73,11 +74,10 @@ export function HomePage() {
   }, [lang]);
 
   return (
-    <main className="container-shell space-y-5 py-4">
+    <main className="container-shell space-y-3 py-3">
       <BreakingTicker posts={trending.length ? trending : feed.posts} />
-      <DailyWidgetStrip />
       {slides.length > 0 && currentSlide && (
-        <section className="grid gap-4 lg:grid-cols-[1.85fr_1.15fr]">
+        <section className="grid gap-3 lg:grid-cols-[2fr_1fr]">
           {/* 📸 Flash Cards Image Gallery */}
           <div className="flex flex-col justify-between overflow-hidden rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 shadow-sm hover:shadow-md transition duration-300">
             <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.2rem] bg-[hsl(var(--muted))] border border-[hsl(var(--border))]/50 group/slider">
@@ -116,7 +116,7 @@ export function HomePage() {
 
                 {/* Headline + time overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10 text-left">
-                  <h2 className="text-base md:text-xl lg:text-2xl font-black leading-snug text-white drop-shadow-lg line-clamp-2 transition-colors duration-300 group-hover/slider:text-red-200">
+                  <h2 className="text-base md:text-xl lg:text-2xl font-black leading-snug text-white drop-shadow-lg transition-colors duration-300 group-hover/slider:text-red-200">
                     {currentSlide.title}
                   </h2>
                   <p className="mt-1 text-[11px] font-semibold text-white/70">
@@ -189,6 +189,9 @@ export function HomePage() {
         </section>
       )}
 
+      {/* Personalized Viral Shorts */}
+      <ViralShortsSwiper />
+
       <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -198,7 +201,7 @@ export function HomePage() {
             </h2>
           </div>
           
-          <NewsGrid posts={feed.posts} loading={feed.loading} />
+          <NewsGrid posts={feed.posts.slice(numSlides)} loading={feed.loading} />
           
           {feed.hasMore && (
             <div className="flex justify-center">

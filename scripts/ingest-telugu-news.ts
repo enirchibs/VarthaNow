@@ -66,82 +66,7 @@ const stats = {
 //  directFeed=true skips Google redirect resolution (saves ~3s/article)
 // ═══════════════════════════════════════════════════════════════════
 
-interface FeedSource {
-  url: string;
-  category: string;
-  priority: number; // 1=critical, 2=high, 3=medium, 4=low
-  publisher: string;
-  directFeed: boolean;
-  language?: string;
-}
-
-const FEED_SOURCES: FeedSource[] = [
-  // ── P1: Politics ────────────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=రాజకీయాలు+when:24h&hl=te&gl=IN&ceid=IN:te", category: "politics", priority: 1, publisher: "Google News", directFeed: false },
-  { url: "https://tv9telugu.com/feed", category: "politics", priority: 1, publisher: "TV9 Telugu", directFeed: true },
-  { url: "https://ntvtelugu.com/feed", category: "politics", priority: 1, publisher: "NTV Telugu", directFeed: true },
-  { url: "https://www.etvbharat.com/rss/telugu/state/andhra-pradesh", category: "politics", priority: 1, publisher: "ETV Bharat", directFeed: true },
-
-
-  // ── P1: Breaking / National ──────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=breaking+news+telugu+when:6h&hl=te&gl=IN&ceid=IN:te", category: "national", priority: 1, publisher: "Google News", directFeed: false },
-  { url: "https://www.andhrajyothy.com/rss.xml", category: "national", priority: 1, publisher: "Andhra Jyothy", directFeed: true },
-  { url: "https://www.vaartha.com/feed", category: "national", priority: 1, publisher: "Vaartha", directFeed: true },
-  { url: "https://www.abpdesam.com/rss.xml", category: "national", priority: 1, publisher: "ABP Desam", directFeed: true },
-  { url: "https://10tv.in/feed", category: "national", priority: 1, publisher: "10TV", directFeed: true },
-
-  // ── P2: Andhra Pradesh ──────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=ఆంధ్రప్రదేశ్+వార్తలు+when:24h&hl=te&gl=IN&ceid=IN:te", category: "andhra-pradesh", priority: 2, publisher: "Google News", directFeed: false },
-  { url: "https://www.etvbharat.com/rss/telugu/state/andhra-pradesh", category: "andhra-pradesh", priority: 2, publisher: "ETV Bharat AP", directFeed: true },
-  { url: "https://tv9telugu.com/feed/category/andhra-pradesh", category: "andhra-pradesh", priority: 2, publisher: "TV9 AP", directFeed: true },
-
-  // ── P2: Telangana ───────────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=తెలంగాణ+వార్తలు+when:24h&hl=te&gl=IN&ceid=IN:te", category: "telangana", priority: 2, publisher: "Google News", directFeed: false },
-  { url: "https://www.etvbharat.com/rss/telugu/state/telangana", category: "telangana", priority: 2, publisher: "ETV Bharat TS", directFeed: true },
-  { url: "https://hmtvlive.com/feed", category: "telangana", priority: 2, publisher: "HMTV Live", directFeed: true },
-
-
-  // ── P2: Cricket / Sports ────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=క్రికెట్+IPL+T20+when:24h&hl=te&gl=IN&ceid=IN:te", category: "cricket", priority: 2, publisher: "Google News", directFeed: false },
-  { url: "https://tv9telugu.com/feed/category/sports", category: "cricket", priority: 2, publisher: "TV9 Sports", directFeed: true },
-  { url: "https://www.etvbharat.com/rss/telugu/sports", category: "cricket", priority: 2, publisher: "ETV Sports", directFeed: true },
-
-  // ── P2: Business ────────────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=వ్యాపారం+మార్కెట్+when:24h&hl=te&gl=IN&ceid=IN:te", category: "business", priority: 2, publisher: "Google News", directFeed: false },
-  { url: "https://www.etvbharat.com/rss/telugu/business", category: "business", priority: 2, publisher: "ETV Business", directFeed: true },
-
-
-  // ── P3: Cinema ──────────────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=సినిమా+టాలీవుడ్+when:24h&hl=te&gl=IN&ceid=IN:te", category: "cinema", priority: 3, publisher: "Google News", directFeed: false },
-  { url: "https://tv9telugu.com/feed/category/entertainment", category: "cinema", priority: 3, publisher: "TV9 Entertainment", directFeed: true },
-  { url: "https://www.etvbharat.com/rss/telugu/entertainment", category: "cinema", priority: 3, publisher: "ETV Entertainment", directFeed: true },
-  { url: "https://ntvtelugu.com/feed/category/entertainment", category: "cinema", priority: 3, publisher: "NTV Entertainment", directFeed: true },
-
-  // ── P3: Technology ──────────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=సాంకేతిక+వార్తలు+when:24h&hl=te&gl=IN&ceid=IN:te", category: "technology", priority: 3, publisher: "Google News", directFeed: false },
-
-
-  // ── P3: Jobs ────────────────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=ఉద్యోగాలు+ప్రభుత్వ+when:48h&hl=te&gl=IN&ceid=IN:te", category: "jobs", priority: 3, publisher: "Google News Jobs", directFeed: false },
-  { url: "https://www.etvbharat.com/rss/telugu/education", category: "jobs", priority: 3, publisher: "ETV Education", directFeed: true },
-
-  // ── P3: Health ──────────────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=ఆరోగ్య+వార్తలు+when:48h&hl=te&gl=IN&ceid=IN:te", category: "health", priority: 3, publisher: "Google News Health", directFeed: false },
-  { url: "https://www.etvbharat.com/rss/telugu/health-and-lifestyle", category: "health", priority: 3, publisher: "ETV Health", directFeed: true },
-
-  // ── P3: Education ───────────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=విద్య+పాఠశాల+విశ్వవిద్యాలయం+when:48h&hl=te&gl=IN&ceid=IN:te", category: "education", priority: 3, publisher: "Google News Education", directFeed: false },
-
-  // ── P4: Devotional / Spiritual ──────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=ఆధ్యాత్మికం+భక్తి+when:48h&hl=te&gl=IN&ceid=IN:te", category: "devotional", priority: 4, publisher: "Google News Devotional", directFeed: false },
-  { url: "https://tv9telugu.com/feed/category/devotional", category: "devotional", priority: 4, publisher: "TV9 Devotional", directFeed: true },
-
-  // ── P4: Agriculture ─────────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=వ్యవసాయం+రైతులు+when:48h&hl=te&gl=IN&ceid=IN:te", category: "agriculture", priority: 4, publisher: "Google News Agriculture", directFeed: false },
-
-  // ── P4: Astrology ───────────────────────────────────────────────
-  { url: "https://news.google.com/rss/search?q=జ్యోతిష్యం+రాశిఫలాలు+when:48h&hl=te&gl=IN&ceid=IN:te", category: "astrology", priority: 4, publisher: "Google News Astrology", directFeed: false },
-];
+// Feeds are now fetched dynamically from the rss_feeds table in Supabase.
 
 const ITEMS_PER_FEED = 8;
 
@@ -874,14 +799,16 @@ async function run() {
   const priorityIdx = process.argv.indexOf("--priority");
   const targetPriority = priorityIdx !== -1 ? parseInt(process.argv[priorityIdx + 1]) : null;
 
-  let feedsToProcess = FEED_SOURCES;
-  if (targetCategory) {
-    feedsToProcess = FEED_SOURCES.filter(f => f.category.toLowerCase() === targetCategory.toLowerCase());
-    console.log(`🎯 Category filter: "${targetCategory}" → ${feedsToProcess.length} feeds`);
-  } else if (targetPriority) {
-    feedsToProcess = FEED_SOURCES.filter(f => f.priority === targetPriority);
-    console.log(`🎯 Priority filter: P${targetPriority} → ${feedsToProcess.length} feeds`);
+  let query = supabase.from('rss_feeds').select('*').lte('next_fetch_time', new Date().toISOString());
+  if (targetCategory) query = query.eq('category', targetCategory.toLowerCase());
+  if (targetPriority) query = query.eq('priority_tier', targetPriority);
+
+  const { data: dbFeeds, error } = await query;
+  if (error) {
+    console.error("❌ Failed to fetch feeds from Supabase:", error);
+    process.exit(1);
   }
+  let feedsToProcess = dbFeeds || [];
 
   console.log(`📋 Processing ${feedsToProcess.length} feeds × up to ${ITEMS_PER_FEED} items`);
   console.log("═".repeat(70));
@@ -889,12 +816,88 @@ async function run() {
   for (const feed of feedsToProcess) {
     try {
       console.log(`\n${"─".repeat(60)}`);
-      console.log(`📡 [P${feed.priority}][${feed.category.toUpperCase()}] ${feed.publisher}`);
-      console.log(`   ${feed.directFeed ? "✅ Direct Feed" : "🔄 Google News"}: ${feed.url.slice(0, 80)}`);
+      console.log(`📡 [P${feed.priority_tier}][${feed.category.toUpperCase()}] ${feed.publisher}`);
+      console.log(`   ${feed.direct_feed ? "✅ Direct Feed" : "🔄 Google News"}: ${feed.url.slice(0, 80)}`);
 
       let rssItems: any[] = [];
       try {
-        const rss = await parser.parseURL(feed.url);
+        let fetchOpts: any = { headers: {} };
+        if (feed.etag) fetchOpts.headers['If-None-Match'] = feed.etag;
+        if (feed.last_modified) fetchOpts.headers['If-Modified-Since'] = feed.last_modified;
+        
+        const res = await fetch(feed.url, fetchOpts);
+        
+        // ── Adaptive Polling: Update DB if 304 or Error ──
+        if (res.status === 304 || res.status === 429 || !res.ok) {
+           let newFailures = feed.consecutive_failures;
+           let newInterval = feed.current_interval_seconds;
+           
+           if (res.status === 304) {
+               console.log(`   🔄 304 Not Modified. Applying Exponential Backoff...`);
+               newInterval = Math.floor(newInterval * 1.5);
+               newFailures = 0;
+           } else {
+               console.log(`   ❌ HTTP Error ${res.status}. Aggressive Backoff...`);
+               newFailures++;
+               newInterval = Math.floor(newInterval * 2);
+           }
+           
+           // Clamp max interval
+           const maxIntervals: Record<number, number> = { 1: 3600, 2: 14400, 3: 43200, 4: 86400 };
+           const maxInt = maxIntervals[feed.priority_tier] || 86400;
+           if (newInterval > maxInt) newInterval = maxInt;
+           
+           const nextFetch = new Date(Date.now() + newInterval * 1000).toISOString();
+           await supabase.from('rss_feeds').update({ 
+               current_interval_seconds: newInterval,
+               next_fetch_time: nextFetch,
+               consecutive_failures: newFailures
+           }).eq('id', feed.id);
+           
+           if (res.status === 304) continue;
+           throw new Error(`HTTP Error ${res.status}`);
+        }
+        
+        const xml = await res.text();
+        const rss = await parser.parseString(xml);
+        
+        // Calculate Moving Average TBA
+        let newInterval = feed.current_interval_seconds;
+        if (rss.items && rss.items.length > 1) {
+             let totalDiff = 0;
+             let count = 0;
+             for (let i = 0; i < Math.min(rss.items.length - 1, 10); i++) {
+                 const t1 = new Date(rss.items[i].isoDate || rss.items[i].pubDate || Date.now()).getTime();
+                 const t2 = new Date(rss.items[i+1].isoDate || rss.items[i+1].pubDate || Date.now()).getTime();
+                 if (!isNaN(t1) && !isNaN(t2) && t1 !== t2) {
+                     totalDiff += Math.abs(t1 - t2);
+                     count++;
+                 }
+             }
+             if (count > 0) {
+                 const avgTBA = Math.floor((totalDiff / count) / 1000);
+                 const minIntervals: Record<number, number> = { 1: 300, 2: 900, 3: 1800, 4: 7200 };
+                 const maxIntervals: Record<number, number> = { 1: 3600, 2: 14400, 3: 43200, 4: 86400 };
+                 const minInt = minIntervals[feed.priority_tier] || 7200;
+                 const maxInt = maxIntervals[feed.priority_tier] || 86400;
+                 
+                 newInterval = Math.floor(avgTBA * 0.8);
+                 if (newInterval < minInt) newInterval = minInt;
+                 if (newInterval > maxInt) newInterval = maxInt;
+                 console.log(`   ⏱️ Avg TBA: ${avgTBA}s -> New Interval: ${newInterval}s`);
+             }
+        }
+        
+        const nextFetch = new Date(Date.now() + newInterval * 1000).toISOString();
+        await supabase.from('rss_feeds').update({ 
+            current_interval_seconds: newInterval,
+            next_fetch_time: nextFetch,
+            consecutive_failures: 0,
+            last_fetched_at: new Date().toISOString(),
+            etag: res.headers.get('etag'),
+            last_modified: res.headers.get('last-modified')
+        }).eq('id', feed.id);
+
         rssItems = (rss.items || []).slice(0, ITEMS_PER_FEED);
         console.log(`   Found ${rssItems.length} items`);
       } catch (rssErr: any) {
@@ -939,7 +942,7 @@ async function run() {
         try {
           // ── RESOLVE URL ─────────────────────────────────────
           let resolvedUrl = originalUrl;
-          if (!feed.directFeed) {
+          if (!feed.direct_feed) {
             console.log(`  🔗 Resolving Google redirect...`);
             resolvedUrl = await resolveUrl(originalUrl);
             console.log(`  🔗 → ${resolvedUrl.slice(0, 80)}`);
@@ -1004,7 +1007,7 @@ async function run() {
           // ── IMPORTANCE SCORE ──────────────────────────────
           const publishedAtStr = item.isoDate || new Date().toISOString();
           const importanceScore = calculateImportanceScore(
-            item.title, feed.category, publishedAtStr, feed.priority, 0
+            item.title, feed.category, publishedAtStr, feed.priority_tier, 0
           );
 
           // Route status based on importance score
@@ -1095,7 +1098,7 @@ async function run() {
           console.log(`  ✅ [INSERTED] "${item.title.slice(0, 55)}..."`);
 
           // ── CREATE PIPELINE JOB ENTRIES ───────────────────
-          await createPipelineJobs(baseSlug, importanceScore, feed.priority, wordCount, feed.category, skipAi);
+          await createPipelineJobs(baseSlug, importanceScore, feed.priority_tier, wordCount, feed.category, skipAi);
 
         } catch (articleErr: any) {
           console.error(`  ❌ Article error: ${articleErr.message}`);

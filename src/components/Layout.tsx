@@ -21,7 +21,6 @@ const categoryEmojis: Record<string, string> = {
 };
 
 export function Layout() {
-  const [dark, setDark] = useState(false);
   const { lang, changeLanguage } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
@@ -48,8 +47,8 @@ export function Layout() {
   };
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
+    document.documentElement.classList.remove("dark");
+  }, []);
 
   useEffect(() => {
     const consent = localStorage.getItem("vaartanow-cookie-consent");
@@ -154,14 +153,6 @@ export function Layout() {
               )}
             </div>
 
-            <Button variant="secondary" className="hidden sm:inline-flex" onClick={() => setDark((value) => !value)}>
-              {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-              {dark ? (
-                lang === "te" ? "కాంతి" : lang === "en" ? "Light" : lang === "hi" ? "लाइट" : lang === "ta" ? "ஒளி" : "లైట్"
-              ) : (
-                lang === "te" ? "చీకటి" : lang === "en" ? "Dark" : lang === "hi" ? "डार्क" : lang === "ta" ? "இருள்" : "డార్క్"
-              )}
-            </Button>
 
             <Link to="/bookmarks" className="hidden md:inline-block">
               <Button 
@@ -397,14 +388,6 @@ export function Layout() {
             )}
           </NavLink>
 
-          {/* Dark mode toggle — replaces Health in bottom nav for mobile accessibility */}
-          <button
-            onClick={() => setDark((v) => !v)}
-            className="flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
-            aria-label="Toggle dark mode"
-          >
-            {dark ? <Sun className="size-6" /> : <Moon className="size-6" />}
-          </button>
 
           <NavLink
             to="/bookmarks"
