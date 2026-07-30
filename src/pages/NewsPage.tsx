@@ -159,7 +159,6 @@ export function NewsPage() {
             <Badge>{categoryLabel(post.category, lang)}</Badge>
           </div>
           <h1 className="mt-4 text-2xl font-black leading-tight md:text-4xl">{post.title}</h1>
-          <p className="mt-3 text-base leading-8 text-[hsl(var(--muted-foreground))]">{post.excerpt}</p>
           <div className="mt-4 flex flex-wrap items-center gap-2 text-[10px] sm:text-xs font-semibold text-[hsl(var(--muted-foreground))]">
             {/* Source with logo */}
             <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 dark:bg-blue-400/10 px-2 py-0.5 text-[9px] sm:text-[10px] font-black text-blue-600 dark:text-blue-400 tracking-wide">
@@ -285,7 +284,13 @@ export function NewsPage() {
           </div>
         </div>
         <div className="article-content px-4 py-6 md:px-8">
-          <div dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }} />
+          {post.content ? (
+            <div dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }} />
+          ) : (
+            <p className="text-base md:text-lg leading-relaxed text-[hsl(var(--foreground))] whitespace-pre-wrap">
+              {post.excerpt}
+            </p>
+          )}
         </div>
         <div className="flex flex-wrap gap-2 border-t border-[hsl(var(--border))] p-4">
         {post.tags.map((tag) => (

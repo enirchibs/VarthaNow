@@ -329,11 +329,11 @@ Rules:
 - Use markdown with headings, short paragraphs, and bullet points only where useful.
 - Include a 3-question FAQ section at the end.
 - Title: max 12 Telugu words, compelling and factual.
-- Summary/excerpt: 50-70 words.
+- Summary/excerpt: 90-110 words.
 - Content target: 450-550 words of rewritten Telugu content.
 - Return ONLY valid raw JSON (no markdown fences):
 
-{"title":"Telugu title","summary":"50-70 word excerpt","content":"Full markdown article body"}
+{"title":"Telugu title","summary":"90-110 word excerpt","content":"Full markdown article body"}
 
 Source Article (${category}):
 ${sourceText.slice(0, 3500)}`;
@@ -490,9 +490,9 @@ async function runSummaryWorker() {
     await markJobStarted(job.id);
 
     try {
-      const prompt = `Summarize this Telugu news article in exactly 50-80 Telugu words. Professional, factual tone. Return ONLY raw JSON:
+      const prompt = `Summarize this Telugu news article in exactly 90-110 Telugu words. Professional, factual tone. Return ONLY raw JSON:
 
-{"summary": "50-80 word Telugu summary", "summary_short": "15-20 word quick headline summary"}
+{"summary": "90-110 word Telugu summary", "summary_short": "15-20 word quick headline summary"}
 
 Title: ${post.title}
 Content: ${(post.content || "").slice(0, 1200)}`;
