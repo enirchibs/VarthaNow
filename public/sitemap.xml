@@ -8,97 +8,97 @@
     <loc>http://localhost:3000/</loc>
     <changefreq>always</changefreq>
     <priority>1.0</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/search</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/politics</loc>
     <changefreq>always</changefreq>
     <priority>0.95</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/andhra-pradesh</loc>
     <changefreq>always</changefreq>
     <priority>0.95</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/telangana</loc>
     <changefreq>always</changefreq>
     <priority>0.95</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/national</loc>
     <changefreq>always</changefreq>
     <priority>0.9</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/cricket</loc>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/business</loc>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/cinema</loc>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/technology</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/jobs</loc>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/health</loc>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/education</loc>
     <changefreq>daily</changefreq>
     <priority>0.75</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/devotional</loc>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/viralshorts</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/category/vizag</loc>
     <changefreq>hourly</changefreq>
     <priority>0.8</priority>
-    <lastmod>2026-07-31T19:23:35.723Z</lastmod>
+    <lastmod>2026-07-31T19:39:35.647Z</lastmod>
   </url>
   <url>
     <loc>http://localhost:3000/politics/tollywood-16</loc>
@@ -193,7 +193,7 @@
   <url>
     <loc>http://localhost:3000/telangana/jupally-krishna-rao-eenadu</loc>
     <lastmod>2026-07-31T17:33:44.000Z</lastmod>
-    <changefreq>always</changefreq>
+    <changefreq>hourly</changefreq>
     <priority>0.75</priority>
     <news:news>
       <news:publication>
@@ -211,7 +211,7 @@
   <url>
     <loc>http://localhost:3000/national/news-1785521220980</loc>
     <lastmod>2026-07-31T17:29:04.000Z</lastmod>
-    <changefreq>always</changefreq>
+    <changefreq>hourly</changefreq>
     <priority>0.85</priority>
     <news:news>
       <news:publication>
@@ -4081,16 +4081,8 @@
   <url>
     <loc>http://localhost:3000/telangana/vande-mataram</loc>
     <lastmod>2026-07-30T19:30:08.000Z</lastmod>
-    <changefreq>hourly</changefreq>
+    <changefreq>daily</changefreq>
     <priority>0.85</priority>
-    <news:news>
-      <news:publication>
-        <news:name>VaartaNow</news:name>
-        <news:language>te</news:language>
-      </news:publication>
-      <news:publication_date>2026-07-30T19:30:08.000Z</news:publication_date>
-      <news:title>Vande Mataram: వందే మాతరానికి చట్టబద్ధ రక్షణ.. అవమానిస్తే జైలు శిక్ష</news:title>
-    </news:news>
     <image:image>
       <image:loc>https://xceartahttbkdihteynx.supabase.co/storage/v1/object/public/news-images/2026/07/31/vande-mataram-1785440847647.webp</image:loc>
       <image:title>Vande Mataram: వందే మాతరానికి చట్టబద్ధ రక్షణ.. అవమానిస్తే జైలు శిక్ష</image:title>
