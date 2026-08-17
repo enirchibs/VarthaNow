@@ -178,7 +178,7 @@ async function fetchRss(url: string, category: Category, language: "te" | "en" |
   if (!response.ok) throw new Error(`RSS fetch failed: ${response.status}`);
 
   const xml = await response.text();
-  const doc = new DOMParser().parseFromString(xml, "text/xml");
+  const doc = new DOMParser().parseFromString(xml, "text/html");
   if (!doc) throw new Error("Failed to parse RSS XML");
   const items = [...doc.querySelectorAll("item")].map((item) => ({
     title: text(item, "title"),

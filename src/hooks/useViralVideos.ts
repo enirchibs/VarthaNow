@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useBookmarks } from "@/hooks/useBookmarks";
-import { useBirthLocation } from "@/hooks/useBirthLocation";
 
 export interface ViralVideo {
   id: string;
@@ -22,7 +21,6 @@ export function useViralVideos(limit = 10) {
   
   // Use bookmarks as a proxy for "interests"
   const { bookmarks } = useBookmarks();
-  const { location } = useBirthLocation(); // Example for location
 
   useEffect(() => {
     let mounted = true;
@@ -47,20 +45,17 @@ export function useViralVideos(limit = 10) {
         let fetchedVideos: ViralVideo[] = data || [];
         
         // --- PERSONALIZATION LOGIC ---
-        // We will score the videos based on user interests (bookmarks) and location
+        // We will score the videos based on user interests (bookmarks)
         // to bubble up the most relevant ones.
         
-        // 1. Extract interest keywords from bookmarks (e.g. titles or categories)
+        // 1. Extract interest keywords from bookmarks (which are slugs)
         const interestKeywords = new Set<string>();
-        bookmarks.forEach(bm => {
-          if (bm.category) interestKeywords.add(bm.category.toLowerCase());
-          const words = bm.title.toLowerCase().split(/\s+/);
+        bookmarks.forEach(slug => {
+          const words = slug.toLowerCase().split("-");
           words.forEach(w => {
-             if (w.length > 3) interestKeywords.add(w);
+            if (w.length > 3) interestKeywords.add(w);
           });
         });
-        
-        const locKeyword = location?.city?.toLowerCase() || "";
         
         fetchedVideos.sort((a, b) => {
            let scoreA = Math.random() * 10; // Base randomness
@@ -76,12 +71,6 @@ export function useViralVideos(limit = 10) {
               if (titleA.includes(kw) || descA.includes(kw)) scoreA += 50;
               if (titleB.includes(kw) || descB.includes(kw)) scoreB += 50;
            });
-           
-           // Boost score if it matches user location
-           if (locKeyword) {
-              if (titleA.includes(locKeyword) || descA.includes(locKeyword)) scoreA += 100;
-              if (titleB.includes(locKeyword) || descB.includes(locKeyword)) scoreB += 100;
-           }
            
            return scoreB - scoreA; // Descending order
         });
@@ -101,7 +90,8 @@ export function useViralVideos(limit = 10) {
     return () => {
       mounted = false;
     };
-  }, [bookmarks, location, limit]);
+  }, [bookmarks, limit]);
 
   return { videos, loading };
 }
+
