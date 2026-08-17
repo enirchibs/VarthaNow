@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { getShortVideos, type ShortVideoItem } from "@/lib/shorts-api";
+import { supabase } from "@/lib/supabase";
 
 function getYoutubeId(url: string): string {
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
@@ -155,11 +156,28 @@ export function ShortsReel() {
   useEffect(() => {
     async function loadShorts() {
       try {
-        const query = lang === "te" ? "తెలుగు వార్తలు షార్ట్స్" : "telugu news shorts";
-        const res = await getShortVideos(query);
-        setVideos(res);
+        if (!supabase) return;
+        const { data, error } = await supabase
+          .from("viral_videos")
+          .select("*")
+          .order("published_at", { ascending: false })
+          .limit(24);
+        
+        if (error) throw error;
+        
+        const mapped: ShortVideoItem[] = (data || []).map((v: any) => ({
+          title: v.title,
+          duration: v.duration || "0:30",
+          thumbnail: v.thumbnail_url || "",
+          link: v.video_url || "",
+          clip: v.clip || v.video_url || "",
+          channel: v.channel || "VarthaNow",
+          source: v.channel || "VarthaNow",
+          source_icon: v.source_icon || "/icons/icon-192.svg"
+        }));
+        setVideos(mapped);
       } catch (err) {
-        console.error(err);
+        console.error("Error loading shorts from database:", err);
       } finally {
         setLoading(false);
       }

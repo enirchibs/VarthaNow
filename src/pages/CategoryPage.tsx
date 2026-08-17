@@ -416,20 +416,12 @@ export function CategoryPage() {
       {category === "viralshorts" && (
         <div className="space-y-4">
           <ShortsReel />
-          <div className="border-t border-[hsl(var(--border))]/50 pt-5">
-            <h2 className="text-xl font-black text-[hsl(var(--foreground))]">
-              {lang === "te" && "ఇతర వైరల్ కథనాలు 📰"}
-              {lang === "en" && "Related Viral Stories 📰"}
-              {lang === "hi" && "अन्य वायरल खबरें 📰"}
-              {lang === "ta" && "பிற வைரல் செய்திகள் 📰"}
-              {lang === "kn" && "ಇತರ ವೈರల్ ಸುದ್ದಿಗಳು 📰"}
-            </h2>
-          </div>
         </div>
       )}
 
       {/* Double column grid representing Sidebar for competitive visual widgets */}
-      <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+      {category !== "viralshorts" && (
+        <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         {/* News Feed Cards column */}
         <div className="space-y-4">
           <NewsGrid posts={feed.posts} loading={feed.loading} />
@@ -468,6 +460,7 @@ export function CategoryPage() {
           </div>
         </aside>
       </section>
+      )}
     </main>
   );
 }
