@@ -111,9 +111,9 @@ serve(async (req) => {
         const doc = new DOMParser().parseFromString(xml, "text/html");
         if (!doc) throw new Error("Could not parse RSS XML document");
 
-        // Parse RSS items
-        const rawItems = [...doc.querySelectorAll("item")]
-        errors.push(`[${feed.publisher}] Found raw items count: ${rawItems.length}`);.map((item: any) => ({
+        const rawElements = [...doc.querySelectorAll("item")];
+        errors.push(`[${feed.publisher}] Found raw items count: ${rawElements.length}`);
+        const rawItems = rawElements.map((item: any) => ({
           title: item.querySelector("title")?.textContent?.trim() ?? "",
           link: item.querySelector("link")?.textContent?.trim() ?? "",
           pubDate: item.querySelector("pubDate")?.textContent?.trim() ?? "",
