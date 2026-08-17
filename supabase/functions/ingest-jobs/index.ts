@@ -23,6 +23,36 @@ const CITIES_CONFIG = [
   { name: "Khammam", maxPages: 2 },
 ];
 
+const TELANGANA_CITIES = ["Hyderabad", "Warangal", "Nizamabad", "Karimnagar", "Khammam"];
+
+function detectWorkMode(title: string, desc: string): "Remote" | "Hybrid" | "On-site" {
+  const text = `${title} ${desc}`.toLowerCase();
+  if (text.includes("remote") || text.includes("wfh") || text.includes("work from home") || text.includes("anywhere")) {
+    return "Remote";
+  }
+  if (text.includes("hybrid") || text.includes("flexible onsite")) {
+    return "Hybrid";
+  }
+  return "On-site";
+}
+
+function detectContractType(title: string, desc: string): "Full-time" | "Part-time" | "Contract" | "Freelance" | "Internship" {
+  const text = `${title} ${desc}`.toLowerCase();
+  if (text.includes("intern") || text.includes("internship") || text.includes("trainee")) {
+    return "Internship";
+  }
+  if (text.includes("freelance") || text.includes("upwork") || text.includes("freelancer")) {
+    return "Freelance";
+  }
+  if (text.includes("contract") || text.includes("temp")) {
+    return "Contract";
+  }
+  if (text.includes("part-time") || text.includes("part time")) {
+    return "Part-time";
+  }
+  return "Full-time";
+}
+
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 serve(async (req) => {
@@ -32,8 +62,8 @@ serve(async (req) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const appId = Deno.env.get("ADZUNA_APP_ID") || "";
-  const appKey = Deno.env.get("ADZUNA_APP_KEY") || "46b381cd4b77797427089920c6e2dde6"; // Use the provided user key as fallback
+  const appId = Deno.env.get("ADZUNA_APP_ID") || "4da9f8a0";
+  const appKey = Deno.env.get("ADZUNA_APP_KEY") || "46b381cd4b77797427089920c6e2dde6";
 
   if (!appId || !appKey) {
     console.error("Adzuna API credentials (ADZUNA_APP_ID / ADZUNA_APP_KEY) are not set.");
@@ -68,7 +98,7 @@ serve(async (req) => {
       stats.citiesProcessed++;
 
       for (let page = 1; page <= city.maxPages; page++) {
-        // Enforce 3-second delay between hits to respect Adzuna's 25 hits/min rate limit
+        // Enforce 3-second delay to respect Adzuna's rate limit
         if (page > 1 || stats.pagesFetched > 0) {
           console.log("Sleeping 3 seconds to avoid rate limits...");
           await delay(3000);
@@ -105,35 +135,75 @@ serve(async (req) => {
           city_category: city.name
         }));
 
-        // Bulk upsert per page
-        const { error: upsertErr } = await supabase
+        // Map data to match public.vaartanow_jobs table schema
+        const mappedVaartaJobs = results.map((item: any) => {
+          const title = item.title || "";
+          const desc = item.description || "";
+          const isTelangana = TELANGANA_CITIES.includes(city.name);
+
+          return {
+            title: title,
+            company_name: item.company?.display_name || "Adzuna Sponsor",
+            location: item.location?.display_name || `${city.name}, India`,
+            district: city.name,
+            state: isTelangana ? "Telangana" : "Andhra Pradesh",
+            description_snippet: desc.slice(0, 180) + "...",
+            full_description: desc,
+            apply_link: item.redirect_url || `https://api.adzuna.com/redirect/${item.id}`,
+            source_platform: "Adzuna API",
+            posted_date: item.created ? new Date(item.created).toISOString() : new Date().toISOString(),
+            salary_range: item.salary_min ? `₹${item.salary_min.toLocaleString()} - ₹${item.salary_max.toLocaleString()}` : "Competitive",
+            skills: ["IT Development", "Software Engineering"],
+            tags: ["Adzuna"],
+            logo_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&h=120",
+            work_mode: detectWorkMode(title, desc),
+            contract_type: detectContractType(title, desc),
+            is_featured: false,
+            is_approved: true,
+            is_active: true
+          };
+        });
+
+        // 1. Bulk upsert to public.jobs
+        const { error: upsertErr1 } = await supabase
           .from("jobs")
           .upsert(mappedJobs, { onConflict: "id" });
 
-        if (upsertErr) {
-          console.error(`Supabase upsert error on page ${page} for ${city.name}:`, upsertErr.message);
+        if (upsertErr1) {
+          console.error(`Supabase jobs upsert error on page ${page} for ${city.name}:`, upsertErr1.message);
+        }
+
+        // 2. Bulk upsert to public.vaartanow_jobs
+        const { error: upsertErr2 } = await supabase
+          .from("vaartanow_jobs")
+          .upsert(mappedVaartaJobs, { onConflict: "apply_link" });
+
+        if (upsertErr2) {
+          console.error(`Supabase vaartanow_jobs upsert error on page ${page} for ${city.name}:`, upsertErr2.message);
         } else {
-          stats.jobsUpserted += mappedJobs.length;
-          console.log(`Upserted ${mappedJobs.length} jobs successfully.`);
+          stats.jobsUpserted += mappedVaartaJobs.length;
+          console.log(`Upserted ${mappedVaartaJobs.length} jobs to both tables.`);
         }
       }
 
       console.log(`✔ Finished ingestion for city: ${city.name}`);
     }
 
-    // Data Cleanup: Delete jobs older than 45 days
+    // Data Cleanup: Delete jobs older than 45 days in both tables
     console.log("Cleaning up jobs older than 45 days...");
     const fortyFiveDaysAgo = new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString();
-    const { data: cleanedData, error: cleanupErr } = await supabase
-      .from("jobs")
+    
+    // Clean up jobs table
+    await supabase.from("jobs").delete().lt("created_at", fortyFiveDaysAgo);
+
+    // Clean up vaartanow_jobs table for Adzuna sources
+    await supabase
+      .from("vaartanow_jobs")
       .delete()
+      .eq("source_platform", "Adzuna API")
       .lt("created_at", fortyFiveDaysAgo);
 
-    if (cleanupErr) {
-      console.error("Failed to clean up old jobs:", cleanupErr.message);
-    } else {
-      console.log("45-day cleanup completed successfully.");
-    }
+    console.log("45-day cleanup completed successfully.");
 
     return new Response(JSON.stringify({ ok: true, stats }), {
       headers: { "Content-Type": "application/json", ...corsHeaders }
