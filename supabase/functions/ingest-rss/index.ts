@@ -182,7 +182,7 @@ serve(async (req) => {
           // Resolve Google redirect
           let resolvedUrl = item.link;
           if (item.link.includes("news.google.com")) {
-            resolvedUrl = await resolveGoogleRedirect(item.link);
+            resolvedUrl = resolveGoogleRedirect(item.link);
           }
 
           // Extract OG image
@@ -310,13 +310,28 @@ async function checkDuplicate(supabase: any, url: string, slug: string, hash: st
   return false;
 }
 
-async function resolveGoogleRedirect(googleUrl: string): Promise<string> {
+// Helper to decode Google News RSS URLs (which use base64 protobuf payloads instead of standard redirects)
+function resolveGoogleRedirect(googleUrl: string): string {
   try {
-    const res = await fetch(googleUrl, { redirect: "follow", headers: { "User-Agent": "Mozilla/5.0" } });
-    return res.url || googleUrl;
-  } catch {
-    return googleUrl;
+    const match = googleUrl.match(/articles\/([^?]+)/);
+    if (!match) return googleUrl;
+    
+    const encoded = match[1];
+    const base64 = encoded.replace(/-/g, "+").replace(/_/g, "/");
+    
+    // Deno uses atob for base64 decoding to binary string
+    const decodedStr = atob(base64);
+    
+    const urlMatch = decodedStr.match(/(https?:\/\/[^\s]+)/);
+    if (urlMatch) {
+      let cleanUrl = urlMatch[1].replace(/[\x00-\x1F\x7F].*$/, "");
+      cleanUrl = cleanUrl.replace(/[^a-zA-Z0-9_\-.~:/?#[\]@!$&'()*+,;=]+$/, "");
+      return cleanUrl;
+    }
+  } catch (e) {
+    console.log("Failed to decode Google URL:", googleUrl);
   }
+  return googleUrl;
 }
 
 async function scrapeOgImage(resolvedUrl: string, enclosureUrl: string | null): Promise<string | null> {
