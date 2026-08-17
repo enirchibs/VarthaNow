@@ -55,6 +55,7 @@ serve(async (req) => {
   }
 
   const stats = { totalProcessed: 0, inserted: 0, skipped: 0, failed: 0, jobsQueued: 0 };
+  const errors: string[] = [];
 
   try {
     // 1. Query due feeds
@@ -234,10 +235,11 @@ serve(async (req) => {
         }
       } catch (err: any) {
         console.error(`Error processing feed ${feed.publisher}:`, err.message);
+        errors.push(`[${feed.publisher}] ${err.message}`);
       }
     }
 
-    return new Response(JSON.stringify({ ok: true, stats }), {
+    return new Response(JSON.stringify({ ok: true, stats, errors }), {
       headers: { "Content-Type": "application/json", ...corsHeaders }
     });
   } catch (error: any) {
