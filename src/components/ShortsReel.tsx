@@ -11,7 +11,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  RotateCw
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { getShortVideos, type ShortVideoItem } from "@/lib/shorts-api";
@@ -42,12 +43,49 @@ export function ShortsReel() {
   
   const activeIndex = videos.findIndex((v) => v.link === activeVideo?.link);
 
+  const refreshShortsPool = async (showLoading = false, setActiveToFirst = false) => {
+    if (showLoading) setLoading(true);
+    try {
+      if (!supabase) return;
+      const { data, error } = await supabase
+        .from("viral_videos")
+        .select("*")
+        .order("published_at", { ascending: false })
+        .limit(60);
+      
+      if (error) throw error;
+      
+      const shuffled = (data || []).sort(() => Math.random() - 0.5).slice(0, 20);
+      
+      const mapped: ShortVideoItem[] = shuffled.map((v: any) => ({
+        title: v.title,
+        duration: v.duration || "0:30",
+        thumbnail: v.thumbnail_url || "",
+        link: v.video_url || "",
+        clip: v.clip || v.video_url || "",
+        channel: v.channel || "VarthaNow",
+        source: v.channel || "VarthaNow",
+        source_icon: v.source_icon || "/icons/icon-192.svg"
+      }));
+      
+      setVideos(mapped);
+      if (setActiveToFirst && mapped.length > 0) {
+        setActiveVideo(mapped[0]);
+      }
+    } catch (err) {
+      console.error("Error loading shorts from database:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const playNextVideo = () => {
     if (activeIndex !== -1) {
       if (activeIndex < videos.length - 1) {
         setActiveVideo(videos[activeIndex + 1]);
       } else {
-        setActiveVideo(videos[0]);
+        // Reached the end! "keep on refresh when user slides down"
+        refreshShortsPool(false, true);
       }
     }
   };
@@ -154,35 +192,7 @@ export function ShortsReel() {
   };
 
   useEffect(() => {
-    async function loadShorts() {
-      try {
-        if (!supabase) return;
-        const { data, error } = await supabase
-          .from("viral_videos")
-          .select("*")
-          .order("published_at", { ascending: false })
-          .limit(24);
-        
-        if (error) throw error;
-        
-        const mapped: ShortVideoItem[] = (data || []).map((v: any) => ({
-          title: v.title,
-          duration: v.duration || "0:30",
-          thumbnail: v.thumbnail_url || "",
-          link: v.video_url || "",
-          clip: v.clip || v.video_url || "",
-          channel: v.channel || "VarthaNow",
-          source: v.channel || "VarthaNow",
-          source_icon: v.source_icon || "/icons/icon-192.svg"
-        }));
-        setVideos(mapped);
-      } catch (err) {
-        console.error("Error loading shorts from database:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadShorts();
+    refreshShortsPool(true, false);
   }, [lang]);
 
   // Handle Like click
@@ -222,7 +232,14 @@ export function ShortsReel() {
         <h2 className="text-lg font-black flex items-center gap-2">
           {ui.title[lang] || ui.title.te}
         </h2>
-        <div className="flex gap-1.5">
+        <div className="flex items-center gap-1.5">
+          <button 
+            onClick={() => refreshShortsPool(true, false)}
+            className="size-7 rounded-full border border-[hsl(var(--border))] flex items-center justify-center hover:bg-[hsl(var(--muted))] transition text-[hsl(var(--foreground))]"
+            title="Refresh Shorts Pool"
+          >
+            <RotateCw className="size-3.5" />
+          </button>
           <button 
             onClick={() => scroll("left")}
             className="size-7 rounded-full border border-[hsl(var(--border))] flex items-center justify-center hover:bg-[hsl(var(--muted))] transition"
