@@ -15,7 +15,6 @@ import { useHomeData, useInfinitePosts } from "@/hooks/usePosts";
 import { useLanguage } from "@/hooks/useLanguage";
 import { StickyCricketWidget } from "@/components/StickyCricketWidget";
 import { Way2NewsSwiper } from "@/components/Way2NewsSwiper";
-import { ViralShortsSwiper } from "@/components/ViralShortsSwiper";
 
 export function HomePage() {
   const { lang } = useLanguage();
@@ -189,8 +188,7 @@ export function HomePage() {
         </section>
       )}
 
-      {/* Personalized Viral Shorts */}
-      <ViralShortsSwiper />
+
 
       <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-4">

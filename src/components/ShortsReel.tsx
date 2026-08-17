@@ -139,11 +139,11 @@ export function ShortsReel() {
   // Translations
   const ui = {
     title: {
-      te: "మీ షార్ట్స్ 📹",
-      en: "Your Shorts 📹",
+      te: "వైరల్ షార్ట్స్ 📹",
+      en: "Viral Shorts 📹",
       hi: "आपके शॉर्ट्स 📹",
-      ta: "உங்களுடைய ஷார்ட்ஸ் 📹",
-      kn: "ನಿಮ್ಮ ಶಾರ್ಟ್ಸ್ 📹"
+      ta: "వైరల్ షార్ట్స్ 📹",
+      kn: "ವೈರಲ್ ಶಾರ್ಟ್ಸ್ 📹"
     },
     follow: { te: "ఫాలో", en: "Follow", hi: "फॉलो", ta: "பின்தொடர்", kn: "ಫಾಲೋ" },
     following: { te: "ఫాలోయింగ్", en: "Following", hi: "फॉलोइंग", ta: "தொடர்கிறது", kn: "ಫಾಲೋಯಿಂಗ್" },
