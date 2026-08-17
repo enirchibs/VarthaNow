@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.48.1";
-import { DOMParser, Element } from "https://deno.land/x/deno_dom@v0.1.45/deno-dom-wasm.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -107,20 +106,39 @@ serve(async (req) => {
         }
 
         const xml = await res.text();
-        errors.push(`[${feed.publisher}] XML length: ${xml.length} chars. Preview: ${xml.slice(0, 120).replace(/\r?\n/g, " ")}`);
-        const doc = new DOMParser().parseFromString(xml, "text/html");
-        if (!doc) throw new Error("Could not parse RSS XML document");
+        
+        // Simple regex parser for <item> blocks
+        const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
+        const itemsList: string[] = [];
+        let match;
+        while ((match = itemRegex.exec(xml)) !== null) {
+          itemsList.push(match[1]);
+        }
 
-        const rawElements = [...doc.querySelectorAll("item")];
-        errors.push(`[${feed.publisher}] Found raw items count: ${rawElements.length}`);
-        const rawItems = rawElements.map((item: any) => ({
-          title: item.querySelector("title")?.textContent?.trim() ?? "",
-          link: item.querySelector("link")?.textContent?.trim() ?? "",
-          pubDate: item.querySelector("pubDate")?.textContent?.trim() ?? "",
-          source: item.querySelector("source")?.textContent?.trim() ?? "Google News",
-          enclosureUrl: item.querySelector("enclosure")?.getAttribute("url") ?? null
-        })).filter(i => i.title && i.link);
-        errors.push(`[${feed.publisher}] First parsed item: ${JSON.stringify(rawItems[0] || {})}`);
+        if (itemsList.length === 0) {
+          console.log(`[${feed.publisher}] Warning: No <item> tags found in XML.`);
+          continue;
+        }
+
+        // Parse RSS items
+        const rawItems = itemsList.map(itemText => {
+          const titleMatch = itemText.match(/<title>([\s\S]*?)<\/title>/i);
+          const title = titleMatch ? titleMatch[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").trim() : "";
+          
+          const linkMatch = itemText.match(/<link>([\s\S]*?)<\/link>/i);
+          const link = linkMatch ? linkMatch[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").trim() : "";
+          
+          const pubDateMatch = itemText.match(/<pubDate>([\s\S]*?)<\/pubDate>/i);
+          const pubDate = pubDateMatch ? pubDateMatch[1].trim() : "";
+          
+          const sourceMatch = itemText.match(/<source[^>]*>([\s\S]*?)<\/source>/i);
+          const source = sourceMatch ? sourceMatch[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1").trim() : "Google News";
+          
+          const enclosureMatch = itemText.match(/<enclosure[^>]*url=["']([^"']+)["'][^>]*>/i);
+          const enclosureUrl = enclosureMatch ? enclosureMatch[1] : null;
+
+          return { title, link, pubDate, source, enclosureUrl };
+        }).filter(i => i.title && i.link);
 
         // Keep top 3 freshest items within last 48 hours to fit Edge Function time limits
         const cutoffTime = Date.now() - 48 * 60 * 60 * 1000;
