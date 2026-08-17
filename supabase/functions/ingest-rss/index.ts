@@ -120,6 +120,7 @@ serve(async (req) => {
           source: item.querySelector("source")?.textContent?.trim() ?? "Google News",
           enclosureUrl: item.querySelector("enclosure")?.getAttribute("url") ?? null
         })).filter(i => i.title && i.link);
+        errors.push(`[${feed.publisher}] First parsed item: ${JSON.stringify(rawItems[0] || {})}`);
 
         // Keep top 3 freshest items within last 48 hours to fit Edge Function time limits
         const cutoffTime = Date.now() - 48 * 60 * 60 * 1000;
