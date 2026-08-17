@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui";
 import { useLanguage } from "@/hooks/useLanguage";
 import { ReadingProgress } from "@/components/ReadingProgress";
 import { useBookmarks } from "@/hooks/useBookmarks";
+import { trackArticleView } from "@/lib/interest-tracker";
 
 export function NewsPage() {
   const { lang } = useLanguage();
@@ -38,6 +39,12 @@ export function NewsPage() {
             image: item.og_image,
             structuredData: postStructuredData(item)
           });
+          // Track interest keywords in localStorage
+          try {
+            trackArticleView(item.title, item.category);
+          } catch (e) {
+            console.warn("Failed to track view:", e);
+          }
         }
       })
       .finally(() => mounted && setLoading(false));

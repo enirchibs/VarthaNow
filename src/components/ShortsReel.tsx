@@ -47,6 +47,7 @@ export function ShortsReel() {
     if (showLoading) setLoading(true);
     try {
       if (!supabase) return;
+      // Fetch latest 60 viral videos candidate pool
       const { data, error } = await supabase
         .from("viral_videos")
         .select("*")
@@ -54,10 +55,85 @@ export function ShortsReel() {
         .limit(60);
       
       if (error) throw error;
+
+      // --- PERSONALIZATION SCORING ENGINE ---
+      const interestKeywords = new Set<string>();
       
-      const shuffled = (data || []).sort(() => Math.random() - 0.5).slice(0, 20);
-      
-      const mapped: ShortVideoItem[] = shuffled.map((v: any) => ({
+      // 1. Gather browser interest keywords tracked via localStorage
+      try {
+        const { getUserInterests } = await import("@/lib/interest-tracker");
+        getUserInterests().forEach(w => interestKeywords.add(w.toLowerCase()));
+      } catch (err) {
+        console.warn("Failed to load interest tracker:", err);
+      }
+
+      // 2. Gather bookmark interests
+      try {
+        const stored = localStorage.getItem("vaartanow_bookmarks");
+        const bms = stored ? JSON.parse(stored) : [];
+        bms.forEach((slug: string) => {
+          slug.split("-").forEach(w => {
+            if (w.length > 3) interestKeywords.add(w.toLowerCase());
+          });
+        });
+      } catch {}
+
+      // 3. Detect user GPS geolocation coordinates
+      let gpsLocation: any = null;
+      try {
+        const { detectGPSLocation } = await import("@/lib/location-detector");
+        gpsLocation = await detectGPSLocation();
+      } catch (err) {
+        console.warn("Failed to detect GPS location:", err);
+      }
+
+      const scored = (data || []).map((v: any) => {
+        let score = Math.random() * 10; // Base randomness so the feed remains fresh
+        
+        const titleLower = v.title.toLowerCase();
+        const descLower = (v.description || "").toLowerCase();
+        const channelLower = (v.channel || "").toLowerCase();
+
+        // 🎯 Match bookmark and browser click interests (+50 per match)
+        interestKeywords.forEach(kw => {
+          if (titleLower.includes(kw) || descLower.includes(kw) || channelLower.includes(kw)) {
+            score += 50;
+          }
+        });
+
+        // 📍 Match GPS location (+120 for direct city match, +80 for state matching keywords)
+        if (gpsLocation) {
+          const cityLower = gpsLocation.city.toLowerCase();
+          const stateLower = gpsLocation.state.toLowerCase();
+
+          // Direct city/district keyword match
+          if (titleLower.includes(cityLower) || descLower.includes(cityLower)) {
+            score += 120;
+          }
+
+          // State-level keyword boosts
+          if (stateLower.includes("andhra") || stateLower.includes("ap")) {
+            if (titleLower.includes("ap") || titleLower.includes("ఆంధ్ర") || titleLower.includes("ఆంధ్రప్రదేశ్")) {
+              score += 80;
+            }
+          }
+          if (stateLower.includes("telangana") || stateLower.includes("tg")) {
+            if (titleLower.includes("telangana") || titleLower.includes("తెలంగాణ") || titleLower.includes("హైదరాబాద్") || titleLower.includes("hyderabad")) {
+              score += 80;
+            }
+          }
+        }
+
+        return { video: v, score };
+      });
+
+      // Sort descending by personalization score and take top 20
+      const sortedCandidates = scored
+        .sort((a, b) => b.score - a.score)
+        .map(item => item.video)
+        .slice(0, 20);
+
+      const mapped: ShortVideoItem[] = sortedCandidates.map((v: any) => ({
         title: v.title,
         duration: v.duration || "0:30",
         thumbnail: v.thumbnail_url || "",
