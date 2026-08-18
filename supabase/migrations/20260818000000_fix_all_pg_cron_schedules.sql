@@ -5,11 +5,7 @@
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
--- ─── 1. Set Database Config Parameters ───────────────────────────────────────
-ALTER DATABASE postgres SET app.supabase_url = 'https://xceartahttbkdihteynx.supabase.co';
-ALTER DATABASE postgres SET app.supabase_service_role_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZWFydGFodHRia2RpaHRleW54Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ2NDYzNiwiZXhwIjoyMDk1MDQwNjM2fQ.m24ldLeBmEvy3cvjcLGSp9DMLKJyuEcsHJC2ZXKJsa8';
-
--- ─── 2. Clean Up All Existing Cron Jobs ───────────────────────────────────────
+-- ─── 1. Clean Up All Existing Cron Jobs ───────────────────────────────────────
 DO $$
 DECLARE
   r RECORD;
