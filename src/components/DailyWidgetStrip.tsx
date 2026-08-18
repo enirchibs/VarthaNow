@@ -23,7 +23,7 @@ import { useExchangeRate } from "@/hooks/useExchangeRate";
 import { calculatePanchangam } from "@/lib/panchangam";
 import { getUpcomingFestivals } from "@/lib/festivals";
 import { FUEL_PRICES, getFuelPriceForCity } from "@/lib/petrol";
-import { getJobsList } from "@/lib/jobs-api";
+import { getJobsList, getLocalJobs } from "@/lib/jobs-api";
 
 export function DailyWidgetStrip() {
   const { lang } = useLanguage();
@@ -32,7 +32,14 @@ export function DailyWidgetStrip() {
   
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [selectedFuelCity, setSelectedFuelCity] = useState("Visakhapatnam");
-  const [jobsCount, setJobsCount] = useState<number>(0);
+  const [jobsCount, setJobsCount] = useState<number>(() => {
+    try {
+      const initial = getLocalJobs();
+      return initial.length > 0 ? initial.length : 50;
+    } catch {
+      return 50;
+    }
+  });
   
   // Calculate Panchangam
   const today = new Date();
@@ -41,7 +48,11 @@ export function DailyWidgetStrip() {
   
   // Fetch live jobs count
   useEffect(() => {
-    getJobsList().then(list => setJobsCount(list.length)).catch(() => setJobsCount(6));
+    let isMounted = true;
+    getJobsList().then(list => {
+      if (isMounted && list.length > 0) setJobsCount(list.length);
+    }).catch(() => {});
+    return () => { isMounted = false; };
   }, []);
 
   const fuelInfo = getFuelPriceForCity(selectedFuelCity);

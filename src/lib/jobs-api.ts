@@ -239,9 +239,16 @@ export async function getJobsList(filters?: JobFilters): Promise<VaartanowJob[]>
         query = query.ilike("state", `%${filters.state}%`);
       }
 
-      const { data, error } = await query.order("is_featured", { ascending: false }).order("posted_date", { ascending: false });
+      const { data, error } = await query
+        .order("is_featured", { ascending: false })
+        .order("posted_date", { ascending: false })
+        .limit(60);
+
       if (error) throw error;
-      if (data && data.length > 0) return data as VaartanowJob[];
+      if (data && data.length > 0) {
+        saveLocalJobs(data as VaartanowJob[]);
+        return data as VaartanowJob[];
+      }
     } catch (err) {
       console.warn("Failed to query Supabase, falling back to mock jobs catalog:", err);
     }

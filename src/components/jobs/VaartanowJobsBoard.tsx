@@ -17,7 +17,7 @@ import {
   TrendingUp
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
-import { getJobsList, autoDetectWorkMode, autoDetectContractType } from "@/lib/jobs-api";
+import { getJobsList, getLocalJobs, autoDetectWorkMode, autoDetectContractType } from "@/lib/jobs-api";
 import type { VaartanowJob, JobFilters, AIResumeAnalysis } from "@/types/jobs";
 
 interface VaartanowJobsBoardProps {
@@ -32,9 +32,16 @@ export function VaartanowJobsBoard({
   initialContractFilter
 }: VaartanowJobsBoardProps) {
   const { lang } = useLanguage();
-  const [jobs, setJobs] = useState<VaartanowJob[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedJob, setSelectedJob] = useState<VaartanowJob | null>(null);
+  const [jobs, setJobs] = useState<VaartanowJob[]>(() => {
+    try {
+      const initial = getLocalJobs();
+      return Array.isArray(initial) && initial.length > 0 ? initial : [];
+    } catch {
+      return [];
+    }
+  });
+  const [loading, setLoading] = useState(jobs.length === 0);
+  const [selectedJob, setSelectedJob] = useState<VaartanowJob | null>(() => jobs[0] || null);
   
   // Search & Filters State
   const [searchInput, setSearchInput] = useState("");
@@ -57,6 +64,8 @@ export function VaartanowJobsBoard({
 
   // Load jobs on filter change
   useEffect(() => {
+    let isMounted = true;
+
     async function loadJobs() {
       setLoading(true);
       const filters: JobFilters = {
@@ -87,25 +96,41 @@ export function VaartanowJobsBoard({
 
       const data = await getJobsList(filters);
       
+      if (!isMounted) return;
+
       // Filter startup and remote IT custom logic in JS
       let filteredData = data;
-      if (activeTab === "Startup" || activeChip === "Startup") {
-        filteredData = data.filter((j) => j.tags.includes("Startup"));
+      const chipLower = activeChip.toLowerCase();
+      const tabLower = activeTab.toLowerCase();
+
+      if (tabLower === "startup" || chipLower === "startup") {
+        filteredData = data.filter((j) => (j.tags || []).some(t => t.toLowerCase().includes("startup")));
       }
-      if (activeTab === "Remote IT" || activeChip === "AI Jobs") {
-        filteredData = data.filter((j) => j.skills.includes("React") || j.skills.includes("Next.js") || j.skills.includes("Python"));
+      if (tabLower === "remote it" || chipLower === "ai jobs") {
+        filteredData = data.filter((j) => 
+          (j.skills || []).some(s => ["react", "next.js", "python", "software", "typescript", "developer", "engineer", "frontend", "backend"].includes(s.toLowerCase())) ||
+          (j.tags || []).some(t => t.toLowerCase().includes("it") || t.toLowerCase().includes("remote"))
+        );
       }
-      if (activeTab === "Government" || activeChip === "Government") {
-        filteredData = data.filter((j) => j.tags.includes("Government"));
+      if (tabLower === "government" || chipLower === "government") {
+        filteredData = data.filter((j) => (j.tags || []).some(t => t.toLowerCase().includes("government") || t.toLowerCase().includes("govt")));
+      }
+
+      // If strict filter produced 0, fallback gracefully to full data
+      if (filteredData.length === 0 && data.length > 0 && (tabLower !== "all" || chipLower !== "all")) {
+        filteredData = data;
       }
 
       setJobs(filteredData);
       setLoading(false);
-      if (filteredData.length > 0 && !selectedJob) {
-        setSelectedJob(filteredData[0]);
-      }
+      setSelectedJob(prev => (prev && filteredData.some(j => j.job_id === prev.job_id)) ? prev : (filteredData[0] || null));
     }
+
     loadJobs();
+
+    return () => {
+      isMounted = false;
+    };
   }, [searchQuery, activeChip, activeTab, selectedDistrict, initialWorkModeFilter, initialContractFilter]);
 
   // Handle Bookmarks
@@ -305,7 +330,14 @@ export function VaartanowJobsBoard({
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-base font-black text-[hsl(var(--foreground))]">
-              {jobs.length} {lang === "te" ? "ఉద్యోగాలు లభించాయి" : "Active Jobs Found"}
+              {loading && jobs.length === 0 ? (
+                <span className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                  <span className="inline-block size-2 rounded-full bg-indigo-500 animate-ping" />
+                  {lang === "te" ? "ఉద్యోగాలు లోడ్ అవుతున్నాయి..." : "Loading jobs..."}
+                </span>
+              ) : (
+                `${jobs.length} ${lang === "te" ? "ఉద్యోగాలు లభించాయి" : "Active Jobs Found"}`
+              )}
             </h3>
             <span className="text-[10px] bg-indigo-500/10 text-indigo-600 px-2 py-0.5 rounded font-black">
               ⚡ Real-time updates
