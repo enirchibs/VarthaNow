@@ -40,6 +40,16 @@ jobs:
         VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
       run: npm run ai-queue
       
+    - name: Run YouTube Viral Shorts Ingestion
+      env:
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
+        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        VITE_YOUTUBE_API_KEY: ${{ secrets.VITE_YOUTUBE_API_KEY || 'AIzaSyBYtVDlqQ8-12y_HgrjSgfIJikfnb-sflg' }}
+        YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY || 'AIzaSyBYtVDlqQ8-12y_HgrjSgfIJikfnb-sflg' }}
+      run: npm run shorts || true
+      
     - name: Generate Sitemap
       env:
         VITE_SITE_URL: "https://varthanow.pages.dev"

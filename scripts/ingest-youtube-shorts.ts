@@ -1,6 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
 import * as fs from "fs";
-import * as path from "path";
 
 // Load environment variables
 try {
@@ -16,9 +15,9 @@ try {
   }
 } catch {}
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL!;
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL!;
 const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const youtubeApiKey = process.env.VITE_YOUTUBE_API_KEY!;
+const youtubeApiKey = process.env.VITE_YOUTUBE_API_KEY || process.env.YOUTUBE_API_KEY!;
 
 if (!supabaseUrl || !serviceRole) {
   console.error("❌ Supabase configuration is missing in .env!");
@@ -26,7 +25,7 @@ if (!supabaseUrl || !serviceRole) {
 }
 
 if (!youtubeApiKey) {
-  console.error("❌ VITE_YOUTUBE_API_KEY is missing in .env!");
+  console.error("❌ YouTube API key is missing in .env!");
   process.exit(1);
 }
 
@@ -48,84 +47,102 @@ function parseISO8601Duration(durationStr: string): string {
 }
 
 async function fetchYoutubeShorts() {
-  console.log("📺 Starting YouTube Shorts ingestion...");
+  console.log("📺 Starting Multi-Channel YouTube Shorts ingestion...");
+
+  const searchQueries = [
+    "TV9 Telugu news shorts",
+    "NTV Telugu shorts",
+    "ABN Telugu news shorts",
+    "Telugu breaking news shorts",
+    "Sakshi TV shorts"
+  ];
   
-  try {
-    // 1. Search for Telugu news shorts
-    const searchQuery = "Telugu news shorts";
-    const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&videoDuration=short&maxResults=15&order=date&key=${youtubeApiKey}`;
-    
-    const searchRes = await fetch(searchUrl);
-    if (!searchRes.ok) {
-      const errText = await searchRes.text();
-      throw new Error(`YouTube search failed: ${searchRes.status} - ${errText}`);
+  const allItems: any[] = [];
+  const seenIds = new Set<string>();
+
+  for (const query of searchQueries) {
+    try {
+      const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&videoDuration=short&maxResults=10&order=date&key=${youtubeApiKey}`;
+      const searchRes = await fetch(searchUrl);
+      if (searchRes.ok) {
+        const data = await searchRes.json();
+        for (const it of (data.items || [])) {
+          if (it.id?.videoId && !seenIds.has(it.id.videoId)) {
+            seenIds.add(it.id.videoId);
+            allItems.push(it);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn(`Search query "${query}" failed:`, e);
     }
-    
-    const searchData = await searchRes.json();
-    const items = searchData.items || [];
-    
-    if (items.length === 0) {
-      console.log("⚠️ No YouTube Short videos found in search results.");
-      return;
-    }
-    
-    console.log(`Found ${items.length} videos. Fetching details...`);
-    const videoIds = items.map((item: any) => item.id.videoId).filter(Boolean);
-    const channelIds = Array.from(new Set(items.map((item: any) => item.snippet.channelId).filter(Boolean))) as string[];
-    
-    // 2. Fetch video details (duration, etc.)
-    const videosUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet&id=${videoIds.join(",")}&key=${youtubeApiKey}`;
-    const videosRes = await fetch(videosUrl);
-    if (!videosRes.ok) {
-      throw new Error(`YouTube videos details fetch failed: ${videosRes.status}`);
-    }
-    const videosData = await videosRes.json();
-    const videoDetailsMap = new Map(videosData.items?.map((v: any) => [v.id, v]));
-    
-    // 3. Fetch channel details (avatars)
-    const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelIds.join(",")}&key=${youtubeApiKey}`;
-    const channelsRes = await fetch(channelsUrl);
-    if (!channelsRes.ok) {
-      console.warn("⚠️ Failed to fetch channel details, will use fallback channel icons.");
-    }
-    const channelsData = await channelsRes.json();
-    const channelDetailsMap = new Map(channelsData.items?.map((c: any) => [c.id, c.snippet?.thumbnails?.default?.url]));
-    
-    // 4. Map into viral_videos rows
-    const videosToUpsert = items.map((item: any) => {
-      const vId = item.id.videoId;
-      const detail = videoDetailsMap.get(vId) as any;
-      const durationISO = detail?.contentDetails?.duration || "PT30S";
-      const durationFormatted = parseISO8601Duration(durationISO);
-      
-      const channelId = item.snippet.channelId;
-      const channelIcon = channelDetailsMap.get(channelId) || "https://www.google.com/s2/favicons?domain=youtube.com&sz=64";
-      
-      return {
-        id: vId,
-        title: item.snippet.title || "Telugu News Short",
-        description: item.snippet.description || "",
-        video_url: `https://www.youtube.com/shorts/${vId}`,
-        thumbnail_url: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url || "",
-        duration: durationFormatted,
-        channel: item.snippet.channelTitle || "News Channel",
-        source_icon: channelIcon,
-        clip: `https://www.youtube.com/shorts/${vId}`, // The iframe player will load this
-        published_at: item.snippet.publishedAt || new Date().toISOString()
-      };
-    });
-    
-    console.log(`Upserting ${videosToUpsert.length} videos to public.viral_videos...`);
-    const { error } = await supabase.from("viral_videos").upsert(videosToUpsert, { onConflict: "id" });
-    
-    if (error) {
-      throw error;
-    }
-    
-    console.log("✅ YouTube Shorts ingested successfully!");
-  } catch (error: any) {
-    console.error("❌ Error during YouTube Shorts ingestion:", error.message || error);
   }
+
+  if (allItems.length === 0) {
+    console.log("⚠️ No YouTube Short videos found.");
+    return;
+  }
+
+  console.log(`Found ${allItems.length} unique shorts across channels. Fetching details...`);
+
+  const videoIds = allItems.map((item: any) => item.id.videoId).filter(Boolean);
+  const channelIds = Array.from(new Set(allItems.map((item: any) => item.snippet.channelId).filter(Boolean))) as string[];
+
+  // Fetch video details (duration, etc.) in chunks of 50
+  const videoDetailsMap = new Map();
+  for (let i = 0; i < videoIds.length; i += 50) {
+    const chunk = videoIds.slice(i, i + 50);
+    const videosUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet&id=${chunk.join(",")}&key=${youtubeApiKey}`;
+    const videosRes = await fetch(videosUrl);
+    if (videosRes.ok) {
+      const videosData = await videosRes.json();
+      (videosData.items || []).forEach((v: any) => videoDetailsMap.set(v.id, v));
+    }
+  }
+
+  // Fetch channel details (avatars)
+  const channelDetailsMap = new Map();
+  for (let i = 0; i < channelIds.length; i += 50) {
+    const chunk = channelIds.slice(i, i + 50);
+    const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${chunk.join(",")}&key=${youtubeApiKey}`;
+    const channelsRes = await fetch(channelsUrl);
+    if (channelsRes.ok) {
+      const channelsData = await channelsRes.json();
+      (channelsData.items || []).forEach((c: any) => {
+        channelDetailsMap.set(c.id, c.snippet?.thumbnails?.default?.url);
+      });
+    }
+  }
+
+  // Map into viral_videos rows
+  const videosToUpsert = allItems.map((item: any) => {
+    const vId = item.id.videoId;
+    const detail = videoDetailsMap.get(vId) as any;
+    const durationISO = detail?.contentDetails?.duration || "PT30S";
+    const durationFormatted = parseISO8601Duration(durationISO);
+    
+    const channelId = item.snippet.channelId;
+    const channelIcon = channelDetailsMap.get(channelId) || "https://www.google.com/s2/favicons?domain=youtube.com&sz=64";
+    
+    return {
+      id: vId,
+      title: item.snippet.title || "Telugu News Short",
+      description: item.snippet.description || "",
+      video_url: `https://www.youtube.com/shorts/${vId}`,
+      thumbnail_url: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url || "",
+      duration: durationFormatted,
+      channel: item.snippet.channelTitle || "News Channel",
+      source_icon: channelIcon,
+      clip: `https://www.youtube.com/shorts/${vId}`,
+      published_at: item.snippet.publishedAt || new Date().toISOString()
+    };
+  });
+
+  console.log(`Upserting ${videosToUpsert.length} fresh viral shorts to public.viral_videos...`);
+  const { error } = await supabase.from("viral_videos").upsert(videosToUpsert, { onConflict: "id" });
+
+  if (error) throw error;
+  console.log(`✅ Successfully ingested ${videosToUpsert.length} fresh viral shorts!`);
 }
 
 fetchYoutubeShorts().then(() => process.exit(0));

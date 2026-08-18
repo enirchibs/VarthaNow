@@ -7,8 +7,6 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS"
 };
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 function parseISO8601Duration(durationStr: string): string {
   const matches = durationStr.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
   if (!matches) return "0:30";
@@ -30,7 +28,7 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const youtubeApiKey = Deno.env.get("YOUTUBE_API_KEY")!;
+    const youtubeApiKey = Deno.env.get("YOUTUBE_API_KEY") || Deno.env.get("VITE_YOUTUBE_API_KEY")!;
 
     if (!supabaseUrl || !serviceRole || !youtubeApiKey) {
       return new Response(JSON.stringify({ error: "Missing backend configuration secrets (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, or YOUTUBE_API_KEY)" }), {
@@ -43,83 +41,82 @@ serve(async (req) => {
       auth: { persistSession: false }
     });
 
-    console.log("📺 Starting Edge-based Daily Trending Videos ingestion...");
+    console.log("📺 Starting Edge-based Telugu News Shorts Ingestion...");
 
-    // 1. Fetch daily trending videos in India (regionCode=IN, chart=mostPopular)
-    const trendingUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails&chart=mostPopular&regionCode=IN&maxResults=5&key=${youtubeApiKey}`;
+    // 1. Search for fresh Telugu news shorts ordered by latest date
+    const searchQuery = "Telugu news shorts";
+    const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&videoDuration=short&maxResults=15&order=date&key=${youtubeApiKey}`;
     
-    const trendingRes = await fetch(trendingUrl);
-    if (!trendingRes.ok) {
-      const errText = await trendingRes.text();
-      throw new Error(`YouTube trending fetch failed: ${trendingRes.status} - ${errText}`);
+    const searchRes = await fetch(searchUrl);
+    if (!searchRes.ok) {
+      const errText = await searchRes.text();
+      throw new Error(`YouTube search failed: ${searchRes.status} - ${errText}`);
     }
     
-    const trendingData = await trendingRes.json();
-    const items = trendingData.items || [];
+    const searchData = await searchRes.json();
+    const items = searchData.items || [];
     
     if (items.length === 0) {
-      return new Response(JSON.stringify({ ok: true, message: "No trending videos found.", count: 0 }), {
+      return new Response(JSON.stringify({ ok: true, message: "No shorts found.", count: 0 }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
 
-    const videosToUpsert = [];
-    
-    // Process top 2 trending videos. Wait 2 minutes (120 seconds) between each video processing
-    // to respect the API delay requirement and stay within the 150-second Edge Function execution timeout.
-    const targetItems = items.slice(0, 2);
+    const videoIds = items.map((item: any) => item.id.videoId).filter(Boolean);
+    const channelIds = Array.from(new Set(items.map((item: any) => item.snippet.channelId).filter(Boolean))) as string[];
 
-    for (let i = 0; i < targetItems.length; i++) {
-      const item = targetItems[i];
-      const vId = item.id;
-      if (!vId) continue;
+    // 2. Fetch video details (duration, etc.) in batch
+    const videosUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet&id=${videoIds.join(",")}&key=${youtubeApiKey}`;
+    const videosRes = await fetch(videosUrl);
+    const videosData = videosRes.ok ? await videosRes.json() : { items: [] };
+    const videoDetailsMap = new Map((videosData.items || []).map((v: any) => [v.id, v]));
 
-      if (i > 0) {
-        console.log(`Waiting 2 minutes (120 seconds) before retrieving channel details for next video (video ID: ${vId})...`);
-        await delay(120 * 1000);
-      }
+    // 3. Fetch channel details in batch
+    const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelIds.join(",")}&key=${youtubeApiKey}`;
+    const channelsRes = await fetch(channelsUrl);
+    const channelsData = channelsRes.ok ? await channelsRes.json() : { items: [] };
+    const channelDetailsMap = new Map((channelsData.items || []).map((c: any) => [c.id, c.snippet?.thumbnails?.default?.url]));
 
-      // Fetch channel details for avatar
-      const channelId = item.snippet.channelId;
-      let channelIcon = "https://www.google.com/s2/favicons?domain=youtube.com&sz=64";
-      if (channelId) {
-        const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${youtubeApiKey}`;
-        const channelsRes = await fetch(channelsUrl);
-        if (channelsRes.ok) {
-          const channelsData = await channelsRes.json();
-          channelIcon = channelsData.items?.[0]?.snippet?.thumbnails?.default?.url || channelIcon;
-        }
-      }
-
-      const durationISO = item.contentDetails?.duration || "PT30S";
+    // 4. Map into viral_videos rows
+    const videosToUpsert = items.map((item: any) => {
+      const vId = item.id.videoId;
+      const detail = videoDetailsMap.get(vId) as any;
+      const durationISO = detail?.contentDetails?.duration || "PT30S";
       const durationFormatted = parseISO8601Duration(durationISO);
-
-      videosToUpsert.push({
+      
+      const channelId = item.snippet.channelId;
+      const channelIcon = channelDetailsMap.get(channelId) || "https://www.google.com/s2/favicons?domain=youtube.com&sz=64";
+      
+      return {
         id: vId,
-        title: item.snippet.title || "Trending YouTube Video",
+        title: item.snippet.title || "Telugu News Short",
         description: item.snippet.description || "",
-        video_url: `https://www.youtube.com/watch?v=${vId}`,
+        video_url: `https://www.youtube.com/shorts/${vId}`,
         thumbnail_url: item.snippet.thumbnails?.high?.url || item.snippet.thumbnails?.medium?.url || "",
         duration: durationFormatted,
-        channel: item.snippet.channelTitle || "Trending Channel",
+        channel: item.snippet.channelTitle || "News Channel",
         source_icon: channelIcon,
-        clip: `https://www.youtube.com/watch?v=${vId}`,
+        clip: `https://www.youtube.com/shorts/${vId}`,
         published_at: item.snippet.publishedAt || new Date().toISOString()
-      });
-    }
+      };
+    });
 
     if (videosToUpsert.length > 0) {
-      console.log(`Upserting ${videosToUpsert.length} videos to public.viral_videos...`);
+      console.log(`Upserting ${videosToUpsert.length} viral shorts to public.viral_videos...`);
       const { error } = await supabase.from("viral_videos").upsert(videosToUpsert, { onConflict: "id" });
       if (error) throw error;
     }
 
-    return new Response(JSON.stringify({ ok: true, message: `Successfully processed and ingested ${videosToUpsert.length} trending videos.`, count: videosToUpsert.length }), {
+    return new Response(JSON.stringify({ 
+      ok: true, 
+      message: `Successfully ingested ${videosToUpsert.length} fresh viral shorts.`, 
+      count: videosToUpsert.length 
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 
   } catch (err: any) {
-    console.error("❌ Error during Edge YouTube Trending Ingestion:", err.message);
+    console.error("❌ Error during YouTube Shorts Ingestion:", err.message);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" }

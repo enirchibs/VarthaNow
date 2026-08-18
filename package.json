@@ -15,7 +15,8 @@
     "social": "tsx scripts/social-post-worker.ts",
     "monitor": "tsx scripts/monitoring-dashboard.ts",
     "dashboard": "tsx scripts/monitoring-dashboard.ts --watch",
-    "ingest": "tsx scripts/ingest-telugu-news.ts"
+    "ingest": "tsx scripts/ingest-telugu-news.ts",
+    "shorts": "tsx scripts/ingest-youtube-shorts.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

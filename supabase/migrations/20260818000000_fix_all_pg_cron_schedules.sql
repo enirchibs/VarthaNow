@@ -199,7 +199,24 @@ SELECT cron.schedule(
   $$
 );
 
--- ─── 6. Reset RSS Feed Timestamps ─────────────────────────────────────────────
+-- ─── 6. YouTube Viral Shorts Ingest (Every 30 minutes) ────────────────────────
+SELECT cron.schedule(
+  'worker-viral-shorts',
+  '*/30 * * * *',
+  $$
+  SELECT net.http_post(
+    url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/youtube-proxy',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZWFydGFodHRia2RpaHRleW54Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ2NDYzNiwiZXhwIjoyMDk1MDQwNjM2fQ.m24ldLeBmEvy3cvjcLGSp9DMLKJyuEcsHJC2ZXKJsa8'
+    ),
+    body := '{}'::jsonb
+  );
+  $$
+);
+
+-- ─── 7. Reset RSS Feed Timestamps ─────────────────────────────────────────────
 UPDATE public.rss_feeds 
 SET next_fetch_time = NOW() - INTERVAL '1 minute',
     consecutive_failures = 0;
+
