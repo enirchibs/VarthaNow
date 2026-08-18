@@ -2,7 +2,7 @@ name: VarthaNow News Pipeline
 
 on:
   schedule:
-    - cron: '*/30 * * * *' # Runs every 30 minutes 24/7
+    - cron: '15,45 * * * *' # Runs every 30 minutes (offset at :15 and :45) 24/7
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:

@@ -1,5 +1,5 @@
 -- ============================================================================
--- Migration: Fix All pg_cron Schedules for Continuous News & AI Ingestion
+-- Migration: Staggered Non-Conflicting pg_cron Schedules for 24/7 Automation
 -- ============================================================================
 
 CREATE EXTENSION IF NOT EXISTS pg_cron;
@@ -20,13 +20,12 @@ BEGIN
 END
 $$;
 
--- ─── 3. Schedule Category-Specific Ingestion Jobs ─────────────────────────────
--- Direct URLs and hardcoded Authorization ensures 100% reliability
+-- ─── 3. Staggered News Ingestion Schedules (Zero Conflict / Load Balanced) ───
 
--- A. Politics (Every 15 minutes)
+-- A. Politics (Every 15 mins at :00, :15, :30, :45)
 SELECT cron.schedule(
   'ingest-politics',
-  '*/15 * * * *',
+  '0,15,30,45 * * * *',
   $$
   SELECT net.http_post(
     url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?category=politics&force=true',
@@ -39,10 +38,10 @@ SELECT cron.schedule(
   $$
 );
 
--- B. National (Every 15 minutes)
+-- B. National (Every 15 mins at :02, :17, :32, :47)
 SELECT cron.schedule(
   'ingest-national',
-  '*/15 * * * *',
+  '2,17,32,47 * * * *',
   $$
   SELECT net.http_post(
     url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?category=national&force=true',
@@ -55,58 +54,10 @@ SELECT cron.schedule(
   $$
 );
 
--- C. Andhra Pradesh (Every 20 minutes)
-SELECT cron.schedule(
-  'ingest-andhra-pradesh',
-  '*/20 * * * *',
-  $$
-  SELECT net.http_post(
-    url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?category=andhra-pradesh&force=true',
-    headers := jsonb_build_object(
-      'Content-Type', 'application/json',
-      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZWFydGFodHRia2RpaHRleW54Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ2NDYzNiwiZXhwIjoyMDk1MDQwNjM2fQ.m24ldLeBmEvy3cvjcLGSp9DMLKJyuEcsHJC2ZXKJsa8'
-    ),
-    body := '{"category": "andhra-pradesh"}'::jsonb
-  );
-  $$
-);
-
--- D. Telangana (Every 20 minutes)
-SELECT cron.schedule(
-  'ingest-telangana',
-  '*/20 * * * *',
-  $$
-  SELECT net.http_post(
-    url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?category=telangana&force=true',
-    headers := jsonb_build_object(
-      'Content-Type', 'application/json',
-      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZWFydGFodHRia2RpaHRleW54Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ2NDYzNiwiZXhwIjoyMDk1MDQwNjM2fQ.m24ldLeBmEvy3cvjcLGSp9DMLKJyuEcsHJC2ZXKJsa8'
-    ),
-    body := '{"category": "telangana"}'::jsonb
-  );
-  $$
-);
-
--- E. Cinema (Every 30 minutes)
-SELECT cron.schedule(
-  'ingest-cinema',
-  '*/30 * * * *',
-  $$
-  SELECT net.http_post(
-    url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?category=cinema&force=true',
-    headers := jsonb_build_object(
-      'Content-Type', 'application/json',
-      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZWFydGFodHRia2RpaHRleW54Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ2NDYzNiwiZXhwIjoyMDk1MDQwNjM2fQ.m24ldLeBmEvy3cvjcLGSp9DMLKJyuEcsHJC2ZXKJsa8'
-    ),
-    body := '{"category": "cinema"}'::jsonb
-  );
-  $$
-);
-
--- F. Business (Every 15 minutes)
+-- C. Business (Every 15 mins at :04, :19, :34, :49)
 SELECT cron.schedule(
   'ingest-business',
-  '*/15 * * * *',
+  '4,19,34,49 * * * *',
   $$
   SELECT net.http_post(
     url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?category=business&force=true',
@@ -119,10 +70,58 @@ SELECT cron.schedule(
   $$
 );
 
--- G. Technology & Cricket/Sports (Every 30 minutes)
+-- D. Andhra Pradesh (Every 20 mins at :06, :26, :46)
+SELECT cron.schedule(
+  'ingest-andhra-pradesh',
+  '6,26,46 * * * *',
+  $$
+  SELECT net.http_post(
+    url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?category=andhra-pradesh&force=true',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZWFydGFodHRia2RpaHRleW54Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ2NDYzNiwiZXhwIjoyMDk1MDQwNjM2fQ.m24ldLeBmEvy3cvjcLGSp9DMLKJyuEcsHJC2ZXKJsa8'
+    ),
+    body := '{"category": "andhra-pradesh"}'::jsonb
+  );
+  $$
+);
+
+-- E. Telangana (Every 20 mins at :08, :28, :48)
+SELECT cron.schedule(
+  'ingest-telangana',
+  '8,28,48 * * * *',
+  $$
+  SELECT net.http_post(
+    url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?category=telangana&force=true',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZWFydGFodHRia2RpaHRleW54Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ2NDYzNiwiZXhwIjoyMDk1MDQwNjM2fQ.m24ldLeBmEvy3cvjcLGSp9DMLKJyuEcsHJC2ZXKJsa8'
+    ),
+    body := '{"category": "telangana"}'::jsonb
+  );
+  $$
+);
+
+-- F. Cinema / Entertainment (Every 30 mins at :12, :42)
+SELECT cron.schedule(
+  'ingest-cinema',
+  '12,42 * * * *',
+  $$
+  SELECT net.http_post(
+    url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?category=cinema&force=true',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZWFydGFodHRia2RpaHRleW54Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ2NDYzNiwiZXhwIjoyMDk1MDQwNjM2fQ.m24ldLeBmEvy3cvjcLGSp9DMLKJyuEcsHJC2ZXKJsa8'
+    ),
+    body := '{"category": "cinema"}'::jsonb
+  );
+  $$
+);
+
+-- G. Technology & Cricket (Every 30 mins at :14, :44)
 SELECT cron.schedule(
   'ingest-technology',
-  '*/30 * * * *',
+  '14,44 * * * *',
   $$
   SELECT net.http_post(
     url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?category=technology&force=true',
@@ -135,10 +134,10 @@ SELECT cron.schedule(
   $$
 );
 
--- H. Health & Devotional & Agriculture (Every 1 hour)
+-- H. Health, Devotional & Agriculture (Hourly at :18)
 SELECT cron.schedule(
   'ingest-health',
-  '0 * * * *',
+  '18 * * * *',
   $$
   SELECT net.http_post(
     url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?category=health&force=true',
@@ -151,10 +150,26 @@ SELECT cron.schedule(
   $$
 );
 
--- I. Catch-All Ingest (Every 30 minutes at minute 10 and 40)
+-- I. YouTube Viral Shorts (Every 30 mins at :05, :35)
+SELECT cron.schedule(
+  'worker-viral-shorts',
+  '5,35 * * * *',
+  $$
+  SELECT net.http_post(
+    url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/youtube-proxy',
+    headers := jsonb_build_object(
+      'Content-Type', 'application/json',
+      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZWFydGFodHRia2RpaHRleW54Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ2NDYzNiwiZXhwIjoyMDk1MDQwNjM2fQ.m24ldLeBmEvy3cvjcLGSp9DMLKJyuEcsHJC2ZXKJsa8'
+    ),
+    body := '{}'::jsonb
+  );
+  $$
+);
+
+-- J. Catch-All Feed Refresh (Every 30 mins at :25, :55)
 SELECT cron.schedule(
   'ingest-all-catchall',
-  '10,40 * * * *',
+  '25,55 * * * *',
   $$
   SELECT net.http_post(
     url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/ingest-rss?force=true',
@@ -199,24 +214,7 @@ SELECT cron.schedule(
   $$
 );
 
--- ─── 6. YouTube Viral Shorts Ingest (Every 30 minutes) ────────────────────────
-SELECT cron.schedule(
-  'worker-viral-shorts',
-  '*/30 * * * *',
-  $$
-  SELECT net.http_post(
-    url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/youtube-proxy',
-    headers := jsonb_build_object(
-      'Content-Type', 'application/json',
-      'Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjZWFydGFodHRia2RpaHRleW54Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTQ2NDYzNiwiZXhwIjoyMDk1MDQwNjM2fQ.m24ldLeBmEvy3cvjcLGSp9DMLKJyuEcsHJC2ZXKJsa8'
-    ),
-    body := '{}'::jsonb
-  );
-  $$
-);
-
--- ─── 7. Reset RSS Feed Timestamps ─────────────────────────────────────────────
+-- ─── 6. Reset RSS Feed Timestamps ─────────────────────────────────────────────
 UPDATE public.rss_feeds 
 SET next_fetch_time = NOW() - INTERVAL '1 minute',
     consecutive_failures = 0;
-
