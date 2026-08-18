@@ -49,10 +49,10 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
   const hasSourceLink = isRealPublisherUrl((post as any).source_article_url);
 
   return (
-    <article className="group overflow-hidden rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-[0_8px_24px_rgba(37,99,235,0.06)] transition-all duration-300 hover:shadow-[0_16px_36px_rgba(37,99,235,0.14)] hover:-translate-y-0.5">
+    <article className="group flex flex-col sm:flex-row overflow-hidden rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-[0_8px_24px_rgba(37,99,235,0.06)] transition-all duration-300 hover:shadow-[0_16px_36px_rgba(37,99,235,0.14)] hover:-translate-y-0.5">
       {/* 1 ── Image banner */}
-      <Link to={`/news/${post.slug}`} className="block">
-        <div className="relative aspect-[16/10] overflow-hidden bg-[hsl(var(--muted))]">
+      <Link to={`/news/${post.slug}`} className="block sm:w-[40%] lg:w-[35%] shrink-0">
+        <div className="relative aspect-[16/10] sm:aspect-auto sm:h-full overflow-hidden bg-[hsl(var(--muted))]">
           {post.og_image ? (
             <img
               src={post.og_image}
@@ -89,37 +89,39 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
       </Link>
 
       {/* 2 ── Content */}
-      <div className="space-y-2.5 p-4">
-        {/* Headline */}
-        <Link to={`/news/${post.slug}`} className="block">
-          <h2 className="text-base md:text-[1.05rem] font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 hover:text-[hsl(var(--primary))] transition-colors duration-200">
-            {post.title}
-          </h2>
-        </Link>
+      <div className="flex flex-col flex-1 p-4 sm:p-5">
+        <div className="space-y-2.5">
+          {/* Headline */}
+          <Link to={`/news/${post.slug}`} className="block">
+            <h2 className="text-base md:text-[1.15rem] font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 hover:text-[hsl(var(--primary))] transition-colors duration-200">
+              {post.title}
+            </h2>
+          </Link>
 
-        {/* Excerpt preview — key Inshorts/Dailyhunt feature */}
-        {post.excerpt && (
-          <p className="text-[0.82rem] leading-relaxed text-[hsl(var(--muted-foreground))] line-clamp-2">
-            {post.excerpt}
-          </p>
-        )}
+          {/* Excerpt preview — key Inshorts/Dailyhunt feature */}
+          {post.excerpt && (
+            <p className="text-[0.85rem] md:text-[0.9rem] leading-relaxed text-[hsl(var(--muted-foreground))] line-clamp-3">
+              {post.excerpt}
+            </p>
+          )}
 
-        {/* Source link — copyright compliance */}
-        {hasSourceLink && (
-          <a
-            href={(post as any).source_article_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-[10px] font-bold text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <ExternalLink className="size-2.5" />
-            {post.author_name} లో చదవండి
-          </a>
-        )}
+          {/* Source link — copyright compliance */}
+          {hasSourceLink && (
+            <a
+              href={(post as any).source_article_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[10px] md:text-[11px] font-bold text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ExternalLink className="size-3" />
+              {post.author_name} లో చదవండి
+            </a>
+          )}
+        </div>
 
         {/* 3 ── Metadata + Actions */}
-        <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-2.5 text-[11px] font-bold text-[hsl(var(--muted-foreground))]">
+        <div className="mt-4 sm:mt-auto flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-3 text-[11px] md:text-xs font-bold text-[hsl(var(--muted-foreground))]">
           <div className="flex flex-wrap items-center gap-2">
             {/* Source chip */}
             <span className="inline-flex items-center gap-1 rounded bg-blue-500/10 dark:bg-blue-400/10 px-1.5 py-0.5 text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">

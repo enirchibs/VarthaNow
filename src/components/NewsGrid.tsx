@@ -5,16 +5,16 @@ import { Skeleton } from "@/components/ui";
 export function NewsGrid({ posts, loading }: { posts: BlogPost[]; loading?: boolean }) {
   if (loading && !posts.length) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="flex flex-col gap-4">
         {Array.from({ length: 6 }).map((_, index) => (
-          <Skeleton key={index} className="h-96" />
+          <Skeleton key={index} className="h-40 sm:h-48 w-full rounded-[1.6rem]" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="grid gap-1.5 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div className="flex flex-col gap-4">
       {posts.map((post, index) => (
         <NewsCard key={post.slug} post={post} priority={index === 0} />
       ))}

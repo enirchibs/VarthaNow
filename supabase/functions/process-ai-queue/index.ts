@@ -210,13 +210,14 @@ Rules:
 - Preserve facts, names, dates, places, and numbers accurately.
 - No fake statistics or invented details.
 - Use markdown with headings, short paragraphs, and bullet points only where useful.
-- Include a 3-question FAQ section at the end.
+- Include a short, highly-specific, action-oriented 1-2 question FAQ section at the end (do NOT make it generic).
+- At the very bottom, include 5 to 8 relevant #hashtags.
 - Title: max 12 Telugu words, compelling and factual.
-- Summary/excerpt: 90-110 words.
-- Content target: 450-550 words of rewritten Telugu content.
+- Summary/excerpt: 40-60 words.
+- Content target: 60-120 words of rewritten Telugu content (Short News format).
 - Return ONLY valid raw JSON (no markdown fences):
 
-{"title":"Telugu title","summary":"90-110 word excerpt","content":"Full markdown article body"}
+{"title":"Telugu title","summary":"40-60 word excerpt","content":"Full markdown article body"}
 
 Source Article:
 ${sourceText.slice(0, 3500)}`;

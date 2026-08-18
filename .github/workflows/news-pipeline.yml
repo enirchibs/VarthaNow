@@ -2,7 +2,7 @@ name: VarthaNow News Pipeline
 
 on:
   schedule:
-    - cron: '0 * * * *' # Runs at minute 0 past every hour
+    - cron: '*/30 * * * *' # Runs every 30 minutes 24/7
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:
@@ -23,37 +23,28 @@ jobs:
 
     - name: Run News Ingestion
       env:
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-        SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SITE_URL: "https://varthanow.pages.dev"
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       run: npm run ingest
       
     - name: Run AI Processing Queue
       env:
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-        SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        PRIMARY_AI_PROVIDER: ${{ secrets.PRIMARY_AI_PROVIDER }}
-        FALLBACK_AI_PROVIDER: ${{ secrets.FALLBACK_AI_PROVIDER }}
+        VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
       run: npm run ai-queue
-      
-    - name: Run Social Auto-Post
-      env:
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-        SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-      run: npm run social || true
       
     - name: Generate Sitemap
       env:
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-        SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+        VITE_SITE_URL: "https://varthanow.pages.dev"
+        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
         VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       run: npm run sitemap || true
