@@ -19,7 +19,7 @@ import { CreatePostModal, type PostCategoryType } from "@/components/CreatePostM
 
 interface MarketItem {
   id: string;
-  category: PostCategoryType;
+  category: string;
   title: string;
   description: string;
   price?: string;

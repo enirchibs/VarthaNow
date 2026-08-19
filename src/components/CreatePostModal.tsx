@@ -5,17 +5,14 @@ import {
   FileText, 
   AlertCircle, 
   Briefcase, 
-  Smartphone, 
-  Car, 
-  Home, 
+  ShoppingBag, 
   Sprout, 
   Wrench, 
   MapPin, 
   Check, 
   Send, 
   X,
-  Phone,
-  Tag
+  Phone
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
@@ -27,11 +24,9 @@ interface CreatePostModalProps {
 
 export type PostCategoryType = 
   | "news" 
-  | "complaint" 
+  | "buy_sell_items" 
   | "job" 
-  | "mobile" 
-  | "vehicle" 
-  | "property" 
+  | "complaint" 
   | "agriculture" 
   | "service";
 
@@ -44,58 +39,43 @@ interface PostCategoryItem {
   bgColor: string;
 }
 
+// 6 Streamlined Categories in Exact Requested Order
 const POST_CATEGORIES: PostCategoryItem[] = [
   {
     id: "news",
-    title: "వార్తలు పోస్ట్ చేయండి",
+    title: "1. వార్తలు పోస్ట్ చేయండి",
     subtitle: "స్థానిక వార్తలు పోస్ట్ చేయండి, సమాజానికి దోహదపడండి",
     icon: FileText,
     iconColor: "text-blue-600 dark:text-blue-400",
     bgColor: "bg-blue-500/10 dark:bg-blue-400/10"
   },
   {
-    id: "complaint",
-    title: "ఫిర్యాదు పోస్ట్ చేయండి",
-    subtitle: "రోడ్లు, డ్రైనేజీ, కరెంట్ సమస్యలను అధికారుల దృష్టికి తీసుకెళ్లండి",
-    icon: AlertCircle,
-    iconColor: "text-orange-600 dark:text-orange-400",
-    bgColor: "bg-orange-500/10 dark:bg-orange-400/10"
+    id: "buy_sell_items",
+    title: "2. మీ వస్తువులు అమ్మండి / కొనండి (మొబైల్, బైక్స్, ల్యాప్‌టాప్, ఇల్లు, ఎలక్ట్రానిక్స్)",
+    subtitle: "మీ పాత వస్తువులు, మొబైల్స్, బైక్స్, ల్యాప్‌టాప్, ఇల్లు స్థానికంగా అమ్మండి లేదా కొనండి",
+    icon: ShoppingBag,
+    iconColor: "text-amber-600 dark:text-amber-400",
+    bgColor: "bg-amber-500/10 dark:bg-amber-400/10"
   },
   {
     id: "job",
-    title: "ఉద్యోగం (వెతకండి / పోస్ట్ చేయండి)",
+    title: "3. ఉద్యోగం (వెతకండి / పోస్ట్ చేయండి)",
     subtitle: "ఉద్యోగాలు వెతకండి లేదా మీ దగ్గర జాబ్స్ ఉంటే పోస్ట్ చేసి నిరుద్యోగులకు సహాయపడండి",
     icon: Briefcase,
     iconColor: "text-sky-600 dark:text-sky-400",
     bgColor: "bg-sky-500/10 dark:bg-sky-400/10"
   },
   {
-    id: "mobile",
-    title: "మొబైల్ (కొనండి / అమ్మండి)",
-    subtitle: "మొబైల్, ల్యాప్‌టాప్స్, ఎలక్ట్రానిక్స్ స్థానికంగా కొనండి లేదా అమ్మండి",
-    icon: Smartphone,
-    iconColor: "text-amber-600 dark:text-amber-400",
-    bgColor: "bg-amber-500/10 dark:bg-amber-400/10"
-  },
-  {
-    id: "vehicle",
-    title: "వాహనం (కొనండి / అమ్మండి)",
-    subtitle: "బైక్స్, కార్లు స్థానికంగా కొనండి లేదా అమ్మండి",
-    icon: Car,
-    iconColor: "text-yellow-600 dark:text-yellow-400",
-    bgColor: "bg-yellow-500/10 dark:bg-yellow-400/10"
-  },
-  {
-    id: "property",
-    title: "ప్రాపర్టీ (కొనండి / అమ్మండి)",
-    subtitle: "ఇల్లు, ప్లాట్లు, రూమ్స్ అద్దెకు ఇవ్వండి లేదా అమ్మండి",
-    icon: Home,
-    iconColor: "text-red-600 dark:text-red-400",
-    bgColor: "bg-red-500/10 dark:bg-red-400/10"
+    id: "complaint",
+    title: "4. ఫిర్యాదు పోస్ట్ చేయండి",
+    subtitle: "రోడ్లు, డ్రైనేజీ, కరెంట్ సమస్యలను అధికారుల దృష్టికి తీసుకెళ్లండి",
+    icon: AlertCircle,
+    iconColor: "text-orange-600 dark:text-orange-400",
+    bgColor: "bg-orange-500/10 dark:bg-orange-400/10"
   },
   {
     id: "agriculture",
-    title: "వ్యవసాయం (కొనండి / అమ్మండి)",
+    title: "5. వ్యవసాయం & రైతు పంటలు (కొనండి / అమ్మండి)",
     subtitle: "రైతుల పంటలు, బియ్యం, పల్లి, పప్పులు, చింతపండు రైతు ధరకు అమ్మండి/కొనండి",
     icon: Sprout,
     iconColor: "text-green-600 dark:text-green-400",
@@ -103,7 +83,7 @@ const POST_CATEGORIES: PostCategoryItem[] = [
   },
   {
     id: "service",
-    title: "స్థానిక సేవలు (కొనండి / అమ్మండి)",
+    title: "6. స్థానిక సేవలు (కొనండి / అమ్మండి)",
     subtitle: "ఎలక్ట్రీషియన్, ప్లంబర్, డ్రైవర్, మొబైల్/ల్యాప్‌టాప్ రిపేర్, ట్యూషన్ సేవలు పొందండి/అందించండి",
     icon: Wrench,
     iconColor: "text-teal-600 dark:text-teal-400",
@@ -133,6 +113,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   const [selectedCategory, setSelectedCategory] = useState<PostCategoryType | null>(null);
 
   // Form Fields
+  const [itemType, setItemType] = useState<string>("మొబైల్ (Mobile)");
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<string>("");
@@ -155,6 +136,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
     const newPost = {
       id: `post_${Date.now()}`,
       category: selectedCategory,
+      item_type: selectedCategory === "buy_sell_items" ? itemType : undefined,
       title: title.trim(),
       description: description.trim(),
       price: price.trim() || undefined,
@@ -206,7 +188,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="w-full max-w-lg max-h-[92vh] sm:max-h-[85vh] flex flex-col rounded-t-[2rem] sm:rounded-[2rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-2xl overflow-hidden">
         
-        {/* Header (Matching Screenshot Exactly) */}
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-[hsl(var(--border))]/60 p-4 sm:p-5 bg-[hsl(var(--card))] sticky top-0 z-10">
           <div className="flex items-center gap-3">
             <button
@@ -269,7 +251,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
             </div>
           )}
 
-          {/* CATEGORY LIST (8 CATEGORIES ORDERED TOP TO BOTTOM MATCHING REQUEST) */}
+          {/* CATEGORY LIST (ORDERED EXACTLY MATCHING USER REQUEST) */}
           {!selectedCategory ? (
             <div className="space-y-2.5">
               {POST_CATEGORIES.map((cat) => {
@@ -313,6 +295,26 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                 )}
               </div>
 
+              {/* Sub-Category Item Type Selector for Combined Buy/Sell Option */}
+              {selectedCategory === "buy_sell_items" && (
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-[hsl(var(--foreground))]">
+                    వస్తువు రకం (Item Category)
+                  </label>
+                  <select
+                    value={itemType}
+                    onChange={(e) => setItemType(e.target.value)}
+                    className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                  >
+                    <option value="మొబైల్ (Mobile)">📱 మొబైల్ (Mobile)</option>
+                    <option value="బైక్ / వాహనం (Bike / Vehicle)">🚗 బైక్ / కార్ / వాహనం (Bike / Vehicle)</option>
+                    <option value="ల్యాప్‌టాప్ & టీవీ (Laptop & TV)">💻 ల్యాప్‌టాప్ / టీవీ (Laptop & Electronics)</option>
+                    <option value="ఇల్లు / ప్రాపర్టీ (House / Property)">🏠 ఇల్లు / స్థలం / ప్లాట్ (Property)</option>
+                    <option value="ఇతర వస్తువులు (Other Item)">📦 ఇతర వస్తువులు (Other Household Item)</option>
+                  </select>
+                </div>
+              )}
+
               {/* Title Field */}
               <div className="space-y-1">
                 <label className="text-xs font-bold text-[hsl(var(--foreground))]">
@@ -325,11 +327,9 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder={
                     selectedCategory === "news" ? "ఉదా: మీ ఏరియా వార్త శీర్షిక..." :
-                    selectedCategory === "complaint" ? "ఉదా: డ్రైనేజీ రోడ్డు సమస్య వివరాలు..." :
+                    selectedCategory === "buy_sell_items" ? "ఉదా: iPhone 13 / Hero Splendor 2022 / 2BHK ఇల్లు అద్దెకు..." :
                     selectedCategory === "job" ? "ఉదా: స్థానిక షాపులో బిల్లింగ్ ఆపరేటర్ కావాలి..." :
-                    selectedCategory === "mobile" ? "ఉదా: iPhone 13 / Samsung Galaxy గుడ్ కండిషన్..." :
-                    selectedCategory === "vehicle" ? "ఉదా: Hero Splendor 2022 మోడల్ అమ్మకానికి..." :
-                    selectedCategory === "property" ? "ఉదా: 2BHK ఇల్లు అద్దెకు (మధురవాడ)..." :
+                    selectedCategory === "complaint" ? "ఉదా: డ్రైనేజీ రోడ్డు సమస్య వివరాలు..." :
                     selectedCategory === "agriculture" ? "ఉదా: బియ్యం 25kg బస్తా / వేరుశనగ పంట..." :
                     "ఉదా: ఎలక్ట్రీషియన్ / ప్లంబర్ సేవలు అవసరం..."
                   }
@@ -337,8 +337,8 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                 />
               </div>
 
-              {/* Price / Salary Field if applicable */}
-              {(selectedCategory === "job" || selectedCategory === "mobile" || selectedCategory === "vehicle" || selectedCategory === "property" || selectedCategory === "agriculture" || selectedCategory === "service") && (
+              {/* Price / Salary Field */}
+              {(selectedCategory === "buy_sell_items" || selectedCategory === "job" || selectedCategory === "agriculture" || selectedCategory === "service") && (
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-[hsl(var(--foreground))]">
                     {selectedCategory === "job" ? "జీతం (Salary / Month)" : "ధర (Price / Rates)"}
