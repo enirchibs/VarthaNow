@@ -1,10 +1,11 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart } from "lucide-react";
+import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation } from "lucide-react";
 import { useEffect, useState } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
 import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
+import { detectGPSLocation } from "@/lib/location-detector";
 
 const categoryEmojis: Record<string, string> = {
   viralshorts: "🔥",
@@ -25,6 +26,8 @@ export function Layout() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
   const [showCookieConsent, setShowCookieConsent] = useState(false);
+  const [showGPSPrompt, setShowGPSPrompt] = useState(false);
+  const [gpsLoading, setGpsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [showMoreCategories, setShowMoreCategories] = useState(false);
 
@@ -57,6 +60,18 @@ export function Layout() {
     }
   }, []);
 
+  // 📍 GPS Location Permission Prompt on opening app
+  useEffect(() => {
+    const gpsDismissed = localStorage.getItem("vaartanow_gps_prompt_dismissed");
+    const cachedGps = localStorage.getItem("varthanow_gps_location");
+    if (!gpsDismissed && !cachedGps) {
+      const timer = setTimeout(() => {
+        setShowGPSPrompt(true);
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
@@ -85,6 +100,8 @@ export function Layout() {
     console.log(`User response to the install prompt: ${outcome}`);
     setDeferredPrompt(null);
     setShowInstallBanner(false);
+    // Prompt GPS permission immediately after installing app
+    setShowGPSPrompt(true);
   };
 
   const handleDismissClick = () => {
@@ -95,6 +112,30 @@ export function Layout() {
   const handleAcceptCookies = () => {
     localStorage.setItem("vaartanow-cookie-consent", "true");
     setShowCookieConsent(false);
+  };
+
+  const handleEnableGPS = async () => {
+    setGpsLoading(true);
+    try {
+      const loc = await detectGPSLocation();
+      localStorage.setItem("vaartanow_gps_prompt_dismissed", "true");
+      setShowGPSPrompt(false);
+      if (loc && loc.city) {
+        // Trigger a smooth page reload so news feed re-ranks for user city
+        window.location.reload();
+      }
+    } catch (e) {
+      console.warn("GPS detection failed:", e);
+      localStorage.setItem("vaartanow_gps_prompt_dismissed", "true");
+      setShowGPSPrompt(false);
+    } finally {
+      setGpsLoading(false);
+    }
+  };
+
+  const handleDismissGPSPrompt = () => {
+    localStorage.setItem("vaartanow_gps_prompt_dismissed", "true");
+    setShowGPSPrompt(false);
   };
 
   return (
@@ -250,6 +291,68 @@ export function Layout() {
           <a href="/sitemap.xml" className="hover:text-[hsl(var(--primary))] transition" target="_blank" rel="noreferrer">Sitemap</a>
         </div>
       </footer>
+
+      {/* 📍 Floating GPS Location Permission Prompt Banner */}
+      {showGPSPrompt && (
+        <div className="fixed bottom-20 left-4 right-4 md:bottom-6 md:right-6 md:left-auto z-[9999] max-w-md animate-in fade-in slide-in-from-bottom duration-300">
+          <div className="relative overflow-hidden rounded-[1.8rem] border-2 border-emerald-500/40 bg-white/95 dark:bg-zinc-950/95 p-5 shadow-[0_20px_50px_rgba(16,185,129,0.25)] backdrop-blur-xl">
+            {/* Background glowing gradient */}
+            <div className="absolute -right-12 -top-12 -z-10 size-32 rounded-full bg-emerald-500/20 blur-2xl" />
+            
+            <div className="flex items-start gap-3.5">
+              <div className="size-12 shrink-0 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-md animate-pulse">
+                <MapPin className="size-6" />
+              </div>
+              
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-1">
+                  <h4 className="font-black text-sm text-[hsl(var(--foreground))] truncate">
+                    {lang === "te" && "📍 లోకల్ వార్తల కోసం GPSని అనుమతించండి"}
+                    {lang === "en" && "📍 Enable GPS for Local News"}
+                    {lang === "hi" && "📍 स्थानीय समाचार के लिए GPS सक्षम करें"}
+                    {lang === "ta" && "📍 உள்ளூர் செய்திகளுக்கு GPSஐ இயக்கவும்"}
+                    {lang === "kn" && "📍 ಸ್ಥಳೀಯ ಸುದ್ದಿಗಾಗಿ GPS ಸಕ್ರಿಯಗೊಳಿಸಿ"}
+                  </h4>
+                  <button
+                    onClick={handleDismissGPSPrompt}
+                    className="rounded-full p-1 text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))] transition"
+                    aria-label="Close GPS prompt"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+                
+                <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1 font-semibold leading-relaxed">
+                  {lang === "te" && "హైదరాబాద్, విజయవాడ, విశాఖపట్నం, తిరుపతి వంటి మీ ప్రాంతపు తాజా వార్తలను తక్షణమే పొందడానికి GPS లొకేషన్ అనుమతించండి."}
+                  {lang === "en" && "Allow GPS location access to receive hyper-local breaking news for your city & region (Hyderabad, Vijayawada, Vizag, Tirupati, etc.)"}
+                  {lang === "hi" && "अपने शहर की ताज़ा ख़बरें पाने के लिए लोकेशन की अनुमति दें।"}
+                  {lang === "ta" && "உங்கள் நகரத்தின் முக்கிய செய்திகளைப் பெற இருப்பிட அணுகலை அனுமதிக்கவும்."}
+                  {lang === "kn" && "ನಿಮ್ಮ ನಗರದ ಸುದ್ದಿ ಪಡೆಯಲು ಸ್ಥಳ ಪ್ರವೇಶವನ್ನು ಅನುಮತಿಸಿ."}
+                </p>
+
+                <div className="flex items-center gap-2 mt-3.5">
+                  <button
+                    onClick={handleDismissGPSPrompt}
+                    className="flex-1 h-9 rounded-full text-xs font-black transition text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))] border border-[hsl(var(--border))]"
+                  >
+                    {lang === "te" ? "తర్వాత" : "Skip"}
+                  </button>
+                  <button
+                    onClick={handleEnableGPS}
+                    disabled={gpsLoading}
+                    className="flex-1 h-9 rounded-full text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg hover:shadow-emerald-500/20 active:scale-[0.98] transition flex items-center justify-center gap-1.5"
+                  >
+                    <Navigation className={`size-3.5 ${gpsLoading ? "animate-spin" : ""}`} />
+                    {gpsLoading 
+                      ? (lang === "te" ? "గుర్తిస్తోంది..." : "Detecting...") 
+                      : (lang === "te" ? "GPS అనుమతించు" : "Enable GPS")}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Cookie Consent Banner */}
       {showCookieConsent && (
