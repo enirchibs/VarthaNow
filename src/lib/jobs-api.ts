@@ -242,7 +242,7 @@ export async function getJobsList(filters?: JobFilters): Promise<VaartanowJob[]>
       const { data, error } = await query
         .order("is_featured", { ascending: false })
         .order("posted_date", { ascending: false })
-        .limit(60);
+        .limit(1000);
 
       if (error) throw error;
       if (data && data.length > 0) {

@@ -49,6 +49,7 @@ export function VaartanowJobsBoard({
   const [activeChip, setActiveChip] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<string>(initialCategoryFilter || "all");
   const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [visibleCount, setVisibleCount] = useState(30);
   
   // AI Resume tools states
   const [resumeText, setResumeText] = useState("");
@@ -122,6 +123,7 @@ export function VaartanowJobsBoard({
       }
 
       setJobs(filteredData);
+      setVisibleCount(30);
       setLoading(false);
       setSelectedJob(prev => (prev && filteredData.some(j => j.job_id === prev.job_id)) ? prev : (filteredData[0] || null));
     }
@@ -359,7 +361,7 @@ export function VaartanowJobsBoard({
             </div>
           ) : (
             <div className="space-y-3">
-              {jobs.map((job) => {
+              {jobs.slice(0, visibleCount).map((job) => {
                 const isSelected = selectedJob?.job_id === job.job_id;
                 return (
                   <div
@@ -441,6 +443,22 @@ export function VaartanowJobsBoard({
                   </div>
                 );
               })}
+
+              {visibleCount < jobs.length && (
+                <div className="flex justify-center pt-4">
+                  <button
+                    onClick={() => setVisibleCount((prev) => prev + 30)}
+                    className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md shadow-indigo-500/20 active:scale-95 transition flex items-center gap-2"
+                  >
+                    <span>
+                      {lang === "te"
+                        ? `మరిన్ని ఉద్యోగాలు చూడండి (${jobs.length - visibleCount} మిగిలి ఉన్నాయి)`
+                        : `Load More Jobs (${jobs.length - visibleCount} remaining)`}
+                    </span>
+                    <ChevronRight className="size-4" />
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
