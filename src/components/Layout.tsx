@@ -1,11 +1,12 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation } from "lucide-react";
+import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
 import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
 import { detectGPSLocation } from "@/lib/location-detector";
+import { CreatePostModal } from "@/components/CreatePostModal";
 
 const categoryEmojis: Record<string, string> = {
   viralshorts: "🔥",
@@ -31,6 +32,7 @@ export function Layout() {
   const [gpsLoading, setGpsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [showMoreCategories, setShowMoreCategories] = useState(false);
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
   // 📜 Scroll to top of window automatically on route change
   useEffect(() => {
@@ -454,77 +456,108 @@ export function Layout() {
         </div>
       )}
 
-      {/* Sticky Bottom Navigation Bar for Mobile */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-[hsl(var(--border))] bg-[hsl(var(--background))/85] backdrop-blur-xl shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
-        <div className="flex h-16 items-center justify-around px-2">
+      {/* 📱 Sticky Bottom Navigation Bar for Mobile (All Telugu Items with Middle + Post Button) */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-[hsl(var(--border))] bg-[hsl(var(--card))/95] backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+        <div className="flex h-16 items-center justify-around px-1">
+          
+          {/* 1. మన మార్కెట్ */}
           <NavLink
-            to="/"
-            end
+            to="/market"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
-                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
+              `flex flex-col items-center justify-center w-16 h-14 transition-all ${
+                isActive ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
-              <Home className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
+              <>
+                <ShoppingBag className={`size-5 mb-0.5 ${isActive ? "stroke-[2.5px]" : ""}`} />
+                <span className="text-[10px] font-black tracking-tight leading-none text-center">
+                  మన మార్కెట్
+                </span>
+              </>
             )}
           </NavLink>
 
+          {/* 2. ప్రకటనలు */}
           <NavLink
-            to="/search"
+            to="/prakatanalu"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
-                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
+              `flex flex-col items-center justify-center w-16 h-14 transition-all ${
+                isActive ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
-              <Search className={`size-6 ${isActive ? "stroke-[3px]" : ""}`} />
+              <>
+                <Megaphone className={`size-5 mb-0.5 ${isActive ? "stroke-[2.5px]" : ""}`} />
+                <span className="text-[10px] font-black tracking-tight leading-none text-center">
+                  ప్రకటనలు
+                </span>
+              </>
             )}
           </NavLink>
 
+          {/* 3. + పోస్ట్ (MIDDLE FLOATING BUTTON WITH + SYMBOL) */}
+          <button
+            onClick={() => setIsPostModalOpen(true)}
+            className="flex flex-col items-center justify-center w-16 h-14 cursor-pointer group"
+            aria-label="Create local post"
+          >
+            <div className="size-11 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg -mt-5 border-2 border-[hsl(var(--card))] group-hover:scale-110 active:scale-95 transition-all duration-200">
+              <Plus className="size-6 stroke-[3px]" />
+            </div>
+            <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 tracking-tight leading-none mt-1">
+              + పోస్ట్
+            </span>
+          </button>
+
+          {/* 4. మాట్లాడు AI */}
           <NavLink
-            to="/category/viralshorts"
+            to="/maatlaadu-ai"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
-                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
+              `flex flex-col items-center justify-center w-16 h-14 transition-all ${
+                isActive ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
-              <Video className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
+              <>
+                <Bot className={`size-5 mb-0.5 ${isActive ? "stroke-[2.5px]" : ""}`} />
+                <span className="text-[10px] font-black tracking-tight leading-none text-center">
+                  మాట్లాడు AI
+                </span>
+              </>
             )}
           </NavLink>
 
-
-          <NavLink
-            to="/bookmarks"
-            className={({ isActive }) =>
-              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
-                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <Bookmark className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
-            )}
-          </NavLink>
-
+          {/* 5. ప్రొఫైల్ */}
           <NavLink
             to="/login"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all ${
-                isActive ? "text-[hsl(var(--primary))]" : "text-[hsl(var(--muted-foreground))]"
+              `flex flex-col items-center justify-center w-16 h-14 transition-all ${
+                isActive ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
-              <User className={`size-6 ${isActive ? "fill-[hsl(var(--primary))]" : ""}`} />
+              <>
+                <User className={`size-5 mb-0.5 ${isActive ? "stroke-[2.5px]" : ""}`} />
+                <span className="text-[10px] font-black tracking-tight leading-none text-center">
+                  ప్రొఫైల్
+                </span>
+              </>
             )}
           </NavLink>
+
         </div>
       </div>
+
+      {/* 📝 Create Local Post Modal */}
+      <CreatePostModal 
+        isOpen={isPostModalOpen} 
+        onClose={() => setIsPostModalOpen(false)} 
+      />
     </div>
   );
 }

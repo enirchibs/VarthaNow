@@ -8,6 +8,8 @@ import { NewsPage } from "@/pages/NewsPage";
 import { SearchPage } from "@/pages/SearchPage";
 import { LoginPage } from "@/pages/LoginPage";
 import { BookmarksPage } from "@/pages/BookmarksPage";
+import { ManaMarketPage } from "@/pages/ManaMarketPage";
+import { PrakatanaluPage } from "@/pages/PrakatanaluPage";
 import {
   JobsMainPage,
   JobsWFHPage,
@@ -28,6 +30,9 @@ const router = createBrowserRouter([
     element: <Layout />,
     children: [
       { path: "/", element: <HomePage /> },
+      { path: "/market", element: <ManaMarketPage /> },
+      { path: "/prakatanalu", element: <PrakatanaluPage /> },
+      { path: "/maatlaadu-ai", element: <HealthPortal /> },
       { path: "/category/health", element: <Navigate to="/health" replace /> },
       { path: "/health", element: <HealthPortal /> },
       { path: "/health/:subpage", element: <HealthPortal /> },
