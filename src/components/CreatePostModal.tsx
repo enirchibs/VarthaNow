@@ -42,8 +42,24 @@ interface PostCategoryItem {
 // 6 Streamlined Categories in Exact Requested Order
 const POST_CATEGORIES: PostCategoryItem[] = [
   {
+    id: "complaint",
+    title: "1. ఫిర్యాదు పోస్ట్ చేయండి",
+    subtitle: "రోడ్లు, డ్రైనేజీ, కరెంట్ సమస్యలను అధికారుల దృష్టికి తీసుకెళ్లండి",
+    icon: AlertCircle,
+    iconColor: "text-orange-600 dark:text-orange-400",
+    bgColor: "bg-orange-500/10 dark:bg-orange-400/10"
+  },
+  {
+    id: "job",
+    title: "2. ఉద్యోగం (వెతకండి / పోస్ట్ చేయండి)",
+    subtitle: "ఉద్యోగాలు వెతకండి లేదా మీ దగ్గర జాబ్స్ ఉంటే పోస్ట్ చేసి నిరుద్యోగులకు సహాయపడండి",
+    icon: Briefcase,
+    iconColor: "text-sky-600 dark:text-sky-400",
+    bgColor: "bg-sky-500/10 dark:bg-sky-400/10"
+  },
+  {
     id: "news",
-    title: "1. వార్తలు పోస్ట్ చేయండి",
+    title: "3. వార్తలు పోస్ట్ చేయండి",
     subtitle: "స్థానిక వార్తలు పోస్ట్ చేయండి, సమాజానికి దోహదపడండి",
     icon: FileText,
     iconColor: "text-blue-600 dark:text-blue-400",
@@ -51,27 +67,11 @@ const POST_CATEGORIES: PostCategoryItem[] = [
   },
   {
     id: "buy_sell_items",
-    title: "2. మీ వస్తువులు అమ్మండి / కొనండి (మొబైల్, బైక్స్, ల్యాప్‌టాప్, ఇల్లు, ఎలక్ట్రానిక్స్)",
+    title: "4. మీ వస్తువులు అమ్మండి / కొనండి (మొబైల్, బైక్స్, ల్యాప్‌టాప్, ఇల్లు, ఎలక్ట్రానిక్స్)",
     subtitle: "మీ పాత వస్తువులు, మొబైల్స్, బైక్స్, ల్యాప్‌టాప్, ఇల్లు స్థానికంగా అమ్మండి లేదా కొనండి",
     icon: ShoppingBag,
     iconColor: "text-amber-600 dark:text-amber-400",
     bgColor: "bg-amber-500/10 dark:bg-amber-400/10"
-  },
-  {
-    id: "job",
-    title: "3. ఉద్యోగం (వెతకండి / పోస్ట్ చేయండి)",
-    subtitle: "ఉద్యోగాలు వెతకండి లేదా మీ దగ్గర జాబ్స్ ఉంటే పోస్ట్ చేసి నిరుద్యోగులకు సహాయపడండి",
-    icon: Briefcase,
-    iconColor: "text-sky-600 dark:text-sky-400",
-    bgColor: "bg-sky-500/10 dark:bg-sky-400/10"
-  },
-  {
-    id: "complaint",
-    title: "4. ఫిర్యాదు పోస్ట్ చేయండి",
-    subtitle: "రోడ్లు, డ్రైనేజీ, కరెంట్ సమస్యలను అధికారుల దృష్టికి తీసుకెళ్లండి",
-    icon: AlertCircle,
-    iconColor: "text-orange-600 dark:text-orange-400",
-    bgColor: "bg-orange-500/10 dark:bg-orange-400/10"
   },
   {
     id: "agriculture",
