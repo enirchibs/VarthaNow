@@ -40,3 +40,29 @@ export type SearchFilters = {
   category?: NewsCategory | "all";
   language?: "te" | "en" | "hi" | "ta" | "kn";
 };
+
+export interface PollOption {
+  id: string;
+  text: string;
+  count: number;
+}
+
+export interface ArticlePoll {
+  id: string;
+  post_slug: string;
+  question: string;
+  options: PollOption[];
+  total_votes: number;
+  engagement_enabled?: boolean;
+}
+
+export interface ReaderOpinion {
+  id: string;
+  post_slug: string;
+  comment: string;
+  display_name?: string;
+  locality?: string;
+  selected_option_id?: string;
+  created_at: string;
+}
+
