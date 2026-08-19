@@ -57,9 +57,15 @@ export function useViralVideos(limit = 10) {
           });
         });
         
+        const now = Date.now();
         fetchedVideos.sort((a, b) => {
-           let scoreA = Math.random() * 10; // Base randomness
-           let scoreB = Math.random() * 10;
+           const timeA = new Date(a.published_at || now).getTime();
+           const timeB = new Date(b.published_at || now).getTime();
+           const ageHoursA = Math.max(0, (now - timeA) / (1000 * 3600));
+           const ageHoursB = Math.max(0, (now - timeB) / (1000 * 3600));
+
+           let scoreA = (ageHoursA <= 24 ? 300 - ageHoursA * 10 : Math.max(0, 50 - ageHoursA)) + Math.random() * 5;
+           let scoreB = (ageHoursB <= 24 ? 300 - ageHoursB * 10 : Math.max(0, 50 - ageHoursB)) + Math.random() * 5;
            
            const titleA = a.title.toLowerCase();
            const titleB = b.title.toLowerCase();
@@ -68,8 +74,8 @@ export function useViralVideos(limit = 10) {
            
            // Boost score if it matches user interests
            interestKeywords.forEach(kw => {
-              if (titleA.includes(kw) || descA.includes(kw)) scoreA += 50;
-              if (titleB.includes(kw) || descB.includes(kw)) scoreB += 50;
+              if (titleA.includes(kw) || descA.includes(kw)) scoreA += 15;
+              if (titleB.includes(kw) || descB.includes(kw)) scoreB += 15;
            });
            
            return scoreB - scoreA; // Descending order

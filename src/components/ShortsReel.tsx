@@ -87,39 +87,53 @@ export function ShortsReel() {
         console.warn("Failed to detect GPS location:", err);
       }
 
+      const now = Date.now();
       const scored = (data || []).map((v: any) => {
-        let score = Math.random() * 10; // Base randomness so the feed remains fresh
+        // 🕒 1. RECENCY SCORE (Primary weighting: up to +300 points for brand-new videos)
+        const pubTime = new Date(v.published_at || v.created_at || now).getTime();
+        const ageInHours = Math.max(0, (now - pubTime) / (1000 * 3600));
         
-        const titleLower = v.title.toLowerCase();
+        let recencyScore = 0;
+        if (ageInHours <= 6) {
+          recencyScore = 300 - (ageInHours * 15); // 210 to 300 pts
+        } else if (ageInHours <= 24) {
+          recencyScore = 200 - (ageInHours * 5); // 80 to 170 pts
+        } else if (ageInHours <= 48) {
+          recencyScore = 50 - (ageInHours * 0.5); // 26 to 50 pts
+        } else {
+          recencyScore = Math.max(0, 20 - (ageInHours * 0.1));
+        }
+
+        let score = recencyScore + (Math.random() * 5);
+        
+        const titleLower = (v.title || "").toLowerCase();
         const descLower = (v.description || "").toLowerCase();
         const channelLower = (v.channel || "").toLowerCase();
 
-        // 🎯 Match bookmark and browser click interests (+50 per match)
+        // 🎯 Match bookmark and browser click interests (+15 per match)
         interestKeywords.forEach(kw => {
           if (titleLower.includes(kw) || descLower.includes(kw) || channelLower.includes(kw)) {
-            score += 50;
+            score += 15;
           }
         });
 
-        // 📍 Match GPS location (+120 for direct city match, +80 for state matching keywords)
+        // 📍 Match GPS location (+25 for direct city match, +15 for state matching keywords)
         if (gpsLocation) {
           const cityLower = gpsLocation.city.toLowerCase();
           const stateLower = gpsLocation.state.toLowerCase();
 
-          // Direct city/district keyword match
           if (titleLower.includes(cityLower) || descLower.includes(cityLower)) {
-            score += 120;
+            score += 25;
           }
 
-          // State-level keyword boosts
           if (stateLower.includes("andhra") || stateLower.includes("ap")) {
             if (titleLower.includes("ap") || titleLower.includes("ఆంధ్ర") || titleLower.includes("ఆంధ్రప్రదేశ్")) {
-              score += 80;
+              score += 15;
             }
           }
           if (stateLower.includes("telangana") || stateLower.includes("tg")) {
             if (titleLower.includes("telangana") || titleLower.includes("తెలంగాణ") || titleLower.includes("హైదరాబాద్") || titleLower.includes("hyderabad")) {
-              score += 80;
+              score += 15;
             }
           }
         }

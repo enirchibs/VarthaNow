@@ -43,27 +43,44 @@ serve(async (req) => {
 
     console.log("📺 Starting Edge-based Telugu News Shorts Ingestion...");
 
-    // 1. Search for fresh Telugu news shorts ordered by latest date
-    const searchQuery = "Telugu news shorts";
-    const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(searchQuery)}&type=video&videoDuration=short&maxResults=15&order=date&key=${youtubeApiKey}`;
+    // 1. Search across multiple top Telugu news channels for fresh shorts
+    const searchQueries = [
+      "TV9 Telugu news shorts",
+      "NTV Telugu shorts",
+      "ABN Telugu news shorts",
+      "Telugu breaking news shorts",
+      "Sakshi TV shorts"
+    ];
     
-    const searchRes = await fetch(searchUrl);
-    if (!searchRes.ok) {
-      const errText = await searchRes.text();
-      throw new Error(`YouTube search failed: ${searchRes.status} - ${errText}`);
+    const allItems: any[] = [];
+    const seenIds = new Set<string>();
+
+    for (const query of searchQueries) {
+      try {
+        const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&videoDuration=short&maxResults=10&order=date&key=${youtubeApiKey}`;
+        const searchRes = await fetch(searchUrl);
+        if (searchRes.ok) {
+          const data = await searchRes.json();
+          for (const it of (data.items || [])) {
+            if (it.id?.videoId && !seenIds.has(it.id.videoId)) {
+              seenIds.add(it.id.videoId);
+              allItems.push(it);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn(`Search query "${query}" failed:`, e);
+      }
     }
     
-    const searchData = await searchRes.json();
-    const items = searchData.items || [];
-    
-    if (items.length === 0) {
+    if (allItems.length === 0) {
       return new Response(JSON.stringify({ ok: true, message: "No shorts found.", count: 0 }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
     }
 
-    const videoIds = items.map((item: any) => item.id.videoId).filter(Boolean);
-    const channelIds = Array.from(new Set(items.map((item: any) => item.snippet.channelId).filter(Boolean))) as string[];
+    const videoIds = allItems.map((item: any) => item.id.videoId).filter(Boolean);
+    const channelIds = Array.from(new Set(allItems.map((item: any) => item.snippet.channelId).filter(Boolean))) as string[];
 
     // 2. Fetch video details (duration, etc.) in batch
     const videosUrl = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,snippet&id=${videoIds.join(",")}&key=${youtubeApiKey}`;
@@ -78,7 +95,7 @@ serve(async (req) => {
     const channelDetailsMap = new Map((channelsData.items || []).map((c: any) => [c.id, c.snippet?.thumbnails?.default?.url]));
 
     // 4. Map into viral_videos rows
-    const videosToUpsert = items.map((item: any) => {
+    const videosToUpsert = allItems.map((item: any) => {
       const vId = item.id.videoId;
       const detail = videoDetailsMap.get(vId) as any;
       const durationISO = detail?.contentDetails?.duration || "PT30S";
