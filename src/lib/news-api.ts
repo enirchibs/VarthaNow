@@ -3,18 +3,143 @@ import { demoPosts } from "@/lib/demo-data";
 import { supabase } from "@/lib/supabase";
 import { getActiveLanguage, type Language } from "@/hooks/useLanguage";
 
-const PAGE_SIZE = 9;
+export const PAGE_SIZE = 25;
 
 function sortPublished(posts: BlogPost[]) {
   return [...posts].sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
 }
 
-export async function getPosts(page = 0, filters?: Partial<SearchFilters>) {
+// 🔀 Deterministic pseudo-random number generator for seed-based shuffle
+function pseudoRandom(seed: number | string, str: string): number {
+  let hash = typeof seed === "number" ? seed : 0;
+  const s = String(seed) + str;
+  for (let i = 0; i < s.length; i++) {
+    hash = (hash << 5) - hash + s.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash % 10000) / 10000;
+}
+
+export interface PersonalizationOptions {
+  shuffleSeed?: number | string;
+  userLocation?: string | null;
+  userInterests?: string[];
+  userBookmarks?: string[];
+  feedMode?: "all" | "personalized" | "location";
+}
+
+export function rankAndPersonalizePosts(
+  posts: BlogPost[],
+  options?: PersonalizationOptions
+): BlogPost[] {
+  const seed = options?.shuffleSeed ?? 1;
+  const loc = (options?.userLocation || "").toLowerCase();
+  const interests = (options?.userInterests || []).map((i) => i.toLowerCase());
+  const bookmarks = options?.userBookmarks || [];
+  const mode = options?.feedMode || "all";
+
+  // Scoring mapping for location keywords
+  const locationKeywords: Record<string, string[]> = {
+    hyderabad: ["hyderabad", "telangana", "hitec city", "gachibowli", "uppal"],
+    secunderabad: ["hyderabad", "secunderabad", "telangana"],
+    warangal: ["warangal", "telangana", "kakatiya"],
+    vijayawada: ["vijayawada", "andhra-pradesh", "amaravati", "gannavaram", "benz circle"],
+    visakhapatnam: ["vizag", "visakhapatnam", "andhra-pradesh", "rushikonda"],
+    vizag: ["vizag", "visakhapatnam", "andhra-pradesh", "rushikonda"],
+    tirupati: ["tirupati", "tirumala", "andhra-pradesh", "ttd"],
+    amaravati: ["amaravati", "andhra-pradesh", "vijayawada"],
+    guntur: ["guntur", "andhra-pradesh", "amaravati"],
+    kurnool: ["kurnool", "andhra-pradesh"],
+    kakinada: ["kakinada", "andhra-pradesh"],
+    rajahmundry: ["rajahmundry", "andhra-pradesh"]
+  };
+
+  const targetLocTokens: string[] = [];
+  if (loc) {
+    targetLocTokens.push(loc);
+    Object.entries(locationKeywords).forEach(([key, tokens]) => {
+      if (loc.includes(key)) {
+        targetLocTokens.push(...tokens);
+      }
+    });
+  }
+
+  const scored = posts.map((post) => {
+    let score = 0;
+    let isLocationMatch = false;
+    let isInterestMatch = false;
+    let isFavoriteMatch = false;
+
+    const postText = [
+      post.title,
+      post.excerpt,
+      post.category,
+      ...post.tags
+    ].join(" ").toLowerCase();
+
+    // 1. Location match (+60 pts)
+    if (targetLocTokens.length > 0) {
+      const match = targetLocTokens.some((tok) => postText.includes(tok));
+      if (match) {
+        isLocationMatch = true;
+        score += 60;
+      }
+    }
+
+    // 2. Favorite / Bookmark match (+50 pts)
+    if (bookmarks.includes(post.slug) || bookmarks.includes(post.category)) {
+      isFavoriteMatch = true;
+      score += 50;
+    }
+
+    // 3. User Interests match (+30 pts)
+    if (interests.length > 0) {
+      const match = interests.some((interest) => postText.includes(interest));
+      if (match) {
+        isInterestMatch = true;
+        score += 30;
+      }
+    }
+
+    // 4. Feed Mode Boosts
+    if (mode === "location" && isLocationMatch) score += 100;
+    if (mode === "personalized" && (isFavoriteMatch || isInterestMatch)) score += 100;
+
+    // 5. Freshness boost (+0..20 pts)
+    const hoursOld = (Date.now() - new Date(post.published_at).getTime()) / (1000 * 3600);
+    const freshnessScore = Math.max(0, 20 - hoursOld);
+    score += freshnessScore;
+
+    // 6. Dynamic Shuffle pseudo-random noise (+0..35 pts)
+    const noise = pseudoRandom(seed, post.slug) * 35;
+    score += noise;
+
+    return {
+      post: {
+        ...post,
+        isLocationMatch,
+        isInterestMatch,
+        isFavoriteMatch
+      },
+      score
+    };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map((item) => item.post);
+}
+
+export async function getPosts(
+  page = 0,
+  filters?: Partial<SearchFilters>,
+  options?: PersonalizationOptions
+) {
   const activeLang = filters?.language ?? getActiveLanguage();
 
   if (!supabase) {
     const filtered = filterPosts(demoPosts, { ...filters, language: activeLang });
-    return sortPublished(filtered).slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+    const ranked = rankAndPersonalizePosts(filtered, options);
+    return ranked.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   }
 
   let query = supabase
@@ -23,7 +148,7 @@ export async function getPosts(page = 0, filters?: Partial<SearchFilters>) {
     .eq("published", true)
     .eq("language", activeLang)
     .order("published_at", { ascending: false })
-    .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
+    .range(0, 100); // Fetch top 100 to rank & shuffle dynamically
 
   if (filters?.category && filters.category !== "all") query = query.eq("category", filters.category);
   if (filters?.query) {
@@ -36,10 +161,12 @@ export async function getPosts(page = 0, filters?: Partial<SearchFilters>) {
   if (error || !data || data.length === 0) {
     if (error) console.error("Supabase getPosts error:", error);
     const filtered = filterPosts(demoPosts, { ...filters, language: activeLang });
-    return sortPublished(filtered).slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+    const ranked = rankAndPersonalizePosts(filtered, options);
+    return ranked.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   }
   
-  return data as BlogPost[];
+  const ranked = rankAndPersonalizePosts(data as BlogPost[], options);
+  return ranked.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 }
 
 export async function getAdminPosts(page = 0, filters?: Partial<SearchFilters>) {
@@ -193,7 +320,6 @@ export async function getFavoritePosts(page = 0, categoriesList: string[], lang?
 
   return data as BlogPost[];
 }
-
 
 function filterPosts(posts: BlogPost[], filters?: Partial<SearchFilters>) {
   const activeLang = filters?.language ?? getActiveLanguage();

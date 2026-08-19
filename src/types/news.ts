@@ -30,6 +30,9 @@ export type BlogPost = {
   featured: boolean;
   reading_time_min: number;
   published_at: string;
+  isLocationMatch?: boolean;
+  isInterestMatch?: boolean;
+  isFavoriteMatch?: boolean;
 };
 
 export type SearchFilters = {

@@ -71,10 +71,20 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
 
           {/* Category Badge — top left */}
-          <div className="absolute left-3 top-3 z-10">
+          <div className="absolute left-3 top-3 z-10 flex items-center gap-1.5 flex-wrap">
             <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black text-white uppercase tracking-wide ${categoryColor(post.category)}`}>
               {categoryLabel(post.category)}
             </span>
+            {post.isLocationMatch && (
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-600/90 backdrop-blur-sm px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wide border border-emerald-400/40 shadow-sm animate-fade-in">
+                📍 Near You
+              </span>
+            )}
+            {(post.isInterestMatch || post.isFavoriteMatch) && (
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/90 backdrop-blur-sm px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wide border border-amber-300/40 shadow-sm animate-fade-in">
+                🌟 For You
+              </span>
+            )}
           </div>
 
           {/* Breaking badge — top right (only if featured) */}
