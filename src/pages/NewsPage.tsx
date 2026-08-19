@@ -14,7 +14,7 @@ import {
 import type { BlogPost } from "@/types/news";
 import { getPostBySlug, getTrendingPosts } from "@/lib/news-api";
 import { categoryLabel } from "@/lib/categories";
-import { markdownToHtml, timeAgo } from "@/lib/format";
+import { markdownToHtml, timeAgo, getOpenEndedQuestion } from "@/lib/format";
 import { postStructuredData, setMeta } from "@/lib/seo";
 import { Badge } from "@/components/ui";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -376,6 +376,23 @@ export function NewsPage() {
                   {post.excerpt}
                 </p>
               )}
+            </div>
+
+            {/* 🤔 SINGLE HIGHLIGHT INTERESTING OPEN-ENDED QUESTION CARD */}
+            <div className="my-6 rounded-2xl border-2 border-indigo-500/30 bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 p-4 sm:p-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="size-10 shrink-0 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center font-black text-xl shadow-md">
+                  🤔
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">
+                    {lang === "te" ? "ఆలోచించదగిన ముఖ్యమైన ప్రశ్న" : "Key Thought-Provoking Question"}
+                  </h3>
+                  <p className="text-sm sm:text-base font-extrabold text-[hsl(var(--foreground))] leading-relaxed italic">
+                    "{getOpenEndedQuestion(post.title, post.content || post.excerpt, post.category, lang)}"
+                  </p>
+                </div>
+              </div>
             </div>
 
             {/* Hashtag Chips */}
