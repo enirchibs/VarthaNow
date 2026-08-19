@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation } from "lucide-react";
 import { useEffect, useState } from "react";
 import { categories } from "@/lib/categories";
@@ -22,6 +22,7 @@ const categoryEmojis: Record<string, string> = {
 };
 
 export function Layout() {
+  const { pathname } = useLocation();
   const { lang, changeLanguage } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
@@ -30,6 +31,11 @@ export function Layout() {
   const [gpsLoading, setGpsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [showMoreCategories, setShowMoreCategories] = useState(false);
+
+  // 📜 Scroll to top of window automatically on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   useEffect(() => {
     if (!supabase) return;

@@ -24,6 +24,7 @@ export function NewsPage() {
   const { isBookmarked, toggleBookmark } = useBookmarks();
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     let mounted = true;
     setLoading(true);
     Promise.all([getPostBySlug(slug), getTrendingPosts(4, lang)])
