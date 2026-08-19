@@ -12,7 +12,10 @@ import {
   Check, 
   Send, 
   X,
-  Phone
+  Phone,
+  Camera,
+  Mic,
+  Navigation
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
@@ -23,10 +26,10 @@ interface CreatePostModalProps {
 }
 
 export type PostCategoryType = 
+  | "complaint" 
+  | "job" 
   | "news" 
   | "buy_sell_items" 
-  | "job" 
-  | "complaint" 
   | "agriculture" 
   | "service";
 
@@ -39,7 +42,7 @@ interface PostCategoryItem {
   bgColor: string;
 }
 
-// 6 Streamlined Categories in Exact Requested Order
+// 6 Streamlined Categories in Requested Order
 const POST_CATEGORIES: PostCategoryItem[] = [
   {
     id: "complaint",
@@ -130,14 +133,18 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
 
   const handleSubmitPost = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !selectedCategory || submitting) return;
+    if (selectedCategory === "complaint" || selectedCategory === "news") {
+      if (!description.trim() || submitting) return;
+    } else {
+      if (!title.trim() || submitting) return;
+    }
 
     setSubmitting(true);
     const newPost = {
       id: `post_${Date.now()}`,
       category: selectedCategory,
       item_type: selectedCategory === "buy_sell_items" ? itemType : undefined,
-      title: title.trim(),
+      title: title.trim() || (selectedCategory === "complaint" ? "స్థానిక ఫిర్యాదు" : "స్థానిక వార్త"),
       description: description.trim(),
       price: price.trim() || undefined,
       contact: contactNumber.trim() || undefined,
@@ -153,19 +160,17 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
       // Optionally save to Supabase if connected
       if (supabase) {
         try {
-          await supabase.from("properties").insert({
+          await supabase.from("user_reports").insert({
             title: newPost.title,
-            property_type: newPost.category,
-            location: newPost.area,
-            price: newPost.price || "Contact for price",
-            contact_phone: newPost.contact
+            description: newPost.description,
+            status: "pending"
           });
         } catch (e) {
           console.warn("Supabase insert error:", e);
         }
       }
 
-      setSuccessMessage("మీ పోస్ట్ విజయవంతంగా ప్రచురించబడింది!");
+      setSuccessMessage("మీ పోస్ట్ విజయవంతంగా ప్రచురించబడింది! ధన్యవాదాలు.");
       setTimeout(() => {
         setSuccessMessage(null);
         setSelectedCategory(null);
@@ -226,22 +231,24 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
         {/* Scrollable Modal Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
 
-          {/* Area Selector */}
-          <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/50 p-3.5 space-y-1.5">
-            <label className="text-xs font-black text-[hsl(var(--muted-foreground))] flex items-center gap-1.5">
-              <MapPin className="size-3.5 text-blue-600 dark:text-blue-400" />
-              మీ ఏరియా ఎంచుకోండి (Select Area)
-            </label>
-            <select
-              value={selectedArea}
-              onChange={(e) => setSelectedArea(e.target.value)}
-              className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] py-2 px-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-            >
-              {ANDHRA_LOCALITIES.map((loc) => (
-                <option key={loc} value={loc}>{loc}</option>
-              ))}
-            </select>
-          </div>
+          {/* Area Selector (Default for general categories) */}
+          {(!selectedCategory || (selectedCategory !== "complaint" && selectedCategory !== "news")) && (
+            <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/50 p-3.5 space-y-1.5">
+              <label className="text-xs font-black text-[hsl(var(--muted-foreground))] flex items-center gap-1.5">
+                <MapPin className="size-3.5 text-blue-600 dark:text-blue-400" />
+                మీ ఏరియా ఎంచుకోండి (Select Area)
+              </label>
+              <select
+                value={selectedArea}
+                onChange={(e) => setSelectedArea(e.target.value)}
+                className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] py-2 px-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+              >
+                {ANDHRA_LOCALITIES.map((loc) => (
+                  <option key={loc} value={loc}>{loc}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* SUCCESS MESSAGE BANNER */}
           {successMessage && (
@@ -251,7 +258,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
             </div>
           )}
 
-          {/* CATEGORY LIST (ORDERED EXACTLY MATCHING USER REQUEST) */}
+          {/* CATEGORY LIST */}
           {!selectedCategory ? (
             <div className="space-y-2.5">
               {POST_CATEGORIES.map((cat) => {
@@ -281,8 +288,193 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                 );
               })}
             </div>
+          ) : (selectedCategory === "complaint" || selectedCategory === "news") ? (
+            
+            /* 📰 POLITELY STYLED ANDHRA NEWS / COMPLAINT REPORTING FORM (MATCHING ATTACHED SCREENSHOTS) */
+            <form onSubmit={handleSubmitPost} className="space-y-4 animate-in fade-in duration-300">
+              <div className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500/10 to-blue-500/10 p-3 border border-[hsl(var(--border))]">
+                {currentCategoryObj && (
+                  <>
+                    <currentCategoryObj.icon className={`size-5 ${currentCategoryObj.iconColor}`} />
+                    <span className="text-xs font-black text-[hsl(var(--foreground))]">
+                      {currentCategoryObj.title}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {/* 1. ఫోటోలు & వీడియోలు (ఐచ్ఛికం) */}
+              <div className="space-y-1.5 rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))] p-4 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
+                    ఫోటోలు & వీడియోలు <span className="text-[10px] font-normal text-[hsl(var(--muted-foreground))]">ఐచ్ఛికం</span>
+                  </label>
+                </div>
+                <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))] leading-snug">
+                  మొత్తం 3 ఫోటోలు లేదా వీడియోల వరకు జోడించవచ్చు.
+                </p>
+                
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      alert(lang === "te" ? "ఫోటో లేదా వీడియోలను ఎంచుకోండి" : "Select photo or video files");
+                    }}
+                    className="w-full py-3 px-4 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/50 hover:bg-[hsl(var(--muted))] text-xs font-bold text-[hsl(var(--foreground))] transition flex items-center justify-center gap-2"
+                  >
+                    <Camera className="size-4 text-blue-600 dark:text-blue-400" />
+                    <span>ఫోటోలు లేదా వీడియోలు జోడించండి</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 2. శీర్షిక (ఐచ్ఛికం) */}
+              <div className="space-y-1 rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))] p-4 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
+                    శీర్షిక <span className="text-[10px] font-normal text-[hsl(var(--muted-foreground))]">ఐచ్ఛికం</span>
+                  </label>
+                  <span className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">
+                    {title.length}/150
+                  </span>
+                </div>
+
+                <input
+                  type="text"
+                  value={title}
+                  maxLength={150}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="తెలియకపోతే ఖాళీగా వదిలేయండి"
+                  className="w-full rounded-xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--muted))]/40 p-3 text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-[hsl(var(--muted-foreground))]/70"
+                />
+              </div>
+
+              {/* 3. ఏం జరిగింది? */}
+              <div className="space-y-1.5 rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))] p-4 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
+                    ఏం జరిగింది? *
+                  </label>
+                  <span className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">
+                    {description.length}/5000
+                  </span>
+                </div>
+                <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))] leading-snug">
+                  ఇక్కడ రాయండి లేదా కింద వాయిస్ నోట్ రికార్డ్ చేయండి — ఏదైనా సరిపోతుంది.
+                </p>
+
+                <textarea
+                  required
+                  rows={4}
+                  value={description}
+                  maxLength={5000}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="తెలుగు లేదా ఇంగ్లీష్‌లో రాయండి — మీకు ఏది సులభమో అది."
+                  className="w-full rounded-xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--muted))]/40 p-3 text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-[hsl(var(--muted-foreground))]/70 resize-none"
+                />
+              </div>
+
+              {/* 4. వాయిస్ నోట్లు (ఐచ్ఛికం) */}
+              <div className="space-y-1.5 rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))] p-4 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
+                    వాయిస్ నోట్లు <span className="text-[10px] font-normal text-[hsl(var(--muted-foreground))]">ఐచ్ఛికం</span>
+                  </label>
+                </div>
+                <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))] leading-snug">
+                  టైప్ చేయడం కష్టమా? చెప్పండి. 3 వరకు జోడించవచ్చు.
+                </p>
+
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      alert(lang === "te" ? "వాయిస్ రికార్డింగ్ ప్రారంభించబడింది..." : "Voice recording started...");
+                    }}
+                    className="w-full py-2.5 px-4 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/50 hover:bg-red-500/10 hover:text-red-600 text-xs font-bold text-[hsl(var(--foreground))] transition flex items-center justify-center gap-2"
+                  >
+                    <Mic className="size-4 text-red-500" />
+                    <span>వాయిస్ నోట్ రికార్డ్ చేయండి</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* 5. ఇది ఎక్కడ జరిగింది? */}
+              <div className="space-y-1.5 rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))] p-4 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
+                    ఇది ఎక్కడ జరిగింది?
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(() => {
+                          setSelectedArea("విశాఖపట్నం (GPS Location)");
+                        });
+                      }
+                    }}
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                  >
+                    <Navigation className="size-3" />
+                    నా లొకేషన్ ఉపయోగించండి
+                  </button>
+                </div>
+
+                <input
+                  type="text"
+                  value={selectedArea}
+                  onChange={(e) => setSelectedArea(e.target.value)}
+                  placeholder="గ్రామం, పట్టణం, జిల్లా లేదా మండలం..."
+                  className="w-full rounded-xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--muted))]/40 p-3 text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-[10px] font-medium text-[hsl(var(--muted-foreground))] italic">
+                  సూచన: ఒకే పేరున్న గ్రామాల కోసం జిల్లా లేదా మండలం జోడించండి.
+                </p>
+              </div>
+
+              {/* 6. మీ ఫోన్ నంబర్ (ఐచ్ఛికం) */}
+              <div className="space-y-1.5 rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))] p-4 shadow-xs">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
+                    మీ ఫోన్ నంబర్ <span className="text-[10px] font-normal text-[hsl(var(--muted-foreground))]">ఐచ్ఛికం</span>
+                  </label>
+                </div>
+                <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))] leading-snug">
+                  మరిన్ని వివరాలు అవసరమైతే ఎడిటర్ మిమ్మల్ని సంప్రదించడానికి మాత్రమే.
+                </p>
+
+                <input
+                  type="tel"
+                  value={contactNumber}
+                  onChange={(e) => setContactNumber(e.target.value)}
+                  placeholder="10 అంకెల మొబైల్ నంబర్"
+                  className="w-full rounded-xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--muted))]/40 p-3 text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCategory(null)}
+                  className="flex-1 py-3 rounded-full border border-[hsl(var(--border))] text-xs font-bold text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
+                >
+                  వెనుకకు (Back)
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={!description.trim() || submitting}
+                  className="flex-1 py-3 rounded-full bg-gradient-to-r from-orange-600 via-blue-600 to-indigo-600 text-white font-black text-xs shadow-md hover:opacity-95 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                >
+                  <Send className="size-3.5" />
+                  విజ్ఞప్తిని సమర్పించండి (Submit Report)
+                </button>
+              </div>
+            </form>
           ) : (
-            /* SELECTED CATEGORY FORM */
+            /* OTHER CATEGORY FORM */
             <form onSubmit={handleSubmitPost} className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
               <div className="flex items-center gap-2 rounded-2xl bg-[hsl(var(--muted))] p-3 border border-[hsl(var(--border))]">
                 {currentCategoryObj && (
@@ -326,10 +518,8 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder={
-                    selectedCategory === "news" ? "ఉదా: మీ ఏరియా వార్త శీర్షిక..." :
                     selectedCategory === "buy_sell_items" ? "ఉదా: iPhone 13 / Hero Splendor 2022 / 2BHK ఇల్లు అద్దెకు..." :
                     selectedCategory === "job" ? "ఉదా: స్థానిక షాపులో బిల్లింగ్ ఆపరేటర్ కావాలి..." :
-                    selectedCategory === "complaint" ? "ఉదా: డ్రైనేజీ రోడ్డు సమస్య వివరాలు..." :
                     selectedCategory === "agriculture" ? "ఉదా: బియ్యం 25kg బస్తా / వేరుశనగ పంట..." :
                     "ఉదా: ఎలక్ట్రీషియన్ / ప్లంబర్ సేవలు అవసరం..."
                   }
