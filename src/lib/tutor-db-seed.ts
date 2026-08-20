@@ -72,6 +72,19 @@ export const SEED_SENTENCES: DBSentenceItem[] = [
       { speaker: "User", text: "I like drinking tea in the morning." }
     ]
   },
+  {
+    id: "b_en_5",
+    category: "basic",
+    target_language: "english",
+    title: "Introducing Family Members",
+    target_sentence: "My family lives in Hyderabad.",
+    telugu_translation: "మా కుటుంబం హైదరాబాద్‌లో ఉంటుంది.",
+    grammar_breakdown_te: "కుటుంబ నివాసానికి 'lives in' ఉపయోగించాలి.",
+    example_dialogue: [
+      { speaker: "AI", text: "Where does your family live?" },
+      { speaker: "User", text: "My family lives in Hyderabad." }
+    ]
+  },
 
   // -------------------------------------------------------------
   // 1. BASIC HINDI (HINDI)
@@ -115,6 +128,19 @@ export const SEED_SENTENCES: DBSentenceItem[] = [
       { speaker: "User", text: "मैं ठीक हूँ, धन्यवाद।" }
     ]
   },
+  {
+    id: "b_hi_4",
+    category: "basic",
+    target_language: "hindi",
+    title: "पसंद का इज़हार",
+    target_sentence: "मुझे चाय पीना पसंद है।",
+    telugu_translation: "నాకు టీ తాగడం ఇష్టం.",
+    grammar_breakdown_te: "'मुझे' = నాకు, 'पसंद है' = ఇష్టం.",
+    example_dialogue: [
+      { speaker: "AI", text: "क्या आपको चाय पसंद है?" },
+      { speaker: "User", text: "हाँ, मुझे चाय पीना पसंद है।" }
+    ]
+  },
 
   // -------------------------------------------------------------
   // 2. SPOKEN ENGLISH (ENGLISH)
@@ -143,6 +169,19 @@ export const SEED_SENTENCES: DBSentenceItem[] = [
     example_dialogue: [
       { speaker: "AI", text: "How is the weather outside?" },
       { speaker: "User", text: "It is very hot outside today." }
+    ]
+  },
+  {
+    id: "sp_en_3",
+    category: "spoken",
+    target_language: "english",
+    title: "Making Weekend Plans",
+    target_sentence: "What are your plans for this weekend?",
+    telugu_translation: "ఈ వీకెండ్ కోసం మీ ప్లాన్‌లు ఏమిటి?",
+    grammar_breakdown_te: "'What are your plans' = మీ ప్లాన్‌లు ఏమిటి, 'weekend' = వారాంతం.",
+    example_dialogue: [
+      { speaker: "AI", text: "Are you free this Saturday?" },
+      { speaker: "User", text: "What are your plans for this weekend?" }
     ]
   },
 
@@ -203,6 +242,19 @@ export const SEED_SENTENCES: DBSentenceItem[] = [
     example_dialogue: [
       { speaker: "AI", text: "Do you have any questions for the meeting?" },
       { speaker: "User", text: "When is the team meeting scheduled?" }
+    ]
+  },
+  {
+    id: "off_en_3",
+    category: "office",
+    target_language: "english",
+    title: "Requesting Leave",
+    target_sentence: "I need to take a day off tomorrow.",
+    telugu_translation: "నాకు రేపు ఒక రోజు సెలవు కావాలి.",
+    grammar_breakdown_te: "సెలవు కోరేటప్పుడు 'take a day off' ని చెప్పాలి.",
+    example_dialogue: [
+      { speaker: "AI", text: "Can you attend tomorrow's session?" },
+      { speaker: "User", text: "I need to take a day off tomorrow." }
     ]
   },
 
@@ -387,7 +439,7 @@ export async function seedTutorSentencesToSupabase(): Promise<void> {
   }
 }
 
-// 🔍 FETCH SENTENCES FROM SUPABASE DATABASE TABLE
+// 🔍 FETCH SENTENCES FROM SUPABASE DATABASE TABLE (WITH INSTANT MEMORY FALLBACK)
 export async function fetchTutorSentencesFromSupabase(
   category: "basic" | "spoken" | "office" | "interview" | "travel" | "kids",
   targetLanguage: TargetLanguage
@@ -408,7 +460,7 @@ export async function fetchTutorSentencesFromSupabase(
     }
   }
 
-  // Fallback to local curated SEED_SENTENCES dataset
+  // Fallback to local curated SEED_SENTENCES dataset (Zero AI Calls)
   return SEED_SENTENCES.filter(
     (s) => s.category === category && s.target_language === targetLanguage
   );
