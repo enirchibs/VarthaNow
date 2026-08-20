@@ -12,17 +12,10 @@ serve(async (req) => {
   }
 
   try {
-    const apiKey = Deno.env.get("GEMINI_API_KEY");
-    if (!apiKey) {
-      return new Response(JSON.stringify({ error: "GEMINI_API_KEY is not configured" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
+    const geminiKey = Deno.env.get("GEMINI_API_KEY");
+    const openrouterKey = Deno.env.get("OPENROUTER_API_KEY");
     const body = await req.json().catch(() => ({}));
-    const { action, symptomsText, lang, userMsg, chatHistory } = body;
+    const { action, symptomsText, lang, userMsg, chatHistory, prompt, systemInstruction, agent, preferredModel } = body;
 
     // 1. Secrets Validation
     if (action === "validate_secrets") {
@@ -30,7 +23,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           status: "success",
-          gemini: !!apiKey,
+          gemini: !!geminiKey,
+          openrouter: !!openrouterKey,
           youtube: !!youtubeKey,
         }),
         {
@@ -39,75 +33,91 @@ serve(async (req) => {
       );
     }
 
-    // 2. Gemini Health Check
-    if (action === "health_check") {
-      const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
-      const prompt = "Generate one Telugu news headline about Andhra Pradesh.";
-      const result = await model.generateContent(prompt);
-      const headline = result.response.text().trim();
-      return new Response(
-        JSON.stringify({
-          status: "success",
-          headline,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+    // 2. AI ORCHESTRATOR ENDPOINT (Multi-Provider: Gemini ➔ OpenRouter)
+    if (action === "ai_orchestrator") {
+      const fullPrompt = systemInstruction ? `${systemInstruction}\n\nTask:\n${prompt}` : prompt;
+
+      // 1st Priority: Gemini API
+      if (geminiKey) {
+        try {
+          const genAI = new GoogleGenerativeAI(geminiKey);
+          const modelName = preferredModel || (agent === "lesson" ? "gemini-3.5-flash-lite" : "gemini-3.5-flash");
+          const model = genAI.getGenerativeModel({ model: modelName });
+          const result = await model.generateContent(fullPrompt);
+          const text = result.response.text();
+          if (text) {
+            return new Response(
+              JSON.stringify({ text, provider: "gemini", model: modelName }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        } catch (geminiErr: any) {
+          console.warn("Gemini Orchestrator fallback triggered:", geminiErr.message);
         }
+      }
+
+      // 2nd Priority: OpenRouter API
+      try {
+        const orModel = preferredModel || "openrouter/free";
+        const orHeaders: Record<string, string> = {
+          "Content-Type": "application/json",
+          "HTTP-Referer": "https://varthanow.com",
+          "X-Title": "VarthaNow Maatlaadu AI"
+        };
+        if (openrouterKey) {
+          orHeaders["Authorization"] = `Bearer ${openrouterKey}`;
+        }
+
+        const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+          method: "POST",
+          headers: orHeaders,
+          body: JSON.stringify({
+            model: orModel,
+            messages: [
+              { role: "system", content: systemInstruction || "You are a language tutor for Telugu speakers." },
+              { role: "user", content: prompt }
+            ],
+            temperature: 0.7
+          })
+        });
+
+        if (orRes.ok) {
+          const orData = await orRes.json();
+          const text = orData?.choices?.[0]?.message?.content;
+          if (text) {
+            return new Response(
+              JSON.stringify({ text, provider: "openrouter", model: orModel }),
+              { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        }
+      } catch (orErr: any) {
+        console.warn("OpenRouter Orchestrator fallback triggered:", orErr.message);
+      }
+
+      return new Response(
+        JSON.stringify({ error: "All AI providers unavailable", provider: "none" }),
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    if (action === "symptom_check") {
-      const prompt = `
-        You are an AI Health Assistant. Analyze the following symptoms.
-        
-        IMPORTANT RULES:
-        1. This is NOT a medical diagnosis system.
-        2. Provide educational information only.
-        3. Include a medical disclaimer warning the user.
-        4. Respond STRICTLY in ${lang === "te" ? "Telugu (professional yet simple public Telugu)" : "English"}.
-        5. Respond exactly in the following sectioned format. Keep sections clear and concise.
-        
-        Symptoms: ${symptomsText}
-        
-        Output Format (Response must follow this exact output layout, prefixing each section with the labels):
-        Symptoms: <Summarize user's symptoms here>
-        Possible Causes: <List possible common educational explanations here>
-        Self-Care: <List general home-care and lifestyle tips here>
-        See Doctor If: <Warning signs and when to consult a practitioner>
-        Emergency Warning: <Emergency indicators where they must seek immediate emergency medical care>
-      `;
-      const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
-      return new Response(JSON.stringify({ text }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
-
-    if (action === "chat") {
-      const prompt = `
-        You are an AI Health Chat Assistant on VarthaNow.
-        Symptom or query: "${userMsg}"
-        
-        Guidelines:
-        1. Respond with high-quality, professional educational health suggestions.
-        2. Provide general care, hydration advice, potential causes, and clear indicators of when to seek medical help.
-        3. Strictly write in ${lang === "te" ? "Telugu (professional and readable)" : "English"}.
-        4. Keep the message helpful, friendly, and structured.
-        5. Always end with or include a medical disclaimer that this is not a diagnostic tool.
-      `;
-      const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
-      const chat = model.startChat({
-        history: chatHistory.map((c: any) => ({
-          role: c.role,
-          parts: [{ text: c.text }]
-        }))
-      });
-      const result = await chat.sendMessage(prompt);
-      const text = result.response.text();
-      return new Response(JSON.stringify({ text }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
+    // Existing Health / Chat Legacy Endpoints
+    if (geminiKey) {
+      const genAI = new GoogleGenerativeAI(geminiKey);
+      if (action === "chat") {
+        const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash-lite" });
+        const chat = model.startChat({
+          history: (chatHistory || []).map((c: any) => ({
+            role: c.role,
+            parts: [{ text: c.text }]
+          }))
+        });
+        const result = await chat.sendMessage(userMsg || prompt);
+        const text = result.response.text();
+        return new Response(JSON.stringify({ text }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
     }
 
     return new Response(JSON.stringify({ error: "Invalid action" }), {

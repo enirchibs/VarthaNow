@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { aiOrchestrator } from "./ai-orchestrator";
 
 export type TargetLanguage = "english" | "hindi";
 export type UserLevel = "beginner" | "elementary" | "intermediate" | "advanced";
@@ -163,7 +164,7 @@ Task: ${taskType}
 `;
 }
 
-// AI Live Conversation Evaluation
+// AI Live Conversation Evaluation via Speaking Coach Agent & AI Orchestrator
 export async function evaluateSpeakingResponse(
   userSpeechText: string,
   contextHistory: { role: "user" | "model"; text: string }[],
@@ -172,62 +173,32 @@ export async function evaluateSpeakingResponse(
   const profile = getStoredProfile();
   profile.target_language = targetLanguage;
 
-  const prompt = `
-${buildMasterPrompt(profile, "Evaluate speaking response and continue conversation")}
-
-User Speech Attempt: "${userSpeechText}"
-
-Evaluate the attempt and respond strictly in JSON format with these exact keys:
-{
-  "has_error": boolean,
-  "wrong": string (only if has_error is true),
-  "correct": string (only if has_error is true),
-  "telugu_explanation": string (explaining the grammar/word choice in polite Telugu),
-  "encouragement": string (encouraging feedback in Telugu),
-  "next_question": string (the next question or prompt for the user in ${targetLanguage === "english" ? "English" : "Hindi"}),
-  "native_suggestion": string (optional more natural phrasing),
-  "score": {
-    "grammar": number (0-100),
-    "vocabulary": number (0-100),
-    "fluency": number (0-100),
-    "pronunciation": number (0-100),
-    "overall": number (0-100)
-  }
-}
-`;
-
   try {
-    if (supabase) {
-      const { data, error } = await supabase.functions.invoke("gemini-proxy", {
-        body: {
-          action: "chat",
-          userMsg: prompt,
-          chatHistory: contextHistory,
-          lang: "te"
-        }
-      });
+    const orchestratorRes = await aiOrchestrator.askAI({
+      agent: "speaking_coach",
+      task: "evaluate_speech_attempt",
+      userText: userSpeechText,
+      contextHistory,
+      profile,
+      targetLanguage
+    });
 
-      if (!error && data?.text) {
-        const jsonMatch = data.text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]) as EvaluationResult;
-          // Update profile weaknesses if errors exist
-          if (parsed.has_error && parsed.wrong && parsed.correct) {
-            profile.common_mistakes = [
-              { wrong: parsed.wrong, correct: parsed.correct, telugu_note: parsed.telugu_explanation },
-              ...profile.common_mistakes.slice(0, 4)
-            ];
-            saveStoredProfile(profile);
-          }
-          return parsed;
-        }
+    if (orchestratorRes.json) {
+      const parsed = orchestratorRes.json as EvaluationResult;
+      if (parsed.has_error && parsed.wrong && parsed.correct) {
+        profile.common_mistakes = [
+          { wrong: parsed.wrong, correct: parsed.correct, telugu_note: parsed.telugu_explanation },
+          ...profile.common_mistakes.slice(0, 4)
+        ];
+        saveStoredProfile(profile);
       }
+      return parsed;
     }
   } catch (err) {
-    console.warn("Gemini evaluation fallback triggered:", err);
+    console.warn("Orchestrator speech evaluation fallback triggered:", err);
   }
 
-  // Safe Fallback Evaluator
+  // Safe Emergency Fallback Evaluator
   const isSimple = userSpeechText.length < 15;
   const isEnglish = targetLanguage === "english";
 
