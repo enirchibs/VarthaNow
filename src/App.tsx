@@ -25,6 +25,8 @@ import {
 import { AboutPage, ContactPage, PrivacyPage, TermsPage, DisclaimerPage } from "@/pages/LegalPages";
 import { HealthPortal } from "@/pages/health/HealthPortal";
 
+import { MaatlaaduAIPage } from "@/pages/tutor/MaatlaaduAIPage";
+
 const router = createBrowserRouter([
   {
     element: <Layout />,
@@ -32,7 +34,7 @@ const router = createBrowserRouter([
       { path: "/", element: <HomePage /> },
       { path: "/market", element: <ManaMarketPage /> },
       { path: "/prakatanalu", element: <PrakatanaluPage /> },
-      { path: "/maatlaadu-ai", element: <HealthPortal /> },
+      { path: "/maatlaadu-ai", element: <MaatlaaduAIPage /> },
       { path: "/category/health", element: <Navigate to="/health" replace /> },
       { path: "/health", element: <HealthPortal /> },
       { path: "/health/:subpage", element: <HealthPortal /> },
