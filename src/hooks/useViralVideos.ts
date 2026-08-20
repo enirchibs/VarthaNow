@@ -26,7 +26,6 @@ export function useViralVideos(limit = 10) {
     let mounted = true;
     
     async function fetchVideos() {
-      setLoading(true);
       if (!supabase) {
         setLoading(false);
         return;
@@ -45,10 +44,6 @@ export function useViralVideos(limit = 10) {
         let fetchedVideos: ViralVideo[] = data || [];
         
         // --- PERSONALIZATION LOGIC ---
-        // We will score the videos based on user interests (bookmarks)
-        // to bubble up the most relevant ones.
-        
-        // 1. Extract interest keywords from bookmarks (which are slugs)
         const interestKeywords = new Set<string>();
         bookmarks.forEach(slug => {
           const words = slug.toLowerCase().split("-");
@@ -72,7 +67,6 @@ export function useViralVideos(limit = 10) {
            const descA = (a.description || "").toLowerCase();
            const descB = (b.description || "").toLowerCase();
            
-           // Boost score if it matches user interests
            interestKeywords.forEach(kw => {
               if (titleA.includes(kw) || descA.includes(kw)) scoreA += 15;
               if (titleB.includes(kw) || descB.includes(kw)) scoreB += 15;
@@ -93,11 +87,32 @@ export function useViralVideos(limit = 10) {
     
     fetchVideos();
     
+    // ⏱️ 5-MINUTE AUTO-POLLING INTERVAL (Runs every 5 minutes = 300,000 ms)
+    const fiveMinInterval = setInterval(() => {
+      console.log("⏱️ 5-Minute Viral Shorts auto-refresh triggered...");
+      fetchVideos();
+    }, 300000);
+
+    // 📡 SUPABASE REALTIME SUBSCRIPTION FOR INSTANT SHORTS UPDATES
+    let channel: any = null;
+    if (supabase) {
+      channel = supabase
+        .channel("viral_videos_changes")
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "viral_videos" }, () => {
+          console.log("⚡ Realtime New Viral Short Detected! Auto-fetching...");
+          fetchVideos();
+        })
+        .subscribe();
+    }
+
     return () => {
       mounted = false;
+      clearInterval(fiveMinInterval);
+      if (channel && supabase) {
+        supabase.removeChannel(channel);
+      }
     };
   }, [bookmarks, limit]);
 
   return { videos, loading };
 }
-

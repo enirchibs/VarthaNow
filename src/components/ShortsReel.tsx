@@ -283,6 +283,31 @@ export function ShortsReel() {
 
   useEffect(() => {
     refreshShortsPool(true, false);
+
+    // ⏱️ 5-MINUTE AUTO-REFRESH (Runs every 5 minutes = 300,000 ms)
+    const interval = setInterval(() => {
+      console.log("⏱️ ShortsReel 5-minute auto-refresh pool...");
+      refreshShortsPool(false, false);
+    }, 300000);
+
+    // 📡 SUPABASE REALTIME LISTENER FOR NEW SHORTS
+    let channel: any = null;
+    if (supabase) {
+      channel = supabase
+        .channel("shorts_reel_realtime")
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "viral_videos" }, () => {
+          console.log("⚡ ShortsReel Realtime INSERT detected! Refreshing pool...");
+          refreshShortsPool(false, false);
+        })
+        .subscribe();
+    }
+
+    return () => {
+      clearInterval(interval);
+      if (channel && supabase) {
+        supabase.removeChannel(channel);
+      }
+    };
   }, [lang]);
 
   // Handle Like click

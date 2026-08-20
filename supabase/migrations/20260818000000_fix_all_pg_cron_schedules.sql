@@ -146,10 +146,10 @@ SELECT cron.schedule(
   $$
 );
 
--- I. YouTube Viral Shorts (Every 30 mins at :05, :35)
+-- I. YouTube Viral Shorts (Every 5 minutes)
 SELECT cron.schedule(
   'worker-viral-shorts',
-  '5,35 * * * *',
+  '*/5 * * * *',
   $$
   SELECT net.http_post(
     url := 'https://xceartahttbkdihteynx.supabase.co/functions/v1/youtube-proxy',

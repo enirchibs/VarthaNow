@@ -18,10 +18,10 @@ select cron.schedule(
   $$
 );
 
--- 2. Viral Videos Job (runs at minute 20 of every hour - 20 minutes gap to avoid 429 rate limits)
+-- 2. Viral Videos Job (runs every 5 minutes)
 select cron.schedule(
   'varthanow-viral-videos-every-hour',
-  '20 * * * *',
+  '*/5 * * * *',
   $$
   select
     net.http_post(
