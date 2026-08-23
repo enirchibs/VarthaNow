@@ -544,8 +544,11 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                       <option value="🚰 Plumber — ప్లంబర్">🚰 Plumber — ప్లంబర్</option>
                       <option value="⚡ Electrician — ఎలక్ట్రీషియన్">⚡ Electrician — ఎలక్ట్రీషియన్</option>
                       <option value="🧱 Mason — మేస్త్రీ">🧱 Mason — మేస్త్రీ</option>
-                      <option value="🪚 Carpenter — కార్పెంటర్">🪚 Carpenter — కార్పెంటర్</option>
+                      <option value="🧱 Tiles Mesthri — టైల్స్ మేస్త్రీ">🧱 Tiles Mesthri — టైల్స్ & మార్బుల్ మేస్త్రీ</option>
+                      <option value="🪚 Wood Work = Carpenter">🪚 Wood Work = Carpenter — వుడ్ వర్క్ కార్పెంటర్</option>
+                      <option value="👨‍🏭 Welder / Welding">👨‍🏭 Welder / Welding — వెల్డర్ వర్క్</option>
                       <option value="🎨 Painter — పెయింటర్">🎨 Painter — పెయింటర్</option>
+                      <option value="🛖 False Ceiling / Poly Sheeling">🛖 False Ceiling / Poly Sheeling — ఫాల్స్ సీలింగ్</option>
                       <option value="🧹 Cleaning — క్లీనింగ్">🧹 Cleaning — క్లీనింగ్</option>
                       <option value="👩‍🏫 Tuition — ట్యూషన్">👩‍🏫 Tuition — ట్యూషన్</option>
                     </optgroup>
@@ -559,7 +562,15 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                       <option value="🌾 Paddy / Crop Cutter">🌾 Paddy / Crop Cutter — పంట కోత యంత్రం</option>
                       <option value="🚛 Tractor Trolley">🚛 Tractor Trolley — ట్రాక్టర్ ట్రాలీ</option>
                     </optgroup>
-                    <optgroup label="🏗️ నిర్మాణ సేవలు (Construction Services)">
+                    <optgroup label="🏗️ నిర్మాణ సేవలు & సామగ్రి (Construction Services & Materials)">
+                      <option value="🎨 Painter — పెయింటర్ (పుట్టీ & పెయింటింగ్)">🎨 Painter — పెయింటర్ (పుట్టీ & పెయింటింగ్)</option>
+                      <option value="👨‍🏭 Welder / Welding — వెల్డర్">👨‍🏭 Welder / Welding — వెల్డర్ / వెల్డింగ్ వర్క్</option>
+                      <option value="🧱 Tiles Mesthri — టైల్స్ మేస్త్రీ">🧱 Tiles Mesthri — టైల్స్ & మార్బుల్ మేస్త్రీ</option>
+                      <option value="🪚 Wood Work = Carpenter">🪚 Wood Work = Carpenter — వుడ్ వర్క్ కార్పెంటర్</option>
+                      <option value="🛖 Poly Sheeling / Ceiling">🛖 Poly Sheeling / Ceiling — ఫాల్స్ సీలింగ్ & పాలీ షీలింగ్</option>
+                      <option value="🏖️ Sand Supplier — ఇసుక సరఫరాదారు">🏖️ Sand Supplier — ఇసుక సరఫరాదారు (Sand Supplier)</option>
+                      <option value="🧱 Eetuka / Brick Supplier">🧱 Eetuka / Brick Supplier — ఇటుకల సరఫరాదారు (Bricks)</option>
+                      <option value="🏗️ Cement & Iron Supplier">🏗️ Cement & Iron Supplier — సిమెంట్ & ఐరన్ సరఫరాదారు</option>
                       <option value="🏗️ JCB / Excavator">🏗️ JCB / Excavator — జేసీబీ / ఎక్స్కవేటర్</option>
                       <option value="🚧 Earthmover — ఎర్త్‌మూవర్">🚧 Earthmover — ఎర్త్‌మూవర్</option>
                       <option value="🧱 Concrete Mixer">🧱 Concrete Mixer — కాంక్రీట్ మిక్సర్</option>
@@ -576,7 +587,8 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                       <option value="🍽️ Catering — క్యాటరింగ్">🍽️ Catering — క్యాటరింగ్</option>
                       <option value="📸 Photography — ఫోటోగ్రఫీ">📸 Photography — ఫోటోగ్రఫీ</option>
                     </optgroup>
-                    <optgroup label="🔧 ఇతర స్థానిక సేవలు (Other Local Services)">
+                    <optgroup label="🔧 ఇతర స్థానిక సేవలు (General & Local Services)">
+                      <option value="🚗 Driver — డ్రైవర్">🚗 Driver — డ్రైవర్ (Car / Auto / Heavy Driver)</option>
                       <option value="🛵 Mechanic — మెకానిక్">🛵 Mechanic — మెకానిక్</option>
                       <option value="📱 Mobile Repair — మొబైల్ రిపేర్">📱 Mobile Repair — మొబైల్ రిపేర్</option>
                       <option value="💻 Computer Service">💻 Computer Service — కంప్యూటర్ సర్వీస్</option>

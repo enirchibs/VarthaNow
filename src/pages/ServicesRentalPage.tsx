@@ -49,8 +49,11 @@ const SERVICE_GROUPS = [
       "🚰 Plumber — ప్లంబర్",
       "⚡ Electrician — ఎలక్ట్రీషియన్",
       "🧱 Mason — మేస్త్రీ",
-      "🪚 Carpenter — కార్పెంటర్",
+      "🧱 Tiles Mesthri — టైల్స్ & మార్బుల్ మేస్త్రీ",
+      "🪚 Wood Work = Carpenter — వుడ్ వర్క్ కార్పెంటర్",
+      "👨‍🏭 Welder / Welding — వెల్డర్ / వెల్డింగ్ వర్క్",
       "🎨 Painter — పెయింటర్",
+      "🛖 False Ceiling / Poly Sheeling — ఫాల్స్ సీలింగ్",
       "🧹 Cleaning — క్లీనింగ్",
       "👩‍🏫 Tuition — ట్యూషన్"
     ]
@@ -72,9 +75,17 @@ const SERVICE_GROUPS = [
   },
   {
     id: "construction",
-    title: "🏗️ నిర్మాణ సేవలు (Construction Services)",
+    title: "🏗️ నిర్మాణ సేవలు & సామగ్రి (Construction Services & Materials)",
     icon: Wrench,
     items: [
+      "🎨 Painter — పెయింటర్ (పుట్టీ & పెయింటింగ్)",
+      "👨‍🏭 Welder / Welding — వెల్డర్ / వెల్డింగ్ వర్క్",
+      "🧱 Tiles Mesthri — టైల్స్ & మార్బుల్ మేస్త్రీ",
+      "🪚 Wood Work = Carpenter — వుడ్ వర్క్ కార్పెంటర్",
+      "🛖 Poly Sheeling / Ceiling — ఫాల్స్ సీలింగ్ & పాలీ షీలింగ్",
+      "🏖️ Sand Supplier — ఇసుక సరఫరాదారు (Sand Supplier)",
+      "🧱 Eetuka / Brick Supplier — ఇటుకల సరఫరాదారు (Bricks Supplier)",
+      "🏗️ Cement & Iron Supplier — సిమెంట్ & ఐరన్/స్టీల్ సరఫరాదారు",
       "🏗️ JCB / Excavator — జేసీబీ / ఎక్స్కవేటర్",
       "🚧 Earthmover — ఎర్త్‌మూవర్",
       "🧱 Concrete Mixer — కాంక్రీట్ మిక్సర్",
@@ -99,9 +110,10 @@ const SERVICE_GROUPS = [
   },
   {
     id: "other_services",
-    title: "🔧 ఇతర స్థానిక సేవలు (Other Local Services)",
+    title: "🔧 ఇతర స్థానిక సేవలు (General & Local Services)",
     icon: Truck,
     items: [
+      "🚗 Driver — డ్రైవర్ (Car / Auto / Heavy Driver)",
       "🛵 Mechanic — మెకానిక్",
       "📱 Mobile Repair — మొబైల్ రిపేర్",
       "💻 Computer Service — కంప్యూటర్ సర్వీస్",
