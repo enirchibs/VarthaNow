@@ -1,22 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { 
   X, 
+  User,
   ShoppingBag, 
-  Smartphone, 
-  Car, 
-  Home, 
-  Briefcase, 
-  Wrench, 
-  Gift, 
-  Sparkles, 
-  CheckCircle2, 
   Phone, 
   ShieldCheck, 
+  Camera, 
   Image as ImageIcon,
   Tag,
-  MapPin,
-  Send,
-  ArrowLeft
+  Gift,
+  ArrowLeft,
+  Upload
 } from "lucide-react";
 import { 
   addClassifiedItem, 
@@ -37,18 +31,17 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
   const [profile, setProfile] = useState<SellerProfile | null>(getStoredSellerProfile());
   const [step, setStep] = useState<1 | 2>(1);
 
-  // Form State (Step 1: Ad Details)
+  // Form State (Step 1: Ad Details matching uploaded screenshot format)
   const [sellerName, setSellerName] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [category, setCategory] = useState<ClassifiedCategory>("electronics");
+  const [category, setCategory] = useState<string>("");
+  const [locality, setLocality] = useState<string>("");
   const [title, setTitle] = useState<string>("");
-  const [price, setPrice] = useState<string>("");
-  const [isFree, setIsFree] = useState<boolean>(false);
+  const [description, setDescription] = useState<string>("");
   const [offerDiscount, setOfferDiscount] = useState<string>("");
   const [freeBonusItems, setFreeBonusItems] = useState<string>("");
-  const [locality, setLocality] = useState<string>("మధురవాడ (Madhurawada, Vizag)");
-  const [description, setDescription] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [price, setPrice] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
 
   // OTP State (Step 2: Live SMS OTP Verification)
   const [otp, setOtp] = useState<string>("");
@@ -70,39 +63,62 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
 
   if (!isOpen) return null;
 
-  // Step 1 Submission ➔ Trigger Twilio SMS OTP
+  // Image Upload Handler (Camera & Gallery File Selection)
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setImageUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Step 1 Submission ➔ Trigger Live Twilio SMS OTP Code
   const handleProceedToOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sellerName.trim()) {
-      setErrorMsg("దయచేసి అమ్మకందారు పేరు (Seller Name) నమోదు చేయండి.");
+      setErrorMsg("Please enter your full name (* Required)");
+      return;
+    }
+    if (!category) {
+      setErrorMsg("Please select a category (* Required)");
+      return;
+    }
+    if (!locality) {
+      setErrorMsg("Please select a locality (* Required)");
       return;
     }
     if (!title.trim()) {
-      setErrorMsg("దయచేసి ప్రకటన శీర్షిక (Listing Title) రాయండి.");
+      setErrorMsg("Please enter an ad title (* Required)");
       return;
     }
-    if (!isFree && !price.trim()) {
-      setErrorMsg("దయచేసి ధర (Price in ₹) నమోదు చేయండి.");
+    if (!price.trim()) {
+      setErrorMsg("Please enter price in ₹ (* Required)");
       return;
     }
     const cleanPhone = phone.replace(/\D/g, "");
     if (!cleanPhone || cleanPhone.length < 10) {
-      setErrorMsg("చెల్లుబాటు అయ్యే 10 అంకెల మొబైల్ నంబర్ ఇవ్వండి (10-digit Mobile Number).");
+      setErrorMsg("Please enter 10-digit WhatsApp contact number (* Required)");
       return;
     }
 
     setLoading(true);
     setErrorMsg("");
 
-    // Invoke Twilio SMS API via send-otp Edge Function
+    // Invoke Twilio SMS API via send-otp Edge Function / Supabase Auth
     const res = await sendSMSOTP(cleanPhone);
     setLoading(false);
 
     if (res.success) {
       setDemoOtpHint(res.otpDemo);
-      setStep(2); // Advance to Step 2: Live SMS OTP Verification
+      setStep(2); // Advance to Step 2 of 2
     } else {
-      setErrorMsg("SMS OTP పంపడంలో విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.");
+      setErrorMsg("Failed to dispatch SMS OTP. Please try again.");
     }
   };
 
@@ -110,7 +126,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
   const handleVerifyOTPAndPublish = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otp.trim() || otp.trim().length < 6) {
-      setErrorMsg("దయచేసి 6 అంకెల OTP ని నమోదు చేయండి.");
+      setErrorMsg("Please enter the 6-digit OTP code");
       return;
     }
 
@@ -121,32 +137,32 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
 
     if (!verifyRes.success) {
       setLoading(false);
-      setErrorMsg(verifyRes.error || "OTP తప్పుగా ఉంది. దయచేసి మళ్లీ ప్రయత్నించండి.");
+      setErrorMsg(verifyRes.error || "Invalid OTP code. Please try again.");
       return;
     }
 
-    // On OTP Verification Success:
-    // 1. Save Seller Profile to vizag_user_profile & vaartanow_user_profile in LocalStorage
-    // 2. Publish Classified to Supabase public.classifieds table
-    const finalPrice = isFree ? "ఉచితం (Free Item)" : `₹${price.replace(/[^\d.,]/g, "")}`;
-    const defaultImg = category === "electronics" ? "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80" :
-                       category === "vehicles" ? "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80" :
-                       category === "furniture" ? "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80" :
-                       category === "property" ? "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80" :
-                       category === "services" ? "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80" :
+    // Default HD cover based on category if no photo selected
+    const catType = (category as ClassifiedCategory) || "other";
+    const defaultImg = catType === "electronics" ? "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80" :
+                       catType === "vehicles" ? "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80" :
+                       catType === "furniture" ? "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80" :
+                       catType === "property" ? "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80" :
+                       catType === "services" ? "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80" :
                        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80";
+
+    const formattedPrice = price.startsWith("₹") ? price.trim() : `₹${price.trim()}`;
 
     await addClassifiedItem({
       seller_name: sellerName.trim(),
-      category,
+      category: catType,
       title: title.trim(),
-      description: description.trim() || "ఏలాంటి సమస్య లేదు. నాణ్యమైన వస్తువు.",
-      price: finalPrice,
-      locality,
+      description: description.trim() || "No defects. Excellent condition.",
+      price: formattedPrice,
+      locality: locality.trim(),
       contact: phone.replace(/\D/g, ""),
       images: imageUrl.trim() ? [imageUrl.trim()] : [defaultImg],
       offer_discount: offerDiscount.trim() || undefined,
-      free_items: freeBonusItems.trim() || (isFree ? "ఉచిత వస్తువు (Free Bonus)" : undefined)
+      free_items: freeBonusItems.trim() || undefined
     });
 
     setLoading(false);
@@ -155,227 +171,266 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-[2.2rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-2xl space-y-4 p-6 sm:p-8 max-h-[92vh] overflow-y-auto no-scrollbar">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-[#1f2937] bg-[#111827] text-white shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
 
-        {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-[hsl(var(--border))]/60 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black shadow-md">
-              <ShoppingBag className="size-5" />
-            </div>
-            <div>
-              <h3 className="text-lg font-black text-[hsl(var(--foreground))]">
-                {step === 1 ? "+ Post Your Ad Free (ఉచిత ప్రకటన)" : "📩 Live Twilio SMS OTP Verification"}
-              </h3>
-              <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))]">
-                {step === 1 ? "దశ 1/2: ప్రకటన వివరాలు (Step 1: Ad Details)" : "దశ 2/2: SMS OTP ధృవీకరణ (Step 2: Verification)"}
-              </p>
-            </div>
+        {/* Modal Header Bar matching screenshot */}
+        <div className="flex items-center justify-between border-b border-[#1f2937] pb-3">
+          <div className="flex items-center gap-2.5">
+            <h3 className="text-xl font-black text-white">
+              Post a Classified Ad
+            </h3>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#2563eb]/20 text-[#2563eb] border border-[#2563eb]/30">
+              Step {step} of 2
+            </span>
           </div>
 
           <button
             onClick={onClose}
-            className="rounded-full p-2 text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))] transition cursor-pointer"
+            className="rounded-full p-1.5 text-gray-400 hover:bg-[#1f2937] transition cursor-pointer"
+            aria-label="Close"
           >
             <X className="size-5" />
           </button>
         </div>
 
         {errorMsg && (
-          <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-bold text-center">
+          <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold text-center">
             ⚠️ {errorMsg}
           </div>
         )}
 
-        {/* ---------------- STEP 1: AD DETAILS FORM ---------------- */}
+        {/* ---------------- STEP 1: AD DETAILS FORM (MATCHING SCREENSHOT FORMAT) ---------------- */}
         {step === 1 && (
-          <form onSubmit={handleProceedToOTP} className="space-y-4">
+          <form onSubmit={handleProceedToOTP} className="space-y-3.5 text-xs">
             
-            {/* Seller Name & Phone Number */}
-            <div className="grid sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
-                  అమ్మకందారు పేరు (Seller Name) *
-                </label>
-                <input
-                  type="text"
-                  value={sellerName}
-                  onChange={(e) => setSellerName(e.target.value)}
-                  placeholder="ఉదా: Prasad Kumar"
-                  required
-                  className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
-                  10-అంకెల మొబైల్ నంబర్ (Phone) *
-                </label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-3.5 size-4 text-[hsl(var(--muted-foreground))]" />
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="9876543210"
-                    maxLength={10}
-                    required
-                    className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 pl-10 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
+            {/* Field 1: Your Full Name * */}
+            <div className="space-y-1">
+              <label className="font-extrabold text-gray-200 flex items-center gap-1">
+                <User className="size-3.5 text-[#2563eb]" />
+                Your Full Name <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                value={sellerName}
+                onChange={(e) => setSellerName(e.target.value)}
+                placeholder="ramesh"
+                required
+                className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+              />
             </div>
 
-            {/* Title */}
+            {/* Field 2 & 3: Category & Locality Side by Side */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              
+              <div className="space-y-1">
+                <label className="font-extrabold text-gray-200">
+                  Category <span className="text-red-400">*</span>
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  required
+                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
+                >
+                  <option value="">Select a category</option>
+                  <option value="electronics">📱 Electronics & Mobiles</option>
+                  <option value="furniture">🛋️ Furniture & Appliances</option>
+                  <option value="vehicles">🚗 Vehicles & Bikes</option>
+                  <option value="property">🏢 Property & Real Estate</option>
+                  <option value="services">🔧 Services & Repairs</option>
+                  <option value="jobs">💼 Jobs & Careers</option>
+                  <option value="agriculture">🌾 Agriculture & Farmer Crops</option>
+                  <option value="other">🎁 Other & Free Items</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-extrabold text-gray-200">
+                  Locality <span className="text-red-400">*</span>
+                </label>
+                <select
+                  value={locality}
+                  onChange={(e) => setLocality(e.target.value)}
+                  required
+                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
+                >
+                  <option value="">Select a locality</option>
+                  <option value="Madhurawada">Madhurawada</option>
+                  <option value="Gajuwaka">Gajuwaka</option>
+                  <option value="MVP Colony">MVP Colony</option>
+                  <option value="Visakhapatnam">Visakhapatnam</option>
+                  <option value="Gachibowli">Gachibowli (Hyderabad)</option>
+                  <option value="Hyderabad">Hyderabad</option>
+                  <option value="Vijayawada">Vijayawada</option>
+                  <option value="Guntur">Guntur</option>
+                  <option value="Tirupati">Tirupati</option>
+                  <option value="Warangal">Warangal</option>
+                </select>
+              </div>
+
+            </div>
+
+            {/* Field 4: Ad Title * */}
             <div className="space-y-1">
-              <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
-                ప్రకటన శీర్షిక (Listing Title) *
+              <label className="font-extrabold text-gray-200">
+                Ad Title <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="ఉదా: Samsung Galaxy S22 Ultra లేదా సోనా మసూరి బియ్యం బస్తాలు"
+                placeholder="What are you selling/offering?"
                 required
-                className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
               />
             </div>
 
-            {/* Category Selector */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
-                విభాగం (Category Dropdown) *
+            {/* Field 5: Description */}
+            <div className="space-y-1">
+              <label className="font-extrabold text-gray-200">
+                Description
               </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as ClassifiedCategory)}
-                className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="electronics">📱 ఎలక్ట్రానిక్స్ (Electronics)</option>
-                <option value="furniture">🛋️ ఫర్నిచర్ (Furniture)</option>
-                <option value="vehicles">🚗 వాహనాలు (Vehicles)</option>
-                <option value="property">🏢 ప్రాపర్టీ & ఇల్లు (Property)</option>
-                <option value="services">🔧 స్థానిక సేవలు (Services)</option>
-                <option value="jobs">💼 ఉద్యోగాలు (Jobs)</option>
-                <option value="other">🎁 ఇతర / ఉచితం (Other / Free)</option>
-              </select>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                placeholder="More details about your ad..."
+                className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+              />
             </div>
 
-            {/* Price & Free Item Checkbox */}
-            <div className="grid sm:grid-cols-2 gap-3">
+            {/* Fields 6 & 7: Bordered Box Container (Special Offer & Free Bonus) */}
+            <div className="p-3 rounded-2xl border border-[#1f2937] bg-[#030712]/60 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-xs font-extrabold text-[hsl(var(--foreground))] flex items-center justify-between">
-                  <span>ధర (Price in ₹) *</span>
-                  <label className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isFree}
-                      onChange={(e) => setIsFree(e.target.checked)}
-                      className="rounded text-emerald-600 focus:ring-emerald-500"
-                    />
-                    ఉచితం (Free)
-                  </label>
-                </label>
-                <input
-                  type="text"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  disabled={isFree}
-                  placeholder={isFree ? "ఉచితం (Free)" : "35000"}
-                  required={!isFree}
-                  className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-                />
-              </div>
-
-              {/* Locality Dropdown */}
-              <div className="space-y-1">
-                <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
-                  ప్రాంతం (Locality Dropdown) *
-                </label>
-                <select
-                  value={locality}
-                  onChange={(e) => setLocality(e.target.value)}
-                  className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="మధురవాడ (Madhurawada, Vizag)">మధురవాడ (Madhurawada)</option>
-                  <option value="గాజువాక (Gajuwaka, Vizag)">గాజువాక (Gajuwaka)</option>
-                  <option value="ఎంవీపీ కాలనీ (MVP Colony, Vizag)">ఎంవీపీ కాలనీ (MVP Colony)</option>
-                  <option value="విశాఖపట్నం (Visakhapatnam)">విశాఖపట్నం (Visakhapatnam)</option>
-                  <option value="హైదరాబాద్ (Hyderabad)">హైదరాబాద్ (Hyderabad)</option>
-                  <option value="గచ్చిబౌలి (Gachibowli, Hyderabad)">గచ్చిబౌలి (Gachibowli)</option>
-                  <option value="విజయవాడ (Vijayawada)">విజయవాడ (Vijayawada)</option>
-                  <option value="గుంటూరు (Guntur)">గుంటూరు (Guntur)</option>
-                  <option value="తిరుపతి (Tirupati)">తిరుపతి (Tirupati)</option>
-                  <option value="వరంగల్ (Warangal)">వరంగల్ (Warangal)</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Offer Discount & Free Bonus Items */}
-            <div className="grid sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
-                  ఆఫర్ / తగ్గింపు Tag (Optional)
+                <label className="text-[11px] font-extrabold text-amber-400 flex items-center gap-1">
+                  <Tag className="size-3 text-amber-400" />
+                  Special Offer / Discount <span className="text-gray-400 font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
                   value={offerDiscount}
                   onChange={(e) => setOfferDiscount(e.target.value)}
-                  placeholder="ఉదా: 25% OFF"
-                  className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. 25% OFF or Festive Sale"
+                  className="w-full rounded-xl border border-[#1f2937] bg-[#111827] p-2.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
-                  ఉచిత బోనస్ వస్తువులు (Optional)
+                <label className="text-[11px] font-extrabold text-teal-400 flex items-center gap-1">
+                  <Gift className="size-3 text-teal-400" />
+                  Free Bonus Items <span className="text-gray-400 font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
                   value={freeBonusItems}
                   onChange={(e) => setFreeBonusItems(e.target.value)}
-                  placeholder="ఉదా: Includes charger & case"
-                  className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. Free Case & Cushion included"
+                  className="w-full rounded-xl border border-[#1f2937] bg-[#111827] p-2.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
                 />
               </div>
             </div>
 
-            {/* Description */}
-            <div className="space-y-1">
-              <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
-                వివరణ (Description Textarea)
+            {/* Field 8: Add Photos (Camera & Gallery Input) */}
+            <div className="space-y-1.5">
+              <label className="font-extrabold text-gray-200">
+                Add Photos <span className="text-gray-400 font-normal">(Up to 3 Photos)</span>
               </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={2}
-                placeholder="వస్తువు కండిషన్, వారంటీ వివరాలు, పిక్‌అప్ సూచనలు..."
-                className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+
+              <div className="grid grid-cols-2 gap-3">
+                
+                {/* 📷 Open Camera Button Box */}
+                <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-[#2563eb]/50 hover:bg-[#2563eb]/10 transition cursor-pointer group bg-[#030712]/40">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleImageFileChange}
+                    className="hidden"
+                  />
+                  <Camera className="size-6 text-[#2563eb] group-hover:scale-110 transition mb-1" />
+                  <span className="text-[11px] font-black text-blue-400">Open Camera</span>
+                </label>
+
+                {/* 🖼️ Gallery Button Box */}
+                <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-emerald-500/50 hover:bg-emerald-500/10 transition cursor-pointer group bg-[#030712]/40">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageFileChange}
+                    className="hidden"
+                  />
+                  <ImageIcon className="size-6 text-emerald-400 group-hover:scale-110 transition mb-1" />
+                  <span className="text-[11px] font-black text-emerald-400">Gallery</span>
+                </label>
+
+              </div>
+
+              {/* Photo preview or URL input fallback */}
+              {imageUrl ? (
+                <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-[#1f2937] mt-2">
+                  <img src={imageUrl} alt="preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setImageUrl("")}
+                    className="absolute top-2 right-2 rounded-full bg-black/70 p-1 text-white hover:bg-black"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+              ) : (
+                <input
+                  type="url"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="Or paste Image URL link directly (https://...)"
+                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-2.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] mt-1"
+                />
+              )}
             </div>
 
-            {/* Photo Input */}
-            <div className="space-y-1">
-              <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
-                ఫోటో లింక్ / Camera Input (Photo Upload)
-              </label>
-              <input
-                type="url"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://images.unsplash.com/..."
-                className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+            {/* Field 9 & 10: Price & Contact Number Side by Side */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              
+              <div className="space-y-1">
+                <label className="font-extrabold text-gray-200">
+                  Price (in ₹) <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="e.g. 5000"
+                  required
+                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-extrabold text-gray-200">
+                  Contact Number (WhatsApp) <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="7207550499"
+                  maxLength={10}
+                  required
+                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                />
+              </div>
+
             </div>
 
-            {/* Next Step Button */}
+            {/* Primary Action Button matching screenshot */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-4 rounded-full bg-[#2563eb] hover:bg-blue-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
-              {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live Twilio SMS OTP పొందండి"}
+              {loading ? "Dispatching SMS OTP..." : "Proceed & Send OTP Code →"}
             </button>
 
           </form>
@@ -383,32 +438,32 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
 
         {/* ---------------- STEP 2: LIVE TWILIO SMS OTP VERIFICATION ---------------- */}
         {step === 2 && (
-          <form onSubmit={handleVerifyOTPAndPublish} className="space-y-4">
+          <form onSubmit={handleVerifyOTPAndPublish} className="space-y-4 text-xs">
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-bold text-blue-400 hover:underline cursor-pointer"
             >
               <ArrowLeft className="size-3.5" />
-              <span>వెనుకకు (Edit Ad Details)</span>
+              <span>← Back (Edit Ad Details)</span>
             </button>
 
-            <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-900 dark:text-emerald-200 text-center space-y-1">
-              <div className="flex items-center justify-center gap-1.5 font-black text-emerald-600 dark:text-emerald-400 text-sm">
+            <div className="p-4 rounded-2xl bg-[#16a34a]/10 border border-[#16a34a]/30 text-xs font-bold text-emerald-200 text-center space-y-1">
+              <div className="flex items-center justify-center gap-1.5 font-black text-[#16a34a] text-sm">
                 <ShieldCheck className="size-5" />
                 <span>Twilio SMS OTP Sent</span>
               </div>
-              <p>📩 <strong>+91 {phone}</strong> మొబైల్‌కి 6 అంకెల OTP పంపబడింది.</p>
+              <p>📩 A 6-digit OTP code has been sent to <strong>+91 {phone}</strong>.</p>
               {demoOtpHint && (
-                <p className="text-[10px] text-emerald-600 dark:text-emerald-400">
-                  (డెమో OTP కోడ్: <span className="font-black text-sm">{demoOtpHint}</span> లేదా 123456)
+                <p className="text-[10px] text-emerald-400">
+                  (Demo OTP Code: <span className="font-black text-sm">{demoOtpHint}</span> or 123456)
                 </p>
               )}
             </div>
 
             <div className="space-y-1">
-              <label className="text-xs font-extrabold text-[hsl(var(--foreground))] text-center block">
-                6-అంకెల OTP ని ఇక్కడ నమోదు చేయండి (Enter 6-Digit OTP)
+              <label className="font-extrabold text-gray-200 text-center block">
+                Enter 6-Digit OTP Code
               </label>
               <input
                 type="text"
@@ -417,16 +472,16 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                 placeholder="123456"
                 maxLength={6}
                 required
-                className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3.5 text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-[#1f2937] bg-[#030712] p-3.5 text-white focus:outline-none focus:ring-2 focus:ring-[#16a34a]"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-4 rounded-full bg-[#16a34a] hover:bg-emerald-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
-              {loading ? "ధృవీకరిస్తున్నాము..." : "✅ OTP ధృవీకరించు & ప్రకటన ప్రచురించు (Verify & Publish)"}
+              {loading ? "Verifying OTP..." : "✅ Verify & Publish Ad Now"}
             </button>
           </form>
         )}
