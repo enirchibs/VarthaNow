@@ -342,7 +342,7 @@ export function SmartChatbotWidget() {
                 { title: "💼 ఉద్యోగాలు", path: "/jobs" },
                 { title: "🛍️ కొనడం / అమ్మడం", path: "/market" },
                 { title: "🌸 మహిళా మార్కెట్", path: "/mahila-market" },
-                { title: "🔧 స్థానిక సేవలు", path: "/market?cat=services" },
+                { title: "🔧 సేవలు & అద్దెకు", path: "/services" },
                 { title: "🌾 రైతు మార్కెట్", path: "/market?cat=agriculture" },
                 { title: "🍲 సంప్రదాయ వంటలు", path: "/category/devotional" },
                 { title: "🏥 ఆరోగ్యం", path: "/health" }

@@ -10,6 +10,7 @@ import { LoginPage } from "@/pages/LoginPage";
 import { BookmarksPage } from "@/pages/BookmarksPage";
 import { ManaMarketPage } from "@/pages/ManaMarketPage";
 import { MahilaMarketPage } from "@/pages/MahilaMarketPage";
+import { ServicesRentalPage } from "@/pages/ServicesRentalPage";
 import { PrakatanaluPage } from "@/pages/PrakatanaluPage";
 import {
   JobsMainPage,
@@ -35,6 +36,7 @@ const router = createBrowserRouter([
       { path: "/", element: <HomePage /> },
       { path: "/market", element: <ManaMarketPage /> },
       { path: "/mahila-market", element: <MahilaMarketPage /> },
+      { path: "/services", element: <ServicesRentalPage /> },
       { path: "/prakatanalu", element: <PrakatanaluPage /> },
       { path: "/maatlaadu-ai", element: <MaatlaaduAIPage /> },
       { path: "/category/health", element: <Navigate to="/health" replace /> },

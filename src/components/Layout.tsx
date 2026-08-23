@@ -514,20 +514,20 @@ export function Layout() {
             </span>
           </button>
 
-          {/* 4. స్థానిక సేవలు */}
+          {/* 4. సేవలు & అద్దెకు */}
           <NavLink
-            to="/market?cat=services"
+            to="/services"
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-16 h-14 transition-all ${
-                isActive && location.search.includes("services") ? "text-teal-600 dark:text-teal-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
+                isActive ? "text-teal-600 dark:text-teal-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <Wrench className={`size-5 mb-0.5 text-teal-500 ${isActive && location.search.includes("services") ? "stroke-[2.5px]" : ""}`} />
+                <Wrench className={`size-5 mb-0.5 text-teal-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
                 <span className="text-[10px] font-black tracking-tight leading-none text-center">
-                  స్థానిక సేవలు
+                  సేవలు & అద్దెకు
                 </span>
               </>
             )}
