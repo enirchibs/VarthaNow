@@ -31,12 +31,13 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
   const [profile, setProfile] = useState<SellerProfile | null>(getStoredSellerProfile());
   const [step, setStep] = useState<1 | 2>(1);
 
-  // Form State (Step 1: Ad Details matching uploaded screenshot format)
+  // Form State (Telugu First + English Format)
   const [sellerName, setSellerName] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [locality, setLocality] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
+  const [isFree, setIsFree] = useState<boolean>(false);
   const [offerDiscount, setOfferDiscount] = useState<string>("");
   const [freeBonusItems, setFreeBonusItems] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
@@ -82,28 +83,28 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
   const handleProceedToOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sellerName.trim()) {
-      setErrorMsg("Please enter your full name (* Required)");
+      setErrorMsg("దయచేసి మీ పూర్తి పేరు నమోదు చేయండి (Please enter your full name)");
       return;
     }
     if (!category) {
-      setErrorMsg("Please select a category (* Required)");
+      setErrorMsg("దయచేసి ఒక విభాగాన్ని ఎంచుకోండి (Please select a category)");
       return;
     }
     if (!locality) {
-      setErrorMsg("Please select a locality (* Required)");
+      setErrorMsg("దయచేసి ఒక ప్రాంతాన్ని ఎంచుకోండి (Please select a locality)");
       return;
     }
     if (!title.trim()) {
-      setErrorMsg("Please enter an ad title (* Required)");
+      setErrorMsg("దయచేసి ప్రకటన శీర్షిక రాయండి (Please enter an ad title)");
       return;
     }
-    if (!price.trim()) {
-      setErrorMsg("Please enter price in ₹ (* Required)");
+    if (!isFree && !price.trim()) {
+      setErrorMsg("దయచేసి ధర నమోదు చేయండి (Please enter price in ₹)");
       return;
     }
     const cleanPhone = phone.replace(/\D/g, "");
     if (!cleanPhone || cleanPhone.length < 10) {
-      setErrorMsg("Please enter 10-digit WhatsApp contact number (* Required)");
+      setErrorMsg("దయచేసి 10-అంకెల వాట్సాప్ మొబైల్ నంబర్ ఇవ్వండి (10-digit WhatsApp phone)");
       return;
     }
 
@@ -118,7 +119,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
       setDemoOtpHint(res.otpDemo);
       setStep(2); // Advance to Step 2 of 2
     } else {
-      setErrorMsg("Failed to dispatch SMS OTP. Please try again.");
+      setErrorMsg("SMS OTP పంపడంలో విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.");
     }
   };
 
@@ -126,7 +127,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
   const handleVerifyOTPAndPublish = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otp.trim() || otp.trim().length < 6) {
-      setErrorMsg("Please enter the 6-digit OTP code");
+      setErrorMsg("దయచేసి 6-అంకెల OTP కోడ్‌ను నమోదు చేయండి (Enter 6-digit OTP)");
       return;
     }
 
@@ -137,7 +138,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
 
     if (!verifyRes.success) {
       setLoading(false);
-      setErrorMsg(verifyRes.error || "Invalid OTP code. Please try again.");
+      setErrorMsg(verifyRes.error || "OTP కోడ్ తప్పుగా ఉంది. దయచేసి మళ్లీ ప్రయత్నించండి.");
       return;
     }
 
@@ -150,19 +151,19 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                        catType === "services" ? "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80" :
                        "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80";
 
-    const formattedPrice = price.startsWith("₹") ? price.trim() : `₹${price.trim()}`;
+    const finalPrice = isFree ? "ఉచితం (Free)" : (price.startsWith("₹") ? price.trim() : `₹${price.trim()}`);
 
     await addClassifiedItem({
       seller_name: sellerName.trim(),
       category: catType,
       title: title.trim(),
-      description: description.trim() || "No defects. Excellent condition.",
-      price: formattedPrice,
+      description: description.trim() || "ఏలాంటి సమస్య లేదు. నాణ్యమైన వస్తువు. (Good condition)",
+      price: finalPrice,
       locality: locality.trim(),
       contact: phone.replace(/\D/g, ""),
       images: imageUrl.trim() ? [imageUrl.trim()] : [defaultImg],
       offer_discount: offerDiscount.trim() || undefined,
-      free_items: freeBonusItems.trim() || undefined
+      free_items: freeBonusItems.trim() || (isFree ? "ఉచిత వస్తువు (Free Item)" : undefined)
     });
 
     setLoading(false);
@@ -174,14 +175,14 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
       <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-[#1f2937] bg-[#111827] text-white shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
 
-        {/* Modal Header Bar matching screenshot */}
+        {/* Modal Header Bar (Telugu First + English) */}
         <div className="flex items-center justify-between border-b border-[#1f2937] pb-3">
           <div className="flex items-center gap-2.5">
             <h3 className="text-xl font-black text-white">
-              Post a Classified Ad
+              + ఉచిత ప్రకటన పోస్ట్ చేయండి <span className="text-xs text-gray-400 font-normal">(Post a Classified Ad)</span>
             </h3>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#2563eb]/20 text-[#2563eb] border border-[#2563eb]/30">
-              Step {step} of 2
+              దశ {step}/2 (Step {step} of 2)
             </span>
           </div>
 
@@ -200,32 +201,32 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
           </div>
         )}
 
-        {/* ---------------- STEP 1: AD DETAILS FORM (MATCHING SCREENSHOT FORMAT) ---------------- */}
+        {/* ---------------- STEP 1: AD DETAILS FORM (TELUGU FIRST FORMAT) ---------------- */}
         {step === 1 && (
           <form onSubmit={handleProceedToOTP} className="space-y-3.5 text-xs">
             
-            {/* Field 1: Your Full Name * */}
+            {/* Field 1: మీ పూర్తి పేరు (Your Full Name) * */}
             <div className="space-y-1">
               <label className="font-extrabold text-gray-200 flex items-center gap-1">
                 <User className="size-3.5 text-[#2563eb]" />
-                Your Full Name <span className="text-red-400">*</span>
+                మీ పూర్తి పేరు (Your Full Name) <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 value={sellerName}
                 onChange={(e) => setSellerName(e.target.value)}
-                placeholder="ramesh"
+                placeholder="ఉదా: రమేష్ (e.g. Ramesh)"
                 required
                 className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
               />
             </div>
 
-            {/* Field 2 & 3: Category & Locality Side by Side */}
+            {/* Field 2 & 3: Category & Locality Side by Side (Telugu First) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               
               <div className="space-y-1">
                 <label className="font-extrabold text-gray-200">
-                  Category <span className="text-red-400">*</span>
+                  విభాగం (Category Dropdown) <span className="text-red-400">*</span>
                 </label>
                 <select
                   value={category}
@@ -233,21 +234,21 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                   required
                   className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
                 >
-                  <option value="">Select a category</option>
-                  <option value="electronics">📱 Electronics & Mobiles</option>
-                  <option value="furniture">🛋️ Furniture & Appliances</option>
-                  <option value="vehicles">🚗 Vehicles & Bikes</option>
-                  <option value="property">🏢 Property & Real Estate</option>
-                  <option value="services">🔧 Services & Repairs</option>
-                  <option value="jobs">💼 Jobs & Careers</option>
-                  <option value="agriculture">🌾 Agriculture & Farmer Crops</option>
-                  <option value="other">🎁 Other & Free Items</option>
+                  <option value="">విభాగాన్ని ఎంచుకోండి (Select a Category)</option>
+                  <option value="electronics">📱 ఎలక్ట్రానిక్స్ & మొబైల్స్ (Electronics)</option>
+                  <option value="furniture">🛋️ ఫర్నిచర్ (Furniture & Appliances)</option>
+                  <option value="vehicles">🚗 వాహనాలు & బైక్‌లు (Vehicles & Bikes)</option>
+                  <option value="property">🏢 ప్రాపర్టీ & ఇల్లు (Property & Real Estate)</option>
+                  <option value="services">🔧 స్థానిక సేవలు (Services & Repairs)</option>
+                  <option value="jobs">💼 ఉద్యోగాలు (Jobs & Careers)</option>
+                  <option value="agriculture">🌾 వ్యవసాయం & రైతు పంటలు (Agriculture & Crops)</option>
+                  <option value="other">🎁 ఇతర / ఉచిత వస్తువులు (Other & Free Items)</option>
                 </select>
               </div>
 
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
-                  Locality <span className="text-red-400">*</span>
+                <label className="font-extrabold text-gray-200 flex items-center justify-between">
+                  <span>ప్రాంతం (Locality Dropdown) <span className="text-red-400">*</span></span>
                 </label>
                 <select
                   value={locality}
@@ -255,32 +256,32 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                   required
                   className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
                 >
-                  <option value="">Select a locality</option>
-                  <option value="Madhurawada">Madhurawada</option>
-                  <option value="Gajuwaka">Gajuwaka</option>
-                  <option value="MVP Colony">MVP Colony</option>
-                  <option value="Visakhapatnam">Visakhapatnam</option>
-                  <option value="Gachibowli">Gachibowli (Hyderabad)</option>
-                  <option value="Hyderabad">Hyderabad</option>
-                  <option value="Vijayawada">Vijayawada</option>
-                  <option value="Guntur">Guntur</option>
-                  <option value="Tirupati">Tirupati</option>
-                  <option value="Warangal">Warangal</option>
+                  <option value="">ప్రాంతాన్ని ఎంచుకోండి (Select a Locality)</option>
+                  <option value="ఎంవీపీ కాలనీ (MVP Colony)">ఎంవీపీ కాలనీ (MVP Colony)</option>
+                  <option value="మధురవాడ (Madhurawada)">మధురవాడ (Madhurawada)</option>
+                  <option value="గాజువాక (Gajuwaka)">గాజువాక (Gajuwaka)</option>
+                  <option value="విశాఖపట్నం (Visakhapatnam)">విశాఖపట్నం (Visakhapatnam)</option>
+                  <option value="గచ్చిబౌలి (Gachibowli)">గచ్చిబౌలి (Gachibowli, Hyderabad)</option>
+                  <option value="హైదరాబాద్ (Hyderabad)">హైదరాబాద్ (Hyderabad)</option>
+                  <option value="విజయవాడ (Vijayawada)">విజయవాడ (Vijayawada)</option>
+                  <option value="గుంటూరు (Guntur)">గుంటూరు (Guntur)</option>
+                  <option value="తిరుపతి (Tirupati)">తిరుపతి (Tirupati)</option>
+                  <option value="వరంగల్ (Warangal)">వరంగల్ (Warangal)</option>
                 </select>
               </div>
 
             </div>
 
-            {/* Field 4: Ad Title * */}
+            {/* Field 4: Ad Title */}
             <div className="space-y-1">
               <label className="font-extrabold text-gray-200">
-                Ad Title <span className="text-red-400">*</span>
+                ప్రకటన శీర్షిక (Ad Title) <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="What are you selling/offering?"
+                placeholder="మీరు ఏమి అమ్ముతున్నారు / అందిస్తున్నారు? (What are you selling/offering?)"
                 required
                 className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
               />
@@ -289,13 +290,13 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
             {/* Field 5: Description */}
             <div className="space-y-1">
               <label className="font-extrabold text-gray-200">
-                Description
+                వివరణ (Description Textarea)
               </label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                placeholder="More details about your ad..."
+                placeholder="మీ ప్రకటన గురించి మరిన్ని వివరాలు వ్రాయండి... (More details about your ad...)"
                 className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
               />
             </div>
@@ -305,13 +306,13 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
               <div className="space-y-1">
                 <label className="text-[11px] font-extrabold text-amber-400 flex items-center gap-1">
                   <Tag className="size-3 text-amber-400" />
-                  Special Offer / Discount <span className="text-gray-400 font-normal">(Optional)</span>
+                  ఆఫర్ / తగ్గింపు Tag <span className="text-gray-400 font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
                   value={offerDiscount}
                   onChange={(e) => setOfferDiscount(e.target.value)}
-                  placeholder="e.g. 25% OFF or Festive Sale"
+                  placeholder="ఉదా: 25% OFF లేదా పండుగ ధమాకా (e.g. 25% OFF)"
                   className="w-full rounded-xl border border-[#1f2937] bg-[#111827] p-2.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
                 />
               </div>
@@ -319,13 +320,13 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
               <div className="space-y-1">
                 <label className="text-[11px] font-extrabold text-teal-400 flex items-center gap-1">
                   <Gift className="size-3 text-teal-400" />
-                  Free Bonus Items <span className="text-gray-400 font-normal">(Optional)</span>
+                  ఉచిత బోనస్ వస్తువులు <span className="text-gray-400 font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
                   value={freeBonusItems}
                   onChange={(e) => setFreeBonusItems(e.target.value)}
-                  placeholder="e.g. Free Case & Cushion included"
+                  placeholder="ఉదా: కవర్ & ఛార్జర్ ఉచితం (e.g. Includes charger & case)"
                   className="w-full rounded-xl border border-[#1f2937] bg-[#111827] p-2.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
                 />
               </div>
@@ -334,7 +335,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
             {/* Field 8: Add Photos (Camera & Gallery Input) */}
             <div className="space-y-1.5">
               <label className="font-extrabold text-gray-200">
-                Add Photos <span className="text-gray-400 font-normal">(Up to 3 Photos)</span>
+                ఫోటో లింక్ / Camera Input <span className="text-gray-400 font-normal">(Photo Upload)</span>
               </label>
 
               <div className="grid grid-cols-2 gap-3">
@@ -349,7 +350,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                     className="hidden"
                   />
                   <Camera className="size-6 text-[#2563eb] group-hover:scale-110 transition mb-1" />
-                  <span className="text-[11px] font-black text-blue-400">Open Camera</span>
+                  <span className="text-[11px] font-black text-blue-400">కెమెరా తెరవండి (Open Camera)</span>
                 </label>
 
                 {/* 🖼️ Gallery Button Box */}
@@ -362,7 +363,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                     className="hidden"
                   />
                   <ImageIcon className="size-6 text-emerald-400 group-hover:scale-110 transition mb-1" />
-                  <span className="text-[11px] font-black text-emerald-400">Gallery</span>
+                  <span className="text-[11px] font-black text-emerald-400">గ్యాలరీ (Gallery)</span>
                 </label>
 
               </div>
@@ -384,32 +385,42 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                   type="url"
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="Or paste Image URL link directly (https://...)"
+                  placeholder="లేదా ఫోటో లింక్ ఇక్కడ పేస్ట్ చేయండి (https://...)"
                   className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-2.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] mt-1"
                 />
               )}
             </div>
 
-            {/* Field 9 & 10: Price & Contact Number Side by Side */}
+            {/* Field 9 & 10: Price & Contact Number Side by Side (Telugu First) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
-                  Price (in ₹) <span className="text-red-400">*</span>
+                <label className="font-extrabold text-gray-200 flex items-center justify-between">
+                  <span>ధర (Price in ₹) <span className="text-red-400">*</span></span>
+                  <label className="inline-flex items-center gap-1 text-[10px] font-extrabold text-[#16a34a] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isFree}
+                      onChange={(e) => setIsFree(e.target.checked)}
+                      className="rounded text-[#16a34a] focus:ring-[#16a34a]"
+                    />
+                    ఉచితం (Free)
+                  </label>
                 </label>
                 <input
                   type="text"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  placeholder="e.g. 5000"
-                  required
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                  disabled={isFree}
+                  placeholder={isFree ? "ఉచితం (Free)" : "3000"}
+                  required={!isFree}
+                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] disabled:opacity-50"
                 />
               </div>
 
               <div className="space-y-1">
                 <label className="font-extrabold text-gray-200">
-                  Contact Number (WhatsApp) <span className="text-red-400">*</span>
+                  సంప్రదించే సంఖ్య (Contact Number - WhatsApp) <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="tel"
@@ -424,19 +435,19 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
 
             </div>
 
-            {/* Primary Action Button matching screenshot */}
+            {/* Primary Action Button (Telugu First format as shown in image) */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-full bg-[#2563eb] hover:bg-blue-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+              className="w-full py-4 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
-              {loading ? "Dispatching SMS OTP..." : "Proceed & Send OTP Code →"}
+              {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live Twilio SMS OTP పొందండి"}
             </button>
 
           </form>
         )}
 
-        {/* ---------------- STEP 2: LIVE TWILIO SMS OTP VERIFICATION ---------------- */}
+        {/* ---------------- STEP 2: LIVE TWILIO SMS OTP VERIFICATION (TELUGU FIRST) ---------------- */}
         {step === 2 && (
           <form onSubmit={handleVerifyOTPAndPublish} className="space-y-4 text-xs">
             <button
@@ -445,7 +456,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
               className="inline-flex items-center gap-1 text-xs font-bold text-blue-400 hover:underline cursor-pointer"
             >
               <ArrowLeft className="size-3.5" />
-              <span>← Back (Edit Ad Details)</span>
+              <span>← వెనుకకు (Back to Edit Ad Details)</span>
             </button>
 
             <div className="p-4 rounded-2xl bg-[#16a34a]/10 border border-[#16a34a]/30 text-xs font-bold text-emerald-200 text-center space-y-1">
@@ -453,17 +464,17 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                 <ShieldCheck className="size-5" />
                 <span>Twilio SMS OTP Sent</span>
               </div>
-              <p>📩 A 6-digit OTP code has been sent to <strong>+91 {phone}</strong>.</p>
+              <p>📩 <strong>+91 {phone}</strong> మొబైల్‌కి 6-అంకెల OTP పంపబడింది.</p>
               {demoOtpHint && (
                 <p className="text-[10px] text-emerald-400">
-                  (Demo OTP Code: <span className="font-black text-sm">{demoOtpHint}</span> or 123456)
+                  (డెమో OTP కోడ్: <span className="font-black text-sm">{demoOtpHint}</span> లేదా 123456)
                 </p>
               )}
             </div>
 
             <div className="space-y-1">
               <label className="font-extrabold text-gray-200 text-center block">
-                Enter 6-Digit OTP Code
+                6-అంకెల OTP కోడ్‌ను ఇక్కడ నమోదు చేయండి (Enter 6-Digit OTP)
               </label>
               <input
                 type="text"
@@ -481,7 +492,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
               disabled={loading}
               className="w-full py-4 rounded-full bg-[#16a34a] hover:bg-emerald-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
-              {loading ? "Verifying OTP..." : "✅ Verify & Publish Ad Now"}
+              {loading ? "ధృవీకరిస్తున్నాము..." : "✅ OTP ధృవీకరించు & ప్రకటన ప్రచురించు (Verify & Publish)"}
             </button>
           </form>
         )}
