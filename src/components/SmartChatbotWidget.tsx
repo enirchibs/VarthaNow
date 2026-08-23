@@ -341,6 +341,7 @@ export function SmartChatbotWidget() {
                 { title: "🎥 వైరల్ షార్ట్స్", path: "/category/viralshorts" },
                 { title: "💼 ఉద్యోగాలు", path: "/jobs" },
                 { title: "🛍️ కొనడం / అమ్మడం", path: "/market" },
+                { title: "🌸 మహిళా మార్కెట్", path: "/mahila-market" },
                 { title: "🔧 స్థానిక సేవలు", path: "/market?cat=services" },
                 { title: "🌾 రైతు మార్కెట్", path: "/market?cat=agriculture" },
                 { title: "🍲 సంప్రదాయ వంటలు", path: "/category/devotional" },

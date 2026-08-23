@@ -533,20 +533,20 @@ export function Layout() {
             )}
           </NavLink>
 
-          {/* 5. సంప్రదాయ వంటలు */}
+          {/* 5. మహిళా మార్కెట్ */}
           <NavLink
-            to="/category/devotional"
+            to="/mahila-market"
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-16 h-14 transition-all ${
-                isActive ? "text-amber-600 dark:text-amber-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
+                isActive ? "text-rose-600 dark:text-rose-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <UtensilsCrossed className={`size-5 mb-0.5 text-amber-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
+                <Heart className={`size-5 mb-0.5 text-rose-500 ${isActive ? "stroke-[2.5px] fill-rose-500" : ""}`} />
                 <span className="text-[10px] font-black tracking-tight leading-none text-center">
-                  సంప్రదాయ వంటలు
+                  మహిళా మార్కెట్
                 </span>
               </>
             )}
