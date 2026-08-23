@@ -251,7 +251,7 @@ export function VaartanowJobsBoard({
         <div className="max-w-2xl mx-auto space-y-4 relative z-10">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-xs font-black text-indigo-300 uppercase tracking-widest animate-pulse">
             <Sparkles className="size-3.5 text-indigo-400" />
-            VaartaNow AI Jobs Hub
+            VaartaNow Jobs Hub
           </span>
           <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
             Vaartanow Ultimate <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-red-400">Jobs Hub</span>
@@ -259,7 +259,7 @@ export function VaartanowJobsBoard({
           <p className="text-sm md:text-base font-semibold text-zinc-300">
             {lang === "te" 
               ? "ఏపీ, తెలంగాణ & రిమోట్ ఐటీ రంగాలలో వేల ఉద్యోగ అవకాశాలు"
-              : "AI-powered jobs aggregator for Andhra Pradesh, Telangana & Remote opportunities"}
+              : "Hyperlocal jobs portal for Andhra Pradesh, Telangana & Remote opportunities"}
           </p>
 
           <div className="pt-2">

@@ -379,13 +379,13 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
               disabled={loading}
               className="w-full py-4 rounded-full bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 hover:opacity-95 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
-              {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live Twilio SMS OTP పొందండి"}
+              {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live SMS OTP పొందండి"}
             </button>
 
           </form>
         )}
 
-        {/* ---------------- STEP 2: LIVE TWILIO SMS OTP VERIFICATION ---------------- */}
+        {/* ---------------- STEP 2: LIVE SMS OTP VERIFICATION ---------------- */}
         {step === 2 && (
           <form onSubmit={handleVerifyOTPAndPostJob} className="space-y-4 text-xs">
             <button
@@ -400,7 +400,7 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
             <div className="p-4 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-xs font-bold text-sky-200 text-center space-y-1">
               <div className="flex items-center justify-center gap-1.5 font-black text-sky-400 text-sm">
                 <ShieldCheck className="size-5" />
-                <span>Twilio SMS OTP Sent</span>
+                <span>SMS OTP Sent</span>
               </div>
               <p>📩 <strong>+91 {phone}</strong> మొబైల్‌కి 6-అంకెల OTP పంపబడింది.</p>
               {demoOtpHint && (

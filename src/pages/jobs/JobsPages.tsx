@@ -10,11 +10,11 @@ function useJobsSEO(titleKey: string, descKey: string, canonicalPath: string) {
 
   const titles: Record<string, Record<string, string>> = {
     main: {
-      te: "ఉద్యోగాలు | VaartaNow AI Jobs Hub",
-      en: "Jobs Hub | VaartaNow AI Jobs Board",
-      hi: "जॉब्स हब | VaartaNow एआई जॉब्स",
-      ta: "வேலைவாய்ப்பு | VaartaNow ஏஐ வேலைவாய்ப்பு",
-      kn: "ಉದ್ಯೋಗಗಳು | VaartaNow ಎಐ ಉದ್ಯೋಗ ಹಬ್"
+      te: "ఉద్యోగాలు | VaartaNow Jobs Hub",
+      en: "Jobs Hub | VaartaNow Jobs Board",
+      hi: "जॉब्स हब | VaartaNow जॉब्स",
+      ta: "வேலைவாய்ப்பு | VaartaNow வேலைவாய்ப்பு",
+      kn: "ಉದ್ಯೋಗಗಳು | VaartaNow ಉದ್ಯೋಗ ಹಬ್"
     },
     wfh: {
       te: "ఇంటి నుండి పని (WFH) ఉద్యోగాలు | VaartaNow",

@@ -160,7 +160,7 @@ export function saveStoredSellerProfile(profile: SellerProfile): void {
   } catch {}
 }
 
-// 📱 TWILIO / SMS 6-DIGIT OTP VERIFICATION WITH SUPABASE AUTH & FALLBACK
+// 📱 SMS 6-DIGIT OTP VERIFICATION WITH SUPABASE AUTH & FALLBACK
 let currentOTPMap: Record<string, string> = {};
 
 export async function sendSMSOTP(phone: string): Promise<{ success: boolean; otpDemo: string }> {
@@ -171,16 +171,16 @@ export async function sendSMSOTP(phone: string): Promise<{ success: boolean; otp
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   currentOTPMap[cleanPhone] = otp;
 
-  console.log(`📱 Triggering Twilio SMS OTP for ${formattedPhone}...`);
+  console.log(`📱 Triggering SMS OTP for ${formattedPhone}...`);
 
-  // 1. Invoke Supabase Auth Phone Provider (Twilio integration configured in Supabase)
+  // 1. Invoke Supabase Auth Phone Provider
   if (supabase) {
     try {
       const { error } = await supabase.auth.signInWithOtp({
         phone: formattedPhone
       });
       if (!error) {
-        console.log(`✅ Supabase Auth Twilio SMS sent to ${formattedPhone}`);
+        console.log(`✅ Supabase Auth SMS sent to ${formattedPhone}`);
       } else {
         console.warn("Supabase Auth signInWithOtp notice:", error.message);
       }

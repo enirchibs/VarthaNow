@@ -439,13 +439,13 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
               disabled={loading}
               className="w-full py-4 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
-              {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live Twilio SMS OTP పొందండి"}
+              {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live SMS OTP పొందండి"}
             </button>
 
           </form>
         )}
 
-        {/* ---------------- STEP 2: LIVE TWILIO SMS OTP VERIFICATION (TELUGU FIRST) ---------------- */}
+        {/* ---------------- STEP 2: LIVE SMS OTP VERIFICATION (TELUGU FIRST) ---------------- */}
         {step === 2 && (
           <form onSubmit={handleVerifyOTPAndPublish} className="space-y-4 text-xs">
             <button
@@ -460,7 +460,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
             <div className="p-4 rounded-2xl bg-[#16a34a]/10 border border-[#16a34a]/30 text-xs font-bold text-emerald-200 text-center space-y-1">
               <div className="flex items-center justify-center gap-1.5 font-black text-[#16a34a] text-sm">
                 <ShieldCheck className="size-5" />
-                <span>Twilio SMS OTP Sent</span>
+                <span>SMS OTP Sent</span>
               </div>
               <p>📩 <strong>+91 {phone}</strong> మొబైల్‌కి 6-అంకెల OTP పంపబడింది.</p>
               {demoOtpHint && (
