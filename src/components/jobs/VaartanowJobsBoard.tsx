@@ -21,6 +21,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { 
   getJobsList, 
   getLocalJobs, 
+  formatJobTitleTelugu,
   formatWorkModeTelugu, 
   formatContractTypeTelugu, 
   formatExperienceTelugu, 
@@ -422,7 +423,7 @@ export function VaartanowJobsBoard({
                         <div className="flex justify-between items-start gap-1">
                           <div>
                             <h4 className="font-black text-sm text-[hsl(var(--foreground))] group-hover:text-indigo-600 transition leading-snug">
-                              {job.title}
+                              {formatJobTitleTelugu(job.title)}
                             </h4>
                             <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 block mt-0.5">
                               🏢 {job.company_name}
@@ -537,7 +538,7 @@ export function VaartanowJobsBoard({
                     ఉద్యోగ వివరాలు (Active Job)
                   </span>
                   <h3 className="text-base font-black text-[hsl(var(--foreground))] mt-1.5 leading-snug">
-                    {selectedJob.title}
+                    {formatJobTitleTelugu(selectedJob.title)}
                   </h3>
                   <div className="text-xs font-black text-indigo-600 dark:text-indigo-400 mt-1">
                     🏢 {selectedJob.company_name}
@@ -738,7 +739,7 @@ export function VaartanowJobsBoard({
                   ఉద్యోగ వివరాలు (Job Opening)
                 </span>
                 <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
-                  {selectedJob.title}
+                  {formatJobTitleTelugu(selectedJob.title)}
                 </h3>
                 <p className="text-xs font-bold text-indigo-600">
                   🏢 {selectedJob.company_name}

@@ -160,6 +160,52 @@ export const mockJobs: VaartanowJob[] = [
 // ====================================================
 // TELUGU TRANSLATION HELPERS
 // ====================================================
+export function formatJobTitleTelugu(title?: string): string {
+  if (!title) return "ఉద్యోగ ప్రకటన (Job Vacancy)";
+  
+  // If the title already contains Telugu characters, return it
+  if (/[\u0C00-\u0C7F]/.test(title)) {
+    return title;
+  }
+
+  const t = title.toLowerCase();
+  
+  // IT & Tech Roles
+  if (t.includes("react") && t.includes("developer")) return `రియాక్ట్ డెవలపర్ (${title})`;
+  if (t.includes("next.js") || t.includes("nextjs")) return `నెక్స్ట్‌జేఎస్ డెవలపర్ (${title})`;
+  if (t.includes("frontend") || t.includes("front end") || t.includes("front-end")) return `ఫ్రంటెండ్ డెవలపర్ (${title})`;
+  if (t.includes("backend") || t.includes("back end") || t.includes("back-end")) return `బ్యాకెండ్ డెవలపర్ (${title})`;
+  if (t.includes("full stack") || t.includes("fullstack") || t.includes("full-stack")) return `ఫుల్‌స్టాక్ డెవలపర్ (${title})`;
+  if (t.includes("software engineer") || t.includes("software developer")) return `సాఫ్ట్‌వేర్ ఇంజనీర్ (${title})`;
+  if (t.includes("trainee") || t.includes("fresher")) return `ట్రైనీ ఇంజనీర్ / ఫ్రెషర్ (${title})`;
+  if (t.includes("data analyst")) return `డేటా అనలిస్ట్ (${title})`;
+  if (t.includes("data scientist")) return `డేటా సైంటిస్ట్ (${title})`;
+  if (t.includes("devops") || t.includes("cloud")) return `డెవాప్స్ & క్లౌడ్ ఇంజనీర్ (${title})`;
+  if (t.includes("qa") || t.includes("tester") || t.includes("test engineer")) return `టెస్టింగ్ ఇంజనీర్ (${title})`;
+  if (t.includes("ui/ux") || t.includes("ui ux") || t.includes("designer")) return `యూఐ/యూఎక్స్ డిజైనర్ (${title})`;
+  if (t.includes("graphic designer")) return `గ్రాఫిక్ డిజైనర్ (${title})`;
+
+  // Business, Marketing & Operations
+  if (t.includes("marketing") || t.includes("digital marketing")) return `డిజిటల్ మార్కెటింగ్ (${title})`;
+  if (t.includes("content writer") || t.includes("copywriter")) return `కంటెంట్ రైటర్ (${title})`;
+  if (t.includes("translator") || t.includes("translation")) return `తెలుగు అనువాదకుడు / ట్రాన్స్‌లేటర్ (${title})`;
+  if (t.includes("data entry") || t.includes("typing")) return `డేటా ఎంట్రీ ఆపరేటర్ (${title})`;
+  if (t.includes("hr ") || t.includes("human resource") || t.includes("recruiter")) return `హెచ్‌ఆర్ రిక్రూటర్ (${title})`;
+  if (t.includes("accountant") || t.includes("accounting") || t.includes("tally")) return `అకౌంటెంట్ (${title})`;
+  if (t.includes("sales") || t.includes("business development") || t.includes("bde")) return `సేల్స్ ఎగ్జిక్యూటివ్ (${title})`;
+  if (t.includes("telecaller") || t.includes("bpo") || t.includes("customer care") || t.includes("customer support")) return `కస్టమర్ కేర్ / టెలికాలర్ (${title})`;
+  if (t.includes("office assistant") || t.includes("front office") || t.includes("admin")) return `ఆఫీస్ అసిస్టెంట్ (${title})`;
+
+  // Logistics, Services, Teachers & Public Sector
+  if (t.includes("delivery") || t.includes("courier")) return `డెలివరీ ఎగ్జిక్యూటివ్ (${title})`;
+  if (t.includes("driver")) return `డ్రైవర్ (${title})`;
+  if (t.includes("technician") || t.includes("electrician")) return `టెక్నీషియన్ / ఎలక్ట్రీషియన్ (${title})`;
+  if (t.includes("teacher") || t.includes("tutor") || t.includes("faculty") || t.includes("trainer")) return `టీచర్ / ట్రైనర్ (${title})`;
+  if (t.includes("appsc") || t.includes("tspsc") || t.includes("government") || t.includes("police") || t.includes("railway") || t.includes("ssc")) return `ప్రభుత్వ ఉద్యోగం (${title})`;
+
+  return `ఉద్యోగం: ${title}`;
+}
+
 export function formatWorkModeTelugu(mode?: string): string {
   if (!mode) return "ఆఫీస్ లో (On-site)";
   const m = mode.toLowerCase();
