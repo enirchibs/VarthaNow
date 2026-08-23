@@ -7,6 +7,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
 import { detectGPSLocation } from "@/lib/location-detector";
 import { CreatePostModal } from "@/components/CreatePostModal";
+import { SmartChatbotWidget } from "@/components/SmartChatbotWidget";
 
 const categoryEmojis: Record<string, string> = {
   viralshorts: "🔥",
@@ -558,6 +559,9 @@ export function Layout() {
         isOpen={isPostModalOpen} 
         onClose={() => setIsPostModalOpen(false)} 
       />
+
+      {/* 💬 Floating Smart Assistant Chatbot Widget */}
+      <SmartChatbotWidget />
     </div>
   );
 }
