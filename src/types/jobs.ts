@@ -24,6 +24,8 @@ export interface VaartanowJob {
   is_featured: boolean;
   is_approved: boolean;
   is_active: boolean;
+  employer_name?: string;
+  contact_phone?: string;
   created_at?: string;
   updated_at?: string;
 }

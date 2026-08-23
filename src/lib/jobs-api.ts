@@ -463,6 +463,42 @@ export async function triggerScraperSimulation(query: string): Promise<number> {
   return count;
 }
 
+// 💼 Add new user posted job
+export function addLocalJob(jobData: Omit<VaartanowJob, "job_id" | "posted_date">): VaartanowJob {
+  const newJob: VaartanowJob = {
+    ...jobData,
+    job_id: `job-user-${Date.now()}`,
+    posted_date: new Date().toISOString(),
+    is_approved: true,
+    is_active: true
+  };
+  const jobs = getLocalJobs();
+  jobs.unshift(newJob);
+  saveLocalJobs(jobs);
+
+  // Optionally insert into Supabase public.jobs table if connected
+  if (supabase) {
+    (async () => {
+      try {
+        await supabase.from("jobs").insert({
+          title: newJob.title,
+          company_name: newJob.company_name,
+          location: newJob.location,
+          salary_range: newJob.salary_range,
+          description: newJob.full_description,
+          contact: newJob.contact_phone || "",
+          work_mode: newJob.work_mode,
+          contract_type: newJob.contract_type
+        });
+      } catch (err) {
+        console.warn("Supabase jobs insert notice:", err);
+      }
+    })();
+  }
+
+  return newJob;
+}
+
 // 🏛️ Admin Dashboard metrics
 export async function getAdminMetrics() {
   const list = await getAdminJobsList();

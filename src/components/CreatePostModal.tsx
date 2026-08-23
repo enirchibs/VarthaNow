@@ -127,6 +127,16 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   if (!isOpen) return null;
 
   const handleSelectCategory = (catId: PostCategoryType) => {
+    if (catId === "job") {
+      onClose();
+      window.location.href = "/jobs?post=true";
+      return;
+    }
+    if (catId === "buy_sell_items") {
+      onClose();
+      window.location.href = "/market";
+      return;
+    }
     setSelectedCategory(catId);
     setSuccessMessage(null);
   };

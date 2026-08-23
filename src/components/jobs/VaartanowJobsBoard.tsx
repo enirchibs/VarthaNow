@@ -11,14 +11,16 @@ import {
   Search, 
   SlidersHorizontal,
   ChevronRight,
-  Brain,
-  FileText,
-  HelpCircle,
-  TrendingUp
+  Brain, 
+  FileText, 
+  HelpCircle, 
+  TrendingUp,
+  PlusCircle
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { getJobsList, getLocalJobs, autoDetectWorkMode, autoDetectContractType } from "@/lib/jobs-api";
 import type { VaartanowJob, JobFilters, AIResumeAnalysis } from "@/types/jobs";
+import { JobPostModal } from "./JobPostModal";
 
 interface VaartanowJobsBoardProps {
   initialCategoryFilter?: string;
@@ -50,6 +52,13 @@ export function VaartanowJobsBoard({
   const [activeTab, setActiveTab] = useState<string>(initialCategoryFilter || "all");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [visibleCount, setVisibleCount] = useState(30);
+  const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(() => {
+    try {
+      return typeof window !== "undefined" && new URLSearchParams(window.location.search).get("post") === "true";
+    } catch {
+      return false;
+    }
+  });
   
   // AI Resume tools states
   const [resumeText, setResumeText] = useState("");
@@ -252,6 +261,16 @@ export function VaartanowJobsBoard({
               ? "ఏపీ, తెలంగాణ & రిమోట్ ఐటీ రంగాలలో వేల ఉద్యోగ అవకాశాలు"
               : "AI-powered jobs aggregator for Andhra Pradesh, Telangana & Remote opportunities"}
           </p>
+
+          <div className="pt-2">
+            <button
+              onClick={() => setIsPostModalOpen(true)}
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:opacity-95 text-white px-6 py-3.5 text-xs sm:text-sm font-black transition-all shadow-xl active:scale-95 cursor-pointer min-h-[46px] touch-manipulation"
+            >
+              <PlusCircle className="size-5 text-white" />
+              + ఉద్యోగం పోస్ట్ చేయండి (Post a Job Opening)
+            </button>
+          </div>
 
           {/* Search Box */}
           <div className="pt-4 flex flex-col sm:flex-row gap-2 max-w-lg mx-auto">
@@ -650,6 +669,16 @@ export function VaartanowJobsBoard({
           </div>
         </div>
       </div>
+
+      {/* Job Post Modal */}
+      <JobPostModal
+        isOpen={isPostModalOpen}
+        onClose={() => setIsPostModalOpen(false)}
+        onJobPosted={() => {
+          // Refresh list on new job post
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }
