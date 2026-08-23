@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { 
   ShoppingBag, 
   Smartphone, 
@@ -38,8 +38,9 @@ import { ClassifiedCard } from "@/components/ClassifiedCard";
 
 export function ManaMarketPage() {
   const { lang } = useLanguage();
-  const [items, setItems] = useState<ClassifiedItem[]>([]);
+  const [allItems, setAllItems] = useState<ClassifiedItem[]>([]);
   const [selectedCat, setSelectedCat] = useState<string>("all");
+  const [selectedLocality, setSelectedLocality] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -49,35 +50,75 @@ export function ManaMarketPage() {
   const [selectedDetailItem, setSelectedDetailItem] = useState<ClassifiedItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Calculate user's total active ads count
-  const myAdsCount = profile?.phone
-    ? items.filter((i) => i.contact.replace(/\D/g, "") === profile.phone.replace(/\D/g, "")).length
-    : 0;
-
+  // Load all active items
   const loadMarketItems = async () => {
     setLoading(true);
     const data = await fetchClassifieds({
-      category: selectedCat === "my_ads" ? "all" : selectedCat,
-      searchQuery,
-      statusFilter
+      category: "all",
+      searchQuery: "",
+      statusFilter: "all"
     });
-
-    if (selectedCat === "my_ads") {
-      const myPhone = profile?.phone ? profile.phone.replace(/\D/g, "") : "";
-      if (myPhone) {
-        setItems(data.filter((i) => i.contact.replace(/\D/g, "") === myPhone));
-      } else {
-        setItems([]);
-      }
-    } else {
-      setItems(data);
-    }
+    setAllItems(data);
     setLoading(false);
   };
 
   useEffect(() => {
     loadMarketItems();
-  }, [selectedCat, searchQuery, statusFilter, profile]);
+  }, []);
+
+  // Compute live category item counts dynamically from allItems
+  const myPhone = profile?.phone ? profile.phone.replace(/\D/g, "") : "";
+  const counts = useMemo(() => {
+    const total = allItems.length;
+    const myAds = myPhone ? allItems.filter((i) => i.contact.replace(/\D/g, "") === myPhone).length : 0;
+    const electronics = allItems.filter((i) => i.category === "electronics").length;
+    const furniture = allItems.filter((i) => i.category === "furniture").length;
+    const vehicles = allItems.filter((i) => i.category === "vehicles").length;
+    const property = allItems.filter((i) => i.category === "property").length;
+    const services = allItems.filter((i) => i.category === "services").length;
+    const jobs = allItems.filter((i) => i.category === "jobs").length;
+    const other = allItems.filter((i) => i.category === "other").length;
+    return { total, myAds, electronics, furniture, vehicles, property, services, jobs, other };
+  }, [allItems, myPhone]);
+
+  // Filter items in real time based on Category, Locality, Status, and Search Query
+  const filteredItems = useMemo(() => {
+    return allItems.filter((item) => {
+      // Category filter
+      if (selectedCat === "my_ads") {
+        if (!myPhone || item.contact.replace(/\D/g, "") !== myPhone) return false;
+      } else if (selectedCat !== "all" && item.category !== selectedCat) {
+        return false;
+      }
+
+      // Locality filter
+      if (selectedLocality !== "all") {
+        const locLower = item.locality.toLowerCase();
+        const selLower = selectedLocality.toLowerCase();
+        if (!locLower.includes(selLower)) return false;
+      }
+
+      // Status filter
+      if (statusFilter !== "all" && item.status !== statusFilter) {
+        return false;
+      }
+
+      // Search query matching title, description, category, locality, or seller_name
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesTitle = item.title.toLowerCase().includes(q);
+        const matchesDesc = item.description.toLowerCase().includes(q);
+        const matchesCat = item.category.toLowerCase().includes(q);
+        const matchesLoc = item.locality.toLowerCase().includes(q);
+        const matchesSeller = item.seller_name.toLowerCase().includes(q);
+        if (!matchesTitle && !matchesDesc && !matchesCat && !matchesLoc && !matchesSeller) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [allItems, selectedCat, selectedLocality, statusFilter, searchQuery, myPhone]);
 
   const handleLogout = () => {
     localStorage.removeItem("vaartanow_user_profile");
@@ -114,7 +155,7 @@ export function ManaMarketPage() {
                 </span>
               </div>
               <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))]">
-                +91 {profile.phone} | నా ప్రకటనలు: <span className="font-black text-blue-600 dark:text-blue-400">{myAdsCount} Active Ads</span>
+                +91 {profile.phone} | నా ప్రకటనలు: <span className="font-black text-blue-600 dark:text-blue-400">{counts.myAds} Active Ads</span>
               </p>
             </div>
           </div>
@@ -144,7 +185,7 @@ export function ManaMarketPage() {
                 }`}
               >
                 <User className="size-3.5" />
-                <span>My Ads ({myAdsCount})</span>
+                <span>My Ads ({counts.myAds})</span>
               </button>
 
               <button
@@ -198,7 +239,7 @@ export function ManaMarketPage() {
               selectedCat === "my_ads" ? "bg-amber-400 text-black shadow-md" : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-md"
             }`}
           >
-            👤 నా ప్రకటనలు (My Ads: {myAdsCount})
+            👤 నా ప్రకటనలు (My Ads: {counts.myAds})
           </button>
 
           <button
@@ -211,19 +252,19 @@ export function ManaMarketPage() {
         </div>
       </div>
 
-      {/* Category Pills Filter Bar (Includes Dedicated "My Ads 👤" Tab) */}
+      {/* Category Pills Filter Bar with Live Real-Time Counts */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           {[
-            { id: "all", label: "అన్నీ (All)", icon: ShoppingBag, color: "bg-blue-600" },
-            { id: "my_ads", label: `My Ads 👤 (${myAdsCount})`, icon: User, color: "bg-amber-500" },
-            { id: "electronics", label: "📱 ఎలక్ట్రానిక్స్", icon: Smartphone, color: "bg-indigo-600" },
-            { id: "furniture", label: "🛋️ ఫర్నిచర్", icon: Home, color: "bg-purple-600" },
-            { id: "vehicles", label: "🚗 వాహనాలు", icon: Car, color: "bg-amber-600" },
-            { id: "property", label: "🏢 ప్రాపర్టీ & ఇల్లు", icon: Home, color: "bg-red-600" },
-            { id: "services", label: "🔧 స్థానిక సేవలు", icon: Wrench, color: "bg-teal-600" },
-            { id: "jobs", label: "💼 ఉద్యోగాలు", icon: Briefcase, color: "bg-emerald-600" },
-            { id: "other", label: "🎁 ఇతర / ఉచితం", icon: Gift, color: "bg-pink-600" }
+            { id: "all", label: `అన్నీ (${counts.total})`, icon: ShoppingBag, color: "bg-blue-600" },
+            { id: "my_ads", label: `My Ads 👤 (${counts.myAds})`, icon: User, color: "bg-amber-500" },
+            { id: "electronics", label: `📱 Electronics (${counts.electronics})`, icon: Smartphone, color: "bg-indigo-600" },
+            { id: "furniture", label: `<ctrl42> Furniture (${counts.furniture})`, icon: Home, color: "bg-purple-600" },
+            { id: "vehicles", label: `🚗 Vehicles (${counts.vehicles})`, icon: Car, color: "bg-amber-600" },
+            { id: "property", label: `🏠 Property (${counts.property})`, icon: Home, color: "bg-red-600" },
+            { id: "services", label: `🔧 Services (${counts.services})`, icon: Wrench, color: "bg-teal-600" },
+            { id: "jobs", label: `💼 Jobs (${counts.jobs})`, icon: Briefcase, color: "bg-emerald-600" },
+            { id: "other", label: `🎁 Other / Free (${counts.other})`, icon: Gift, color: "bg-pink-600" }
           ].map((cat) => {
             const isSel = selectedCat === cat.id;
             return (
@@ -248,8 +289,34 @@ export function ManaMarketPage() {
           })}
         </div>
 
-        {/* Search & Status Filter Row */}
+        {/* Real-Time Locality, Status & Search Filter Bar */}
         <div className="flex flex-wrap items-center justify-between gap-3 bg-[hsl(var(--card))] p-3.5 rounded-2xl border border-[hsl(var(--border))]">
+          
+          {/* Locality Dropdown Filter */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-black text-[hsl(var(--muted-foreground))] flex items-center gap-1">
+              <MapPin className="size-3.5 text-red-500" />
+              ప్రాంతం:
+            </span>
+            <select
+              value={selectedLocality}
+              onChange={(e) => setSelectedLocality(e.target.value)}
+              className="rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--muted))] py-1.5 px-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+            >
+              <option value="all">అన్ని ప్రాంతాలు (All Localities)</option>
+              <option value="Madhurawada">మధురవాడ (Madhurawada)</option>
+              <option value="Gajuwaka">గాజువాక (Gajuwaka)</option>
+              <option value="MVP Colony">ఎంవీపీ కాలనీ (MVP Colony)</option>
+              <option value="Visakhapatnam">విశాఖపట్నం (Visakhapatnam)</option>
+              <option value="Gachibowli">గచ్చిబౌలి (Gachibowli)</option>
+              <option value="Hyderabad">హైదరాబాద్ (Hyderabad)</option>
+              <option value="Vijayawada">విజయవాడ (Vijayawada)</option>
+              <option value="Guntur">గుంటూరు (Guntur)</option>
+              <option value="Tirupati">తిరుపతి (Tirupati)</option>
+              <option value="Warangal">వరంగల్ (Warangal)</option>
+            </select>
+          </div>
+
           {/* Status Filter */}
           <div className="flex items-center gap-1.5">
             <span className="text-xs font-black text-[hsl(var(--muted-foreground))] flex items-center gap-1">
@@ -282,14 +349,14 @@ export function ManaMarketPage() {
             </button>
           </div>
 
-          {/* Search Box */}
+          {/* Search Box (Title, Description, Category, Locality, Seller) */}
           <div className="relative w-full sm:w-72">
             <Search className="absolute left-3 top-2.5 size-4 text-[hsl(var(--muted-foreground))]" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="వెతకండి (Search mobile, bike, area)..."
+              placeholder="వెతకండి (Search title, seller, area)..."
               className="w-full rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--muted))] py-2 pl-9 pr-4 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
@@ -297,7 +364,7 @@ export function ManaMarketPage() {
       </div>
 
       {/* OLX-Style Hyperlocal Grid */}
-      {selectedCat === "my_ads" && items.length === 0 ? (
+      {selectedCat === "my_ads" && filteredItems.length === 0 ? (
         <div className="p-12 text-center rounded-[2rem] border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--card))] space-y-3">
           <div className="size-14 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto">
             <ShoppingBag className="size-7" />
@@ -317,7 +384,7 @@ export function ManaMarketPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <ClassifiedCard
               key={item.id}
               item={item}
