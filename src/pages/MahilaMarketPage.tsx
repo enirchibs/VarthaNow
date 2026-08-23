@@ -31,27 +31,70 @@ export interface MahilaItem {
 }
 
 const MAHILA_CATEGORIES = [
-  { id: "all", label: "అన్నీ (All Products)", icon: "🌸" },
-  { id: "pickles", label: "🥭 ఇంటి పచ్చళ్ళు (Homemade Pickles)", icon: "🥭" },
-  { id: "karam_podi", label: "🌶️ కారం పొడి (Karam Podi)", icon: "🌶️" },
-  { id: "turmeric", label: "🟡 పసుపు (Pure Turmeric)", icon: "🟡" },
-  { id: "pindi_vantalu", label: "🥟 పిండి వంటలు (Pindi Vantalu)", icon: "🥟" },
-  { id: "sweets", label: "🍬 స్వీట్లు (Sweets)", icon: "🍬" },
-  { id: "handmade", label: "🎨 హ్యాండ్మేడ్ వస్తువులు (Handmade Items)", icon: "🎨" },
-  { id: "sarees", label: "🥻 చీరలు / డ్రెస్సులు (Sarees & Dresses)", icon: "🥻" },
-  { id: "tailoring", label: "🪡 టైలరింగ్ (Tailoring)", icon: "🪡" },
-  { id: "beauty", label: "💅 బ్యూటీ Services (Beauty Services)", icon: "💅" },
-  { id: "home_food", label: "🍲 హోమ్ ఫుడ్ (Home Food)", icon: "🍲" },
-  { id: "tuitions", label: "📚 ట్యూషన్స్ (Tuitions)", icon: "📚" }
+  { 
+    id: "all", 
+    label: "🌸 అన్నీ (All Products & Services)", 
+    icon: "🌸", 
+    subhead: "అన్ని మహిళా ఉత్పత్తులు & హోమ్ బిజినెస్ సేవలు" 
+  },
+  { 
+    id: "food_catering", 
+    label: "🍲 ఇంటి తయారీ ఆహారం & క్యాటరింగ్", 
+    icon: "🍲", 
+    subhead: "అప్పడాలు, వడియాలు, పచ్చళ్లు, కారం పొడులు, పిండి వంటలు, స్నాక్స్, స్వీట్లు, ఇంటి భోజనం, హోమ్ కేటరింగ్",
+    subItems: ["అప్పడాలు & వడియాలు", "ఇంటి పచ్చళ్లు", "కారం పొడులు", "పిండి వంటలు & స్నాక్స్", "ఇంటి స్వీట్లు", "ఇంటి భోజనం & హోమ్ కేటరింగ్"]
+  },
+  { 
+    id: "boutique_handmade", 
+    label: "👗 బట్టలు, బుటిక్ & హ్యాండ్మేడ్", 
+    icon: "👗", 
+    subhead: "చీరలు, డ్రెస్సులు, బ్లౌజులు, కుర్తీలు, పిల్లల దుస్తులు, బుటిక్ ఉత్పత్తులు, టైలరింగ్, బ్లౌజ్ స్టిచింగ్, ఎంబ్రాయిడరీ, హ్యాండ్మేడ్ వస్తువులు",
+    subItems: ["పట్టు చీరలు & డ్రెస్సులు", "కుర్తీలు & బ్లౌజులు", "పిల్లల దుస్తులు", "బుటిక్ ఉత్పత్తులు", "టైలరింగ్ & ఎంబ్రాయిడరీ", "హ్యాండ్మేడ్ వస్తువులు"]
+  },
+  { 
+    id: "beauty_services", 
+    label: "💄 బ్యూటీ & వ్యక్తిగత సేవలు", 
+    icon: "💄", 
+    subhead: "బ్యూటీ పార్లర్, మేకప్, మెహందీ, హెయిర్ & బ్యూటీ services",
+    subItems: ["బ్యూటీ పార్లర్ సేవలు", "బ్రైడల్ మేకప్", "మెహందీ డిజైన్", "హెయిర్ & బ్యూటీ కేర్"]
+  },
+  { 
+    id: "home_decor", 
+    label: "🧺 ఇంటి & అలంకరణ ఉత్పత్తులు", 
+    icon: "🧺", 
+    subhead: "కొవ్వొత్తులు, సబ్బులు, బ్యాగులు, హోమ్ డెకర్, హ్యాండ్క్రాఫ్ట్స్",
+    subItems: ["హ్యాండ్‌మేడ్ సబ్బులు & కొవ్వొత్తులు", "ఫ్యాన్సీ బ్యాగులు", "హోమ్ డెకర్ & హ్యాండ్క్రాఫ్ట్స్"]
+  },
+  { 
+    id: "women_farmers", 
+    label: "🌾 మహిళా రైతు ఉత్పత్తులు", 
+    icon: "🌾", 
+    subhead: "కూరగాయలు, పండ్లు, పూలు, తేనె, పసుపు, మసాలాలు, ఆర్గానిక్ ఉత్పత్తులు",
+    subItems: ["ఫ్రెష్ కూరగాయలు & పండ్లు", "పూలు & ఆర్గానిక్ తేనె", "స్వచ్ఛమైన పసుపు & మసాలాలు", "సేంద్రీయ ఉత్పత్తులు"]
+  },
+  { 
+    id: "services_classes", 
+    label: "📚 మహిళల సేవలు & తరగతులు", 
+    icon: "📚", 
+    subhead: "ట్యూషన్, కుకింగ్ క్లాసులు, క్రాఫ్ట్ క్లాసులు, బ్యూటీ ట్రైనింగ్, ఇతర నైపుణ్య సేవలు",
+    subItems: ["హోమ్ ట్యూషన్స్", "కుకింగ్ & బేకింగ్ క్లాసులు", "క్రాఫ్ట్ క్లాసులు", "బ్యూటీ ట్రైనింగ్"]
+  },
+  { 
+    id: "women_businesses", 
+    label: "💼 మహిళా వ్యాపారాలు", 
+    icon: "💼", 
+    subhead: "హోమ్ బిజినెస్, రీసెల్లింగ్, చిన్న వ్యాపారాలు, ఇతర ఉత్పత్తులు & సేవలు",
+    subItems: ["హోమ్ బిజినెస్ ఉత్పత్తులు", "రీసెల్లింగ్ వ్యాపారాలు", "చిన్న తరహా ఉత్పత్తులు & సేవలు"]
+  }
 ];
 
 const INITIAL_MAHILA_ITEMS: MahilaItem[] = [
   {
     id: "m-1",
     seller_name: "లక్ష్మి దేవి (Lakshmi Devi)",
-    category: "pickles",
+    category: "food_catering",
     title: "స్వచ్ఛమైన కొత్త ఆవకాయ పచ్చడి (Traditional Avakaya Pickle)",
-    description: "నూనె లేకుండా సంప్రదాయ పద్ధతిలో తయారుచేసిన స్వచ్ఛమైన ఆంధ్రా ఆవకాయ పచ్చడి. 1 కేజీ ప్యాక్.",
+    description: "అప్పడాలు, వడియాలు, పచ్చళ్లు, కారం పొడులు. నూనె లేకుండా సంప్రదాయ పద్ధతిలో తయారుచేసిన స్వచ్ఛమైన ఆంధ్రా ఆవకాయ పచ్చడి.",
     price: "₹350 / kg",
     locality: "మధురవాడ (Madhurawada, Vizag)",
     contact: "9876543210",
@@ -61,9 +104,9 @@ const INITIAL_MAHILA_ITEMS: MahilaItem[] = [
   {
     id: "m-2",
     seller_name: "సునీత (Sunitha Home Foods)",
-    category: "karam_podi",
-    title: "నల్లకారం & కందిపొడి (Authentic Karam Podi & Kandi Podi)",
-    description: "రోటిలో దంచిన ఘుమఘుమలాడే పప్పుల కారం పొడి & ఇడ్లీ కారం పొడి.",
+    category: "food_catering",
+    title: "నల్లకారం, కందిపొడి & ఇంటి పిండి వంటలు (Authentic Karam Podi & Snacks)",
+    description: "కారం పొడులు, పిండి వంటలు, స్నాక్స్, స్వీట్లు. రోటిలో దంచిన ఘుమఘుమలాడే పప్పుల కారం పొడి & ఇడ్లీ కారం పొడి.",
     price: "₹180 / 500g",
     locality: "గాజువాక (Gajuwaka, Vizag)",
     contact: "9876543211",
@@ -73,9 +116,9 @@ const INITIAL_MAHILA_ITEMS: MahilaItem[] = [
   {
     id: "m-3",
     seller_name: "రాధా కుమారి (Radha Creations)",
-    category: "sarees",
-    title: "మంగళగిరి పట్టు చీరలు (Authentic Mangalagiri Silk Sarees)",
-    description: "నేరుగా చేనేత కార్మికుల వద్ద నుండి స్వచ్ఛమైన పట్టు చీరలు & డ్రెస్ మెటీరియల్స్.",
+    category: "boutique_handmade",
+    title: "మంగళగిరి పట్టు చీరలు & డ్రెస్సులు (Handcrafted Mangalagiri Sarees)",
+    description: "చీరలు, డ్రెస్సులు, బ్లౌజులు, కుర్తీలు, బుటిక్ ఉత్పత్తులు. నేరుగా చేనేత కార్మికుల వద్ద నుండి స్వచ్ఛమైన పట్టు చీరలు.",
     price: "₹2,500",
     locality: "ఎంవీపీ కాలనీ (MVP Colony, Vizag)",
     contact: "9876543212",
@@ -84,10 +127,10 @@ const INITIAL_MAHILA_ITEMS: MahilaItem[] = [
   },
   {
     id: "m-4",
-    seller_name: "శ్రీలత (Sreelatha Tailors)",
-    category: "tailoring",
-    title: "మహిళల డిజైనర్ బ్లౌజ్ స్టిచింగ్ (Designer Blouse Stitching)",
-    description: "మగ్గం వర్క్, లేస్ వర్క్ & ఫ్యాన్సీ బ్లౌజ్ స్టిచింగ్ తక్కువ ధరలో డోర్ డెలివరీతో.",
+    seller_name: "శ్రీలత (Sreelatha Tailors & Embroidery)",
+    category: "boutique_handmade",
+    title: "మహిళల డిజైనర్ బ్లౌజ్ స్టిచింగ్ & ఎంబ్రాయిడరీ (Blouse Stitching)",
+    description: "టైలరింగ్, బ్లౌజ్ స్టిచింగ్, ఎంబ్రాయిడరీ, హ్యాండ్మేడ్ వస్తువులు. మగ్గం వర్క్ & ఫ్యాన్సీ బ్లౌజ్ స్టిచింగ్ తక్కువ ధరలో డోర్ డెలివరీతో.",
     price: "₹400 ప్రారంభం",
     locality: "విజయవాడ (Vijayawada)",
     contact: "9876543213",
@@ -96,22 +139,22 @@ const INITIAL_MAHILA_ITEMS: MahilaItem[] = [
   },
   {
     id: "m-5",
-    seller_name: "అనురాధ (Anu Home Sweets)",
-    category: "sweets",
-    title: "స్వచ్ఛమైన నేతి మైసూర్ పాక్ & బూందీ లడ్డూ (Pure Ghee Sweets)",
-    description: "పసందైన గేదె నెయ్యితో తయారుచేసిన ఇంటి స్వీట్లు & పిండి వంటలు.",
-    price: "₹450 / kg",
+    seller_name: "అనురాధ (Anu Beauty & Spa)",
+    category: "beauty_services",
+    title: "హోమ్ బ్యూటీ పార్లర్ & బ్రైడల్ మేకప్ సేవలు (Beauty & Makeup Services)",
+    description: "బ్యూటీ పార్లర్, మేకప్, మెహందీ, హెయిర్ & బ్యూటీ services. మహిళల డోర్‌స్టెప్ బ్యూటీ సర్వీసెస్ & బ్రైడల్ మేకప్.",
+    price: "₹500 ప్రారంభం",
     locality: "గచ్చిబౌలి (Gachibowli, Hyderabad)",
     contact: "9876543214",
-    image: "https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80",
     created_at: new Date().toISOString()
   },
   {
     id: "m-6",
-    seller_name: "పద్మావతి (Padma Tuitions)",
-    category: "tuitions",
-    title: "1 నుండి 10వ తరగతి హోమ్ ట్యూషన్స్ (Home Tuitions 1-10th)",
-    description: "మ్యాథ్స్, సైన్స్ & ఇంగ్లీష్ ప్రత్యేక శ్రద్ధతో హోమ్ ట్యూషన్స్ మరియు ఆన్‌లైన్ క్లాసెస్.",
+    seller_name: "పద్మావతి (Padma Tuitions & Classes)",
+    category: "services_classes",
+    title: "1 నుండి 10వ తరగతి హోమ్ ట్యూషన్స్ & నైపుణ్య తరగతులు",
+    description: "ట్యూషన్, కుకింగ్ క్లాసులు, క్రాఫ్ట్ క్లాసులు, బ్యూటీ ట్రైనింగ్, ఇతర నైపుణ్య సేవలు. మ్యాథ్స్, సైన్స్ & ఇంగ్లీష్ ప్రత్యేక శ్రద్ధతో.",
     price: "₹1,500 / month",
     locality: "హైదరాబాద్ (Hyderabad)",
     contact: "9876543215",
@@ -139,7 +182,7 @@ export function MahilaMarketPage() {
   // Form State (2-Step Live SMS Verified Post Modal)
   const [step, setStep] = useState<1 | 2>(1);
   const [sellerName, setSellerName] = useState<string>("");
-  const [category, setCategory] = useState<string>("pickles");
+  const [category, setCategory] = useState<string>("food_catering");
   const [title, setTitle] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [locality, setLocality] = useState<string>("మధురవాడ (Madhurawada)");
@@ -303,6 +346,51 @@ export function MahilaMarketPage() {
           </div>
         </div>
 
+        {/* 🌸 7 BROAD CATEGORIES VISUAL SHOWCASE WITH SUB-CATEGORIES */}
+        <div className="bg-[#111827] border border-[#1f2937] rounded-3xl p-4 sm:p-6 space-y-4">
+          <h3 className="text-sm font-black text-rose-400 uppercase tracking-wider flex items-center gap-2">
+            <span>🌸 మహిళా మార్కెట్ — 7 ముఖ్యమైన విభాగాలు (7 Broad Categories)</span>
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {MAHILA_CATEGORIES.filter((c) => c.id !== "all").map((cat) => (
+              <div
+                key={cat.id}
+                onClick={() => setSelectedCat(cat.id)}
+                className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-2 ${
+                  selectedCat === cat.id
+                    ? "bg-rose-950/40 border-rose-500 ring-2 ring-rose-500/50"
+                    : "bg-[#030712] border-[#1f2937] hover:border-rose-500/50 hover:bg-[#111827]"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">{cat.icon}</span>
+                  <h4 className="text-xs font-black text-white leading-tight">{cat.label}</h4>
+                </div>
+
+                <p className="text-[10px] text-gray-400 font-semibold line-clamp-2 leading-relaxed">
+                  {cat.subhead}
+                </p>
+
+                {cat.subItems && (
+                  <div className="flex flex-wrap gap-1 pt-1">
+                    {cat.subItems.slice(0, 3).map((sub, sIdx) => (
+                      <span key={sIdx} className="text-[9px] font-bold bg-[#1f2937] text-rose-200 px-2 py-0.5 rounded-full border border-rose-900/30">
+                        {sub}
+                      </span>
+                    ))}
+                    {cat.subItems.length > 3 && (
+                      <span className="text-[9px] font-bold bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded-full">
+                        +{cat.subItems.length - 3}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Product Cards Grid (3 Columns Desktop, 2 Tablet, 1 Mobile) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredItems.map((item) => {
@@ -441,17 +529,13 @@ export function MahilaMarketPage() {
                       onChange={(e) => setCategory(e.target.value)}
                       className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-rose-500 cursor-pointer"
                     >
-                      <option value="pickles">🥭 ఇంటి పచ్చళ్ళు</option>
-                      <option value="karam_podi">🌶️ కారం పొడి</option>
-                      <option value="turmeric">🟡 పసుపు</option>
-                      <option value="pindi_vantalu">🥟 పిండి వంటలు</option>
-                      <option value="sweets">🍬 స్వీట్లు</option>
-                      <option value="handmade">🎨 హ్యాండ్మేడ్ వస్తువులు</option>
-                      <option value="sarees">🥻 చీరలు / డ్రెస్సులు</option>
-                      <option value="tailoring">🪡 టైలరింగ్</option>
-                      <option value="beauty">💅 బ్యూటీ Services</option>
-                      <option value="home_food">🍲 హోమ్ ఫుడ్</option>
-                      <option value="tuitions">📚 ట్యూషన్స్</option>
+                      <option value="food_catering">🍲 ఇంటి తయారీ ఆహారం & క్యాటరింగ్</option>
+                      <option value="boutique_handmade">👗 బట్టలు, బుటిక్ & హ్యాండ్మేడ్</option>
+                      <option value="beauty_services">💄 బ్యూటీ & వ్యక్తిగత సేవలు</option>
+                      <option value="home_decor">🧺 ఇంటి & అలంకరణ ఉత్పత్తులు</option>
+                      <option value="women_farmers">🌾 మహిళా రైతు ఉత్పత్తులు</option>
+                      <option value="services_classes">📚 మహిళల సేవలు & తరగతులు</option>
+                      <option value="women_businesses">💼 మహిళా వ్యాపారాలు</option>
                     </select>
                   </div>
 
