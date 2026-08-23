@@ -77,9 +77,8 @@ export function ManaMarketPage() {
     const vehicles = allItems.filter((i) => i.category === "vehicles").length;
     const property = allItems.filter((i) => i.category === "property").length;
     const services = allItems.filter((i) => i.category === "services").length;
-    const jobs = allItems.filter((i) => i.category === "jobs").length;
     const other = allItems.filter((i) => i.category === "other").length;
-    return { total, myAds, electronics, furniture, vehicles, property, services, jobs, other };
+    return { total, myAds, electronics, furniture, vehicles, property, services, other };
   }, [allItems, myPhone]);
 
   // Filter items in real time based on Category, Locality, Status, and Search Query
@@ -265,7 +264,6 @@ export function ManaMarketPage() {
               { id: "vehicles", label: `🚗 Vehicles (${counts.vehicles})`, icon: Car, color: "bg-amber-600" },
               { id: "property", label: `🏠 Property (${counts.property})`, icon: Home, color: "bg-red-600" },
               { id: "services", label: `🔧 Services (${counts.services})`, icon: Wrench, color: "bg-teal-600" },
-              { id: "jobs", label: `💼 Jobs (${counts.jobs})`, icon: Briefcase, color: "bg-[#16a34a]" },
               { id: "other", label: `🎁 Other / Free (${counts.other})`, icon: Gift, color: "bg-pink-600" }
             ].map((cat) => {
               const isSel = selectedCat === cat.id;

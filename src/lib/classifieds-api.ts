@@ -7,7 +7,6 @@ export type ClassifiedCategory =
   | "vehicles"
   | "property"
   | "services"
-  | "jobs"
   | "other";
 
 export type ClassifiedStatus = "available" | "sold";
