@@ -132,9 +132,9 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
       window.location.href = "/jobs?post=true";
       return;
     }
-    if (catId === "buy_sell_items") {
+    if (catId === "buy_sell_items" || catId === "agriculture") {
       onClose();
-      window.location.href = "/market";
+      window.location.href = "/market?post=true";
       return;
     }
     setSelectedCategory(catId);

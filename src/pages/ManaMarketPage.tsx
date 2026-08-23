@@ -47,7 +47,13 @@ export function ManaMarketPage() {
 
   const [profile, setProfile] = useState<SellerProfile | null>(getStoredSellerProfile());
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
-  const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false);
+  const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(() => {
+    try {
+      return typeof window !== "undefined" && new URLSearchParams(window.location.search).get("post") === "true";
+    } catch {
+      return false;
+    }
+  });
   const [selectedDetailItem, setSelectedDetailItem] = useState<ClassifiedItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
