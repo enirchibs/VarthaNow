@@ -43,8 +43,11 @@ const SERVICE_GROUPS = [
       "🚰 Plumber — ప్లంబర్",
       "⚡ Electrician — ఎలక్ట్రీషియన్",
       "🧱 Mason — మేస్త్రీ",
-      "🪚 Carpenter — కార్పెంటర్",
-      "🎨 Painter — పెయింటర్",
+      "🧱 Tiles Mesthri — టైల్స్ & మార్బుల్ మేస్త్రీ",
+      "🪚 Carpenter (Wood Work) — వుడ్ వర్క్ కార్పెంటర్",
+      "👨‍🏭 Welding — వెల్డింగ్ వర్క్",
+      "🎨 Painter — పెయింటర్ (పుట్టీ & కలరింగ్)",
+      "🛖 False Ceiling — ఫాల్స్ సీలింగ్ వర్క్ (POP/Gypsum/PVC)",
       "🧹 Cleaning — క్లీనింగ్",
       "👩‍🏫 Tuition — ట్యూషన్"
     ]
@@ -74,6 +77,9 @@ const SERVICE_GROUPS = [
       "🧱 Concrete Mixer — కాంక్రీట్ మిక్సర్",
       "🏗️ Crane — క్రేన్",
       "🚛 Tipper — టిప్పర్",
+      "🧱 Tiles & Marble — టైల్స్ మేస్త్రీ వర్క్",
+      "👨‍🏭 Welding — ఐరన్ గ్రిల్స్ & ఆర్క్ వెల్డింగ్",
+      "🛖 Ceiling — POP & PVC ఫాల్స్ సీలింగ్",
       "👷 Construction Workers — కన్‌స్ట్రక్షన్ వర్కర్స్"
     ]
   },
@@ -175,6 +181,58 @@ const INITIAL_SERVICES: ServiceRentalItem[] = [
     description: "వరి కోత, నూర్పిడి వేగంగా మరియు తక్కువ చేను నష్టంతో చేసే అధునాతన కోత యంత్రం.",
     contact: "9876543214",
     image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "s-6",
+    provider_name: "సత్యనారాయణ టైల్స్ మేస్త్రీ (Satyanarayana Tiles & Marble)",
+    category: "workers",
+    service_type: "🧱 Tiles Mesthri — టైల్స్ & మార్బుల్ మేస్త్రీ",
+    village: "MVP Colony, Vizag",
+    price_rate: "₹18 / sq.ft",
+    available_days: "సోమ-శని (Mon-Sat)",
+    description: "ఫ్లోరింగ్ టైల్స్, వాల్ టైల్స్, మార్బుల్స్ & గ్రానైట్ క్లీన్ ఫిట్టింగ్ మరియు రీప్యాచింగ్ వర్క్.",
+    contact: "9876543215",
+    image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "s-7",
+    provider_name: "శివ వెల్డింగ్ & ఆర్క్ వర్క్స్ (Shiva Welding Works)",
+    category: "construction",
+    service_type: "👨‍🏭 Welding — వెల్డింగ్ వర్క్ (గ్రిల్స్/గేట్లు)",
+    village: "Pendurthi, Vizag",
+    price_rate: "₹800 / Day",
+    available_days: "అన్ని రోజులు అందుబాటులో ఉంటుంది",
+    description: "ఐరన్ గేట్లు, కిటికీ గ్రిల్స్, షెడ్స్, స్టీల్ రెయిలింగ్స్ & గ్యాస్/ఆర్క్ వెల్డింగ్ స్పాట్ వర్క్.",
+    contact: "9876543216",
+    image: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "s-8",
+    provider_name: "గోపి వుడ్ కార్పెంటర్ (Gopi Woodwork Carpenter)",
+    category: "workers",
+    service_type: "🪚 Carpenter (Wood Work) — వుడ్ వర్క్ కార్పెంటర్",
+    village: "Kakinada",
+    price_rate: "₹900 / Day",
+    available_days: "అన్ని రోజులు",
+    description: "ఇంటి డోర్స్, విండోస్, కబోర్డ్స్, టీవుడ్ ఫర్నిచర్ డిజైనింగ్ & లాక్ రిపేర్ వర్క్.",
+    contact: "9876543217",
+    image: "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=800&q=80",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "s-9",
+    provider_name: "రాజేష్ ఫాల్స్ సీలింగ్ వర్క్స్ (Rajesh False Ceiling)",
+    category: "workers",
+    service_type: "🛖 False Ceiling — ఫాల్స్ సీలింగ్ వర్క్ (POP/Gypsum/PVC)",
+    village: "Vijayawada",
+    price_rate: "₹55 / sq.ft",
+    available_days: "అన్ని రోజులు",
+    description: "ఇళ్ళు, షాపులు మరియు ఆఫీసుల కోసం మోడ్రన్ POP, జిప్సమ్ & PVC డిజైనర్ ఫాల్స్ సీలింగ్.",
+    contact: "9876543218",
+    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
     created_at: new Date().toISOString()
   }
 ];
