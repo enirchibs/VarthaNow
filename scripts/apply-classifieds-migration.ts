@@ -141,10 +141,10 @@ async function run() {
   }
 
   // Seed data directly into public.classifieds table
-  console.log("🌱 Upserting sample classifieds items into public.classifieds...");
+  console.log("🌱 Inserting sample classifieds items into public.classifieds...");
   const { data, error } = await supabase
     .from("classifieds")
-    .upsert(SEED_CLASSIFIEDS, { onConflict: "title" })
+    .insert(SEED_CLASSIFIEDS)
     .select();
 
   if (error) {
