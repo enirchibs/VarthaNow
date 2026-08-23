@@ -343,7 +343,7 @@ export function SmartChatbotWidget() {
                 { title: "🛍️ కొనడం / అమ్మడం", path: "/market" },
                 { title: "🌸 మహిళా మార్కెట్", path: "/mahila-market" },
                 { title: "🔧 సేవలు & అద్దెకు", path: "/services" },
-                { title: "🌾 రైతు మార్కెట్", path: "/market?cat=agriculture" },
+                { title: "🌾 రైతు మార్కెట్", path: "/raitu-bazar" },
                 { title: "🍲 సంప్రదాయ వంటలు", path: "/category/devotional" },
                 { title: "🏥 ఆరోగ్యం", path: "/health" }
               ].map((chip, idx) => (

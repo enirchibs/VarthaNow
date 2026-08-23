@@ -483,16 +483,16 @@ export function Layout() {
 
           {/* 2. రైతు పంటలు */}
           <NavLink
-            to="/market?cat=agriculture"
+            to="/raitu-bazar"
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-16 h-14 transition-all ${
-                isActive && location.search.includes("agriculture") ? "text-emerald-600 dark:text-emerald-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
+                isActive ? "text-emerald-600 dark:text-emerald-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <Sprout className={`size-5 mb-0.5 text-emerald-500 ${isActive && location.search.includes("agriculture") ? "stroke-[2.5px]" : ""}`} />
+                <Sprout className={`size-5 mb-0.5 text-emerald-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
                 <span className="text-[10px] font-black tracking-tight leading-none text-center">
                   రైతు పంటలు
                 </span>
