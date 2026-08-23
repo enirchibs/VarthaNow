@@ -16,17 +16,24 @@ import {
   MessageCircle,
   Sparkles,
   Filter,
-  CheckCircle
+  CheckCircle,
+  User,
+  LogOut,
+  UserCheck,
+  LogIn
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { 
   fetchClassifieds, 
   ClassifiedItem, 
   ClassifiedCategory,
-  getStoredSellerProfile
+  getStoredSellerProfile,
+  saveStoredSellerProfile,
+  SellerProfile
 } from "@/lib/classifieds-api";
 import { ClassifiedPostModal } from "@/components/ClassifiedPostModal";
 import { ClassifiedDetailModal } from "@/components/ClassifiedDetailModal";
+import { SellerLoginModal } from "@/components/SellerLoginModal";
 
 export function ManaMarketPage() {
   const { lang } = useLanguage();
@@ -34,26 +41,32 @@ export function ManaMarketPage() {
   const [selectedCat, setSelectedCat] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [onlyMyPosts, setOnlyMyPosts] = useState<boolean>(false);
 
+  const [profile, setProfile] = useState<SellerProfile | null>(getStoredSellerProfile());
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
   const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false);
   const [selectedDetailItem, setSelectedDetailItem] = useState<ClassifiedItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Calculate user's total active ads count
+  const myAdsCount = profile?.phone
+    ? items.filter((i) => i.contact.replace(/\D/g, "") === profile.phone.replace(/\D/g, "")).length
+    : 0;
+
   const loadMarketItems = async () => {
     setLoading(true);
     const data = await fetchClassifieds({
-      category: selectedCat,
+      category: selectedCat === "my_ads" ? "all" : selectedCat,
       searchQuery,
       statusFilter
     });
 
-    if (onlyMyPosts) {
-      const myProf = getStoredSellerProfile();
-      if (myProf && myProf.phone) {
-        setItems(data.filter((i) => i.contact.replace(/\D/g, "") === myProf.phone.replace(/\D/g, "")));
+    if (selectedCat === "my_ads") {
+      const myPhone = profile?.phone ? profile.phone.replace(/\D/g, "") : "";
+      if (myPhone) {
+        setItems(data.filter((i) => i.contact.replace(/\D/g, "") === myPhone));
       } else {
-        setItems(data);
+        setItems([]);
       }
     } else {
       setItems(data);
@@ -63,12 +76,98 @@ export function ManaMarketPage() {
 
   useEffect(() => {
     loadMarketItems();
-  }, [selectedCat, searchQuery, statusFilter, onlyMyPosts]);
+  }, [selectedCat, searchQuery, statusFilter, profile]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("vaartanow_user_profile");
+    localStorage.removeItem("vizag_user_profile");
+    setProfile(null);
+    if (selectedCat === "my_ads") {
+      setSelectedCat("all");
+    }
+  };
+
+  const handleLoginSuccess = (newProfile: SellerProfile) => {
+    setProfile(newProfile);
+    saveStoredSellerProfile(newProfile);
+  };
 
   return (
     <main className="container-shell py-6 space-y-6 animate-in fade-in duration-300">
 
-      {/* Header Banner */}
+      {/* Top Profile Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-[hsl(var(--card))] p-4 rounded-3xl border border-[hsl(var(--border))] shadow-xs">
+        {profile && profile.is_verified ? (
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black shadow-md shrink-0">
+              <UserCheck className="size-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-black text-[hsl(var(--foreground))]">
+                  👤 Welcome, {profile.name}
+                </span>
+                <span className="inline-flex items-center gap-1 text-[10px] font-black bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded-full">
+                  <ShieldCheck className="size-3" />
+                  Verified
+                </span>
+              </div>
+              <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+                +91 {profile.phone} | నా ప్రకటనలు: <span className="font-black text-blue-600 dark:text-blue-400">{myAdsCount} Active Ads</span>
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="size-10 rounded-2xl bg-blue-600/10 text-blue-600 flex items-center justify-center font-black shrink-0">
+              <User className="size-5" />
+            </div>
+            <div>
+              <span className="text-sm font-black text-[hsl(var(--foreground))]">
+                అమ్మకందారు ఖాతా (Seller Profile)
+              </span>
+              <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+                మీ పోస్టింగ్‌లను నిర్వహించడానికి లాగిన్ అవ్వండి
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center gap-2 shrink-0">
+          {profile && profile.is_verified ? (
+            <>
+              <button
+                onClick={() => setSelectedCat("my_ads")}
+                className={`px-4 py-2 rounded-full text-xs font-black transition cursor-pointer flex items-center gap-1.5 ${
+                  selectedCat === "my_ads" ? "bg-amber-500 text-black shadow-sm" : "bg-[hsl(var(--muted))] text-[hsl(var(--foreground))]"
+                }`}
+              >
+                <User className="size-3.5" />
+                <span>My Ads ({myAdsCount})</span>
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="px-3.5 py-2 rounded-full text-xs font-bold border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:bg-red-500/10 hover:text-red-600 transition flex items-center gap-1.5 cursor-pointer"
+                title="Logout"
+              >
+                <LogOut className="size-3.5" />
+                <span>లాగ్‌అవుట్</span>
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsLoginModalOpen(true)}
+              className="px-4 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-black transition flex items-center gap-2 shadow-md cursor-pointer"
+            >
+              <LogIn className="size-4" />
+              <span>Login to View Your Ads 📱</span>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Main Header Banner */}
       <div className="rounded-[2.2rem] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 sm:p-8 text-white shadow-xl flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
         <div className="absolute -right-16 -bottom-16 size-48 rounded-full bg-white/10 blur-2xl pointer-events-none" />
         
@@ -87,12 +186,18 @@ export function ManaMarketPage() {
 
         <div className="flex flex-wrap items-center gap-2.5 z-10">
           <button
-            onClick={() => setOnlyMyPosts(!onlyMyPosts)}
+            onClick={() => {
+              if (!profile) {
+                setIsLoginModalOpen(true);
+              } else {
+                setSelectedCat("my_ads");
+              }
+            }}
             className={`px-4 py-3 rounded-full text-xs font-black transition-all cursor-pointer ${
-              onlyMyPosts ? "bg-amber-400 text-black shadow-md" : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-md"
+              selectedCat === "my_ads" ? "bg-amber-400 text-black shadow-md" : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-md"
             }`}
           >
-            {onlyMyPosts ? "చూపిస్తోంది: నా ప్రకటనలు (My Posted Ads)" : "నా ప్రకటనలు (My Ads)"}
+            👤 నా ప్రకటనలు (My Ads: {myAdsCount})
           </button>
 
           <button
@@ -105,11 +210,12 @@ export function ManaMarketPage() {
         </div>
       </div>
 
-      {/* Category Pills Filter Bar */}
+      {/* Category Pills Filter Bar (Includes Dedicated "My Ads 👤" Tab) */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
           {[
             { id: "all", label: "అన్నీ (All)", icon: ShoppingBag, color: "bg-blue-600" },
+            { id: "my_ads", label: `My Ads 👤 (${myAdsCount})`, icon: User, color: "bg-amber-500" },
             { id: "electronics", label: "📱 ఎలక్ట్రానిక్స్", icon: Smartphone, color: "bg-indigo-600" },
             { id: "furniture", label: "🛋️ ఫర్నిచర్", icon: Home, color: "bg-purple-600" },
             { id: "vehicles", label: "🚗 వాహనాలు", icon: Car, color: "bg-amber-600" },
@@ -122,7 +228,13 @@ export function ManaMarketPage() {
             return (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCat(cat.id)}
+                onClick={() => {
+                  if (cat.id === "my_ads" && !profile) {
+                    setIsLoginModalOpen(true);
+                  } else {
+                    setSelectedCat(cat.id);
+                  }
+                }}
                 className={`rounded-full px-4 py-2 text-xs font-black whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 ${
                   isSel
                     ? `${cat.color} text-white shadow-md`
@@ -184,109 +296,135 @@ export function ManaMarketPage() {
       </div>
 
       {/* OLX-Style Hyperlocal Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {items.map((item) => {
-          const mainImg = item.images && item.images.length > 0
-            ? item.images[0]
-            : "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80";
+      {selectedCat === "my_ads" && items.length === 0 ? (
+        <div className="p-12 text-center rounded-[2rem] border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--card))] space-y-3">
+          <div className="size-14 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto">
+            <ShoppingBag className="size-7" />
+          </div>
+          <h3 className="text-lg font-black text-[hsl(var(--foreground))]">
+            మీరు ఇంకా ఏ ప్రకటనలను ప్రచురించలేదు (No Posted Ads Yet)
+          </h3>
+          <p className="text-xs text-[hsl(var(--muted-foreground))] max-w-sm mx-auto">
+            మీ వద్ద ఉన్న మొబైల్స్, వాహనాలు, ఫర్నిచర్ లేదా సేవలను ఇప్పుడే ఉచితంగా ప్రకటన పోస్ట్ చేయండి!
+          </p>
+          <button
+            onClick={() => setIsPostModalOpen(true)}
+            className="px-6 py-3 rounded-full bg-blue-600 text-white text-xs font-black shadow-lg hover:bg-blue-700 transition cursor-pointer"
+          >
+            + పోస్ట్ చేయండి (Post Your First Ad)
+          </button>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((item) => {
+            const mainImg = item.images && item.images.length > 0
+              ? item.images[0]
+              : "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80";
 
-          return (
-            <div
-              key={item.id}
-              onClick={() => setSelectedDetailItem(item)}
-              className="rounded-[1.8rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer group"
-            >
-              {/* Image & Badges */}
-              <div className="relative aspect-[16/10] w-full overflow-hidden bg-neutral-900">
-                <img
-                  src={mainImg}
-                  alt={item.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                />
+            return (
+              <div
+                key={item.id}
+                onClick={() => setSelectedDetailItem(item)}
+                className="rounded-[1.8rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer group"
+              >
+                {/* Image & Badges */}
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-neutral-900">
+                  <img
+                    src={mainImg}
+                    alt={item.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                  />
 
-                <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                    item.status === "available" ? "bg-emerald-600 text-white" : "bg-red-600 text-white"
-                  }`}>
-                    {item.status === "available" ? "🟢 Available" : "🔴 SOLD"}
-                  </span>
-
-                  {item.free_items && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-600 text-white">
-                      🎁 Free
+                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                      item.status === "available" ? "bg-emerald-600 text-white" : "bg-red-600 text-white"
+                    }`}>
+                      {item.status === "available" ? "🟢 Available" : "🔴 SOLD"}
                     </span>
-                  )}
-                </div>
 
-                <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-black text-white uppercase">
-                  {item.category}
-                </div>
-              </div>
-
-              {/* Card Content */}
-              <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">
-                      {item.price}
-                    </span>
-
-                    <span className="text-[10px] font-bold text-red-500 flex items-center gap-1">
-                      <MapPin className="size-3" />
-                      {item.locality.split(" ")[0]}
-                    </span>
+                    {item.free_items && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-600 text-white">
+                        🎁 Free
+                      </span>
+                    )}
                   </div>
 
-                  <h3 className="text-base font-black text-[hsl(var(--foreground))] leading-snug line-clamp-2 group-hover:text-blue-600 transition">
-                    {item.title}
-                  </h3>
+                  <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-black text-white uppercase">
+                    {item.category}
+                  </div>
+                </div>
 
-                  <p className="text-xs font-medium text-[hsl(var(--muted-foreground))] line-clamp-2">
-                    {item.description}
-                  </p>
+                {/* Card Content */}
+                <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">
+                        {item.price}
+                      </span>
 
-                  {item.offer_discount && (
-                    <p className="text-[11px] font-extrabold text-blue-600 dark:text-blue-400">
-                      🏷️ ఆఫర్: {item.offer_discount}
+                      <span className="text-[10px] font-bold text-red-500 flex items-center gap-1">
+                        <MapPin className="size-3" />
+                        {item.locality.split(" ")[0]}
+                      </span>
+                    </div>
+
+                    <h3 className="text-base font-black text-[hsl(var(--foreground))] leading-snug line-clamp-2 group-hover:text-blue-600 transition">
+                      {item.title}
+                    </h3>
+
+                    <p className="text-xs font-medium text-[hsl(var(--muted-foreground))] line-clamp-2">
+                      {item.description}
                     </p>
-                  )}
-                </div>
 
-                {/* Seller Bar & Quick Actions */}
-                <div className="border-t border-[hsl(var(--border))]/60 pt-3 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1 text-[11px] font-extrabold text-[hsl(var(--foreground))]">
-                    <ShieldCheck className="size-3.5 text-emerald-600" />
-                    <span className="truncate max-w-[110px]">{item.seller_name.split(" ")[0]}</span>
+                    {item.offer_discount && (
+                      <p className="text-[11px] font-extrabold text-blue-600 dark:text-blue-400">
+                        🏷️ ఆఫర్: {item.offer_discount}
+                      </p>
+                    )}
                   </div>
 
-                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                    <a
-                      href={`tel:${item.contact}`}
-                      className="p-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white transition shadow-xs"
-                      title="Call Seller"
-                    >
-                      <Phone className="size-3.5" />
-                    </a>
+                  {/* Seller Bar & Quick Actions */}
+                  <div className="border-t border-[hsl(var(--border))]/60 pt-3 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1 text-[11px] font-extrabold text-[hsl(var(--foreground))]">
+                      <ShieldCheck className="size-3.5 text-emerald-600" />
+                      <span className="truncate max-w-[110px]">{item.seller_name.split(" ")[0]}</span>
+                    </div>
 
-                    <a
-                      href={`https://wa.me/91${item.contact.replace(/\D/g, "")}?text=${encodeURIComponent(`నమస్తే, VaartaNow లో మీరు పోస్ట్ చేసిన "${item.title}" గురించి వివరాలు కావాలి.`)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-2 rounded-full bg-green-600 hover:bg-green-700 text-white transition shadow-xs"
-                      title="WhatsApp Chat"
-                    >
-                      <MessageCircle className="size-3.5" />
-                    </a>
+                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                      <a
+                        href={`tel:${item.contact}`}
+                        className="p-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white transition shadow-xs"
+                        title="Call Seller"
+                      >
+                        <Phone className="size-3.5" />
+                      </a>
+
+                      <a
+                        href={`https://wa.me/91${item.contact.replace(/\D/g, "")}?text=${encodeURIComponent(`నమస్తే, VaartaNow లో మీరు పోస్ట్ చేసిన "${item.title}" గురించి వివరాలు కావాలి.`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="p-2 rounded-full bg-green-600 hover:bg-green-700 text-white transition shadow-xs"
+                        title="WhatsApp Chat"
+                      >
+                        <MessageCircle className="size-3.5" />
+                      </a>
+                    </div>
                   </div>
                 </div>
+
               </div>
-
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Modals */}
+      <SellerLoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
+
       <ClassifiedPostModal
         isOpen={isPostModalOpen}
         onClose={() => setIsPostModalOpen(false)}
