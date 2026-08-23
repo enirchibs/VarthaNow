@@ -238,6 +238,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                   <option value="electronics">📱 ఎలక్ట్రానిక్స్ & మొబైల్స్ (Electronics)</option>
                   <option value="furniture">🛋️ ఫర్నిచర్ (Furniture & Appliances)</option>
                   <option value="vehicles">🚗 వాహనాలు & బైక్‌లు (Vehicles & Bikes)</option>
+                  <option value="building_materials">🏗️ బిల్డింగ్ & హోమ్ మెటీరియల్స్ (Building & Home Materials)</option>
                   <option value="services">🔧 స్థానిక సేవలు (Services & Repairs)</option>
                   <option value="agriculture">🌾 వ్యవసాయం & రైతు పంటలు (Agriculture & Crops)</option>
                   <option value="other">🎁 ఇతర / ఉచిత వస్తువులు (Other & Free Items)</option>
@@ -255,6 +256,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                   className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
                 >
                   <option value="">ప్రాంతాన్ని ఎంచుకోండి (Select a Locality)</option>
+                  <option value="ఆనందపురం (Anandapuram)">ఆనందపురం (Anandapuram)</option>
                   <option value="ఎంవీపీ కాలనీ (MVP Colony)">ఎంవీపీ కాలనీ (MVP Colony)</option>
                   <option value="మధురవాడ (Madhurawada)">మధురవాడ (Madhurawada)</option>
                   <option value="గాజువాక (Gajuwaka)">గాజువాక (Gajuwaka)</option>

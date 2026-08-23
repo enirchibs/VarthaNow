@@ -125,6 +125,16 @@ export function SmartChatbotWidget() {
       return;
     }
 
+    // Intent 2.5: Building Materials
+    if (q.includes("cement") || q.includes("sand") || q.includes("brick") || q.includes("ఇసుక") || q.includes("సిమెంట్") || q.includes("ఇటుకలు") || q.includes("టైల్స్") || q.includes("హార్డ్‌వేర్") || q.includes("పెయింట్")) {
+      respondAndNavigate(
+        "🏗️ బిల్డింగ్ & హోమ్ మెటీరియల్స్ పేజీకి తీసుకెళ్తున్నాను... (Navigating to Building Materials...)",
+        "బిల్డింగ్ మెటీరియల్స్ వెళ్లండి ➔",
+        "/market?cat=building_materials"
+      );
+      return;
+    }
+
     // Intent 3: Mahila Market
     if (q.includes("mahila") || q.includes("మహిళా") || q.includes("పచ్చళ్ళు") || q.includes("కారం") || q.includes("చీరలు")) {
       respondAndNavigate(
@@ -344,6 +354,7 @@ export function SmartChatbotWidget() {
                 { title: "🎥 వైరల్ షార్ట్స్", path: "/category/viralshorts" },
                 { title: "💼 ఉద్యోగాలు", path: "/jobs" },
                 { title: "🛍️ కొనడం / అమ్మడం", path: "/market" },
+                { title: "🏗️ బిల్డింగ్ మెటీరియల్స్", path: "/market?cat=building_materials" },
                 { title: "🌸 మహిళా మార్కెట్", path: "/mahila-market" },
                 { title: "🔧 సేవలు & అద్దెకు", path: "/services" },
                 { title: "🌾 రైతు మార్కెట్", path: "/raitu-bazar" },

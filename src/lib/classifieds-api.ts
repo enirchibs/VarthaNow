@@ -7,6 +7,7 @@ export type ClassifiedCategory =
   | "vehicles"
   | "property"
   | "services"
+  | "building_materials"
   | "other";
 
 export type ClassifiedStatus = "available" | "sold";
@@ -40,6 +41,40 @@ const LOCAL_STORAGE_POSTS_KEY = "vaartanow_user_classifieds";
 
 // 📦 RICH SEEDED MOCK FALLBACK DATASET
 export const SEED_CLASSIFIEDS: ClassifiedItem[] = [
+  {
+    id: "cf_bm1",
+    seller_name: "శ్రీ లక్ష్మి సిమెంట్ & హార్డ్‌వేర్ (Sri Lakshmi Cement & Hardware)",
+    category: "building_materials",
+    title: "🏗️ సిమెంట్, ఇటుకలు, ఇసుక & హార్డ్‌వేర్ సరఫరా",
+    description: "🏖️ ఇసుక ₹3,200/unit | 🧱 ఇటుకలు ₹8,500/1000 | 🏗️ సిమెంట్ ₹380/bag. Ultratech సిమెంట్, ఎర్ర ఇటుకలు, క్వారీ ఇసుక, ఐరన్ స్టీల్ రాడ్లు & హార్డ్‌వేర్ డోర్ డెలివరీ కలదు.",
+    price: "సిమెంట్ ₹380/bag | ఇసుక ₹3,200/unit",
+    locality: "ఆనందపురం (Anandapuram, Vizag)",
+    contact: "9876543210",
+    images: ["https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80"],
+    status: "available",
+    offer_discount: "🚚 ఉచిత హోమ్ డెలివరీ (Home Delivery)",
+    free_items: "ఉచిత కోటేషన్ (Get Quote)",
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "cf_bm2",
+    seller_name: "శ్రీ వెంకటేశ్వర బిల్డింగ్ సప్లైస్ (Sri Venkateswara Building Supplies)",
+    category: "building_materials",
+    title: "🟫 టైల్స్, ఎలక్ట్రికల్, ప్లంబింగ్, పెయింట్లు & బాత్రూమ్ ఫిట్టింగ్స్",
+    description: "⚡ ఎలక్ట్రికల్ సామానులు | 🚰 ప్లంబింగ్ సామానులు | 🟫 టైల్స్ | 🌀 ఫ్యాన్లు | 🪟 విడ్డోస్ | 🚪 డోర్స్ | 🔩 హార్డ్‌వేర్ | 🎨 పెయింట్లు | 🛁 బాత్రూమ్ ఫిట్టింగ్స్ | 🏠 రూఫింగ్ షీట్లు | 🔧 టూల్స్.",
+    price: "టైల్స్ ₹35/sq.ft ప్రారంభం",
+    locality: "గాజువాక (Gajuwaka, Vizag)",
+    contact: "9876543211",
+    images: ["https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80"],
+    status: "available",
+    offer_discount: "15% డిస్కౌంట్ బల్క్ ఆర్డర్లపై",
+    free_items: "🚚 డోర్ డెలివరీ సదుపాయం",
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
   {
     id: "cf_1",
     seller_name: "శ్రీనివాస్ రావు (Srinivas)",
