@@ -35,6 +35,7 @@ import { ClassifiedPostModal } from "@/components/ClassifiedPostModal";
 import { ClassifiedDetailModal } from "@/components/ClassifiedDetailModal";
 import { SellerLoginModal } from "@/components/SellerLoginModal";
 import { ClassifiedCard } from "@/components/ClassifiedCard";
+import { MarketplaceSeoFooter } from "@/components/MarketplaceSeoFooter";
 
 export function ManaMarketPage() {
   const { lang } = useLanguage();
@@ -395,6 +396,9 @@ export function ManaMarketPage() {
           ))}
         </div>
       )}
+
+      {/* Hyperlocal SEO Directory Footer */}
+      <MarketplaceSeoFooter />
 
       {/* Modals */}
       <SellerLoginModal
