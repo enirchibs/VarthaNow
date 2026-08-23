@@ -1,273 +1,307 @@
 import React, { useEffect, useState } from "react";
 import { 
   ShoppingBag, 
-  Sprout, 
   Smartphone, 
   Car, 
   Home, 
   Briefcase, 
   Wrench, 
+  Gift, 
   MapPin, 
   Phone, 
   PlusCircle, 
   Search,
-  Tag
+  Tag,
+  ShieldCheck,
+  MessageCircle,
+  Sparkles,
+  Filter,
+  CheckCircle
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { useLanguage } from "@/hooks/useLanguage";
-import { CreatePostModal, type PostCategoryType } from "@/components/CreatePostModal";
-
-interface MarketItem {
-  id: string;
-  category: string;
-  title: string;
-  description: string;
-  price?: string;
-  contact?: string;
-  area: string;
-  created_at: string;
-}
-
-const MOCK_MARKET_ITEMS: MarketItem[] = [
-  {
-    id: "m_1",
-    category: "agriculture",
-    title: "రైతు ధరకు సోనా మసూరి బియ్యం (25kg బస్తా)",
-    description: "సొంత పొలం నుంచి పండించిన బియ్యం బస్తాలు. హోమ్ డెలివరీ కలదు.",
-    price: "₹1,350 / బస్తా",
-    contact: "9848012345",
-    area: "విశాఖపట్నం (Visakhapatnam)",
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString()
-  },
-  {
-    id: "m_2",
-    category: "agriculture",
-    title: "స్వచ్ఛమైన వేరుశనగలు & చింతపండు అమ్మకానికి",
-    description: "అనంతపురం నాణ్యమైన శనగలు మరియు కొత్త చింతపండు హోల్‌సేల్ ధరలకు.",
-    price: "₹120 / kg",
-    contact: "9440156789",
-    area: "గాజువాక (Gajuwaka)",
-    created_at: new Date(Date.now() - 3600000 * 5).toISOString()
-  },
-  {
-    id: "m_3",
-    category: "mobile",
-    title: "iPhone 13 128GB - మింట్ కండిషన్",
-    description: "10 నెలల వాడకం. ఒరిజినల్ బాక్స్, ఛార్జర్ కలదు. నో స్క్రాచెస్.",
-    price: "₹38,500",
-    contact: "9988776655",
-    area: "ఎంవీపీ కాలనీ (MVP Colony)",
-    created_at: new Date(Date.now() - 3600000 * 8).toISOString()
-  },
-  {
-    id: "m_4",
-    category: "vehicle",
-    title: "Hero Splendor Plus 2022 మోడల్",
-    description: "ఒకే హ్యాండ్ వాడకం. మైలేజ్ 65+ kmpl. ఇన్సూరెన్స్ రన్నింగ్.",
-    price: "₹52,000",
-    contact: "9123456789",
-    area: "మధురవాడ (Madhurawada)",
-    created_at: new Date(Date.now() - 3600000 * 12).toISOString()
-  },
-  {
-    id: "m_5",
-    category: "property",
-    title: "2BHK ఫ్లాట్ అద్దెకు (ఫ్యామిలీకి)",
-    description: "24/7 నీరు, లిఫ్ట్, కార్ పార్కింగ్ కలదు. ప్రధాన రోడ్డుకు దగ్గరగా.",
-    price: "₹12,000 / నెల",
-    contact: "9876543210",
-    area: "విశాఖపట్నం (Visakhapatnam)",
-    created_at: new Date(Date.now() - 3600000 * 18).toISOString()
-  },
-  {
-    id: "m_6",
-    category: "service",
-    title: "ఇంటి వద్దకే ఎలక్ట్రీషియన్ & ప్యాకేజ్డ్ ప్లంబర్ సేవలు",
-    description: "అన్ని రకాల హౌస్ హోల్డ్ ఎలక్ట్రికల్ మరియు ప్లంబింగ్ వర్క్స్.",
-    price: "₹299 విజిటింగ్",
-    contact: "9550011223",
-    area: "విశాఖపట్నం (Visakhapatnam)",
-    created_at: new Date(Date.now() - 3600000 * 24).toISOString()
-  }
-];
+import { 
+  fetchClassifieds, 
+  ClassifiedItem, 
+  ClassifiedCategory,
+  getStoredSellerProfile
+} from "@/lib/classifieds-api";
+import { ClassifiedPostModal } from "@/components/ClassifiedPostModal";
+import { ClassifiedDetailModal } from "@/components/ClassifiedDetailModal";
 
 export function ManaMarketPage() {
   const { lang } = useLanguage();
-  const [items, setItems] = useState<MarketItem[]>(MOCK_MARKET_ITEMS);
+  const [items, setItems] = useState<ClassifiedItem[]>([]);
   const [selectedCat, setSelectedCat] = useState<string>("all");
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [onlyMyPosts, setOnlyMyPosts] = useState<boolean>(false);
+
+  const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false);
+  const [selectedDetailItem, setSelectedDetailItem] = useState<ClassifiedItem | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  const loadMarketItems = async () => {
+    setLoading(true);
+    const data = await fetchClassifieds({
+      category: selectedCat,
+      searchQuery,
+      statusFilter
+    });
+
+    if (onlyMyPosts) {
+      const myProf = getStoredSellerProfile();
+      if (myProf && myProf.phone) {
+        setItems(data.filter((i) => i.contact.replace(/\D/g, "") === myProf.phone.replace(/\D/g, "")));
+      } else {
+        setItems(data);
+      }
+    } else {
+      setItems(data);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    try {
-      const userPosts = JSON.parse(localStorage.getItem("vaartanow_user_classifieds") || "[]");
-      if (userPosts.length > 0) {
-        setItems([...userPosts, ...MOCK_MARKET_ITEMS]);
-      }
-    } catch {}
-  }, []);
-
-  const filteredItems = items.filter((item) => {
-    const matchesCat = selectedCat === "all" || item.category === selectedCat;
-    const matchesQuery = !searchQuery.trim() || 
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      item.area.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCat && matchesQuery;
-  });
+    loadMarketItems();
+  }, [selectedCat, searchQuery, statusFilter, onlyMyPosts]);
 
   return (
-    <main className="container-shell py-6 space-y-6">
+    <main className="container-shell py-6 space-y-6 animate-in fade-in duration-300">
+
       {/* Header Banner */}
-      <div className="rounded-[1.8rem] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 sm:p-8 text-white shadow-xl flex flex-wrap items-center justify-between gap-4">
-        <div className="space-y-2 max-w-xl">
+      <div className="rounded-[2.2rem] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-6 sm:p-8 text-white shadow-xl flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
+        <div className="absolute -right-16 -bottom-16 size-48 rounded-full bg-white/10 blur-2xl pointer-events-none" />
+        
+        <div className="space-y-2 max-w-xl z-10">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-xs font-black backdrop-blur-md">
             <ShoppingBag className="size-3.5" />
-            మన స్థానిక మార్కెట్
+            VaartaNow Hyperlocal Marketplace
           </span>
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight tracking-tight">
             మన మార్కెట్ (Mana Market)
           </h1>
           <p className="text-xs sm:text-sm font-semibold text-blue-100 leading-relaxed">
-            మీ ఊరిలో రైతుల పంటలు (బియ్యం, పల్లి, పప్పులు), మొబైల్స్, వాహనాలు, ప్రాపర్టీ మరియు స్థానిక సేవలను స్థానికంగానే కొనండి లేదా అమ్మండి!
+            మీ ఊరిలో ఎలక్ట్రానిక్స్, ఫర్నిచర్, వాహనాలు, ప్రాపర్టీ, స్థానిక సేవలు & రైతు పంటలను ఉచితంగా కొనండి లేదా అమ్మండి!
           </p>
         </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 rounded-full bg-white text-blue-600 hover:bg-blue-50 px-5 py-3 text-xs sm:text-sm font-black transition-all shadow-lg active:scale-95 cursor-pointer"
-        >
-          <PlusCircle className="size-5" />
-          + ప్రకటన పోస్ట్ చేయండి
-        </button>
-      </div>
+        <div className="flex flex-wrap items-center gap-2.5 z-10">
+          <button
+            onClick={() => setOnlyMyPosts(!onlyMyPosts)}
+            className={`px-4 py-3 rounded-full text-xs font-black transition-all cursor-pointer ${
+              onlyMyPosts ? "bg-amber-400 text-black shadow-md" : "bg-white/20 text-white hover:bg-white/30 backdrop-blur-md"
+            }`}
+          >
+            {onlyMyPosts ? "చూపిస్తోంది: నా ప్రకటనలు (My Posted Ads)" : "నా ప్రకటనలు (My Ads)"}
+          </button>
 
-      {/* Search & Category Filter */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        {/* Category Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none max-w-full">
           <button
-            onClick={() => setSelectedCat("all")}
-            className={`rounded-full px-4 py-2 text-xs font-black whitespace-nowrap transition ${
-              selectedCat === "all" ? "bg-blue-600 text-white shadow-sm" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
-            }`}
+            onClick={() => setIsPostModalOpen(true)}
+            className="inline-flex items-center gap-2 rounded-full bg-white text-blue-600 hover:bg-blue-50 px-5 py-3 text-xs sm:text-sm font-black transition-all shadow-lg active:scale-95 cursor-pointer"
           >
-            అన్నీ (All)
+            <PlusCircle className="size-5 text-blue-600" />
+            + అమ్మకం / ప్రకటన పోస్ట్ చేయండి
           </button>
-          <button
-            onClick={() => setSelectedCat("agriculture")}
-            className={`rounded-full px-4 py-2 text-xs font-black whitespace-nowrap transition flex items-center gap-1.5 ${
-              selectedCat === "agriculture" ? "bg-green-600 text-white shadow-sm" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
-            }`}
-          >
-            <Sprout className="size-3.5" />
-            వ్యవసాయ పంటలు
-          </button>
-          <button
-            onClick={() => setSelectedCat("mobile")}
-            className={`rounded-full px-4 py-2 text-xs font-black whitespace-nowrap transition flex items-center gap-1.5 ${
-              selectedCat === "mobile" ? "bg-amber-600 text-white shadow-sm" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
-            }`}
-          >
-            <Smartphone className="size-3.5" />
-            మొబైల్స్ & ఎలక్ట్రానిక్స్
-          </button>
-          <button
-            onClick={() => setSelectedCat("vehicle")}
-            className={`rounded-full px-4 py-2 text-xs font-black whitespace-nowrap transition flex items-center gap-1.5 ${
-              selectedCat === "vehicle" ? "bg-yellow-600 text-white shadow-sm" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
-            }`}
-          >
-            <Car className="size-3.5" />
-            వాహనాలు
-          </button>
-          <button
-            onClick={() => setSelectedCat("property")}
-            className={`rounded-full px-4 py-2 text-xs font-black whitespace-nowrap transition flex items-center gap-1.5 ${
-              selectedCat === "property" ? "bg-red-600 text-white shadow-sm" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
-            }`}
-          >
-            <Home className="size-3.5" />
-            ప్రాపర్టీ & ఇల్లు
-          </button>
-          <button
-            onClick={() => setSelectedCat("service")}
-            className={`rounded-full px-4 py-2 text-xs font-black whitespace-nowrap transition flex items-center gap-1.5 ${
-              selectedCat === "service" ? "bg-teal-600 text-white shadow-sm" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
-            }`}
-          >
-            <Wrench className="size-3.5" />
-            స్థానిక సేవలు
-          </button>
-        </div>
-
-        {/* Search Input */}
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-2.5 size-4 text-[hsl(var(--muted-foreground))]" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="వెతకండి (Search area/item)..."
-            className="w-full rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--muted))] py-2 pl-9 pr-4 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
         </div>
       </div>
 
-      {/* Grid of Items */}
+      {/* Category Pills Filter Bar */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          {[
+            { id: "all", label: "అన్నీ (All)", icon: ShoppingBag, color: "bg-blue-600" },
+            { id: "electronics", label: "📱 ఎలక్ట్రానిక్స్", icon: Smartphone, color: "bg-indigo-600" },
+            { id: "furniture", label: "🛋️ ఫర్నిచర్", icon: Home, color: "bg-purple-600" },
+            { id: "vehicles", label: "🚗 వాహనాలు", icon: Car, color: "bg-amber-600" },
+            { id: "property", label: "🏢 ప్రాపర్టీ & ఇల్లు", icon: Home, color: "bg-red-600" },
+            { id: "services", label: "🔧 స్థానిక సేవలు", icon: Wrench, color: "bg-teal-600" },
+            { id: "jobs", label: "💼 ఉద్యోగాలు", icon: Briefcase, color: "bg-emerald-600" },
+            { id: "other", label: "🎁 ఇతర / ఉచితం", icon: Gift, color: "bg-pink-600" }
+          ].map((cat) => {
+            const isSel = selectedCat === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCat(cat.id)}
+                className={`rounded-full px-4 py-2 text-xs font-black whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 ${
+                  isSel
+                    ? `${cat.color} text-white shadow-md`
+                    : "bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))]"
+                }`}
+              >
+                <span>{cat.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Search & Status Filter Row */}
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-[hsl(var(--card))] p-3.5 rounded-2xl border border-[hsl(var(--border))]">
+          {/* Status Filter */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-black text-[hsl(var(--muted-foreground))] flex items-center gap-1">
+              <Filter className="size-3.5" />
+              స్థితి:
+            </span>
+            <button
+              onClick={() => setStatusFilter("all")}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                statusFilter === "all" ? "bg-blue-600 text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
+              }`}
+            >
+              అన్నీ
+            </button>
+            <button
+              onClick={() => setStatusFilter("available")}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                statusFilter === "available" ? "bg-emerald-600 text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
+              }`}
+            >
+              🟢 అందుబాటులో ఉన్నాయి
+            </button>
+            <button
+              onClick={() => setStatusFilter("sold")}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                statusFilter === "sold" ? "bg-red-600 text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
+              }`}
+            >
+              🔴 అమ్మేసాము
+            </button>
+          </div>
+
+          {/* Search Box */}
+          <div className="relative w-full sm:w-72">
+            <Search className="absolute left-3 top-2.5 size-4 text-[hsl(var(--muted-foreground))]" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="వెతకండి (Search mobile, bike, area)..."
+              className="w-full rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--muted))] py-2 pl-9 pr-4 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* OLX-Style Hyperlocal Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredItems.map((item) => (
-          <div
-            key={item.id}
-            className="rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 shadow-xs hover:shadow-md transition-all duration-300 space-y-3 flex flex-col justify-between"
-          >
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 px-2.5 py-0.5 text-[10px] font-black uppercase">
-                  {item.category === "agriculture" ? "🌾 వ్యవసాయం" :
-                   item.category === "mobile" ? "📱 మొబైల్" :
-                   item.category === "vehicle" ? "🚗 వాహనం" :
-                   item.category === "property" ? "🏢 ప్రాపర్టీ" :
-                   item.category === "job" ? "💼 ఉద్యోగం" :
-                   item.category === "service" ? "🔧 సేవలు" : "📢 పోస్ట్"}
-                </span>
+        {items.map((item) => {
+          const mainImg = item.images && item.images.length > 0
+            ? item.images[0]
+            : "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80";
 
-                <span className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] flex items-center gap-1">
-                  <MapPin className="size-3 text-red-500" />
-                  {item.area.split(" ")[0]}
-                </span>
+          return (
+            <div
+              key={item.id}
+              onClick={() => setSelectedDetailItem(item)}
+              className="rounded-[1.8rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer group"
+            >
+              {/* Image & Badges */}
+              <div className="relative aspect-[16/10] w-full overflow-hidden bg-neutral-900">
+                <img
+                  src={mainImg}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                />
+
+                <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                    item.status === "available" ? "bg-emerald-600 text-white" : "bg-red-600 text-white"
+                  }`}>
+                    {item.status === "available" ? "🟢 Available" : "🔴 SOLD"}
+                  </span>
+
+                  {item.free_items && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-600 text-white">
+                      🎁 Free
+                    </span>
+                  )}
+                </div>
+
+                <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-black text-white uppercase">
+                  {item.category}
+                </div>
               </div>
 
-              <h3 className="text-base font-extrabold text-[hsl(var(--foreground))] leading-snug line-clamp-2">
-                {item.title}
-              </h3>
+              {/* Card Content */}
+              <div className="p-4 space-y-2 flex-1 flex flex-col justify-between">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-lg font-black text-emerald-600 dark:text-emerald-400">
+                      {item.price}
+                    </span>
 
-              <p className="text-xs font-medium text-[hsl(var(--muted-foreground))] leading-relaxed line-clamp-2">
-                {item.description}
-              </p>
+                    <span className="text-[10px] font-bold text-red-500 flex items-center gap-1">
+                      <MapPin className="size-3" />
+                      {item.locality.split(" ")[0]}
+                    </span>
+                  </div>
+
+                  <h3 className="text-base font-black text-[hsl(var(--foreground))] leading-snug line-clamp-2 group-hover:text-blue-600 transition">
+                    {item.title}
+                  </h3>
+
+                  <p className="text-xs font-medium text-[hsl(var(--muted-foreground))] line-clamp-2">
+                    {item.description}
+                  </p>
+
+                  {item.offer_discount && (
+                    <p className="text-[11px] font-extrabold text-blue-600 dark:text-blue-400">
+                      🏷️ ఆఫర్: {item.offer_discount}
+                    </p>
+                  )}
+                </div>
+
+                {/* Seller Bar & Quick Actions */}
+                <div className="border-t border-[hsl(var(--border))]/60 pt-3 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1 text-[11px] font-extrabold text-[hsl(var(--foreground))]">
+                    <ShieldCheck className="size-3.5 text-emerald-600" />
+                    <span className="truncate max-w-[110px]">{item.seller_name.split(" ")[0]}</span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                    <a
+                      href={`tel:${item.contact}`}
+                      className="p-2 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white transition shadow-xs"
+                      title="Call Seller"
+                    >
+                      <Phone className="size-3.5" />
+                    </a>
+
+                    <a
+                      href={`https://wa.me/91${item.contact.replace(/\D/g, "")}?text=${encodeURIComponent(`నమస్తే, VaartaNow లో మీరు పోస్ట్ చేసిన "${item.title}" గురించి వివరాలు కావాలి.`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-2 rounded-full bg-green-600 hover:bg-green-700 text-white transition shadow-xs"
+                      title="WhatsApp Chat"
+                    >
+                      <MessageCircle className="size-3.5" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+
             </div>
-
-            <div className="border-t border-[hsl(var(--border))]/50 pt-3 flex items-center justify-between gap-2">
-              {item.price && (
-                <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">
-                  {item.price}
-                </span>
-              )}
-
-              {item.contact && (
-                <a
-                  href={`tel:${item.contact}`}
-                  className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 text-xs font-black transition-all shadow-xs"
-                >
-                  <Phone className="size-3.5" />
-                  కాల్ చేయండి
-                </a>
-              )}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      <CreatePostModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      {/* Modals */}
+      <ClassifiedPostModal
+        isOpen={isPostModalOpen}
+        onClose={() => setIsPostModalOpen(false)}
+        onPostSuccess={loadMarketItems}
+      />
+
+      <ClassifiedDetailModal
+        item={selectedDetailItem}
+        onClose={() => setSelectedDetailItem(null)}
+        onStatusUpdated={() => {
+          loadMarketItems();
+          setSelectedDetailItem(null);
+        }}
+      />
+
     </main>
   );
 }
