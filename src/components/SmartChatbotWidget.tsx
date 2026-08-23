@@ -365,9 +365,9 @@ export function SmartChatbotWidget() {
                 { title: "💼 ఉద్యోగాలు", path: "/jobs" },
                 { title: "🛍️ కొనడం / అమ్మడం", path: "/market" },
                 { title: "🏗️ బిల్డింగ్ మెటీరియల్స్", path: "/market?cat=building_materials" },
-                { title: "👗 దుస్తులు & ఫ్యాషన్", path: "/market?cat=clothing_fashion" },
                 { title: "🌸 మహిళా మార్కెట్", path: "/mahila-market" },
                 { title: "🔧 సేవలు & అద్దెకు", path: "/services" },
+                { title: "🏨 హోటల్ & ఫుడ్ సేవలు", path: "/services" },
                 { title: "🌾 రైతు మార్కెట్", path: "/raitu-bazar" },
                 { title: "🍲 సంప్రదాయ వంటలు", path: "/category/devotional" },
                 { title: "🏥 ఆరోగ్యం", path: "/health" }

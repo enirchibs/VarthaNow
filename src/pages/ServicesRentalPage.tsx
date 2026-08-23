@@ -21,14 +21,15 @@ import {
   Image as ImageIcon,
   Tag,
   Gift,
-  User
+  User,
+  UtensilsCrossed
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 
 export interface ServiceRentalItem {
   id: string;
   provider_name: string;
-  category: "workers" | "farm_machines" | "construction" | "events" | "other_services";
+  category: "workers" | "farm_machines" | "construction" | "events" | "hotel_food" | "other_services";
   service_type: string;
   village: string;
   price_rate: string;
@@ -106,6 +107,21 @@ const SERVICE_GROUPS = [
       "🎉 Decoration — డెకరేషన్",
       "🍽️ Catering — క్యాటరింగ్",
       "📸 Photography — ఫోటోగ్రఫీ"
+    ]
+  },
+  {
+    id: "hotel_food",
+    title: "🏨 హోటల్, టిఫిన్ & ఫుడ్ బిజినెస్ (Hotel, Tiffin & Food Business)",
+    icon: UtensilsCrossed,
+    items: [
+      "🏨 హోటళ్లు — Hotels & Restaurants",
+      "🥣 టిఫిన్ సెంటర్లు — Tiffin Centers",
+      "🍲 హోమ్ ఫుడ్ — Home Food",
+      "☕ టీ/కాఫీ షాపులు — Tea & Coffee Shops",
+      "🥐 బేకరీలు — Bakeries",
+      "🍹 జ్యూస్ సెంటర్లు — Juice Centers",
+      "🛵 ఫుడ్ డెలివరీ — Food Delivery",
+      "🍽️ ఫంక్షన్ కేటరింగ్ — Function Catering"
     ]
   },
   {
@@ -246,6 +262,32 @@ const INITIAL_SERVICES: ServiceRentalItem[] = [
     contact: "9876543218",
     image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
     created_at: new Date().toISOString()
+  },
+  {
+    id: "s-10",
+    provider_name: "శ్రీ లక్ష్మి టిఫిన్ సెంటర్ & హోటల్ (Sri Lakshmi Tiffin Center)",
+    category: "hotel_food",
+    service_type: "🥣 టిఫిన్ సెంటర్లు — Tiffin Centers",
+    village: "Anandapuram, Vizag",
+    price_rate: "₹40 / Plate",
+    available_days: "ఉదయం 6:00 నుండి రాత్రి 10:00 వరకు (Daily)",
+    description: "వేడి వేడి ఇడ్లీ, దోస, పూరి, పరోటా & పెసరెట్టు అందుబాటులో ఉన్నాయి. హోమ్ డెలివరీ & కేటరింగ్ ఆర్డర్లు స్వీకరించబడును.",
+    contact: "9876543219",
+    image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=800&q=80",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "s-11",
+    provider_name: "సాయి రామ్ ఫంక్షన్ కేటరింగ్ & హోమ్ ఫుడ్ (Sai Ram Catering)",
+    category: "hotel_food",
+    service_type: "🍽️ ఫంక్షన్ కేటరింగ్ — Function Catering",
+    village: "Vijayawada",
+    price_rate: "₹150 / Plate",
+    available_days: "ఆర్డర్‌పై అందుబాటులో ఉంటుంది",
+    description: "వివాహాలు, పుట్టినరోజు వేడుకలు & శుభకార్యాలకు రుచికరమైన సాంప్రదాయ ఇంటి భోజనం & ఫంక్షన్ కేటరింగ్ సేవలు.",
+    contact: "9876543220",
+    image: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=800&q=80",
+    created_at: new Date().toISOString()
   }
 ];
 
@@ -282,7 +324,7 @@ export function ServicesRentalPage() {
   // Form State for Service Posting Modal
   const [step, setStep] = useState<1 | 2>(1);
   const [providerName, setProviderName] = useState<string>("");
-  const [category, setCategory] = useState<"workers" | "farm_machines" | "construction" | "events" | "other_services">("farm_machines");
+  const [category, setCategory] = useState<"workers" | "farm_machines" | "construction" | "events" | "hotel_food" | "other_services">("farm_machines");
   const [serviceType, setServiceType] = useState<string>("🚜 Tractor — ట్రాక్టర్");
   const [village, setVillage] = useState<string>("Anandapuram, Vizag");
   const [priceRate, setPriceRate] = useState<string>("");
@@ -378,6 +420,7 @@ export function ServicesRentalPage() {
     const defaultImg = category === "farm_machines" ? "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80" :
                        category === "construction" ? "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=800&q=80" :
                        category === "events" ? "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" :
+                       category === "hotel_food" ? "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=800&q=80" :
                        "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80";
 
     const newItem: ServiceRentalItem = {
@@ -674,6 +717,7 @@ export function ServicesRentalPage() {
                       <option value="farm_machines">🚜 వ్యవసాయ యంత్రాలు (Agricultural Machinery)</option>
                       <option value="construction">🏗️ నిర్మాణ సేవలు (Construction Services)</option>
                       <option value="events">🎪 కార్యక్రమాల సేవలు (Event & Function Services)</option>
+                      <option value="hotel_food">🏨 హోటల్, టిఫిన్ & ఫుడ్ బిజినెస్ (Hotel, Tiffin & Food Business)</option>
                       <option value="other_services">🔧 ఇతర స్థానిక సేవలు (Other Local Services)</option>
                     </select>
                   </div>
