@@ -144,7 +144,7 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
       state: "Andhra Pradesh",
       description_snippet: description.trim().slice(0, 140) || "ఉద్యోగానికి సంబంధించిన పూర్తి వివరాల కోసం సంప్రదించండి.",
       full_description: description.trim() || `## ఉద్యోగ వివరాలు (Job Details):\n- హోదా: ${jobTitle}\n- కంపెనీ: ${companyName}\n- ప్రాంతం: ${locality}\n- జీతం: ${formattedSalary}\n- సంప్రదించే సంఖ్య: ${phone}`,
-      apply_link: `https://wa.me/91${phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Hi ${employerName}, I am interested in '${jobTitle}' role at ${companyName} posted on VaartaNow Jobs.`)}`,
+      apply_link: `https://wa.me/91${phone.replace(/\D/g, "")}?text=${encodeURIComponent(`నమస్తే ${employerName} గారు, VaartaNow లో మీరు పోస్ట్ చేసిన '${jobTitle}' ఉద్యోగానికి (${companyName}) నేను దరఖాస్తు చేసుకోవాలనుకుంటున్నాను.`)}`,
       source_platform: "VaartaNow Jobs Board",
       salary_range: formattedSalary,
       skills: [category, workMode, experienceLevel],
@@ -165,35 +165,32 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-[#1f2937] bg-[#111827] text-white shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-[#1f2937] pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="size-9 rounded-2xl bg-sky-600 text-white flex items-center justify-center font-black shadow-md">
-              <Briefcase className="size-5" />
-            </div>
-            <div>
-              <h3 className="text-lg font-black text-white">
-                + ఉద్యోగం పోస్ట్ చేయండి <span className="text-xs text-gray-400 font-normal">(Post a Job Opening)</span>
-              </h3>
-              <p className="text-[11px] text-gray-400 font-bold">
-                దశ {step}/2 (Step {step} of 2)
-              </p>
-            </div>
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-1.5">
+              <span>+ ఉద్యోగ ప్రకటన పోస్ట్ చేయండి</span>
+              <span className="text-xs text-slate-500 font-normal hidden sm:inline">(Post a Job)</span>
+            </h3>
+            <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-sm">
+              దశ {step}/2 (Step {step} of 2)
+            </span>
           </div>
 
           <button
             onClick={onClose}
-            className="rounded-full p-1.5 text-gray-400 hover:bg-[#1f2937] transition cursor-pointer"
+            className="rounded-full p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
+            aria-label="Close"
           >
             <X className="size-5" />
           </button>
         </div>
 
         {errorMsg && (
-          <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold text-center">
+          <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold text-center">
             ⚠️ {errorMsg}
           </div>
         )}
@@ -205,8 +202,10 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
             {/* Employer Name & Company Name */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
-                  మీ పేరు (Employer / HR Name) <span className="text-red-400">*</span>
+                <label className="font-extrabold text-slate-800 flex items-center gap-1">
+                  <User className="size-3.5 text-blue-600" />
+                  <span>మీ పేరు (Employer Name)</span>
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -214,29 +213,29 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
                   onChange={(e) => setEmployerName(e.target.value)}
                   placeholder="ఉదా: సురేష్ కుమార్ (e.g. Suresh)"
                   required
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
-                  కంపెనీ / సంస్థ పేరు (Company Name) <span className="text-red-400">*</span>
+                <label className="font-extrabold text-slate-800">
+                  కంపెనీ / సంస్థ పేరు (Company Name) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
-                  placeholder="ఉదా: శ్రీ విజయా ఎంటర్ ప్రైజెస్"
+                  placeholder="ఉదా: శ్రీ విజయా ఎంటర్‌ప్రైజెస్"
                   required
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 />
               </div>
             </div>
 
             {/* Job Title */}
             <div className="space-y-1">
-              <label className="font-extrabold text-gray-200">
-                ఉద్యోగ శీర్షిక (Job Title) <span className="text-red-400">*</span>
+              <label className="font-extrabold text-slate-800">
+                ఉద్యోగ శీర్షిక (Job Title) <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -244,22 +243,22 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
                 onChange={(e) => setJobTitle(e.target.value)}
                 placeholder="ఉదా: Front Office Executive లేదా Delivery Driver"
                 required
-                className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               />
             </div>
 
             {/* Category & Locality */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
-                  ఉద్యోగ విభాగం (Category Dropdown) <span className="text-red-400">*</span>
+                <label className="font-extrabold text-slate-800">
+                  ఉద్యోగ విభాగం (Category Dropdown) <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition"
                 >
-                  <option value="IT & Software">💻 ఐటీ & సోఫ్ట్‌వేర్ (IT & Software)</option>
+                  <option value="IT & Software">💻 ఐటీ & సాఫ్ట్‌వేర్ (IT & Software)</option>
                   <option value="Office & Admin">🏢 ఆఫీస్ అడ్మిన్ & అకౌంట్స్ (Office/Admin)</option>
                   <option value="Sales & Marketing">📈 సేల్స్ & మార్కెటింగ్ (Sales & Marketing)</option>
                   <option value="Drivers & Delivery">🚚 డ్రైవర్లు & డెలివరీ (Drivers & Delivery)</option>
@@ -273,13 +272,13 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
               </div>
 
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
-                  ప్రాంతం (Locality Dropdown) <span className="text-red-400">*</span>
+                <label className="font-extrabold text-slate-800">
+                  ప్రాంతం (Locality Dropdown) <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={locality}
                   onChange={(e) => setLocality(e.target.value)}
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition"
                 >
                   <option value="Visakhapatnam">విశాఖపట్నం (Visakhapatnam)</option>
                   <option value="Madhurawada">మధురవాడ (Madhurawada)</option>
@@ -297,13 +296,13 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
             {/* Work Mode & Experience Level */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
-                  పని విధానం (Work Mode) <span className="text-red-400">*</span>
+                <label className="font-extrabold text-slate-800">
+                  పని విధానం (Work Mode) <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={workMode}
                   onChange={(e) => setWorkMode(e.target.value as WorkMode)}
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition"
                 >
                   <option value="On-site">🏢 ఆఫీస్ లో (On-site)</option>
                   <option value="Remote">🏠 ఇంటి నుండి పని (Remote / WFH)</option>
@@ -312,13 +311,13 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
               </div>
 
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
+                <label className="font-extrabold text-slate-800">
                   అనుభవం (Experience Level)
                 </label>
                 <select
                   value={experienceLevel}
                   onChange={(e) => setExperienceLevel(e.target.value as ExperienceLevel)}
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition"
                 >
                   <option value="Fresher">🎓 ఫ్రెషర్స్ (Fresher)</option>
                   <option value="Experienced">💼 అనుభవం ఉన్నవారు (Experienced)</option>
@@ -330,8 +329,8 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
             {/* Salary Range & Phone Number */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
-                  జీతం / వేతనం (Salary in ₹) <span className="text-red-400">*</span>
+                <label className="font-extrabold text-slate-800">
+                  జీతం / వేతనం (Salary in ₹) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -339,13 +338,13 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
                   onChange={(e) => setSalaryRange(e.target.value)}
                   placeholder="ఉదా: ₹18,000 - ₹25,000 / month"
                   required
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
-                  సంప్రదించే మొబైల్ (WhatsApp Phone) <span className="text-red-400">*</span>
+                <label className="font-extrabold text-slate-800">
+                  సంప్రదించే మొబైల్ (WhatsApp Phone) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
@@ -354,14 +353,14 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
                   placeholder="9876543210"
                   maxLength={10}
                   required
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 />
               </div>
             </div>
 
             {/* Description */}
             <div className="space-y-1">
-              <label className="font-extrabold text-gray-200">
+              <label className="font-extrabold text-slate-800">
                 ఉద్యోగ వివరాలు & అర్హతలు (Job Description)
               </label>
               <textarea
@@ -369,7 +368,7 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
                 placeholder="విద్యా అర్హతలు, పని వేళలు, కంపెనీ వివరాలు..."
-                className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               />
             </div>
 
@@ -377,7 +376,7 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-full bg-gradient-to-r from-sky-600 via-blue-600 to-indigo-600 hover:opacity-95 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-black text-sm shadow-xl shadow-indigo-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
               {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live SMS OTP పొందండి"}
             </button>
@@ -391,27 +390,27 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="inline-flex items-center gap-1 text-xs font-bold text-sky-400 hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:underline cursor-pointer"
             >
               <ArrowLeft className="size-3.5" />
               <span>← వెనుకకు (Back to Job Details)</span>
             </button>
 
-            <div className="p-4 rounded-2xl bg-sky-500/10 border border-sky-500/30 text-xs font-bold text-sky-200 text-center space-y-1">
-              <div className="flex items-center justify-center gap-1.5 font-black text-sky-400 text-sm">
+            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 text-center space-y-1">
+              <div className="flex items-center justify-center gap-1.5 font-black text-emerald-700 text-sm">
                 <ShieldCheck className="size-5" />
                 <span>SMS OTP Sent</span>
               </div>
               <p>📩 <strong>+91 {phone}</strong> మొబైల్‌కి 6-అంకెల OTP పంపబడింది.</p>
               {demoOtpHint && (
-                <p className="text-[10px] text-sky-400">
+                <p className="text-[10px] text-emerald-600 font-bold">
                   (డెమో OTP కోడ్: <span className="font-black text-sm">{demoOtpHint}</span> లేదా 123456)
                 </p>
               )}
             </div>
 
             <div className="space-y-1">
-              <label className="font-extrabold text-gray-200 text-center block">
+              <label className="font-extrabold text-slate-800 text-center block">
                 6-అంకెల OTP కోడ్‌ను ఇక్కడ నమోదు చేయండి (Enter 6-Digit OTP)
               </label>
               <input
@@ -421,14 +420,14 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
                 placeholder="123456"
                 maxLength={6}
                 required
-                className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-[#1f2937] bg-[#030712] p-3.5 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-slate-300 bg-slate-50 p-3.5 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-full bg-sky-600 hover:bg-sky-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-xl shadow-emerald-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
               {loading ? "ధృవీకరిస్తున్నాము..." : "✅ OTP ధృవీకరించు & ఉద్యోగం ప్రచురించు (Verify & Post Job)"}
             </button>

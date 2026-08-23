@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, 
   ChevronRight, 
@@ -70,7 +71,7 @@ const POST_CATEGORIES: PostCategoryItem[] = [
   },
   {
     id: "buy_sell_items",
-    title: "4. మీ వస్తువులు అమ్మండి / కొనండి (మొబైల్, బైక్స్, ల్యాప్‌టాప్, ఇల్లు, ఎలక్ట్రానిక్స్)",
+    title: "4. మీ వస్తువులు అమ్మండి / కొనండి (మన మార్కెట్)",
     subtitle: "మీ పాత వస్తువులు, మొబైల్స్, బైక్స్, ల్యాప్‌టాప్, ఇల్లు స్థానికంగా అమ్మండి లేదా కొనండి",
     icon: ShoppingBag,
     iconColor: "text-amber-600 dark:text-amber-400",
@@ -78,16 +79,16 @@ const POST_CATEGORIES: PostCategoryItem[] = [
   },
   {
     id: "agriculture",
-    title: "5. వ్యవసాయం & రైతు పంటలు (కొనండి / అమ్మండి)",
-    subtitle: "రైతుల పంటలు, బియ్యం, పల్లి, పప్పులు, చింతపండు రైతు ధరకు అమ్మండి/కొనండి",
+    title: "5. వ్యవసాయం & రైతు పంటలు (రైతు బజార్)",
+    subtitle: "రైతుల పంటలు, బియ్యం, పల్లి, పప్పులు, విత్తనాలు, పశువులు, ఎరువులు రైతు ధరకు కొనండి/అమ్మండి",
     icon: Sprout,
     iconColor: "text-green-600 dark:text-green-400",
     bgColor: "bg-green-500/10 dark:bg-green-400/10"
   },
   {
     id: "service",
-    title: "6. స్థానిక సేవలు (కొనండి / అమ్మండి)",
-    subtitle: "ఎలక్ట్రీషియన్, ప్లంబర్, డ్రైవర్, మొబైల్/ల్యాప్‌టాప్ రిపేర్, ట్యూషన్ సేవలు పొందండి/అందించండి",
+    title: "6. సేవలు & అద్దెలు (సేవలు & యంత్రాల అద్దె)",
+    subtitle: "ట్రాక్టర్, జేసీబీ, ఎలక్ట్రీషియన్, ప్లంబర్, డ్రైవర్, శామియానా, మిషన్ల అద్దె సేవలు పొందండి/అందించండి",
     icon: Wrench,
     iconColor: "text-teal-600 dark:text-teal-400",
     bgColor: "bg-teal-500/10 dark:bg-teal-400/10"
@@ -111,6 +112,7 @@ const ANDHRA_LOCALITIES = [
 ];
 
 export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
+  const navigate = useNavigate();
   const { lang } = useLanguage();
   const [selectedArea, setSelectedArea] = useState<string>("విశాఖపట్నం (Visakhapatnam)");
   const [selectedCategory, setSelectedCategory] = useState<PostCategoryType | null>(null);
@@ -129,12 +131,22 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   const handleSelectCategory = (catId: PostCategoryType) => {
     if (catId === "job") {
       onClose();
-      window.location.href = "/jobs?post=true";
+      navigate("/jobs?post=true");
       return;
     }
-    if (catId === "buy_sell_items" || catId === "agriculture") {
+    if (catId === "buy_sell_items") {
       onClose();
-      window.location.href = "/market?post=true";
+      navigate("/market?post=true");
+      return;
+    }
+    if (catId === "agriculture") {
+      onClose();
+      navigate("/raitu-bazar?post=true");
+      return;
+    }
+    if (catId === "service") {
+      onClose();
+      navigate("/services?post=true");
       return;
     }
     setSelectedCategory(catId);
@@ -513,6 +525,67 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                     <option value="ల్యాప్‌టాప్ & టీవీ (Laptop & TV)">💻 ల్యాప్‌టాప్ / టీవీ (Laptop & Electronics)</option>
                     <option value="ఇల్లు / ప్రాపర్టీ (House / Property)">🏠 ఇల్లు / స్థలం / ప్లాట్ (Property)</option>
                     <option value="ఇతర వస్తువులు (Other Item)">📦 ఇతర వస్తువులు (Other Household Item)</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Sub-Category Selector for Services Option */}
+              {selectedCategory === "service" && (
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-[hsl(var(--foreground))]">
+                    సేవ / యంత్రం విభాగం (Service / Equipment Type)
+                  </label>
+                  <select
+                    value={itemType}
+                    onChange={(e) => setItemType(e.target.value)}
+                    className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer"
+                  >
+                    <optgroup label="👷 పనివాళ్లు (Skilled Workers)">
+                      <option value="🚰 Plumber — ప్లంబర్">🚰 Plumber — ప్లంబర్</option>
+                      <option value="⚡ Electrician — ఎలక్ట్రీషియన్">⚡ Electrician — ఎలక్ట్రీషియన్</option>
+                      <option value="🧱 Mason — మేస్త్రీ">🧱 Mason — మేస్త్రీ</option>
+                      <option value="🪚 Carpenter — కార్పెంటర్">🪚 Carpenter — కార్పెంటర్</option>
+                      <option value="🎨 Painter — పెయింటర్">🎨 Painter — పెయింటర్</option>
+                      <option value="🧹 Cleaning — క్లీనింగ్">🧹 Cleaning — క్లీనింగ్</option>
+                      <option value="👩‍🏫 Tuition — ట్యూషన్">👩‍🏫 Tuition — ట్యూషన్</option>
+                    </optgroup>
+                    <optgroup label="🚜 వ్యవసాయ యంత్రాలు (Agricultural Machinery)">
+                      <option value="🚜 Tractor — ట్రాక్టర్">🚜 Tractor — ట్రాక్టర్</option>
+                      <option value="🏗️ Proclainer / Excavator">🏗️ Proclainer / Excavator — ప్రొక్లైనర్</option>
+                      <option value="🌾 కోత యంత్రం — Harvesting Machine">🌾 కోత యంత్రం — Harvesting Machine</option>
+                      <option value="🌱 నాట్లు వేసే యంత్రం">🌱 నాట్లు వేసే యంత్రం — Planting Machine</option>
+                      <option value="💧 ఉడుపు / నీటి యంత్రం">💧 ఉడుపు / నీటి యంత్రం — Pump Machine</option>
+                      <option value="🚜 Rotavator — రోటావेटर">🚜 Rotavator — రోటావेटर</option>
+                      <option value="🌾 Paddy / Crop Cutter">🌾 Paddy / Crop Cutter — పంట కోత యంత్రం</option>
+                      <option value="🚛 Tractor Trolley">🚛 Tractor Trolley — ట్రాక్టర్ ట్రాలీ</option>
+                    </optgroup>
+                    <optgroup label="🏗️ నిర్మాణ సేవలు (Construction Services)">
+                      <option value="🏗️ JCB / Excavator">🏗️ JCB / Excavator — జేసీబీ / ఎక్స్కవేటర్</option>
+                      <option value="🚧 Earthmover — ఎర్త్‌మూవర్">🚧 Earthmover — ఎర్త్‌మూవర్</option>
+                      <option value="🧱 Concrete Mixer">🧱 Concrete Mixer — కాంక్రీట్ మిక్సర్</option>
+                      <option value="🏗️ Crane — క్రేన్">🏗️ Crane — క్రేన్</option>
+                      <option value="🚛 Tipper — టిప్పర్">🚛 Tipper — టిప్పర్</option>
+                      <option value="👷 Construction Workers">👷 Construction Workers — నిర్మాణ కార్మికులు</option>
+                    </optgroup>
+                    <optgroup label="🎪 కార్యక్రమాల సేవలు (Event & Function Services)">
+                      <option value="⛺ Samiyana — శామియానా">⛺ Samiyana — శామియానా</option>
+                      <option value="🪑 Chairs & Tables">🪑 Chairs & Tables — కుర్చీలు & బల్లలు</option>
+                      <option value="🎤 Sound System">🎤 Sound System — సౌండ్ సిస్టమ్</option>
+                      <option value="💡 Lighting — లైటింగ్">💡 Lighting — లైటింగ్</option>
+                      <option value="🎉 Decoration — డెకరేషన్">🎉 Decoration — డెకరేషన్</option>
+                      <option value="🍽️ Catering — క్యాటరింగ్">🍽️ Catering — క్యాటరింగ్</option>
+                      <option value="📸 Photography — ఫోటోగ్రఫీ">📸 Photography — ఫోటోగ్రఫీ</option>
+                    </optgroup>
+                    <optgroup label="🔧 ఇతర స్థానిక సేవలు (Other Local Services)">
+                      <option value="🛵 Mechanic — మెకానిక్">🛵 Mechanic — మెకానిక్</option>
+                      <option value="📱 Mobile Repair — మొబైల్ రిపేర్">📱 Mobile Repair — మొబైల్ రిపేర్</option>
+                      <option value="💻 Computer Service">💻 Computer Service — కంప్యూటర్ సర్వీస్</option>
+                      <option value="🚗 Car/Auto Service">🚗 Car/Auto Service — కార్/ఆటో సర్వీస్</option>
+                      <option value="🔑 Key Maker — కీ మేకర్">🔑 Key Maker — కీ మేకర్</option>
+                      <option value="❄️ AC/Fridge Repair">❄️ AC/Fridge Repair — ఏసీ/ఫ్రిడ్జ్ రిపేర్</option>
+                      <option value="🚚 Transport — రవాణా">🚚 Transport — రవాణా</option>
+                      <option value="🚛 Goods Vehicle">🚛 Goods Vehicle — గూడ్స్ వాహనం</option>
+                    </optgroup>
                   </select>
                 </div>
               )}

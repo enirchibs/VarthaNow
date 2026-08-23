@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { 
   ShoppingBag, 
   Smartphone, 
@@ -47,6 +48,7 @@ export function ManaMarketPage() {
 
   const [profile, setProfile] = useState<SellerProfile | null>(getStoredSellerProfile());
   const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
+  const location = useLocation();
   const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(() => {
     try {
       return typeof window !== "undefined" && new URLSearchParams(window.location.search).get("post") === "true";
@@ -54,6 +56,13 @@ export function ManaMarketPage() {
       return false;
     }
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("post") === "true") {
+      setIsPostModalOpen(true);
+    }
+  }, [location.search]);
   const [selectedDetailItem, setSelectedDetailItem] = useState<ClassifiedItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -143,41 +152,41 @@ export function ManaMarketPage() {
   };
 
   return (
-    <div className="bg-[#030712] text-white min-h-screen pb-12">
+    <div className="bg-slate-50 text-slate-900 min-h-screen pb-12">
       <main className="container-shell py-6 space-y-6 animate-in fade-in duration-300">
 
         {/* Top Profile Header Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 bg-[#111827] p-4 rounded-3xl border border-[#1f2937] shadow-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
           {profile && profile.is_verified ? (
             <div className="flex items-center gap-3">
-              <div className="size-10 rounded-2xl bg-[#16a34a] text-white flex items-center justify-center font-black shadow-md shrink-0">
+              <div className="size-10 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-black shadow-xs shrink-0">
                 <UserCheck className="size-5" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-black text-white">
+                  <span className="text-sm font-black text-slate-900">
                     👤 Welcome, {profile.name}
                   </span>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-black bg-[#16a34a]/20 text-[#16a34a] px-2.5 py-0.5 rounded-full border border-[#16a34a]/30">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-black bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full border border-emerald-200">
                     <ShieldCheck className="size-3" />
                     Verified
                   </span>
                 </div>
-                <p className="text-xs font-semibold text-gray-400">
-                  +91 {profile.phone} | నా ప్రకటనలు: <span className="font-black text-[#2563eb]">{counts.myAds} Active Ads</span>
+                <p className="text-xs font-semibold text-slate-600">
+                  +91 {profile.phone} | నా ప్రకటనలు: <span className="font-black text-blue-600">{counts.myAds} Active Ads</span>
                 </p>
               </div>
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <div className="size-10 rounded-2xl bg-[#2563eb]/20 text-[#2563eb] flex items-center justify-center font-black shrink-0">
+              <div className="size-10 rounded-2xl bg-blue-100 text-blue-800 flex items-center justify-center font-black shrink-0">
                 <User className="size-5" />
               </div>
               <div>
-                <span className="text-sm font-black text-white">
+                <span className="text-sm font-black text-slate-900">
                   అమ్మకందారు ఖాతా (Seller Profile)
                 </span>
-                <p className="text-xs font-semibold text-gray-400">
+                <p className="text-xs font-semibold text-slate-600">
                   మీ పోస్టింగ్‌లను నిర్వహించడానికి లాగిన్ అవ్వండి
                 </p>
               </div>
@@ -185,21 +194,16 @@ export function ManaMarketPage() {
           )}
 
           <div className="flex items-center gap-2 shrink-0">
-            {profile && profile.is_verified ? (
+            {profile ? (
               <>
-                <button
-                  onClick={() => setSelectedCat("my_ads")}
-                  className={`px-4 py-2.5 rounded-full text-xs font-black transition cursor-pointer flex items-center gap-1.5 min-h-[44px] touch-manipulation active:scale-95 ${
-                    selectedCat === "my_ads" ? "bg-amber-500 text-black shadow-sm" : "bg-[#1f2937] text-white hover:bg-gray-800"
-                  }`}
-                >
-                  <User className="size-4" />
-                  <span>My Ads ({counts.myAds})</span>
-                </button>
-
+                <div className="flex items-center gap-2 bg-slate-100 border border-slate-200 px-3.5 py-2 rounded-full text-xs font-bold text-slate-800">
+                  <UserCheck className="size-4 text-emerald-600" />
+                  <span>{profile.name}</span>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-black">✓ Verified Seller</span>
+                </div>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2.5 rounded-full text-xs font-bold border border-[#1f2937] text-gray-400 hover:bg-red-500/10 hover:text-red-400 transition flex items-center gap-1.5 cursor-pointer min-h-[44px] touch-manipulation active:scale-95"
+                  className="px-4 py-2.5 rounded-full text-xs font-bold border border-slate-200 text-slate-600 hover:bg-red-50 hover:text-red-600 transition flex items-center gap-1.5 cursor-pointer min-h-[44px] touch-manipulation active:scale-95"
                   title="Logout"
                 >
                   <LogOut className="size-4" />
@@ -209,7 +213,7 @@ export function ManaMarketPage() {
             ) : (
               <button
                 onClick={() => setIsLoginModalOpen(true)}
-                className="px-5 py-2.5 rounded-full bg-[#2563eb] hover:bg-blue-700 text-white text-xs font-black transition flex items-center gap-2 shadow-md cursor-pointer min-h-[44px] touch-manipulation active:scale-95"
+                className="px-5 py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-black transition flex items-center gap-2 shadow-md cursor-pointer min-h-[44px] touch-manipulation active:scale-95"
               >
                 <LogIn className="size-4" />
                 <span>Login to View Your Ads 📱</span>
@@ -219,7 +223,7 @@ export function ManaMarketPage() {
         </div>
 
         {/* Main Header Banner */}
-        <div className="rounded-[2.2rem] bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 p-6 sm:p-8 text-white shadow-xl flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
+        <div className="rounded-[2.2rem] bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 p-6 sm:p-8 text-white shadow-xl flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
           <div className="absolute -right-16 -bottom-16 size-48 rounded-full bg-white/10 blur-2xl pointer-events-none" />
           
           <div className="space-y-2 max-w-xl z-10">
@@ -265,7 +269,7 @@ export function ManaMarketPage() {
         <div className="space-y-3">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
             {[
-              { id: "all", label: `అన్నీ (${counts.total})`, icon: ShoppingBag, color: "bg-[#2563eb]" },
+              { id: "all", label: `అన్నీ (${counts.total})`, icon: ShoppingBag, color: "bg-blue-600" },
               { id: "my_ads", label: `My Ads 👤 (${counts.myAds})`, icon: User, color: "bg-amber-500 text-black" },
               { id: "electronics", label: `📱 Electronics (${counts.electronics})`, icon: Smartphone, color: "bg-indigo-600" },
               { id: "furniture", label: `🛋️ Furniture (${counts.furniture})`, icon: Home, color: "bg-purple-600" },
@@ -290,7 +294,7 @@ export function ManaMarketPage() {
                   className={`rounded-full px-4 py-2.5 text-xs font-black whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 min-h-[44px] touch-manipulation active:scale-95 ${
                     isSel
                       ? `${cat.color} text-white shadow-md`
-                      : "bg-[#111827] border border-[#1f2937] text-gray-300 hover:bg-[#1f2937]"
+                      : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-sm"
                   }`}
                 >
                   <span>{cat.label}</span>
@@ -300,18 +304,18 @@ export function ManaMarketPage() {
           </div>
 
           {/* Real-Time Locality, Status & Search Filter Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-[#111827] p-3.5 rounded-2xl border border-[#1f2937]">
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
             
             {/* Locality Dropdown Filter */}
             <div className="flex items-center gap-2">
-              <span className="text-xs font-black text-gray-400 flex items-center gap-1">
+              <span className="text-xs font-black text-slate-500 flex items-center gap-1">
                 <MapPin className="size-4 text-red-500" />
                 ప్రాంతం:
               </span>
               <select
                 value={selectedLocality}
                 onChange={(e) => setSelectedLocality(e.target.value)}
-                className="rounded-full border border-[#1f2937] bg-[#030712] py-2 px-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] cursor-pointer min-h-[44px]"
+                className="rounded-full border border-slate-300 bg-slate-50 py-2 px-3 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer min-h-[44px]"
               >
                 <option value="all">అన్ని ప్రాంతాలు (All Localities)</option>
                 <option value="Madhurawada">మధురవాడ (Madhurawada)</option>
@@ -329,14 +333,14 @@ export function ManaMarketPage() {
 
             {/* Status Filter */}
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-black text-gray-400 flex items-center gap-1">
+              <span className="text-xs font-black text-slate-500 flex items-center gap-1">
                 <Filter className="size-3.5" />
                 స్థితి:
               </span>
               <button
                 onClick={() => setStatusFilter("all")}
                 className={`px-3.5 py-2 rounded-full text-xs font-bold transition cursor-pointer min-h-[44px] ${
-                  statusFilter === "all" ? "bg-[#2563eb] text-white" : "bg-[#1f2937] text-gray-400 hover:text-white"
+                  statusFilter === "all" ? "bg-blue-600 text-white" : "bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200"
                 }`}
               >
                 అన్నీ
@@ -344,7 +348,7 @@ export function ManaMarketPage() {
               <button
                 onClick={() => setStatusFilter("available")}
                 className={`px-3.5 py-2 rounded-full text-xs font-bold transition cursor-pointer min-h-[44px] ${
-                  statusFilter === "available" ? "bg-[#16a34a] text-white" : "bg-[#1f2937] text-gray-400 hover:text-white"
+                  statusFilter === "available" ? "bg-emerald-600 text-white" : "bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200"
                 }`}
               >
                 🟢 అందుబాటులో ఉన్నాయి
@@ -352,16 +356,16 @@ export function ManaMarketPage() {
               <button
                 onClick={() => setStatusFilter("sold")}
                 className={`px-3.5 py-2 rounded-full text-xs font-bold transition cursor-pointer min-h-[44px] ${
-                  statusFilter === "sold" ? "bg-red-600 text-white" : "bg-[#1f2937] text-gray-400 hover:text-white"
+                  statusFilter === "sold" ? "bg-red-600 text-white" : "bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200"
                 }`}
               >
                 🔴 అమ్మేసాము
               </button>
             </div>
 
-            {/* Search Box (Title, Description, Category, Locality, Seller) */}
-            <div className="relative w-full sm:w-72">
-              <Search className="absolute left-3.5 top-3.5 size-4 text-gray-400" />
+            {/* Live Real-Time Search Bar */}
+            <div className="relative flex-1 min-w-[200px]">
+              <Search className="absolute left-3.5 top-3 size-4 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}

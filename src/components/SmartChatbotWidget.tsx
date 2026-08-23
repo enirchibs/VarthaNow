@@ -274,12 +274,12 @@ export function SmartChatbotWidget() {
         </button>
       )}
 
-      {/* 💬 FLOATING INTERACTIVE CHATBOT DRAWER WINDOW WITH MOTION ANIMATION */}
+      {/* 💬 FLOATING INTERACTIVE CHATBOT DRAWER WINDOW WITH MOTION ANIMATION (CLEAN LIGHT THEME) */}
       {isOpen && (
-        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999] w-[92vw] sm:w-[390px] h-[560px] max-h-[88vh] rounded-3xl border border-[#1f2937] bg-[#111827] text-white shadow-[0_20px_50px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-6 duration-300 ease-out">
+        <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[9999] w-[92vw] sm:w-[390px] h-[560px] max-h-[88vh] rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.2)] flex flex-col overflow-hidden animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-6 duration-300 ease-out">
           
           {/* Header Bar */}
-          <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 p-4 flex items-center justify-between shadow-md relative overflow-hidden">
+          <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 p-4 flex items-center justify-between shadow-md relative overflow-hidden text-white">
             <div className="absolute top-0 right-0 size-24 bg-white/10 rounded-full blur-xl pointer-events-none" />
             <div className="flex items-center gap-2.5 relative z-10">
               <div className="size-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white font-black text-xl shadow-inner animate-pulse">
@@ -305,17 +305,17 @@ export function SmartChatbotWidget() {
           </div>
 
           {/* Chat Messages Body */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs no-scrollbar bg-[#030712]/60">
+          <div className="flex-1 p-4 overflow-y-auto space-y-3.5 text-xs no-scrollbar bg-slate-50">
             {messages.map((msg) => (
               <div
                 key={msg.id}
                 className={`flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"} animate-in fade-in-50 slide-in-from-bottom-2 duration-300`}
               >
                 <div
-                  className={`max-w-[88%] rounded-2xl p-3.5 space-y-2 shadow-md ${
+                  className={`max-w-[88%] rounded-2xl p-3.5 space-y-2 shadow-sm ${
                     msg.sender === "user"
                       ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-br-none font-bold"
-                      : "bg-[#1f2937] text-gray-100 rounded-bl-none font-medium border border-[#374151]"
+                      : "bg-white text-slate-800 rounded-bl-none font-medium border border-slate-200"
                   }`}
                 >
                   <p className="whitespace-pre-line leading-relaxed">{msg.text}</p>
@@ -331,7 +331,7 @@ export function SmartChatbotWidget() {
                     </button>
                   )}
                 </div>
-                <span className="text-[9px] text-gray-400 font-semibold mt-1 px-1">
+                <span className="text-[9px] text-slate-400 font-semibold mt-1 px-1">
                   {msg.timestamp}
                 </span>
               </div>
@@ -341,24 +341,24 @@ export function SmartChatbotWidget() {
           </div>
 
           {/* ↕️ VERTICAL QUICK CHIP LINKS DISPLAYED VERTICALLY */}
-          <div className="bg-[#111827] border-t border-[#1f2937] p-3 space-y-2">
+          <div className="bg-white border-t border-slate-200 p-3 space-y-2">
             <div className="flex items-center justify-between px-1">
-              <span className="text-[10px] font-black text-blue-400 uppercase tracking-wider flex items-center gap-1">
-                <Sparkles className="size-3 text-blue-400 animate-spin" />
+              <span className="text-[10px] font-black text-blue-600 uppercase tracking-wider flex items-center gap-1">
+                <Sparkles className="size-3 text-blue-600 animate-spin" />
                 త్వరిత లింకులు (Quick Links):
               </span>
 
               {/* Speech Language Switcher */}
               <button
                 onClick={() => setSpeechLanguage((prev) => (prev === "te-IN" ? "en-IN" : "te-IN"))}
-                className="text-[9px] font-black bg-[#1f2937] px-2.5 py-1 rounded-full text-gray-300 hover:text-white border border-[#374151] transition active:scale-95"
+                className="text-[9px] font-black bg-slate-100 px-2.5 py-1 rounded-full text-slate-700 hover:text-slate-900 border border-slate-200 transition active:scale-95"
               >
                 🎙️ {speechLanguage === "te-IN" ? "తెలుగు Mode" : "English Mode"}
               </button>
             </div>
 
             {/* ↕️ VERTICAL 2-COLUMN GRID LAYOUT FOR CHATBOT CATEGORIES */}
-            <div className="grid grid-cols-2 gap-1.5 max-h-[140px] overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-gray-700">
+            <div className="grid grid-cols-2 gap-1.5 max-h-[140px] overflow-y-auto pr-0.5 scrollbar-thin scrollbar-thumb-slate-300">
               {[
                 { title: "📰 తాజా వార్తలు", path: "/" },
                 { title: "🎥 వైరల్ షార్ట్స్", path: "/category/viralshorts" },
@@ -375,7 +375,7 @@ export function SmartChatbotWidget() {
                 <button
                   key={idx}
                   onClick={() => handleQuickChipClick(chip.title, chip.path)}
-                  className="w-full text-left px-3 py-2 rounded-xl bg-[#030712] border border-[#1f2937] text-[11px] font-bold text-gray-200 hover:bg-[#2563eb] hover:border-blue-500 hover:text-white transition duration-200 truncate min-h-[36px] flex items-center cursor-pointer active:scale-95 shadow-sm"
+                  className="w-full text-left px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-bold text-slate-700 hover:bg-blue-600 hover:border-blue-600 hover:text-white transition duration-200 truncate min-h-[36px] flex items-center cursor-pointer active:scale-95 shadow-2xs"
                 >
                   <span className="truncate">{chip.title}</span>
                 </button>
@@ -391,7 +391,7 @@ export function SmartChatbotWidget() {
                 handleProcessUserQuery(inputText);
               }
             }}
-            className="p-3 bg-[#030712] border-t border-[#1f2937] flex items-center gap-2"
+            className="p-3 bg-white border-t border-slate-200 flex items-center gap-2"
           >
             {/* Voice Microphone Button */}
             <button
@@ -400,11 +400,11 @@ export function SmartChatbotWidget() {
               className={`p-2.5 rounded-full transition cursor-pointer flex items-center justify-center shrink-0 min-h-[40px] min-w-[40px] ${
                 isListening
                   ? "bg-red-600 text-white animate-pulse shadow-lg shadow-red-500/50"
-                  : "bg-[#1f2937] text-gray-300 hover:text-white hover:bg-gray-800"
+                  : "bg-slate-100 border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-200"
               }`}
               title={isListening ? "మాట్లాడటం ఆపండి (Stop Listening)" : "గొంతు ద్వారా మాట్లాడండి (Voice Search in Telugu/English)"}
             >
-              {isListening ? <MicOff className="size-4" /> : <Mic className="size-4 text-sky-400" />}
+              {isListening ? <MicOff className="size-4" /> : <Mic className="size-4 text-blue-600" />}
             </button>
 
             {/* Input Field */}
@@ -417,14 +417,14 @@ export function SmartChatbotWidget() {
                   ? "వినబడుతోంది... మాట్లాడండి (Listening...)"
                   : "అడగండి (Ask news, jobs, market, recipes)..."
               }
-              className="flex-1 rounded-full border border-[#1f2937] bg-[#111827] py-2 px-3.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+              className="flex-1 rounded-full border border-slate-300 bg-slate-50 py-2 px-3.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
             />
 
             {/* Send Button */}
             <button
               type="submit"
               disabled={!inputText.trim()}
-              className="p-2.5 rounded-full bg-[#2563eb] hover:bg-blue-700 text-white transition disabled:opacity-40 cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center active:scale-95 shrink-0"
+              className="p-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition disabled:opacity-40 cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center active:scale-95 shrink-0"
             >
               <Send className="size-4" />
             </button>

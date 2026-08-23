@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { 
   Sprout, 
   Tractor, 
@@ -17,7 +18,12 @@ import {
   ArrowLeft,
   CheckCircle,
   Truck,
-  HardHat
+  HardHat,
+  Camera,
+  Image as ImageIcon,
+  Tag,
+  Gift,
+  User
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 
@@ -168,7 +174,21 @@ export function RaituBazarPage() {
 
   const [selectedSec, setSelectedSec] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false);
+  const location = useLocation();
+  const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(() => {
+    try {
+      return typeof window !== "undefined" && new URLSearchParams(window.location.search).get("post") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("post") === "true") {
+      setIsPostModalOpen(true);
+    }
+  }, [location.search]);
 
   // Form State
   const [step, setStep] = useState<1 | 2>(1);
@@ -181,12 +201,29 @@ export function RaituBazarPage() {
   const [description, setDescription] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [offerDiscount, setOfferDiscount] = useState<string>("");
+  const [freeBonusItems, setFreeBonusItems] = useState<string>("");
+  const [isNegotiable, setIsNegotiable] = useState<boolean>(false);
 
   // OTP State
   const [otp, setOtp] = useState<string>("");
   const [demoOtpHint, setDemoOtpHint] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setImageUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
@@ -277,11 +314,11 @@ export function RaituBazarPage() {
   };
 
   return (
-    <div className="bg-[#030712] text-white min-h-screen pb-16">
+    <div className="bg-slate-50 text-slate-900 min-h-screen pb-16">
       <main className="container-shell py-6 space-y-6 animate-in fade-in duration-300">
 
         {/* Hero Section Banner */}
-        <div className="rounded-[2.2rem] bg-gradient-to-r from-emerald-800 via-green-800 to-teal-900 p-6 sm:p-8 text-white shadow-xl flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
+        <div className="rounded-[2.2rem] bg-gradient-to-r from-emerald-700 via-green-700 to-teal-800 p-6 sm:p-8 text-white shadow-xl flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
           <div className="space-y-2 max-w-xl z-10">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3.5 py-1 text-xs font-black backdrop-blur-md">
               🌾 VaartaNow Farmer & Agriculture Portal
@@ -316,7 +353,7 @@ export function RaituBazarPage() {
                 className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 active:scale-95 ${
                   isSelected
                     ? "bg-emerald-600 border-emerald-500 text-white shadow-lg"
-                    : "bg-[#111827] border-[#1f2937] text-gray-200 hover:border-emerald-500/50"
+                    : "bg-white border-slate-200 text-slate-800 hover:border-emerald-400 hover:bg-emerald-50/40 shadow-sm"
                 }`}
               >
                 <div>
@@ -324,11 +361,11 @@ export function RaituBazarPage() {
                     <span>{sec.title}</span>
                     {isSelected && <CheckCircle className="size-4 text-white" />}
                   </h3>
-                  <p className="text-[11px] text-gray-300 font-medium leading-relaxed mt-1">
+                  <p className={`text-[11px] font-medium leading-relaxed mt-1 ${isSelected ? "text-emerald-100" : "text-slate-600"}`}>
                     {sec.subhead}
                   </p>
                 </div>
-                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider block pt-1">
+                <span className={`text-[10px] font-black uppercase tracking-wider block pt-1 ${isSelected ? "text-white" : "text-emerald-700"}`}>
                   {isSelected ? "✓ ఎంపిక చేయబడింది" : "అన్వేషించండి ➔"}
                 </span>
               </button>
@@ -338,13 +375,13 @@ export function RaituBazarPage() {
 
         {/* Search Bar */}
         <div className="relative w-full">
-          <Search className="absolute left-4 top-3.5 size-4 text-gray-400" />
+          <Search className="absolute left-4 top-3.5 size-4 text-slate-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="వెతకండి (వరి, టమోటా, ట్రాక్టర్, పశువులు, విత్తనాలు, కోల్డ్ స్టోరేజ్, ఆనందపురం)..."
-            className="w-full rounded-full border border-[#1f2937] bg-[#111827] py-3 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 min-h-[46px]"
+            className="w-full rounded-full border border-slate-300 bg-white py-3 pl-11 pr-4 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm min-h-[46px]"
           />
         </div>
 
@@ -358,10 +395,10 @@ export function RaituBazarPage() {
             return (
               <div
                 key={item.id}
-                className="rounded-[1.8rem] border border-[#1f2937] bg-[#111827] text-white overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
+                className="rounded-[1.8rem] border border-slate-200 bg-white text-slate-900 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Cover Image */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-neutral-950">
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
                   <img
                     src={item.image}
                     alt={item.title}
@@ -375,36 +412,36 @@ export function RaituBazarPage() {
                 {/* Body */}
                 <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between border-b border-[#1f2937] pb-2">
-                      <span className="text-xl font-black text-emerald-400">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                      <span className="text-xl font-black text-emerald-700">
                         {item.price_rate}
                       </span>
-                      <span className="text-[11px] font-extrabold text-gray-400 flex items-center gap-1">
-                        <MapPin className="size-3.5 text-emerald-500" />
+                      <span className="text-[11px] font-extrabold text-slate-500 flex items-center gap-1">
+                        <MapPin className="size-3.5 text-emerald-600" />
                         {item.village}
                       </span>
                     </div>
 
-                    <div className="p-2 rounded-lg bg-emerald-500/10 text-[11px] font-black text-emerald-300 inline-block">
+                    <div className="p-2 rounded-lg bg-emerald-50 text-[11px] font-black text-emerald-800 border border-emerald-200 inline-block">
                       {item.sub_category}
                     </div>
 
-                    <h3 className="text-base font-black text-white leading-snug">
+                    <h3 className="text-base font-black text-slate-900 leading-snug">
                       {item.title}
                     </h3>
 
-                    <p className="text-xs font-semibold text-gray-300 leading-relaxed line-clamp-2">
+                    <p className="text-xs font-semibold text-slate-600 leading-relaxed line-clamp-2">
                       {item.description}
                     </p>
 
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-gray-400 pt-1">
-                      <ShieldCheck className="size-4 text-emerald-400 shrink-0" />
-                      <span className="truncate">👤 {item.seller_name} <strong className="text-emerald-400">✓ Verified Farmer</strong></span>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 pt-1">
+                      <ShieldCheck className="size-4 text-emerald-600 shrink-0" />
+                      <span className="truncate">👤 {item.seller_name} <strong className="text-emerald-700">✓ Verified Farmer</strong></span>
                     </div>
                   </div>
 
                   {/* Actions (Call & WhatsApp) */}
-                  <div className="border-t border-[#1f2937] pt-3 flex items-center justify-between gap-2">
+                  <div className="border-t border-slate-100 pt-3 flex items-center justify-between gap-2">
                     <a
                       href={`tel:${cleanPhone}`}
                       className="flex-1 py-2.5 rounded-full bg-[#16a34a] hover:bg-emerald-600 text-white text-xs font-black transition flex items-center justify-center gap-1.5 min-h-[44px]"
@@ -434,30 +471,32 @@ export function RaituBazarPage() {
 
       {/* 2-STEP LIVE SMS VERIFIED POST MODAL */}
       {isPostModalOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-[#1f2937] bg-[#111827] text-white shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
 
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#1f2937] pb-3">
-              <div className="flex items-center gap-2.5">
-                <h3 className="text-lg font-black text-white">
-                  🌾 రైతు మార్కెట్‌లో పోస్ట్ చేయండి
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-1.5">
+                  <span>+ ఉచిత రైతు ప్రకటన పోస్ట్ చేయండి</span>
+                  <span className="text-xs text-slate-500 font-normal hidden sm:inline">(Post Agri Ad)</span>
                 </h3>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-600/30">
-                  దశ {step}/2
+                <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm">
+                  దశ {step}/2 (Step {step} of 2)
                 </span>
               </div>
 
               <button
                 onClick={() => setIsPostModalOpen(false)}
-                className="rounded-full p-1.5 text-gray-400 hover:bg-[#1f2937] transition cursor-pointer"
+                className="rounded-full p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
+                aria-label="Close"
               >
                 <X className="size-5" />
               </button>
             </div>
 
             {errorMsg && (
-              <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold text-center">
+              <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold text-center">
                 ⚠️ {errorMsg}
               </div>
             )}
@@ -466,9 +505,12 @@ export function RaituBazarPage() {
             {step === 1 && (
               <form onSubmit={handleProceedToOTP} className="space-y-3.5 text-xs">
                 
+                {/* Field 1: మీ పూర్తి పేరు */}
                 <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    మీ పేరు (Farmer / Seller Name) <span className="text-red-400">*</span>
+                  <label className="font-extrabold text-slate-800 flex items-center gap-1">
+                    <User className="size-3.5 text-emerald-600" />
+                    <span>మీ పేరు (Farmer / Seller Name)</span>
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -476,19 +518,20 @@ export function RaituBazarPage() {
                     onChange={(e) => setSellerName(e.target.value)}
                     placeholder="ఉదా: అప్పిరెడ్డి (Appi Reddy)"
                     required
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-emerald-500"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
                   />
                 </div>
 
+                {/* Field 2 & 3: Category & Locality */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      వ్యవసాయ విభాగం (Agriculture Section) <span className="text-red-400">*</span>
+                    <label className="font-extrabold text-slate-800">
+                      వ్యవసాయ విభాగం (Category) <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={section}
                       onChange={(e) => setSection(e.target.value as any)}
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer transition"
                     >
                       <option value="crops">🌾 పంటలు (Crops & Produce)</option>
                       <option value="inputs">🌱 ఇన్పుట్లు (Seeds & Fertilizers)</option>
@@ -502,52 +545,8 @@ export function RaituBazarPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      ఉప-విభాగం (Sub Category) <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={subCategory}
-                      onChange={(e) => setSubCategory(e.target.value)}
-                      placeholder="ఉదా: వరి ధాన్యం, టమోటో, ట్రాక్టర్"
-                      required
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    పంట / సేవ పేరు (Listing Title) <span className="text-red-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="ఉదా: BPT సన్నా వరి ధాన్యం 50 బస్తాలు లేదా Mahindra 575 DI ట్రాక్టర్ అద్దెకు"
-                    required
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      ధర (Rate in ₹) <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={priceRate}
-                      onChange={(e) => setPriceRate(e.target.value)}
-                      placeholder="ఉదా: ₹2,150 / బస్తా"
-                      required
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-emerald-500"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      📍 గ్రామం / మండలం (Village / Locality) <span className="text-red-400">*</span>
+                    <label className="font-extrabold text-slate-800">
+                      గ్రామం / ప్రాంతం (Locality) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -555,56 +554,170 @@ export function RaituBazarPage() {
                       onChange={(e) => setVillage(e.target.value)}
                       placeholder="ఉదా: ఆనందపురం (Anandapuram)"
                       required
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-emerald-500"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
                     />
                   </div>
                 </div>
 
+                {/* Field 4: Listing Title */}
                 <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    📞 వాట్సాప్ మొబైల్ (WhatsApp Phone) <span className="text-red-400">*</span>
+                  <label className="font-extrabold text-slate-800">
+                    పంట / వస్తువు శీర్షిక (Ad Title) <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="9876543210"
-                    maxLength={10}
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="మీరు ఏమి అమ్ముతున్నారు? ఉదా: BPT సన్నా వరి ధాన్యం 50 బస్తాలు"
                     required
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-emerald-500"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
                   />
                 </div>
 
+                {/* Field 5: Description */}
                 <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    వివరణ (Description)
+                  <label className="font-extrabold text-slate-800">
+                    వివరణ (Description Textarea)
                   </label>
                   <textarea
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
-                    rows={2}
-                    placeholder="పంట దిగుబడి, క్వాలిటీ మరియు ఆర్డర్ సమయాల వివరాలు..."
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-emerald-500"
+                    rows={3}
+                    placeholder="పంట దిగుబడి, క్వాలిటీ, ఆర్డర్ సమయాల పూర్తి వివరాలు వ్రాయండి..."
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    📷 ఫోటో లింక్ (Photo URL)
+                {/* Fields 6 & 7: Optional Perks Box */}
+                <div className="p-3 rounded-2xl border border-slate-200 bg-slate-50 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-extrabold text-amber-700 flex items-center gap-1">
+                      <Tag className="size-3 text-amber-600" />
+                      ఆఫర్ / క్వాలిటీ Tag <span className="text-slate-500 font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={offerDiscount}
+                      onChange={(e) => setOfferDiscount(e.target.value)}
+                      placeholder="ఉదా: 100% ఆర్గానిక్ లేదా హోల్‌సేల్ రేటు"
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-extrabold text-emerald-700 flex items-center gap-1">
+                      <Gift className="size-3 text-emerald-600" />
+                      ఉచిత బోనస్ / డెలివరీ <span className="text-slate-500 font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={freeBonusItems}
+                      onChange={(e) => setFreeBonusItems(e.target.value)}
+                      placeholder="ఉదా: ఉచిత ట్రాన్స్‌పోర్ట్ లేదా బస్తా ఉచితం"
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Field 8: Photo Upload */}
+                <div className="space-y-1.5">
+                  <label className="font-extrabold text-slate-800">
+                    ఫోటో లింక్ / Camera Input <span className="text-slate-500 font-normal">(Photo Upload)</span>
                   </label>
-                  <input
-                    type="url"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-emerald-500"
-                  />
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/60 hover:bg-emerald-100/70 transition cursor-pointer group shadow-sm">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                      <Camera className="size-6 text-emerald-600 group-hover:scale-110 transition mb-1" />
+                      <span className="text-[11px] font-black text-emerald-700">కెమెరా తెరవండి (Open Camera)</span>
+                    </label>
+
+                    <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-teal-300 bg-teal-50/60 hover:bg-teal-100/70 transition cursor-pointer group shadow-sm">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                      <ImageIcon className="size-6 text-teal-600 group-hover:scale-110 transition mb-1" />
+                      <span className="text-[11px] font-black text-teal-700">గ్యాలరీ (Gallery)</span>
+                    </label>
+                  </div>
+
+                  {imageUrl ? (
+                    <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-200 mt-2 shadow-sm">
+                      <img src={imageUrl} alt="preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl("")}
+                        className="absolute top-2 right-2 rounded-full bg-slate-900/80 p-1.5 text-white hover:bg-black transition cursor-pointer"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="లేదా ఫోటో లింక్ ఇక్కడ పేస్ట్ చేయండి (https://...)"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 mt-1 transition"
+                    />
+                  )}
+                </div>
+
+                {/* Field 9 & 10: Price & Phone */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="font-extrabold text-slate-800 flex items-center justify-between">
+                      <span>ధర (Rate in ₹) <span className="text-red-500">*</span></span>
+                      <label className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isNegotiable}
+                          onChange={(e) => setIsNegotiable(e.target.checked)}
+                          className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                        />
+                        చర్చించదగినది (Negotiable)
+                      </label>
+                    </label>
+                    <input
+                      type="text"
+                      value={priceRate}
+                      onChange={(e) => setPriceRate(e.target.value)}
+                      placeholder="ఉదా: 2150 / బస్తా"
+                      required
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-extrabold text-slate-800">
+                      సంప్రదించే సంఖ్య (Contact Number - WhatsApp) <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="9876543210"
+                      maxLength={10}
+                      required
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
+                    />
+                  </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-green-600 hover:from-emerald-700 hover:via-teal-700 hover:to-green-700 text-white font-black text-sm shadow-xl shadow-emerald-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
                 >
                   {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live SMS OTP పొందండి"}
                 </button>
@@ -618,27 +731,27 @@ export function RaituBazarPage() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-400 hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:underline cursor-pointer"
                 >
                   <ArrowLeft className="size-3.5" />
                   <span>← వెనుకకు (Back to Details)</span>
                 </button>
 
-                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-xs font-bold text-emerald-200 text-center space-y-1">
-                  <div className="flex items-center justify-center gap-1.5 font-black text-emerald-400 text-sm">
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 text-center space-y-1">
+                  <div className="flex items-center justify-center gap-1.5 font-black text-emerald-700 text-sm">
                     <ShieldCheck className="size-5" />
                     <span>SMS OTP Sent</span>
                   </div>
                   <p>📩 <strong>+91 {phone}</strong> మొబైల్‌కి 6-అంకెల OTP పంపబడింది.</p>
                   {demoOtpHint && (
-                    <p className="text-[10px] text-emerald-400">
+                    <p className="text-[10px] text-emerald-600 font-bold">
                       (డెమో OTP కోడ్: <span className="font-black text-sm">{demoOtpHint}</span> లేదా 123456)
                     </p>
                   )}
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200 text-center block">
+                  <label className="font-extrabold text-slate-800 text-center block">
                     6-అంకెల OTP కోడ్‌ను ఇక్కడ నమోదు చేయండి
                   </label>
                   <input
@@ -648,14 +761,14 @@ export function RaituBazarPage() {
                     placeholder="123456"
                     maxLength={6}
                     required
-                    className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-[#1f2937] bg-[#030712] p-3.5 text-white focus:ring-2 focus:ring-emerald-500"
+                    className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-slate-300 bg-slate-50 p-3.5 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-xl shadow-emerald-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
                 >
                   {loading ? "ధృవీకరిస్తున్నాము..." : "✅ OTP ధృవీకరించు & ప్రచురించు"}
                 </button>

@@ -97,10 +97,10 @@ export function ClassifiedCard({ item, currentSellerPhone, onCardClick, onItemUp
       onClick={onCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="rounded-[1.8rem] border border-[#1f2937] bg-[#111827] text-white overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between cursor-pointer group relative active:scale-[0.99] touch-manipulation min-h-[360px]"
+      className="rounded-[1.8rem] border border-slate-200 bg-white text-slate-900 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between cursor-pointer group relative active:scale-[0.99] touch-manipulation min-h-[360px]"
     >
       {/* ---------------- SLIDESHOW BANNER ---------------- */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-neutral-950">
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
         <img
           src={displayImages[currentSlideIndex]}
           alt={item.title}
@@ -109,7 +109,7 @@ export function ClassifiedCard({ item, currentSellerPhone, onCardClick, onItemUp
 
         {/* Live Photo Counter Badge (📷 1/3) */}
         {displayImages.length > 1 && (
-          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-black text-white flex items-center gap-1 shadow-md">
+          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-slate-900/70 backdrop-blur-md text-[10px] font-black text-white flex items-center gap-1 shadow-md">
             <Camera className="size-3" />
             <span>{currentSlideIndex + 1}/{displayImages.length}</span>
           </div>
@@ -119,13 +119,13 @@ export function ClassifiedCard({ item, currentSellerPhone, onCardClick, onItemUp
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
           <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm ${
             item.status === "available"
-              ? "bg-[#16a34a] text-white"
+              ? "bg-emerald-600 text-white"
               : "bg-red-600 text-white"
           }`}>
             {item.status === "available" ? "🟢 AVAILABLE" : "🔴 SOLD OUT"}
           </span>
 
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-[#2563eb] text-white uppercase shadow-sm">
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-blue-600 text-white uppercase shadow-sm">
             {item.category}
           </span>
         </div>
@@ -177,7 +177,7 @@ export function ClassifiedCard({ item, currentSellerPhone, onCardClick, onItemUp
           {/* Price & Locality Row */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xl font-black text-[#16a34a]">
+              <span className="text-xl font-black text-emerald-600">
                 {item.price}
               </span>
 
@@ -189,35 +189,35 @@ export function ClassifiedCard({ item, currentSellerPhone, onCardClick, onItemUp
               )}
             </div>
 
-            <span className="text-[11px] font-extrabold text-red-400 flex items-center gap-1">
+            <span className="text-[11px] font-extrabold text-red-600 flex items-center gap-1">
               <MapPin className="size-3.5 text-red-500" />
               {item.locality.split(" ")[0]}
             </span>
           </div>
 
           {/* Title */}
-          <h3 className="text-base font-black text-white leading-snug line-clamp-2 group-hover:text-[#2563eb] transition">
+          <h3 className="text-base font-black text-slate-900 leading-snug line-clamp-2 group-hover:text-blue-600 transition">
             {item.title}
           </h3>
 
           {/* Free Bonus Box (🎁 Free Bonus) */}
           {item.free_items && (
-            <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-[11px] font-bold text-purple-300 flex items-center gap-1.5">
-              <Gift className="size-4 text-purple-400 shrink-0" />
+            <div className="p-2.5 rounded-xl bg-purple-50 border border-purple-200 text-[11px] font-bold text-purple-800 flex items-center gap-1.5">
+              <Gift className="size-4 text-purple-600 shrink-0" />
               <span className="truncate">🎁 <strong>Free Bonus:</strong> {item.free_items}</span>
             </div>
           )}
 
           {/* Verification Tag (👤 [Seller Name] ✓ Verified) */}
-          <div className="flex items-center justify-between text-xs font-bold text-gray-400 border-t border-[#1f2937] pt-2.5">
+          <div className="flex items-center justify-between text-xs font-bold text-slate-500 border-t border-slate-100 pt-2.5">
             <div className="flex items-center gap-1 text-[11px]">
-              <ShieldCheck className="size-4 text-[#16a34a] shrink-0" />
+              <ShieldCheck className="size-4 text-emerald-600 shrink-0" />
               <span className="truncate max-w-[130px]">
-                👤 {item.seller_name} <strong className="text-[#16a34a] font-extrabold">✓ Verified</strong>
+                👤 {item.seller_name} <strong className="text-emerald-600 font-extrabold">✓ Verified</strong>
               </span>
             </div>
 
-            <span className="text-[10px] font-semibold text-gray-400 flex items-center gap-1">
+            <span className="text-[10px] font-semibold text-slate-400 flex items-center gap-1">
               <Clock className="size-3" />
               {new Date(item.created_at).toLocaleDateString("te-IN")}
             </span>
@@ -225,7 +225,7 @@ export function ClassifiedCard({ item, currentSellerPhone, onCardClick, onItemUp
         </div>
 
         {/* ---------------- CARD ACTIONS & SELLER CONTROLS ---------------- */}
-        <div className="border-t border-[#1f2937] pt-3 flex flex-wrap items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+        <div className="border-t border-slate-100 pt-3 flex flex-wrap items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
           
           {/* Owner Seller Management Controls (✏️ Edit & 🗑️ Delete) */}
           {isOwner ? (
@@ -235,7 +235,7 @@ export function ClassifiedCard({ item, currentSellerPhone, onCardClick, onItemUp
                   e.stopPropagation();
                   setIsEditing(true);
                 }}
-                className="px-3 py-2 rounded-full bg-[#2563eb]/20 text-[#2563eb] hover:bg-[#2563eb] hover:text-white text-[11px] font-black transition flex items-center gap-1.5 cursor-pointer min-h-[44px] active:scale-95"
+                className="px-3 py-2 rounded-full bg-blue-50 text-blue-700 hover:bg-blue-600 hover:text-white border border-blue-200 text-[11px] font-black transition flex items-center gap-1.5 cursor-pointer min-h-[44px] active:scale-95"
                 title="Edit Listing"
               >
                 <Edit3 className="size-3.5" />
@@ -244,7 +244,7 @@ export function ClassifiedCard({ item, currentSellerPhone, onCardClick, onItemUp
 
               <button
                 onClick={handleDelete}
-                className="px-3 py-2 rounded-full bg-red-500/20 text-red-400 hover:bg-red-600 hover:text-white text-[11px] font-black transition flex items-center gap-1.5 cursor-pointer min-h-[44px] active:scale-95"
+                className="px-3 py-2 rounded-full bg-red-50 text-red-600 hover:bg-red-600 hover:text-white border border-red-200 text-[11px] font-black transition flex items-center gap-1.5 cursor-pointer min-h-[44px] active:scale-95"
                 title="Delete Listing"
               >
                 <Trash2 className="size-3.5" />
@@ -252,7 +252,7 @@ export function ClassifiedCard({ item, currentSellerPhone, onCardClick, onItemUp
               </button>
             </div>
           ) : (
-            <span className="text-[10px] font-black text-[#16a34a] bg-[#16a34a]/10 px-3 py-1.5 rounded-full border border-[#16a34a]/30">
+            <span className="text-[10px] font-black text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
               🟢 Active Listing
             </span>
           )}
@@ -283,51 +283,51 @@ export function ClassifiedCard({ item, currentSellerPhone, onCardClick, onItemUp
 
       </div>
 
-      {/* Inline Quick Edit Modal for Seller */}
+      {/* Inline Quick Edit Modal for Seller (CLEAN LIGHT THEME) */}
       {isEditing && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4" onClick={(e) => e.stopPropagation()}>
-          <div className="relative w-full max-w-sm rounded-3xl border border-[#1f2937] bg-[#111827] text-white p-6 shadow-2xl space-y-4">
-            <h4 className="font-black text-sm text-white border-b border-[#1f2937] pb-3">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-full max-w-sm rounded-3xl border border-slate-200 bg-white text-slate-900 p-6 shadow-2xl space-y-4">
+            <h4 className="font-black text-sm text-slate-900 border-b border-slate-200 pb-3">
               ✏️ ప్రకటన సవరించండి (Edit Classified)
             </h4>
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="text-[10px] font-black text-gray-400">శీర్షిక (Title)</label>
+                <label className="text-[10px] font-black text-slate-700">శీర్షిక (Title)</label>
                 <input
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-[#2563eb]"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-black text-gray-400">ధర (Price in ₹)</label>
+                <label className="text-[10px] font-black text-slate-700">ధర (Price in ₹)</label>
                 <input
                   type="text"
                   value={editPrice}
                   onChange={(e) => setEditPrice(e.target.value)}
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-[#2563eb]"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-black text-gray-400">ఆఫర్ / డిస్కౌంట్ Tag</label>
+                <label className="text-[10px] font-black text-slate-700">ఆఫర్ / డిస్కౌంట్ Tag</label>
                 <input
                   type="text"
                   value={editDiscount}
                   onChange={(e) => setEditDiscount(e.target.value)}
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-[#2563eb]"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-black text-gray-400">స్థితి (Status)</label>
+                <label className="text-[10px] font-black text-slate-700">స్థితి (Status)</label>
                 <select
                   value={editStatus}
                   onChange={(e) => setEditStatus(e.target.value as "available" | "sold")}
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-[#2563eb]"
+                  className="w-full rounded-xl border border-slate-300 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:ring-2 focus:ring-blue-600 focus:border-blue-600"
                 >
                   <option value="available">🟢 అందుబాటులో ఉంది (Available)</option>
                   <option value="sold">🔴 అమ్మేసాము (SOLD OUT)</option>
@@ -338,14 +338,14 @@ export function ClassifiedCard({ item, currentSellerPhone, onCardClick, onItemUp
             <div className="flex gap-3 pt-2">
               <button
                 onClick={() => setIsEditing(false)}
-                className="flex-1 py-3 rounded-full border border-[#1f2937] text-xs font-bold hover:bg-[#1f2937] transition min-h-[44px]"
+                className="flex-1 py-3 rounded-full border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-100 transition min-h-[44px]"
               >
                 రద్దు చేయి
               </button>
 
               <button
                 onClick={handleSaveEdit}
-                className="flex-1 py-3 rounded-full bg-[#2563eb] hover:bg-blue-700 text-white text-xs font-black shadow-md transition min-h-[44px]"
+                className="flex-1 py-3 rounded-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-black shadow-md transition min-h-[44px]"
               >
                 సేవ్ చేయి
               </button>

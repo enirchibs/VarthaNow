@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { 
   ShoppingBag, 
   MapPin, 
@@ -13,7 +14,10 @@ import {
   User, 
   ArrowLeft,
   CheckCircle,
-  Tag
+  Tag,
+  Camera,
+  Image as ImageIcon,
+  Gift
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 
@@ -177,9 +181,22 @@ export function MahilaMarketPage() {
 
   const [selectedCat, setSelectedCat] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false);
+  const location = useLocation();
+  const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(() => {
+    try {
+      return typeof window !== "undefined" && new URLSearchParams(window.location.search).get("post") === "true";
+    } catch {
+      return false;
+    }
+  });
 
-  // Form State (2-Step Live SMS Verified Post Modal)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("post") === "true") {
+      setIsPostModalOpen(true);
+    }
+  }, [location.search]);
+
   const [step, setStep] = useState<1 | 2>(1);
   const [sellerName, setSellerName] = useState<string>("");
   const [category, setCategory] = useState<string>("food_catering");
@@ -189,12 +206,28 @@ export function MahilaMarketPage() {
   const [description, setDescription] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
+  const [offerDiscount, setOfferDiscount] = useState<string>("");
+  const [freeBonusItems, setFreeBonusItems] = useState<string>("");
+  const [isFree, setIsFree] = useState<boolean>(false);
 
-  // OTP State
   const [otp, setOtp] = useState<string>("");
   const [demoOtpHint, setDemoOtpHint] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loadingSMS, setLoadingSMS] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setImageUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
@@ -210,7 +243,6 @@ export function MahilaMarketPage() {
     });
   }, [items, selectedCat, searchQuery]);
 
-  // Handle Step 1 Proceed
   const handleProceedToOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sellerName.trim() || !title.trim() || !price.trim() || !phone.trim()) {
@@ -223,11 +255,11 @@ export function MahilaMarketPage() {
       return;
     }
 
-    setLoading(true);
+    setLoadingSMS(true);
     setErrorMsg("");
 
     const res = await sendSMSOTP(cleanPhone);
-    setLoading(false);
+    setLoadingSMS(false);
 
     if (res.success) {
       setDemoOtpHint(res.otpDemo);
@@ -237,21 +269,20 @@ export function MahilaMarketPage() {
     }
   };
 
-  // Handle Step 2 Verify OTP & Publish Listing
-  const handleVerifyOTPAndPublish = async (e: React.FormEvent) => {
+  const handleVerifyAndPost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otp.trim() || otp.trim().length < 6) {
       setErrorMsg("దయచేసి 6-అంకెల OTP కోడ్‌ను నమోదు చేయండి");
       return;
     }
 
-    setLoading(true);
+    setLoadingSMS(true);
     setErrorMsg("");
 
     const verifyRes = await verifySellerOTP(phone, otp, sellerName);
 
     if (!verifyRes.success) {
-      setLoading(false);
+      setLoadingSMS(false);
       setErrorMsg(verifyRes.error || "OTP తప్పుగా ఉంది.");
       return;
     }
@@ -275,7 +306,7 @@ export function MahilaMarketPage() {
     setItems(updated);
     localStorage.setItem("vaartanow_mahila_items", JSON.stringify(updated));
 
-    setLoading(false);
+    setLoadingSMS(false);
     setIsPostModalOpen(false);
     setStep(1);
     setTitle("");
@@ -284,11 +315,11 @@ export function MahilaMarketPage() {
   };
 
   return (
-    <div className="bg-[#030712] text-white min-h-screen pb-16">
+    <div className="bg-slate-50 text-slate-900 min-h-screen pb-16">
       <main className="container-shell py-6 space-y-6 animate-in fade-in duration-300">
 
         {/* Hero Section Banner */}
-        <div className="rounded-[2.2rem] bg-gradient-to-r from-pink-700 via-rose-700 to-purple-800 p-6 sm:p-8 text-white shadow-xl flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
+        <div className="rounded-[2.2rem] bg-gradient-to-r from-pink-600 via-rose-600 to-purple-700 p-6 sm:p-8 text-white shadow-xl flex flex-wrap items-center justify-between gap-4 relative overflow-hidden">
           <div className="space-y-2 max-w-xl z-10">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3.5 py-1 text-xs font-black backdrop-blur-md">
               🌸 VaartaNow Women Entrepreneur Portal
@@ -312,7 +343,7 @@ export function MahilaMarketPage() {
           </div>
         </div>
 
-        {/* 11 Specialized Categories Filter Bar */}
+        {/* Categories Filter Bar */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
             {MAHILA_CATEGORIES.map((cat) => {
@@ -324,7 +355,7 @@ export function MahilaMarketPage() {
                   className={`rounded-full px-4 py-2.5 text-xs font-black whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 min-h-[44px] touch-manipulation active:scale-95 ${
                     isSel
                       ? "bg-rose-600 text-white shadow-md"
-                      : "bg-[#111827] border border-[#1f2937] text-gray-300 hover:bg-[#1f2937]"
+                      : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-sm"
                   }`}
                 >
                   <span>{cat.label}</span>
@@ -335,20 +366,20 @@ export function MahilaMarketPage() {
 
           {/* Search Input Bar */}
           <div className="relative w-full">
-            <Search className="absolute left-4 top-3.5 size-4 text-gray-400" />
+            <Search className="absolute left-4 top-3.5 size-4 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="వెతకండి (పచ్చళ్ళు, కారం పొడి, చీరలు, టైలరింగ్, ట్యూషన్స్)..."
-              className="w-full rounded-full border border-[#1f2937] bg-[#111827] py-3 pl-11 pr-4 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-rose-500 min-h-[46px]"
+              className="w-full rounded-full border border-slate-300 bg-white py-3 pl-11 pr-4 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm min-h-[46px]"
             />
           </div>
         </div>
 
-        {/* 🌸 7 BROAD CATEGORIES VISUAL SHOWCASE WITH SUB-CATEGORIES */}
-        <div className="bg-[#111827] border border-[#1f2937] rounded-3xl p-4 sm:p-6 space-y-4">
-          <h3 className="text-sm font-black text-rose-400 uppercase tracking-wider flex items-center gap-2">
+        {/* 7 BROAD CATEGORIES VISUAL SHOWCASE */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 space-y-4 shadow-sm">
+          <h3 className="text-sm font-black text-rose-600 uppercase tracking-wider flex items-center gap-2">
             <span>🌸 మహిళా మార్కెట్ — 7 ముఖ్యమైన విభాగాలు (7 Broad Categories)</span>
           </h3>
 
@@ -359,28 +390,28 @@ export function MahilaMarketPage() {
                 onClick={() => setSelectedCat(cat.id)}
                 className={`p-3.5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between space-y-2 ${
                   selectedCat === cat.id
-                    ? "bg-rose-950/40 border-rose-500 ring-2 ring-rose-500/50"
-                    : "bg-[#030712] border-[#1f2937] hover:border-rose-500/50 hover:bg-[#111827]"
+                    ? "bg-rose-50 border-rose-500 ring-2 ring-rose-500/50"
+                    : "bg-slate-50 border-slate-200 hover:border-rose-400 hover:bg-rose-50/40"
                 }`}
               >
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">{cat.icon}</span>
-                  <h4 className="text-xs font-black text-white leading-tight">{cat.label}</h4>
+                  <h4 className="text-xs font-black text-slate-900 leading-tight">{cat.label}</h4>
                 </div>
 
-                <p className="text-[10px] text-gray-400 font-semibold line-clamp-2 leading-relaxed">
+                <p className="text-[10px] text-slate-600 font-semibold line-clamp-2 leading-relaxed">
                   {cat.subhead}
                 </p>
 
                 {cat.subItems && (
                   <div className="flex flex-wrap gap-1 pt-1">
                     {cat.subItems.slice(0, 3).map((sub, sIdx) => (
-                      <span key={sIdx} className="text-[9px] font-bold bg-[#1f2937] text-rose-200 px-2 py-0.5 rounded-full border border-rose-900/30">
+                      <span key={sIdx} className="text-[9px] font-bold bg-white text-rose-700 px-2 py-0.5 rounded-full border border-rose-200 shadow-2xs">
                         {sub}
                       </span>
                     ))}
                     {cat.subItems.length > 3 && (
-                      <span className="text-[9px] font-bold bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded-full">
+                      <span className="text-[9px] font-bold bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded-full">
                         +{cat.subItems.length - 3}
                       </span>
                     )}
@@ -391,7 +422,7 @@ export function MahilaMarketPage() {
           </div>
         </div>
 
-        {/* Product Cards Grid (3 Columns Desktop, 2 Tablet, 1 Mobile) */}
+        {/* Product Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredItems.map((item) => {
             const cleanPhone = item.contact.replace(/\D/g, "");
@@ -401,10 +432,10 @@ export function MahilaMarketPage() {
             return (
               <div
                 key={item.id}
-                className="rounded-[1.8rem] border border-[#1f2937] bg-[#111827] text-white overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
+                className="rounded-[1.8rem] border border-slate-200 bg-white text-slate-900 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Image */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-neutral-950">
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
                   <img
                     src={item.image}
                     alt={item.title}
@@ -419,31 +450,31 @@ export function MahilaMarketPage() {
                 <div className="p-4 sm:p-5 space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-xl font-black text-rose-400">
+                      <span className="text-xl font-black text-rose-600">
                         {item.price}
                       </span>
-                      <span className="text-[11px] font-extrabold text-gray-400 flex items-center gap-1">
+                      <span className="text-[11px] font-extrabold text-slate-500 flex items-center gap-1">
                         <MapPin className="size-3.5 text-rose-500" />
                         {item.locality.split(" ")[0]}
                       </span>
                     </div>
 
-                    <h3 className="text-base font-black text-white leading-snug">
+                    <h3 className="text-base font-black text-slate-900 leading-snug">
                       {item.title}
                     </h3>
 
-                    <p className="text-xs font-semibold text-gray-300 leading-relaxed line-clamp-2">
+                    <p className="text-xs font-semibold text-slate-600 leading-relaxed line-clamp-2">
                       {item.description}
                     </p>
 
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-gray-400 pt-1">
-                      <ShieldCheck className="size-4 text-emerald-400 shrink-0" />
-                      <span className="truncate">👤 {item.seller_name} <strong className="text-emerald-400">✓ Verified</strong></span>
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-600 pt-1">
+                      <ShieldCheck className="size-4 text-emerald-600 shrink-0" />
+                      <span className="truncate">👤 {item.seller_name} <strong className="text-emerald-600">✓ Verified</strong></span>
                     </div>
                   </div>
 
-                  {/* Actions (Call & WhatsApp) */}
-                  <div className="border-t border-[#1f2937] pt-3 flex items-center justify-between gap-2">
+                  {/* Actions */}
+                  <div className="border-t border-slate-100 pt-3 flex items-center justify-between gap-2">
                     <a
                       href={`tel:${cleanPhone}`}
                       className="flex-1 py-2.5 rounded-full bg-[#16a34a] hover:bg-emerald-600 text-white text-xs font-black transition flex items-center justify-center gap-1.5 min-h-[44px]"
@@ -471,63 +502,69 @@ export function MahilaMarketPage() {
 
       </main>
 
-      {/* 2-STEP LIVE SMS VERIFIED POST MODAL FOR MAHILA MARKET */}
+      {/* 2-STEP LIVE SMS VERIFIED POST MODAL */}
       {isPostModalOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-[#1f2937] bg-[#111827] text-white shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
 
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#1f2937] pb-3">
-              <div className="flex items-center gap-2.5">
-                <h3 className="text-lg font-black text-white">
-                  + మహిళా మార్కెట్‌లో పోస్ట్ చేయండి <span className="text-xs text-gray-400 font-normal">(Post Listing)</span>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-1.5">
+                  <span>+ మహిళా మార్కెట్‌లో పోస్ట్ చేయండి</span>
+                  <span className="text-xs text-slate-500 font-normal hidden sm:inline">(Women Market Ad)</span>
                 </h3>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-600/20 text-rose-400 border border-rose-600/30">
-                  దశ {step}/2
+                <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200 shadow-sm">
+                  దశ {step}/2 (Step {step} of 2)
                 </span>
               </div>
 
               <button
                 onClick={() => setIsPostModalOpen(false)}
-                className="rounded-full p-1.5 text-gray-400 hover:bg-[#1f2937] transition cursor-pointer"
+                className="rounded-full p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
+                aria-label="Close"
               >
                 <X className="size-5" />
               </button>
             </div>
 
             {errorMsg && (
-              <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold text-center">
+              <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold text-center">
                 ⚠️ {errorMsg}
               </div>
             )}
 
-            {/* STEP 1: PRODUCT & SELLER DETAILS */}
+            {/* STEP 1: DETAILS */}
             {step === 1 && (
               <form onSubmit={handleProceedToOTP} className="space-y-3.5 text-xs">
                 
+                {/* Field 1: మీ పూర్తి పేరు */}
                 <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    మీ పేరు (Entrepreneur / Seller Name) <span className="text-red-400">*</span>
+                  <label className="font-extrabold text-slate-800 flex items-center gap-1">
+                    <User className="size-3.5 text-rose-600" />
+                    <span>మహిళా పారిశ్రామికవేత్త పేరు (Entrepreneur Name)</span>
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={sellerName}
                     onChange={(e) => setSellerName(e.target.value)}
-                    placeholder="ఉదా: లక్ష్మి దేవి"
+                    placeholder="ఉదా: లక్ష్మి దేవి (e.g. Lakshmi Devi)"
                     required
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-rose-500"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
                   />
                 </div>
 
+                {/* Field 2 & 3: Category & Locality */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      విభాగం (Select Category) <span className="text-red-400">*</span>
+                    <label className="font-extrabold text-slate-800">
+                      విభాగం (Category Dropdown) <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-rose-500 cursor-pointer"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer transition"
                     >
                       <option value="food_catering">🍲 ఇంటి తయారీ ఆహారం & క్యాటరింగ్</option>
                       <option value="boutique_handmade">👗 బట్టలు, బుటిక్ & హ్యాండ్మేడ్</option>
@@ -540,13 +577,13 @@ export function MahilaMarketPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      ప్రాంతం (Locality) <span className="text-red-400">*</span>
+                    <label className="font-extrabold text-slate-800">
+                      ప్రాంతం (Locality Dropdown) <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={locality}
                       onChange={(e) => setLocality(e.target.value)}
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-rose-500 cursor-pointer"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer transition"
                     >
                       <option value="మధురవాడ (Madhurawada)">మధురవాడ (Madhurawada)</option>
                       <option value="గాజువాక (Gajuwaka)">గాజువాక (Gajuwaka)</option>
@@ -560,38 +597,149 @@ export function MahilaMarketPage() {
                   </div>
                 </div>
 
+                {/* Field 4: Product / Service Title */}
                 <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    ఉత్పత్తి / సేవ పేరు (Product / Service Title) <span className="text-red-400">*</span>
+                  <label className="font-extrabold text-slate-800">
+                    ఉత్పత్తి / సేవ పేరు (Ad Title) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="ఉదా: కొత్త ఆవకాయ పచ్చడి లేదా మంగళగిరి పట్టు చీరలు"
+                    placeholder="మీరు ఏమి అమ్ముతున్నారు? ఉదా: ఆవకాయ పచ్చడి 1kg లేదా Pattu Saree"
                     required
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-rose-500"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
                   />
                 </div>
 
+                {/* Field 5: Description */}
+                <div className="space-y-1">
+                  <label className="font-extrabold text-slate-800">
+                    వివరణ (Description Textarea)
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    placeholder="ఉత్పత్తి తయారీ విధానం, క్వాలిటీ మరియు ఆర్డర్ సూచనల పూర్తి వివరాలు వ్రాయండి..."
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
+                  />
+                </div>
+
+                {/* Fields 6 & 7: Optional Perks Box */}
+                <div className="p-3 rounded-2xl border border-slate-200 bg-slate-50 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-extrabold text-amber-700 flex items-center gap-1">
+                      <Tag className="size-3 text-amber-600" />
+                      ఆఫర్ / తగ్గింపు Tag <span className="text-slate-500 font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={offerDiscount}
+                      onChange={(e) => setOfferDiscount(e.target.value)}
+                      placeholder="ఉదా: 20% OFF లేదా పండుగ స్పెషల్"
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-extrabold text-emerald-700 flex items-center gap-1">
+                      <Gift className="size-3 text-emerald-600" />
+                      ఉచిత బోనస్ / శాంపిల్ <span className="text-slate-500 font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={freeBonusItems}
+                      onChange={(e) => setFreeBonusItems(e.target.value)}
+                      placeholder="ఉదా: ఉచిత స్వీట్ శాంపిల్ / కవర్ ఉచితం"
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Field 8: Photo Upload */}
+                <div className="space-y-1.5">
+                  <label className="font-extrabold text-slate-800">
+                    ఫోటో లింక్ / Camera Input <span className="text-slate-500 font-normal">(Photo Upload)</span>
+                  </label>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-rose-300 bg-rose-50/60 hover:bg-rose-100/70 transition cursor-pointer group shadow-sm">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                      <Camera className="size-6 text-rose-600 group-hover:scale-110 transition mb-1" />
+                      <span className="text-[11px] font-black text-rose-700">కెమెరా తెరవండి (Open Camera)</span>
+                    </label>
+
+                    <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/60 hover:bg-emerald-100/70 transition cursor-pointer group shadow-sm">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                      <ImageIcon className="size-6 text-emerald-600 group-hover:scale-110 transition mb-1" />
+                      <span className="text-[11px] font-black text-emerald-700">గ్యాలరీ (Gallery)</span>
+                    </label>
+                  </div>
+
+                  {imageUrl ? (
+                    <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-200 mt-2 shadow-sm">
+                      <img src={imageUrl} alt="preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl("")}
+                        className="absolute top-2 right-2 rounded-full bg-slate-900/80 p-1.5 text-white hover:bg-black transition cursor-pointer"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="లేదా ఫోటో లింక్ ఇక్కడ పేస్ట్ చేయండి (https://...)"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 mt-1 transition"
+                    />
+                  )}
+                </div>
+
+                {/* Field 9 & 10: Price & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      ధర (Price in ₹) <span className="text-red-400">*</span>
+                    <label className="font-extrabold text-slate-800 flex items-center justify-between">
+                      <span>ధర (Price in ₹) <span className="text-red-500">*</span></span>
+                      <label className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isFree}
+                          onChange={(e) => setIsFree(e.target.checked)}
+                          className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                        />
+                        ఉచితం (Free Demo)
+                      </label>
                     </label>
                     <input
                       type="text"
                       value={price}
                       onChange={(e) => setPrice(e.target.value)}
-                      placeholder="ఉదా: 350 / kg"
-                      required
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-rose-500"
+                      disabled={isFree}
+                      placeholder={isFree ? "ఉచితం (Free)" : "ఉదా: 350"}
+                      required={!isFree}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50 transition"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      సంప్రదించే మొబైల్ (WhatsApp Phone) <span className="text-red-400">*</span>
+                    <label className="font-extrabold text-slate-800">
+                      సంప్రదించే సంఖ్య (Contact Number - WhatsApp) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
@@ -600,43 +748,17 @@ export function MahilaMarketPage() {
                       placeholder="9876543210"
                       maxLength={10}
                       required
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-rose-500"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    వివరణ (Description)
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={2}
-                    placeholder="ఉత్పత్తి తయారీ విధానం, క్వాలిటీ మరియు ఆర్డర్ సూచనలు..."
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-rose-500"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    ఫోటో లింక్ (Image URL)
-                  </label>
-                  <input
-                    type="url"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-rose-500"
-                  />
-                </div>
-
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full py-4 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+                  disabled={loadingSMS}
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 hover:from-rose-700 hover:via-pink-700 hover:to-purple-700 text-white font-black text-sm shadow-xl shadow-rose-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
                 >
-                  {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live SMS OTP పొందండి"}
+                  {loadingSMS ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live SMS OTP పొందండి"}
                 </button>
 
               </form>
@@ -644,31 +766,31 @@ export function MahilaMarketPage() {
 
             {/* STEP 2: SMS OTP VERIFICATION */}
             {step === 2 && (
-              <form onSubmit={handleVerifyOTPAndPublish} className="space-y-4 text-xs">
+              <form onSubmit={handleVerifyAndPost} className="space-y-4 text-xs">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-rose-400 hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-rose-600 hover:underline cursor-pointer"
                 >
                   <ArrowLeft className="size-3.5" />
                   <span>← వెనుకకు (Back to Details)</span>
                 </button>
 
-                <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-xs font-bold text-rose-200 text-center space-y-1">
-                  <div className="flex items-center justify-center gap-1.5 font-black text-rose-400 text-sm">
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 text-center space-y-1">
+                  <div className="flex items-center justify-center gap-1.5 font-black text-emerald-700 text-sm">
                     <ShieldCheck className="size-5" />
                     <span>SMS OTP Sent</span>
                   </div>
                   <p>📩 <strong>+91 {phone}</strong> మొబైల్‌కి 6-అంకెల OTP పంపబడింది.</p>
                   {demoOtpHint && (
-                    <p className="text-[10px] text-rose-400">
+                    <p className="text-[10px] text-emerald-600 font-bold">
                       (డెమో OTP కోడ్: <span className="font-black text-sm">{demoOtpHint}</span> లేదా 123456)
                     </p>
                   )}
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200 text-center block">
+                  <label className="font-extrabold text-slate-800 text-center block">
                     6-అంకెల OTP కోడ్‌ను ఇక్కడ నమోదు చేయండి
                   </label>
                   <input
@@ -678,16 +800,16 @@ export function MahilaMarketPage() {
                     placeholder="123456"
                     maxLength={6}
                     required
-                    className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-[#1f2937] bg-[#030712] p-3.5 text-white focus:ring-2 focus:ring-rose-500"
+                    className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-slate-300 bg-slate-50 p-3.5 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full py-4 rounded-full bg-rose-600 hover:bg-rose-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+                  disabled={loadingSMS}
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-xl shadow-emerald-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
                 >
-                  {loading ? "ధృవీకరిస్తున్నాము..." : "✅ OTP ధృవీకరించు & పోస్ట్ ప్రచురించు"}
+                  {loadingSMS ? "ధృవీకరిస్తున్నాము..." : "✅ OTP ధృవీకరించు & పోస్ట్ ప్రచురించు"}
                 </button>
               </form>
             )}

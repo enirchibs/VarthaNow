@@ -172,23 +172,24 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-[#1f2937] bg-[#111827] text-white shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
 
         {/* Modal Header Bar (Telugu First + English) */}
-        <div className="flex items-center justify-between border-b border-[#1f2937] pb-3">
-          <div className="flex items-center gap-2.5">
-            <h3 className="text-xl font-black text-white">
-              + ఉచిత ప్రకటన పోస్ట్ చేయండి <span className="text-xs text-gray-400 font-normal">(Post a Classified Ad)</span>
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-1.5">
+              <span>+ ఉచిత ప్రకటన పోస్ట్ చేయండి</span>
+              <span className="text-xs text-slate-500 font-normal hidden sm:inline">(Post a Classified Ad)</span>
             </h3>
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#2563eb]/20 text-[#2563eb] border border-[#2563eb]/30">
+            <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200 shadow-sm">
               దశ {step}/2 (Step {step} of 2)
             </span>
           </div>
 
           <button
             onClick={onClose}
-            className="rounded-full p-1.5 text-gray-400 hover:bg-[#1f2937] transition cursor-pointer"
+            className="rounded-full p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
             aria-label="Close"
           >
             <X className="size-5" />
@@ -196,7 +197,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
         </div>
 
         {errorMsg && (
-          <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold text-center">
+          <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold text-center">
             ⚠️ {errorMsg}
           </div>
         )}
@@ -207,9 +208,10 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
             
             {/* Field 1: మీ పూర్తి పేరు (Your Full Name) * */}
             <div className="space-y-1">
-              <label className="font-extrabold text-gray-200 flex items-center gap-1">
-                <User className="size-3.5 text-[#2563eb]" />
-                మీ పూర్తి పేరు (Your Full Name) <span className="text-red-400">*</span>
+              <label className="font-extrabold text-slate-800 flex items-center gap-1">
+                <User className="size-3.5 text-blue-600" />
+                <span>మీ పూర్తి పేరు (Your Full Name)</span>
+                <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -217,7 +219,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                 onChange={(e) => setSellerName(e.target.value)}
                 placeholder="ఉదా: రమేష్ (e.g. Ramesh)"
                 required
-                className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               />
             </div>
 
@@ -225,14 +227,14 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
-                  విభాగం (Category Dropdown) <span className="text-red-400">*</span>
+                <label className="font-extrabold text-slate-800">
+                  విభాగం (Category Dropdown) <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   required
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition"
                 >
                   <option value="">విభాగాన్ని ఎంచుకోండి (Select a Category)</option>
                   <option value="electronics">📱 ఎలక్ట్రానిక్స్ & మొబైల్స్ (Electronics)</option>
@@ -247,14 +249,14 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
               </div>
 
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200 flex items-center justify-between">
-                  <span>ప్రాంతం (Locality Dropdown) <span className="text-red-400">*</span></span>
+                <label className="font-extrabold text-slate-800 flex items-center justify-between">
+                  <span>ప్రాంతం (Locality Dropdown) <span className="text-red-500">*</span></span>
                 </label>
                 <select
                   value={locality}
                   onChange={(e) => setLocality(e.target.value)}
                   required
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] cursor-pointer"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition"
                 >
                   <option value="">ప్రాంతాన్ని ఎంచుకోండి (Select a Locality)</option>
                   <option value="ఆనందపురం (Anandapuram)">ఆనందపురం (Anandapuram)</option>
@@ -275,8 +277,8 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
 
             {/* Field 4: Ad Title */}
             <div className="space-y-1">
-              <label className="font-extrabold text-gray-200">
-                ప్రకటన శీర్షిక (Ad Title) <span className="text-red-400">*</span>
+              <label className="font-extrabold text-slate-800">
+                ప్రకటన శీర్షిక (Ad Title) <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -284,13 +286,13 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="మీరు ఏమి అమ్ముతున్నారు / అందిస్తున్నారు? (What are you selling/offering?)"
                 required
-                className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               />
             </div>
 
             {/* Field 5: Description */}
             <div className="space-y-1">
-              <label className="font-extrabold text-gray-200">
+              <label className="font-extrabold text-slate-800">
                 వివరణ (Description Textarea)
               </label>
               <textarea
@@ -298,51 +300,51 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
                 placeholder="మీ ప్రకటన గురించి మరిన్ని వివరాలు వ్రాయండి... (More details about your ad...)"
-                className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
               />
             </div>
 
             {/* Fields 6 & 7: Bordered Box Container (Special Offer & Free Bonus) */}
-            <div className="p-3 rounded-2xl border border-[#1f2937] bg-[#030712]/60 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="p-3 rounded-2xl border border-slate-200 bg-slate-50 grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1">
-                <label className="text-[11px] font-extrabold text-amber-400 flex items-center gap-1">
-                  <Tag className="size-3 text-amber-400" />
-                  ఆఫర్ / తగ్గింపు Tag <span className="text-gray-400 font-normal">(Optional)</span>
+                <label className="text-[11px] font-extrabold text-amber-700 flex items-center gap-1">
+                  <Tag className="size-3 text-amber-600" />
+                  ఆఫర్ / తగ్గింపు Tag <span className="text-slate-500 font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
                   value={offerDiscount}
                   onChange={(e) => setOfferDiscount(e.target.value)}
-                  placeholder="ఉదా: 25% OFF లేదా పండుగ ధమాకా (e.g. 25% OFF)"
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#111827] p-2.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                  placeholder="ఉదా: 25% OFF లేదా పండుగ ధమాకా"
+                  className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-[11px] font-extrabold text-teal-400 flex items-center gap-1">
-                  <Gift className="size-3 text-teal-400" />
-                  ఉచిత బోనస్ వస్తువులు <span className="text-gray-400 font-normal">(Optional)</span>
+                <label className="text-[11px] font-extrabold text-emerald-700 flex items-center gap-1">
+                  <Gift className="size-3 text-emerald-600" />
+                  ఉచిత బోనస్ వస్తువులు <span className="text-slate-500 font-normal">(Optional)</span>
                 </label>
                 <input
                   type="text"
                   value={freeBonusItems}
                   onChange={(e) => setFreeBonusItems(e.target.value)}
                   placeholder="ఉదా: కవర్ & ఛార్జర్ ఉచితం (e.g. Includes charger & case)"
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#111827] p-2.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                  className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
             </div>
 
             {/* Field 8: Add Photos (Camera & Gallery Input) */}
             <div className="space-y-1.5">
-              <label className="font-extrabold text-gray-200">
-                ఫోటో లింక్ / Camera Input <span className="text-gray-400 font-normal">(Photo Upload)</span>
+              <label className="font-extrabold text-slate-800">
+                ఫోటో లింక్ / Camera Input <span className="text-slate-500 font-normal">(Photo Upload)</span>
               </label>
 
               <div className="grid grid-cols-2 gap-3">
                 
                 {/* 📷 Open Camera Button Box */}
-                <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-[#2563eb]/50 hover:bg-[#2563eb]/10 transition cursor-pointer group bg-[#030712]/40">
+                <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50/60 hover:bg-blue-100/70 transition cursor-pointer group shadow-sm">
                   <input
                     type="file"
                     accept="image/*"
@@ -350,12 +352,12 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                     onChange={handleImageFileChange}
                     className="hidden"
                   />
-                  <Camera className="size-6 text-[#2563eb] group-hover:scale-110 transition mb-1" />
-                  <span className="text-[11px] font-black text-blue-400">కెమెరా తెరవండి (Open Camera)</span>
+                  <Camera className="size-6 text-blue-600 group-hover:scale-110 transition mb-1" />
+                  <span className="text-[11px] font-black text-blue-700">కెమెరా తెరవండి (Open Camera)</span>
                 </label>
 
                 {/* 🖼️ Gallery Button Box */}
-                <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-emerald-500/50 hover:bg-emerald-500/10 transition cursor-pointer group bg-[#030712]/40">
+                <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/60 hover:bg-emerald-100/70 transition cursor-pointer group shadow-sm">
                   <input
                     type="file"
                     accept="image/*"
@@ -363,20 +365,20 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                     onChange={handleImageFileChange}
                     className="hidden"
                   />
-                  <ImageIcon className="size-6 text-emerald-400 group-hover:scale-110 transition mb-1" />
-                  <span className="text-[11px] font-black text-emerald-400">గ్యాలరీ (Gallery)</span>
+                  <ImageIcon className="size-6 text-emerald-600 group-hover:scale-110 transition mb-1" />
+                  <span className="text-[11px] font-black text-emerald-700">గ్యాలరీ (Gallery)</span>
                 </label>
 
               </div>
 
               {/* Photo preview or URL input fallback */}
               {imageUrl ? (
-                <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-[#1f2937] mt-2">
+                <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-200 mt-2 shadow-sm">
                   <img src={imageUrl} alt="preview" className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => setImageUrl("")}
-                    className="absolute top-2 right-2 rounded-full bg-black/70 p-1 text-white hover:bg-black"
+                    className="absolute top-2 right-2 rounded-full bg-slate-900/80 p-1.5 text-white hover:bg-black transition cursor-pointer"
                   >
                     <X className="size-4" />
                   </button>
@@ -387,7 +389,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
                   placeholder="లేదా ఫోటో లింక్ ఇక్కడ పేస్ట్ చేయండి (https://...)"
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-2.5 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] mt-1"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mt-1 transition"
                 />
               )}
             </div>
@@ -396,14 +398,14 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200 flex items-center justify-between">
-                  <span>ధర (Price in ₹) <span className="text-red-400">*</span></span>
-                  <label className="inline-flex items-center gap-1 text-[10px] font-extrabold text-[#16a34a] cursor-pointer">
+                <label className="font-extrabold text-slate-800 flex items-center justify-between">
+                  <span>ధర (Price in ₹) <span className="text-red-500">*</span></span>
+                  <label className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={isFree}
                       onChange={(e) => setIsFree(e.target.checked)}
-                      className="rounded text-[#16a34a] focus:ring-[#16a34a]"
+                      className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                     />
                     ఉచితం (Free)
                   </label>
@@ -415,13 +417,13 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                   disabled={isFree}
                   placeholder={isFree ? "ఉచితం (Free)" : "3000"}
                   required={!isFree}
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] disabled:opacity-50"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 transition"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-extrabold text-gray-200">
-                  సంప్రదించే సంఖ్య (Contact Number - WhatsApp) <span className="text-red-400">*</span>
+                <label className="font-extrabold text-slate-800">
+                  సంప్రదించే సంఖ్య (Contact Number - WhatsApp) <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
@@ -430,17 +432,17 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                   placeholder="7207550499"
                   maxLength={10}
                   required
-                  className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                 />
               </div>
 
             </div>
 
-            {/* Primary Action Button (Telugu First format as shown in image) */}
+            {/* Primary Action Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-black text-sm shadow-xl shadow-indigo-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
               {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live SMS OTP పొందండి"}
             </button>
@@ -454,27 +456,27 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="inline-flex items-center gap-1 text-xs font-bold text-blue-400 hover:underline cursor-pointer"
+              className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:underline cursor-pointer"
             >
               <ArrowLeft className="size-3.5" />
               <span>← వెనుకకు (Back to Edit Ad Details)</span>
             </button>
 
-            <div className="p-4 rounded-2xl bg-[#16a34a]/10 border border-[#16a34a]/30 text-xs font-bold text-emerald-200 text-center space-y-1">
-              <div className="flex items-center justify-center gap-1.5 font-black text-[#16a34a] text-sm">
+            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 text-center space-y-1">
+              <div className="flex items-center justify-center gap-1.5 font-black text-emerald-700 text-sm">
                 <ShieldCheck className="size-5" />
-                <span>SMS OTP Sent</span>
+                <span>SMS OTP పంపబడింది (OTP Sent)</span>
               </div>
               <p>📩 <strong>+91 {phone}</strong> మొబైల్‌కి 6-అంకెల OTP పంపబడింది.</p>
               {demoOtpHint && (
-                <p className="text-[10px] text-emerald-400">
+                <p className="text-[10px] text-emerald-600 font-bold">
                   (డెమో OTP కోడ్: <span className="font-black text-sm">{demoOtpHint}</span> లేదా 123456)
                 </p>
               )}
             </div>
 
             <div className="space-y-1">
-              <label className="font-extrabold text-gray-200 text-center block">
+              <label className="font-extrabold text-slate-800 text-center block">
                 6-అంకెల OTP కోడ్‌ను ఇక్కడ నమోదు చేయండి (Enter 6-Digit OTP)
               </label>
               <input
@@ -484,14 +486,14 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                 placeholder="123456"
                 maxLength={6}
                 required
-                className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-[#1f2937] bg-[#030712] p-3.5 text-white focus:outline-none focus:ring-2 focus:ring-[#16a34a]"
+                className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-slate-300 bg-slate-50 p-3.5 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 rounded-full bg-[#16a34a] hover:bg-emerald-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-xl shadow-emerald-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
               {loading ? "ధృవీకరిస్తున్నాము..." : "✅ OTP ధృవీకరించు & ప్రకటన ప్రచురించు (Verify & Publish)"}
             </button>

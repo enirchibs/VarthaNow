@@ -52,19 +52,20 @@ export function ClassifiedDetailModal({ item, onClose, onStatusUpdated }: Classi
   const waUrl = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(`నమస్తే ${item.seller_name}, VaartaNow 'మన మార్కెట్' లో మీరు పోస్ట్ చేసిన "${item.title}" గురించి వివరాలు తెలుసుకోవాలనుకుంటున్నాను.`)}`;
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl overflow-hidden rounded-[2.2rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-2xl space-y-5 p-6 sm:p-8 max-h-[90vh] overflow-y-auto no-scrollbar">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl overflow-hidden rounded-[2.2rem] border border-slate-200 bg-white text-slate-900 shadow-2xl space-y-5 p-6 sm:p-8 max-h-[90vh] overflow-y-auto no-scrollbar">
 
         {/* Modal Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 rounded-full bg-black/40 hover:bg-black/60 p-2 text-white transition z-10"
+          className="absolute top-5 right-5 rounded-full bg-slate-100 hover:bg-slate-200 p-2 text-slate-700 transition z-10 cursor-pointer shadow-sm"
+          aria-label="Close"
         >
           <X className="size-5" />
         </button>
 
         {/* Image Gallery Viewer */}
-        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl bg-neutral-900 border border-[hsl(var(--border))]/60">
+        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl bg-slate-100 border border-slate-200">
           <img
             src={images[selectedImgIndex] || images[0]}
             alt={item.title}
@@ -96,7 +97,7 @@ export function ClassifiedDetailModal({ item, onClose, onStatusUpdated }: Classi
                   key={idx}
                   onClick={() => setSelectedImgIndex(idx)}
                   className={`size-10 rounded-xl overflow-hidden border-2 transition ${
-                    selectedImgIndex === idx ? "border-white scale-110 shadow-md" : "border-white/50 opacity-70"
+                    selectedImgIndex === idx ? "border-blue-600 scale-110 shadow-md" : "border-white/80 opacity-80"
                   }`}
                 >
                   <img src={img} alt="thumb" className="w-full h-full object-cover" />
@@ -110,31 +111,31 @@ export function ClassifiedDetailModal({ item, onClose, onStatusUpdated }: Classi
         <div className="space-y-4">
           
           {/* Price & Offer Badges */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[hsl(var(--border))]/60 pb-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
             <div>
-              <span className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
+              <span className="text-2xl sm:text-3xl font-black text-emerald-600">
                 {item.price}
               </span>
               {item.offer_discount && (
-                <p className="text-xs font-bold text-blue-600 dark:text-blue-400 mt-0.5">
+                <p className="text-xs font-bold text-amber-600 mt-0.5">
                   🏷️ ఆఫర్: {item.offer_discount}
                 </p>
               )}
             </div>
 
-            <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1 text-xs font-black uppercase">
+            <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 px-3.5 py-1 text-xs font-black uppercase">
               {item.category}
             </span>
           </div>
 
           {/* Title & Locality */}
           <div className="space-y-1.5">
-            <h2 className="text-xl sm:text-2xl font-black text-[hsl(var(--foreground))] leading-snug">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
               {item.title}
             </h2>
 
-            <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-[hsl(var(--muted-foreground))]">
-              <span className="flex items-center gap-1 text-red-500">
+            <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-500">
+              <span className="flex items-center gap-1 text-rose-600">
                 <MapPin className="size-4" />
                 {item.locality}
               </span>
@@ -147,22 +148,22 @@ export function ClassifiedDetailModal({ item, onClose, onStatusUpdated }: Classi
           </div>
 
           {/* Seller Verified Profile Card */}
-          <div className="rounded-2xl bg-[hsl(var(--muted))]/50 p-4 border border-[hsl(var(--border))]/50 flex items-center justify-between gap-3">
+          <div className="rounded-2xl bg-slate-50 p-4 border border-slate-200 flex items-center justify-between gap-3 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="size-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black shadow-md">
                 <User className="size-6" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h4 className="font-extrabold text-sm text-[hsl(var(--foreground))]">
+                  <h4 className="font-extrabold text-sm text-slate-900">
                     {item.seller_name}
                   </h4>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-600 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                  <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                     <ShieldCheck className="size-3" />
                     Verified Seller
                   </span>
                 </div>
-                <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+                <p className="text-xs font-semibold text-slate-500">
                   మొబైల్: {item.contact}
                 </p>
               </div>
@@ -171,10 +172,10 @@ export function ClassifiedDetailModal({ item, onClose, onStatusUpdated }: Classi
 
           {/* Description */}
           <div className="space-y-1.5">
-            <h4 className="text-xs font-extrabold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+            <h4 className="text-xs font-extrabold text-slate-600 uppercase tracking-wider">
               వస్తువు వివరాలు (Item Description):
             </h4>
-            <p className="text-xs sm:text-sm font-medium text-[hsl(var(--foreground))] leading-relaxed bg-[hsl(var(--muted))]/30 p-4 rounded-2xl border border-[hsl(var(--border))]/40">
+            <p className="text-xs sm:text-sm font-medium text-slate-800 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-200">
               {item.description}
             </p>
           </div>
@@ -184,7 +185,7 @@ export function ClassifiedDetailModal({ item, onClose, onStatusUpdated }: Classi
             {/* Call */}
             <a
               href={`tel:${item.contact}`}
-              className="flex-1 py-3.5 px-4 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 py-3.5 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-emerald-600/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
               <Phone className="size-4" />
               <span>కాల్ చేయండి (Call)</span>
@@ -195,7 +196,7 @@ export function ClassifiedDetailModal({ item, onClose, onStatusUpdated }: Classi
               href={waUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex-1 py-3.5 px-4 rounded-full bg-green-600 hover:bg-green-700 text-white font-black text-xs shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
+              className="flex-1 py-3.5 px-4 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-black text-xs sm:text-sm shadow-lg shadow-green-600/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
             >
               <MessageCircle className="size-4" />
               <span>వాట్సాప్ చాట్ (WhatsApp)</span>
@@ -204,21 +205,21 @@ export function ClassifiedDetailModal({ item, onClose, onStatusUpdated }: Classi
             {/* Share */}
             <button
               onClick={handleShare}
-              className="py-3.5 px-4 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-[hsl(var(--muted))] text-[hsl(var(--foreground))] font-black text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+              className="py-3.5 px-5 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 font-black text-xs transition flex items-center justify-center gap-1.5 cursor-pointer min-h-[48px] shadow-sm"
             >
-              <Share2 className="size-4" />
+              <Share2 className="size-4 text-blue-600" />
               <span>షేర్</span>
             </button>
           </div>
 
           {/* Toggle Sold Status Button */}
-          <div className="border-t border-[hsl(var(--border))]/60 pt-3">
+          <div className="border-t border-slate-100 pt-3">
             <button
               onClick={handleToggleSold}
               disabled={isUpdating}
-              className="w-full py-2.5 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/50 hover:bg-[hsl(var(--muted))] text-xs font-bold text-[hsl(var(--muted-foreground))] transition flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-600 hover:text-slate-900 transition flex items-center justify-center gap-2 cursor-pointer"
             >
-              <CheckCircle className="size-4" />
+              <CheckCircle className="size-4 text-slate-500" />
               <span>
                 {item.status === "available"
                   ? "అమ్మకందారుగా గుర్తించు ➔ '🔴 అమ్మేసాము (Mark as Sold)' గా మార్చండి"

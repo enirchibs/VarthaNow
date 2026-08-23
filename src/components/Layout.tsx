@@ -527,7 +527,7 @@ export function Layout() {
               <>
                 <Wrench className={`size-5 mb-0.5 text-teal-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
                 <span className="text-[10px] font-black tracking-tight leading-none text-center">
-                  సేవలు & అద్దెకు
+                  సేవలు & అద్దెలు
                 </span>
               </>
             )}

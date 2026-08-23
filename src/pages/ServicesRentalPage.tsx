@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { 
   Wrench, 
   MapPin, 
@@ -15,7 +16,12 @@ import {
   Truck,
   HardHat,
   Tractor,
-  PartyPopper
+  PartyPopper,
+  Camera,
+  Image as ImageIcon,
+  Tag,
+  Gift,
+  User
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 
@@ -37,24 +43,21 @@ export interface ServiceRentalItem {
 const SERVICE_GROUPS = [
   {
     id: "workers",
-    title: "👷 పనివాళ్లు (Workers & Technicians)",
+    title: "👷 పనివాళ్లు (Skilled Workers)",
     icon: HardHat,
     items: [
       "🚰 Plumber — ప్లంబర్",
       "⚡ Electrician — ఎలక్ట్రీషియన్",
       "🧱 Mason — మేస్త్రీ",
-      "🧱 Tiles Mesthri — టైల్స్ & మార్బుల్ మేస్త్రీ",
-      "🪚 Carpenter (Wood Work) — వుడ్ వర్క్ కార్పెంటర్",
-      "👨‍🏭 Welding — వెల్డింగ్ వర్క్",
-      "🎨 Painter — పెయింటర్ (పుట్టీ & కలరింగ్)",
-      "🛖 False Ceiling — ఫాల్స్ సీలింగ్ వర్క్ (POP/Gypsum/PVC)",
+      "🪚 Carpenter — కార్పెంటర్",
+      "🎨 Painter — పెయింటర్",
       "🧹 Cleaning — క్లీనింగ్",
       "👩‍🏫 Tuition — ట్యూషన్"
     ]
   },
   {
     id: "farm_machines",
-    title: "🚜 వ్యవసాయ యంత్రాలు (Farm Machines & Rentals)",
+    title: "🚜 వ్యవసాయ యంత్రాలు (Agricultural Machinery)",
     icon: Tractor,
     items: [
       "🚜 Tractor — ట్రాక్టర్",
@@ -62,25 +65,22 @@ const SERVICE_GROUPS = [
       "🌾 కోత యంత్రం — Harvesting Machine",
       "🌱 నాట్లు వేసే యంత్రం — Planting Machine",
       "💧 ఉడుపు / నీటి యంత్రం — Irrigation/Pump Machine",
-      "🚜 Rotavator — రోటవేటర్",
-      "🌾 Paddy / Crop Cutter — క్రాప్ కట్టర్",
+      "🚜 Rotavator — రోటావेटर",
+      "🌾 Paddy / Crop Cutter — పంట కోత యంత్రం",
       "🚛 Tractor Trolley — ట్రాక్టర్ ట్రాలీ"
     ]
   },
   {
     id: "construction",
-    title: "🏗️ నిర్మాణ సేవలు (Construction & Equipment)",
+    title: "🏗️ నిర్మాణ సేవలు (Construction Services)",
     icon: Wrench,
     items: [
-      "🏗️ JCB / Excavator — జేసీబీ",
+      "🏗️ JCB / Excavator — జేసీబీ / ఎక్స్కవేటర్",
       "🚧 Earthmover — ఎర్త్‌మూవర్",
       "🧱 Concrete Mixer — కాంక్రీట్ మిక్సర్",
       "🏗️ Crane — క్రేన్",
       "🚛 Tipper — టిప్పర్",
-      "🧱 Tiles & Marble — టైల్స్ మేస్త్రీ వర్క్",
-      "👨‍🏭 Welding — ఐరన్ గ్రిల్స్ & ఆర్క్ వెల్డింగ్",
-      "🛖 Ceiling — POP & PVC ఫాల్స్ సీలింగ్",
-      "👷 Construction Workers — కన్‌స్ట్రక్షన్ వర్కర్స్"
+      "👷 Construction Workers — నిర్మాణ కార్మికులు"
     ]
   },
   {
@@ -88,12 +88,12 @@ const SERVICE_GROUPS = [
     title: "🎪 కార్యక్రమాల సేవలు (Event & Function Services)",
     icon: PartyPopper,
     items: [
-      "⛺ Samiyana — శామియానా / టెంట్లు",
-      "🪑 Chairs & Tables — కుర్చీలు & టేబుళ్లు",
+      "⛺ Samiyana — శామియానా",
+      "🪑 Chairs & Tables — కుర్చీలు & బల్లలు",
       "🎤 Sound System — సౌండ్ సిస్టమ్",
       "💡 Lighting — లైటింగ్",
       "🎉 Decoration — డెకరేషన్",
-      "🍽️ Catering — కేటరింగ్",
+      "🍽️ Catering — క్యాటరింగ్",
       "📸 Photography — ఫోటోగ్రఫీ"
     ]
   },
@@ -102,13 +102,13 @@ const SERVICE_GROUPS = [
     title: "🔧 ఇతర స్థానిక సేవలు (Other Local Services)",
     icon: Truck,
     items: [
-      "🛵 Mechanic — బైక్ మెకానిక్",
+      "🛵 Mechanic — మెకానిక్",
       "📱 Mobile Repair — మొబైల్ రిపేర్",
       "💻 Computer Service — కంప్యూటర్ సర్వీస్",
       "🚗 Car/Auto Service — కార్/ఆటో సర్వీస్",
       "🔑 Key Maker — కీ మేకర్",
-      "❄️ AC/Fridge Repair — ఏసీ/ఫ్రిజ్ రిపేర్",
-      "🚚 Transport — ట్రాన్స్‌పోర్ట్",
+      "❄️ AC/Fridge Repair — ఏసీ/ఫ్రిడ్జ్ రిపేర్",
+      "🚚 Transport — రవాణా",
       "🚛 Goods Vehicle — గూడ్స్ వాహనం"
     ]
   }
@@ -251,7 +251,21 @@ export function ServicesRentalPage() {
 
   const [selectedGroup, setSelectedGroup] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(false);
+  const location = useLocation();
+  const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(() => {
+    try {
+      return typeof window !== "undefined" && new URLSearchParams(window.location.search).get("post") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("post") === "true") {
+      setIsPostModalOpen(true);
+    }
+  }, [location.search]);
 
   // Form State for Service Posting Modal
   const [step, setStep] = useState<1 | 2>(1);
@@ -265,12 +279,29 @@ export function ServicesRentalPage() {
   const [description, setDescription] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
+  const [offerDiscount, setOfferDiscount] = useState<string>("");
+  const [freeBonusItems, setFreeBonusItems] = useState<string>("");
+  const [isFreeVisit, setIsFreeVisit] = useState<boolean>(false);
 
   // OTP State
   const [otp, setOtp] = useState<string>("");
   const [demoOtpHint, setDemoOtpHint] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setImageUrl(reader.result);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
@@ -558,30 +589,32 @@ export function ServicesRentalPage() {
 
       {/* 2-STEP LIVE SMS VERIFIED SERVICE POSTING MODAL */}
       {isPostModalOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-[#1f2937] bg-[#111827] text-white shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-2xl space-y-4 p-5 sm:p-7 max-h-[94vh] overflow-y-auto no-scrollbar">
 
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-[#1f2937] pb-3">
-              <div className="flex items-center gap-2.5">
-                <h3 className="text-lg font-black text-white">
-                  ➕ మీ సేవను లేదా యంత్రాన్ని జోడించండి
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-1.5">
+                  <span>+ సర్వీస్ ప్రకటన పోస్ట్ చేయండి</span>
+                  <span className="text-xs text-slate-500 font-normal hidden sm:inline">(Post Service Ad)</span>
                 </h3>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-teal-600/20 text-teal-400 border border-teal-600/30">
-                  దశ {step}/2
+                <span className="px-3 py-1 rounded-full text-[11px] font-bold bg-teal-50 text-teal-700 border border-teal-200 shadow-sm">
+                  దశ {step}/2 (Step {step} of 2)
                 </span>
               </div>
 
               <button
                 onClick={() => setIsPostModalOpen(false)}
-                className="rounded-full p-1.5 text-gray-400 hover:bg-[#1f2937] transition cursor-pointer"
+                className="rounded-full p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer"
+                aria-label="Close"
               >
                 <X className="size-5" />
               </button>
             </div>
 
             {errorMsg && (
-              <div className="p-3 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold text-center">
+              <div className="p-3 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold text-center">
                 ⚠️ {errorMsg}
               </div>
             )}
@@ -590,75 +623,220 @@ export function ServicesRentalPage() {
             {step === 1 && (
               <form onSubmit={handleProceedToOTP} className="space-y-3.5 text-xs">
                 
-                {/* 1. నేనే అందించే సేవ Category Select */}
+                {/* Field 1: సర్వీస్ ప్రొవైడర్ పేరు */}
                 <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    నేను అందించే సేవ విభాగం (Service Category) <span className="text-red-400">*</span>
-                  </label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value as any)}
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-teal-500 cursor-pointer"
-                  >
-                    <option value="farm_machines">🚜 వ్యవసాయ యంత్రాలు (Tractor, Harvester, Proclainer)</option>
-                    <option value="workers">👷 పనివాళ్లు (Plumber, Electrician, Mason, Carpenter)</option>
-                    <option value="construction">🏗️ నిర్మాణ సేవలు (JCB, Earthmover, Tipper, Crane)</option>
-                    <option value="events">🎪 కార్యక్రమాల సేవలు (Samiyana, Sound, Catering)</option>
-                    <option value="other_services">🔧 ఇతర స్థానిక సేవలు (Mechanic, Transport, AC Repair)</option>
-                  </select>
-                </div>
-
-                {/* 2. యంత్రం / పని టైప్ */}
-                <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    సేవ / యంత్రం టైప్ (Service / Machine Type) <span className="text-red-400">*</span>
+                  <label className="font-extrabold text-slate-800 flex items-center gap-1">
+                    <User className="size-3.5 text-teal-600" />
+                    <span>మీ పేరు / సర్వీస్ ప్రొవైడర్ పేరు (Service Provider Name)</span>
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    value={serviceType}
-                    onChange={(e) => setServiceType(e.target.value)}
-                    placeholder="ఉదా: Tractor + Rotavator లేదా Plumber / ఎలక్ట్రీషియన్"
+                    value={providerName}
+                    onChange={(e) => setProviderName(e.target.value)}
+                    placeholder="ఉదా: రమేష్ (Ramesh)"
                     required
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-teal-500"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
                   />
                 </div>
 
-                {/* 3. పేరు & గ్రామం / ప్రాంతం */}
+                {/* Field 2 & 3: Category & Locality */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      పేరు (Owner / Provider Name) <span className="text-red-400">*</span>
+                    <label className="font-extrabold text-slate-800">
+                      విభాగం (Category Dropdown) <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={category}
+                      onChange={(e) => {
+                        const newCat = e.target.value as any;
+                        setCategory(newCat);
+                        const group = SERVICE_GROUPS.find((g) => g.id === newCat);
+                        if (group && group.items.length > 0) {
+                          setServiceType(group.items[0]);
+                        }
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
+                    >
+                      <option value="workers">👷 పనివాళ్లు (Skilled Workers)</option>
+                      <option value="farm_machines">🚜 వ్యవసాయ యంత్రాలు (Agricultural Machinery)</option>
+                      <option value="construction">🏗️ నిర్మాణ సేవలు (Construction Services)</option>
+                      <option value="events">🎪 కార్యక్రమాల సేవలు (Event & Function Services)</option>
+                      <option value="other_services">🔧 ఇతర స్థానిక సేవలు (Other Local Services)</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-extrabold text-slate-800">
+                      ప్రాంతం (Locality Dropdown) <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={village}
+                      onChange={(e) => setVillage(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
+                    >
+                      <option value="విశాఖపట్నం (Visakhapatnam)">విశాఖపట్నం (Visakhapatnam)</option>
+                      <option value="గాజువాక (Gajuwaka)">గాజువాక (Gajuwaka)</option>
+                      <option value="మధురవాడ (Madhurawada)">మధురవాడ (Madhurawada)</option>
+                      <option value="ఆనందపురం (Anandapuram)">ఆనందపురం (Anandapuram)</option>
+                      <option value="ఎంవీపీ కాలనీ (MVP Colony)">ఎంవీపీ కాలనీ (MVP Colony)</option>
+                      <option value="విజయవాడ (Vijayawada)">విజయవాడ (Vijayawada)</option>
+                      <option value="హైదరాబాద్ (Hyderabad)">హైదరాబాద్ (Hyderabad)</option>
+                      <option value="గుంటూరు (Guntur)">గుంటూరు (Guntur)</option>
+                      <option value="తిరుపతి (Tirupati)">తిరుపతి (Tirupati)</option>
+                      <option value="కాకినాడ (Kakinada)">కాకినాడ (Kakinada)</option>
+                      <option value="రాజమండ్రి (Rajahmundry)">రాజమండ్రి (Rajahmundry)</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Field 4: Sub-Category / Specific Service Dropdown */}
+                <div className="space-y-1">
+                  <label className="font-extrabold text-slate-800">
+                    నిర్దిష్ట సేవ / యంత్రం (Specific Service / Machine) <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={serviceType}
+                    onChange={(e) => setServiceType(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
+                  >
+                    {(SERVICE_GROUPS.find((g) => g.id === category)?.items || []).map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                    <option value="ఇతర సేవ / పరికరం (Other Custom Service)">🔧 ఇతర సేవ / పరికరం (Other Custom Service)</option>
+                  </select>
+                </div>
+
+                {/* Field 5: Description */}
+                <div className="space-y-1">
+                  <label className="font-extrabold text-slate-800">
+                    వివరణ (Description Textarea)
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={3}
+                    placeholder="మీ సేవలు, అనుభవం, పని వేళలు మరియు పని సమయాల పూర్తి వివరాలు..."
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                  />
+                </div>
+
+                {/* Fields 6 & 7: Optional Perks Box */}
+                <div className="p-3 rounded-2xl border border-slate-200 bg-slate-50 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-extrabold text-amber-700 flex items-center gap-1">
+                      <Tag className="size-3 text-amber-600" />
+                      యంత్ర మోడల్ / ఆఫర్ Tag <span className="text-slate-500 font-normal">(Optional)</span>
                     </label>
                     <input
                       type="text"
-                      value={providerName}
-                      onChange={(e) => setProviderName(e.target.value)}
-                      placeholder="ఉదా: రమేష్ (Ramesh)"
-                      required
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-teal-500"
+                      value={machineDetails}
+                      onChange={(e) => setMachineDetails(e.target.value)}
+                      placeholder="ఉదా: Mahindra 575 DI / JCB 3DX లేదా 15% OFF"
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      📍 గ్రామం / ప్రాంతం (Village / Area) <span className="text-red-400">*</span>
+                    <label className="text-[11px] font-extrabold text-emerald-700 flex items-center gap-1">
+                      <Gift className="size-3 text-emerald-600" />
+                      అందుబాటులో ఉన్న రోజులు <span className="text-slate-500 font-normal">(Optional)</span>
                     </label>
                     <input
                       type="text"
-                      value={village}
-                      onChange={(e) => setVillage(e.target.value)}
-                      placeholder="ఉదా: Anandapuram, Vizag"
-                      required
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-teal-500"
+                      value={availableDays}
+                      onChange={(e) => setAvailableDays(e.target.value)}
+                      placeholder="ఉదా: ప్రతిరోజూ (All Days) లేదా 24/7"
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                     />
                   </div>
                 </div>
 
-                {/* 4. ఫోన్ / WhatsApp & గంటకు / రోజుకు ధర */}
+                {/* Field 8: Photo Upload */}
+                <div className="space-y-1.5">
+                  <label className="font-extrabold text-slate-800">
+                    ఫోటో లింక్ / Camera Input <span className="text-slate-500 font-normal">(Photo Upload)</span>
+                  </label>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-teal-300 bg-teal-50/60 hover:bg-teal-100/70 transition cursor-pointer group shadow-sm">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                      <Camera className="size-6 text-teal-600 group-hover:scale-110 transition mb-1" />
+                      <span className="text-[11px] font-black text-teal-700">కెమెరా తెరవండి (Open Camera)</span>
+                    </label>
+
+                    <label className="relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/60 hover:bg-emerald-100/70 transition cursor-pointer group shadow-sm">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                      <ImageIcon className="size-6 text-emerald-600 group-hover:scale-110 transition mb-1" />
+                      <span className="text-[11px] font-black text-emerald-700">గ్యాలరీ (Gallery)</span>
+                    </label>
+                  </div>
+
+                  {imageUrl ? (
+                    <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-200 mt-2 shadow-sm">
+                      <img src={imageUrl} alt="preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl("")}
+                        className="absolute top-2 right-2 rounded-full bg-slate-900/80 p-1.5 text-white hover:bg-black transition cursor-pointer"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <input
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="లేదా ఫోటో లింక్ ఇక్కడ పేస్ట్ చేయండి (https://...)"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 mt-1 transition"
+                    />
+                  )}
+                </div>
+
+                {/* Field 9 & 10: Price & Phone */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      📞 ఫోన్ / WhatsApp (10-Digit Phone) <span className="text-red-400">*</span>
+                    <label className="font-extrabold text-slate-800 flex items-center justify-between">
+                      <span>చార్జీలు / అద్దె (Rate in ₹) <span className="text-red-500">*</span></span>
+                      <label className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isFreeVisit}
+                          onChange={(e) => setIsFreeVisit(e.target.checked)}
+                          className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                        />
+                        ఉచిత విజిట్ (Free Visit)
+                      </label>
+                    </label>
+                    <input
+                      type="text"
+                      value={priceRate}
+                      onChange={(e) => setPriceRate(e.target.value)}
+                      disabled={isFreeVisit}
+                      placeholder={isFreeVisit ? "ఉచిత విజిట్ (Free Visit)" : "ఉదా: ₹1,500/day లేదా ₹500/hour"}
+                      required={!isFreeVisit}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50 transition"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-extrabold text-slate-800">
+                      సంప్రదించే సంఖ్య (Contact Number - WhatsApp) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
@@ -667,85 +845,15 @@ export function ServicesRentalPage() {
                       placeholder="9876543210"
                       maxLength={10}
                       required
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-teal-500"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
                     />
                   </div>
-
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      💰 గంటకు / రోజుకు ధర (Rate in ₹) <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={priceRate}
-                      onChange={(e) => setPriceRate(e.target.value)}
-                      placeholder="ఉదా: ₹1,500/day లేదా ₹500/hour"
-                      required
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-teal-500"
-                    />
-                  </div>
-                </div>
-
-                {/* 5. యంత్రం ఉంటే Machine Details & అందుబాటులో ఉన్న రోజులు */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      🚜 యంత్రం ఉంటే Machine Model Details
-                    </label>
-                    <input
-                      type="text"
-                      value={machineDetails}
-                      onChange={(e) => setMachineDetails(e.target.value)}
-                      placeholder="ఉదా: Mahindra 575 DI / JCB 3DX"
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-teal-500"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-gray-200">
-                      📅 అందుబాటులో ఉన్న రోజులు (Available Days)
-                    </label>
-                    <input
-                      type="text"
-                      value={availableDays}
-                      onChange={(e) => setAvailableDays(e.target.value)}
-                      placeholder="ఉదా: ప్రతిరోజూ (All Days)"
-                      className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-teal-500"
-                    />
-                  </div>
-                </div>
-
-                {/* 6. వివరాలు & ఫోటో లింక్ */}
-                <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    సేవల వివరాలు (Service Details)
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={2}
-                    placeholder="మీ సేవలు, అనుభవం మరియు పని సమయాల వివరాలు..."
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-teal-500"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200">
-                    📷 ఫోటో లింక్ (Photo URL)
-                  </label>
-                  <input
-                    type="url"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full rounded-xl border border-[#1f2937] bg-[#030712] p-3 text-xs font-bold text-white focus:ring-2 focus:ring-teal-500"
-                  />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-600 via-emerald-600 to-indigo-600 hover:from-teal-700 hover:via-emerald-700 hover:to-indigo-700 text-white font-black text-sm shadow-xl shadow-teal-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
                 >
                   {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live SMS OTP పొందండి"}
                 </button>
@@ -759,27 +867,27 @@ export function ServicesRentalPage() {
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="inline-flex items-center gap-1 text-xs font-bold text-teal-400 hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-teal-600 hover:underline cursor-pointer"
                 >
                   <ArrowLeft className="size-3.5" />
                   <span>← వెనుకకు (Back to Details)</span>
                 </button>
 
-                <div className="p-4 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-xs font-bold text-teal-200 text-center space-y-1">
-                  <div className="flex items-center justify-center gap-1.5 font-black text-teal-400 text-sm">
+                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800 text-center space-y-1">
+                  <div className="flex items-center justify-center gap-1.5 font-black text-emerald-700 text-sm">
                     <ShieldCheck className="size-5" />
                     <span>SMS OTP Sent</span>
                   </div>
                   <p>📩 <strong>+91 {phone}</strong> మొబైల్‌కి 6-అంకెల OTP పంపబడింది.</p>
                   {demoOtpHint && (
-                    <p className="text-[10px] text-teal-400">
+                    <p className="text-[10px] text-emerald-600 font-bold">
                       (డెమో OTP కోడ్: <span className="font-black text-sm">{demoOtpHint}</span> లేదా 123456)
                     </p>
                   )}
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-extrabold text-gray-200 text-center block">
+                  <label className="font-extrabold text-slate-800 text-center block">
                     6-అంకెల OTP కోడ్‌ను ఇక్కడ నమోదు చేయండి
                   </label>
                   <input
@@ -789,14 +897,14 @@ export function ServicesRentalPage() {
                     placeholder="123456"
                     maxLength={6}
                     required
-                    className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-[#1f2937] bg-[#030712] p-3.5 text-white focus:ring-2 focus:ring-teal-500"
+                    className="w-full text-center tracking-widest text-xl font-black rounded-xl border border-slate-300 bg-slate-50 p-3.5 text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-black text-sm shadow-xl transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-xl shadow-emerald-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
                 >
                   {loading ? "ధృవీకరిస్తున్నాము..." : "✅ OTP ధృవీకరించు & సేవను ప్రచురించు"}
                 </button>
