@@ -161,19 +161,35 @@ export function saveStoredSellerProfile(profile: SellerProfile): void {
   } catch {}
 }
 
-// 📱 TWILIO / SMS 6-DIGIT OTP VERIFICATION SIMULATOR & EDGE PROXY
+// 📱 TWILIO / SMS 6-DIGIT OTP VERIFICATION WITH SUPABASE AUTH & FALLBACK
 let currentOTPMap: Record<string, string> = {};
 
 export async function sendSMSOTP(phone: string): Promise<{ success: boolean; otpDemo: string }> {
-  const cleanPhone = phone.replace(/\D/g, "");
-  // Generate 6-digit OTP
+  const cleanPhone = phone.replace(/\D/g, "").slice(-10);
+  const formattedPhone = `+91${cleanPhone}`;
+  
+  // Generate local demo OTP fallback
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   currentOTPMap[cleanPhone] = otp;
 
-  console.log(`📱 SMS OTP generated for ${cleanPhone}: ${otp}`);
+  console.log(`📱 Triggering Twilio SMS OTP for ${formattedPhone}...`);
 
-  // Try invoking Supabase Edge Function if Twilio proxy is set
+  // 1. Invoke Supabase Auth Phone Provider (Twilio integration configured in Supabase)
   if (supabase) {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: formattedPhone
+      });
+      if (!error) {
+        console.log(`✅ Supabase Auth Twilio SMS sent to ${formattedPhone}`);
+      } else {
+        console.warn("Supabase Auth signInWithOtp notice:", error.message);
+      }
+    } catch (e) {
+      console.warn("Supabase Auth invoke error:", e);
+    }
+
+    // 2. Also invoke Edge Function send-otp proxy if available
     try {
       await supabase.functions.invoke("send-otp", {
         body: { phone: cleanPhone, otp }
@@ -189,15 +205,42 @@ export async function verifySellerOTP(
   enteredOTP: string,
   name: string
 ): Promise<{ success: boolean; profile?: SellerProfile; error?: string }> {
-  const cleanPhone = phone.replace(/\D/g, "");
+  const cleanPhone = phone.replace(/\D/g, "").slice(-10);
+  const formattedPhone = `+91${cleanPhone}`;
   const expectedOTP = currentOTPMap[cleanPhone] || "123456";
 
-  if (enteredOTP.trim() !== expectedOTP && enteredOTP.trim() !== "123456") {
-    return { success: false, error: "చెల్లుబాటు కాని OTP (Invalid 6-Digit OTP)" };
+  let isVerified = false;
+
+  // 1. Try verifying via Supabase Auth Phone Provider first
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
+        phone: formattedPhone,
+        token: enteredOTP.trim(),
+        type: "sms"
+      });
+      if (!error && data?.session) {
+        isVerified = true;
+        console.log("✅ Verified via Supabase Auth Twilio SMS!");
+      }
+    } catch (e) {
+      console.warn("Supabase verifyOtp notice:", e);
+    }
+  }
+
+  // 2. Fallback to expected demo OTP or 123456
+  if (!isVerified) {
+    if (enteredOTP.trim() === expectedOTP || enteredOTP.trim() === "123456") {
+      isVerified = true;
+    }
+  }
+
+  if (!isVerified) {
+    return { success: false, error: "చెల్లుబాటు కాని 6-అంకెల OTP (Invalid OTP Code)" };
   }
 
   const profile: SellerProfile = {
-    name: name.trim() || "Verfied Seller",
+    name: name.trim() || "Verified Seller",
     phone: cleanPhone,
     is_verified: true
   };
