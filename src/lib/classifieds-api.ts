@@ -148,7 +148,7 @@ export const SEED_CLASSIFIEDS: ClassifiedItem[] = [
 // 👤 PROFILE SESSION HELPERS (LocalStorage: vaartanow_user_profile)
 export function getStoredSellerProfile(): SellerProfile | null {
   try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_PROFILE_KEY);
+    const raw = localStorage.getItem(LOCAL_STORAGE_PROFILE_KEY) || localStorage.getItem("vizag_user_profile");
     if (raw) return JSON.parse(raw);
   } catch {}
   return null;
@@ -157,6 +157,7 @@ export function getStoredSellerProfile(): SellerProfile | null {
 export function saveStoredSellerProfile(profile: SellerProfile): void {
   try {
     localStorage.setItem(LOCAL_STORAGE_PROFILE_KEY, JSON.stringify(profile));
+    localStorage.setItem("vizag_user_profile", JSON.stringify(profile));
   } catch {}
 }
 
