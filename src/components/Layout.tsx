@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles } from "lucide-react";
+import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles, Sprout, Wrench, UtensilsCrossed } from "lucide-react";
 import { useEffect, useState } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
@@ -24,7 +24,8 @@ const categoryEmojis: Record<string, string> = {
 };
 
 export function Layout() {
-  const { pathname } = useLocation();
+  const location = useLocation();
+  const pathname = location.pathname;
   const { lang, changeLanguage } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
@@ -466,13 +467,13 @@ export function Layout() {
             to="/market"
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-16 h-14 transition-all ${
-                isActive ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
+                isActive && !location.search ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <ShoppingBag className={`size-5 mb-0.5 ${isActive ? "stroke-[2.5px]" : ""}`} />
+                <ShoppingBag className={`size-5 mb-0.5 ${isActive && !location.search ? "stroke-[2.5px]" : ""}`} />
                 <span className="text-[10px] font-black tracking-tight leading-none text-center">
                   మన మార్కెట్
                 </span>
@@ -480,20 +481,20 @@ export function Layout() {
             )}
           </NavLink>
 
-          {/* 2. ప్రకటనలు */}
+          {/* 2. రైతు పంటలు */}
           <NavLink
-            to="/prakatanalu"
+            to="/market?cat=agriculture"
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-16 h-14 transition-all ${
-                isActive ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
+                isActive && location.search.includes("agriculture") ? "text-emerald-600 dark:text-emerald-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <Megaphone className={`size-5 mb-0.5 ${isActive ? "stroke-[2.5px]" : ""}`} />
+                <Sprout className={`size-5 mb-0.5 text-emerald-500 ${isActive && location.search.includes("agriculture") ? "stroke-[2.5px]" : ""}`} />
                 <span className="text-[10px] font-black tracking-tight leading-none text-center">
-                  ప్రకటనలు
+                  రైతు పంటలు
                 </span>
               </>
             )}
@@ -513,39 +514,39 @@ export function Layout() {
             </span>
           </button>
 
-          {/* 4. మాట్లాడు AI */}
+          {/* 4. స్థానిక సేవలు */}
           <NavLink
-            to="/maatlaadu-ai"
+            to="/market?cat=services"
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-16 h-14 transition-all ${
-                isActive ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
+                isActive && location.search.includes("services") ? "text-teal-600 dark:text-teal-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <Bot className={`size-5 mb-0.5 ${isActive ? "stroke-[2.5px]" : ""}`} />
+                <Wrench className={`size-5 mb-0.5 text-teal-500 ${isActive && location.search.includes("services") ? "stroke-[2.5px]" : ""}`} />
                 <span className="text-[10px] font-black tracking-tight leading-none text-center">
-                  మాట్లాడు AI
+                  స్థానిక సేవలు
                 </span>
               </>
             )}
           </NavLink>
 
-          {/* 5. ప్రొఫైల్ */}
+          {/* 5. సంప్రదాయ వంటలు */}
           <NavLink
-            to="/login"
+            to="/category/devotional"
             className={({ isActive }) =>
               `flex flex-col items-center justify-center w-16 h-14 transition-all ${
-                isActive ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
+                isActive ? "text-amber-600 dark:text-amber-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <User className={`size-5 mb-0.5 ${isActive ? "stroke-[2.5px]" : ""}`} />
+                <UtensilsCrossed className={`size-5 mb-0.5 text-amber-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
                 <span className="text-[10px] font-black tracking-tight leading-none text-center">
-                  ప్రొఫైల్
+                  సంప్రదాయ వంటలు
                 </span>
               </>
             )}
