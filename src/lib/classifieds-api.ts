@@ -378,3 +378,56 @@ export async function updateClassifiedStatus(
 
   return true;
 }
+
+// ✏️ UPDATE FULL CLASSIFIED ITEM
+export async function updateClassifiedItem(
+  id: string,
+  updates: Partial<ClassifiedItem>
+): Promise<boolean> {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_POSTS_KEY);
+    if (raw) {
+      const posts: ClassifiedItem[] = JSON.parse(raw);
+      const updated = posts.map((p) => (p.id === id ? { ...p, ...updates, updated_at: new Date().toISOString() } : p));
+      localStorage.setItem(LOCAL_STORAGE_POSTS_KEY, JSON.stringify(updated));
+    }
+  } catch {}
+
+  if (supabase && !id.startsWith("cf_")) {
+    try {
+      await supabase
+        .from("classifieds")
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq("id", id);
+    } catch (e) {
+      console.warn("Supabase item update notice:", e);
+    }
+  }
+
+  return true;
+}
+
+// 🗑️ DELETE / DEACTIVATE CLASSIFIED ITEM
+export async function deleteClassifiedItem(id: string): Promise<boolean> {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_POSTS_KEY);
+    if (raw) {
+      const posts: ClassifiedItem[] = JSON.parse(raw);
+      const updated = posts.filter((p) => p.id !== id);
+      localStorage.setItem(LOCAL_STORAGE_POSTS_KEY, JSON.stringify(updated));
+    }
+  } catch {}
+
+  if (supabase && !id.startsWith("cf_")) {
+    try {
+      await supabase
+        .from("classifieds")
+        .update({ is_active: false, updated_at: new Date().toISOString() })
+        .eq("id", id);
+    } catch (e) {
+      console.warn("Supabase item deactivate notice:", e);
+    }
+  }
+
+  return true;
+}
