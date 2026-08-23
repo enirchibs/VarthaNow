@@ -8,6 +8,7 @@ export type ClassifiedCategory =
   | "property"
   | "services"
   | "building_materials"
+  | "clothing_fashion"
   | "other";
 
 export type ClassifiedStatus = "available" | "sold";
@@ -41,6 +42,40 @@ const LOCAL_STORAGE_POSTS_KEY = "vaartanow_user_classifieds";
 
 // 📦 RICH SEEDED MOCK FALLBACK DATASET
 export const SEED_CLASSIFIEDS: ClassifiedItem[] = [
+  {
+    id: "cf_fashion1",
+    seller_name: "పట్టుచీరల నిలయం (Pattu Sarees & Women's Fashion)",
+    category: "clothing_fashion",
+    title: "🥻 మంగళగిరి & పట్టు చీరలు, డిజైనర్ బ్లౌజులు & కుర్తీలు",
+    description: "👩 మహిళల దుస్తులు | 🥻 చీరలు & బ్లౌజులు | 💍 ఫ్యాషన్ జ్యువెలరీ | 💄 కాస్మెటిక్స్. స్పెషల్ హ్యాండ్‌లూమ్ పట్టు చీరలు, చుడీదార్లు & డిజైనర్ మగ్గం వర్క్ బ్లౌజులు.",
+    price: "₹1,800 ప్రారంభం",
+    locality: "ఎంవీపీ కాలనీ (MVP Colony, Vizag)",
+    contact: "9876543212",
+    images: ["https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80"],
+    status: "available",
+    offer_discount: "10% ఆఫర్ పండగ సేల్‌లో",
+    free_items: "🚚 ఉచిత హోమ్ డెలివరీ",
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "cf_fashion2",
+    seller_name: "మెన్స్ ఫ్యాషన్ & జెంట్స్ వేర్ (Men's & Kids Fashion)",
+    category: "clothing_fashion",
+    title: "👨 పురుషుల షర్టులు, ప్యాంట్లు, T-షర్టులు & 🧒 పిల్లల దుస్తులు",
+    description: "👨 పురుషుల దుస్తులు | 🧒 పిల్లల దుస్తులు | 👟 ఫుట్‌వేర్ & బ్యాగులు | 🧵 టైలరింగ్ సేవలు. ప్రీమియం కాటన్ షర్టులు, జీన్స్, T-షర్టులు & కిడ్స్ పార్టీ డ్రెస్సులు.",
+    price: "₹450 ప్రారంభం",
+    locality: "గాజువాక (Gajuwaka, Vizag)",
+    contact: "9876543213",
+    images: ["https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80"],
+    status: "available",
+    offer_discount: "Buy 2 Get 1 Free",
+    free_items: "ఉచిత ఆల్టరేషన్స్ సేవ",
+    is_active: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
   {
     id: "cf_bm1",
     seller_name: "శ్రీ లక్ష్మి సిమెంట్ & హార్డ్‌వేర్ (Sri Lakshmi Cement & Hardware)",

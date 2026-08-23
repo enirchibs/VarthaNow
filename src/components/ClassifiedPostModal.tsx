@@ -239,6 +239,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                   <option value="furniture">🛋️ ఫర్నిచర్ (Furniture & Appliances)</option>
                   <option value="vehicles">🚗 వాహనాలు & బైక్‌లు (Vehicles & Bikes)</option>
                   <option value="building_materials">🏗️ బిల్డింగ్ & హోమ్ మెటీరియల్స్ (Building & Home Materials)</option>
+                  <option value="clothing_fashion">👗 దుస్తులు & ఫ్యాషన్ (Clothing & Fashion)</option>
                   <option value="services">🔧 స్థానిక సేవలు (Services & Repairs)</option>
                   <option value="agriculture">🌾 వ్యవసాయం & రైతు పంటలు (Agriculture & Crops)</option>
                   <option value="other">🎁 ఇతర / ఉచిత వస్తువులు (Other & Free Items)</option>

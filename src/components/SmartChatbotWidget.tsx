@@ -135,6 +135,16 @@ export function SmartChatbotWidget() {
       return;
     }
 
+    // Intent 2.6: Clothing & Fashion
+    if (q.includes("fashion") || q.includes("dress") || q.includes("saree") || q.includes("దుస్తులు") || q.includes("చీరలు") || q.includes("షర్టు") || q.includes("ఫుట్‌వేర్")) {
+      respondAndNavigate(
+        "👗 దుస్తులు & ఫ్యాషన్ పేజీకి తీసుకెళ్తున్నాను... (Navigating to Clothing & Fashion...)",
+        "దుస్తులు & ఫ్యాషన్ వెళ్లండి ➔",
+        "/market?cat=clothing_fashion"
+      );
+      return;
+    }
+
     // Intent 3: Mahila Market
     if (q.includes("mahila") || q.includes("మహిళా") || q.includes("పచ్చళ్ళు") || q.includes("కారం") || q.includes("చీరలు")) {
       respondAndNavigate(
@@ -355,6 +365,7 @@ export function SmartChatbotWidget() {
                 { title: "💼 ఉద్యోగాలు", path: "/jobs" },
                 { title: "🛍️ కొనడం / అమ్మడం", path: "/market" },
                 { title: "🏗️ బిల్డింగ్ మెటీరియల్స్", path: "/market?cat=building_materials" },
+                { title: "👗 దుస్తులు & ఫ్యాషన్", path: "/market?cat=clothing_fashion" },
                 { title: "🌸 మహిళా మార్కెట్", path: "/mahila-market" },
                 { title: "🔧 సేవలు & అద్దెకు", path: "/services" },
                 { title: "🌾 రైతు మార్కెట్", path: "/raitu-bazar" },
