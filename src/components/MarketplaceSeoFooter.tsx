@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Search, MapPin, Tag, Globe, Sparkles, Building, Smartphone, Car, Home as HomeIcon, Sofa } from "lucide-react";
-import { Link } from "react-router-dom";
 
 type SeoCategory = "mobiles" | "vehicles" | "furniture" | "property";
 
@@ -135,16 +134,16 @@ export function MarketplaceSeoFooter() {
   ];
 
   return (
-    <footer className="mt-12 rounded-[2.2rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 sm:p-8 space-y-6 shadow-sm">
+    <footer className="mt-12 rounded-[2.2rem] border border-[#1f2937] bg-[#111827] text-white p-6 sm:p-8 space-y-6 shadow-md">
       
       {/* Footer Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[hsl(var(--border))]/60 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1f2937] pb-4">
         <div>
-          <span className="inline-flex items-center gap-1.5 text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">
+          <span className="inline-flex items-center gap-1.5 text-xs font-black text-[#2563eb] uppercase tracking-widest">
             <Globe className="size-3.5" />
             Hyperlocal SEO Directory
           </span>
-          <h3 className="text-lg font-black text-[hsl(var(--foreground))] mt-0.5">
+          <h3 className="text-lg font-black text-white mt-0.5">
             మన మార్కెట్ స్థానిక శోధన డైరెక్టరీ (Hyperlocal Directory)
           </h3>
         </div>
@@ -160,10 +159,10 @@ export function MarketplaceSeoFooter() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as SeoCategory)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-black transition cursor-pointer whitespace-nowrap ${
+              className={`px-4 py-2 rounded-full text-xs font-black transition cursor-pointer whitespace-nowrap min-h-[44px] touch-manipulation active:scale-95 ${
                 activeTab === tab.id
-                  ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]/80"
+                  ? "bg-[#2563eb] text-white shadow-sm"
+                  : "bg-[#030712] text-gray-400 border border-[#1f2937] hover:bg-[#1f2937] hover:text-white"
               }`}
             >
               {tab.label}
@@ -177,13 +176,13 @@ export function MarketplaceSeoFooter() {
         
         {/* Column 1: Central City */}
         <div className="space-y-2.5">
-          <h4 className="text-xs font-black text-[hsl(var(--foreground))] flex items-center gap-1.5 border-b border-[hsl(var(--border))]/40 pb-1">
-            <MapPin className="size-3.5 text-blue-500" />
+          <h4 className="text-xs font-black text-white flex items-center gap-1.5 border-b border-[#1f2937] pb-1.5">
+            <MapPin className="size-3.5 text-[#2563eb]" />
             1. Central City
           </h4>
-          <ul className="space-y-1.5 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+          <ul className="space-y-2 text-xs font-semibold text-gray-400">
             {seoData[activeTab].central.map((item, idx) => (
-              <li key={idx} className="hover:text-blue-600 transition truncate cursor-pointer">
+              <li key={idx} className="hover:text-[#2563eb] transition truncate cursor-pointer py-1">
                 • {item.label}
               </li>
             ))}
@@ -192,13 +191,13 @@ export function MarketplaceSeoFooter() {
 
         {/* Column 2: East & Beach Belt */}
         <div className="space-y-2.5">
-          <h4 className="text-xs font-black text-[hsl(var(--foreground))] flex items-center gap-1.5 border-b border-[hsl(var(--border))]/40 pb-1">
-            <MapPin className="size-3.5 text-emerald-500" />
+          <h4 className="text-xs font-black text-white flex items-center gap-1.5 border-b border-[#1f2937] pb-1.5">
+            <MapPin className="size-3.5 text-[#16a34a]" />
             2. East & Beach Belt
           </h4>
-          <ul className="space-y-1.5 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+          <ul className="space-y-2 text-xs font-semibold text-gray-400">
             {seoData[activeTab].east.map((item, idx) => (
-              <li key={idx} className="hover:text-blue-600 transition truncate cursor-pointer">
+              <li key={idx} className="hover:text-[#2563eb] transition truncate cursor-pointer py-1">
                 • {item.label}
               </li>
             ))}
@@ -207,13 +206,13 @@ export function MarketplaceSeoFooter() {
 
         {/* Column 3: North Suburbs */}
         <div className="space-y-2.5">
-          <h4 className="text-xs font-black text-[hsl(var(--foreground))] flex items-center gap-1.5 border-b border-[hsl(var(--border))]/40 pb-1">
+          <h4 className="text-xs font-black text-white flex items-center gap-1.5 border-b border-[#1f2937] pb-1.5">
             <MapPin className="size-3.5 text-amber-500" />
             3. North Suburbs
           </h4>
-          <ul className="space-y-1.5 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+          <ul className="space-y-2 text-xs font-semibold text-gray-400">
             {seoData[activeTab].north.map((item, idx) => (
-              <li key={idx} className="hover:text-blue-600 transition truncate cursor-pointer">
+              <li key={idx} className="hover:text-[#2563eb] transition truncate cursor-pointer py-1">
                 • {item.label}
               </li>
             ))}
@@ -222,13 +221,13 @@ export function MarketplaceSeoFooter() {
 
         {/* Column 4: Industrial Hubs & South */}
         <div className="space-y-2.5">
-          <h4 className="text-xs font-black text-[hsl(var(--foreground))] flex items-center gap-1.5 border-b border-[hsl(var(--border))]/40 pb-1">
+          <h4 className="text-xs font-black text-white flex items-center gap-1.5 border-b border-[#1f2937] pb-1.5">
             <MapPin className="size-3.5 text-purple-500" />
             4. Industrial Hubs & South
           </h4>
-          <ul className="space-y-1.5 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+          <ul className="space-y-2 text-xs font-semibold text-gray-400">
             {seoData[activeTab].industrial.map((item, idx) => (
-              <li key={idx} className="hover:text-blue-600 transition truncate cursor-pointer">
+              <li key={idx} className="hover:text-[#2563eb] transition truncate cursor-pointer py-1">
                 • {item.label}
               </li>
             ))}
@@ -238,8 +237,8 @@ export function MarketplaceSeoFooter() {
       </div>
 
       {/* Localities Tag Cloud */}
-      <div className="border-t border-[hsl(var(--border))]/60 pt-4 space-y-2">
-        <h4 className="text-xs font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider flex items-center gap-1.5">
+      <div className="border-t border-[#1f2937] pt-4 space-y-2.5">
+        <h4 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
           <Sparkles className="size-3.5 text-amber-500" />
           విశాఖ & తెలుగు రాష్ట్రాల ట్రెండింగ్ శోధనలు (Trending Local Search Tags):
         </h4>
@@ -248,7 +247,7 @@ export function MarketplaceSeoFooter() {
           {tagCloud.map((tag, idx) => (
             <span
               key={idx}
-              className="px-3 py-1 rounded-full bg-[hsl(var(--muted))] text-[11px] font-bold text-[hsl(var(--foreground))] hover:bg-blue-600 hover:text-white transition cursor-pointer border border-[hsl(var(--border))]/40"
+              className="px-3.5 py-1.5 rounded-full bg-[#030712] text-[11px] font-bold text-gray-300 hover:bg-[#2563eb] hover:text-white transition cursor-pointer border border-[#1f2937] min-h-[36px] flex items-center active:scale-95 touch-manipulation"
             >
               {tag}
             </span>
