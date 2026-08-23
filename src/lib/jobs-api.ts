@@ -163,46 +163,97 @@ export const mockJobs: VaartanowJob[] = [
 export function formatJobTitleTelugu(title?: string): string {
   if (!title) return "ఉద్యోగ ప్రకటన (Job Vacancy)";
   
-  // If the title already contains Telugu characters, return it
+  // If the title already contains Telugu characters, return it cleanly
   if (/[\u0C00-\u0C7F]/.test(title)) {
     return title;
   }
 
   const t = title.toLowerCase();
-  
-  // IT & Tech Roles
-  if (t.includes("react") && t.includes("developer")) return `రియాక్ట్ డెవలపర్ (${title})`;
+
+  // 1. Management & Leadership Roles
+  if (t.includes("technical manager") || t.includes("tech manager")) return `టెక్నికల్ మేనేజర్ (${title})`;
+  if (t.includes("engineering manager")) return `ఇంజనీరింగ్ మేనేజర్ (${title})`;
+  if (t.includes("project manager") || t.includes("program manager")) return `ప్రాజెక్ట్ మేనేజర్ (${title})`;
+  if (t.includes("product manager")) return `ప్రొడక్ట్ మేనేజర్ (${title})`;
+  if (t.includes("operations manager") || t.includes("operation manager")) return `ఆపరేషన్స్ మేనేజర్ (${title})`;
+  if (t.includes("general manager") || t.includes(" gm ")) return `జనరల్ మేనేజర్ (${title})`;
+  if (t.includes("branch manager")) return `బ్రాంచ్ మేనేజర్ (${title})`;
+  if (t.includes("store manager") || t.includes("showroom manager") || t.includes("shop manager")) return `స్టోర్ మేనేజర్ (${title})`;
+  if (t.includes("sales manager")) return `సేల్స్ మేనేజర్ (${title})`;
+  if (t.includes("marketing manager")) return `మార్కెటింగ్ మేనేజర్ (${title})`;
+  if (t.includes("finance manager") || t.includes("accounts manager")) return `ఫైనాన్స్ & అకౌంట్స్ మేనేజర్ (${title})`;
+  if (t.includes("relationship manager") || t.includes("rm -") || t.includes("bank rm")) return `రిలేషన్‌షిప్ మేనేజర్ (${title})`;
+  if (t.includes("quality manager") || t.includes("qa manager")) return `క్వాలిటీ మేనేజర్ (${title})`;
+  if (t.includes("assistant manager") || t.includes("ast. manager")) return `అసిస్టెంట్ మేనేజర్ (${title})`;
+  if (t.includes("deputy manager")) return `డిప్యూటీ మేనేజర్ (${title})`;
+  if (t.includes("manager")) return `మేనేజర్ (${title})`;
+
+  // 2. Technical Leads & Architects
+  if (t.includes("tech lead") || t.includes("technical lead") || t.includes("team lead") || t.includes("team leader")) return `టెక్నికల్ టీమ్ లీడ్ (${title})`;
+  if (t.includes("architect") || t.includes("solution architect") || t.includes("cloud architect")) return `సొల్యూషన్ ఆర్కిటెక్ట్ (${title})`;
+  if (t.includes("scrum master") || t.includes("agile coach")) return `స్క్రమ్ మాస్టర్ (${title})`;
+  if (t.includes("consultant") || t.includes("advisor")) return `కన్సల్టెంట్ (${title})`;
+  if (t.includes("business analyst") || t.includes("system analyst")) return `బిజినెస్ అనలిస్ట్ (${title})`;
+
+  // 3. Software Developers & Engineers
+  if (t.includes("react") && (t.includes("developer") || t.includes("engineer"))) return `రియాక్ట్ డెవలపర్ (${title})`;
   if (t.includes("next.js") || t.includes("nextjs")) return `నెక్స్ట్‌జేఎస్ డెవలపర్ (${title})`;
+  if (t.includes("angular") && (t.includes("developer") || t.includes("engineer"))) return `యాంగులర్ డెవలపర్ (${title})`;
+  if (t.includes("vue") && (t.includes("developer") || t.includes("engineer"))) return `వ్యూ జేఎస్ డెవలపర్ (${title})`;
   if (t.includes("frontend") || t.includes("front end") || t.includes("front-end")) return `ఫ్రంటెండ్ డెవలపర్ (${title})`;
   if (t.includes("backend") || t.includes("back end") || t.includes("back-end")) return `బ్యాకెండ్ డెవలపర్ (${title})`;
   if (t.includes("full stack") || t.includes("fullstack") || t.includes("full-stack")) return `ఫుల్‌స్టాక్ డెవలపర్ (${title})`;
-  if (t.includes("software engineer") || t.includes("software developer")) return `సాఫ్ట్‌వేర్ ఇంజనీర్ (${title})`;
+  if (t.includes("python") && (t.includes("developer") || t.includes("engineer"))) return `పైథాన్ డెవలపర్ (${title})`;
+  if (t.includes("java") && (t.includes("developer") || t.includes("engineer"))) return `జావా డెవలపర్ (${title})`;
+  if (t.includes("node") && (t.includes("developer") || t.includes("engineer"))) return `నోడ్ జేఎస్ డెవలపర్ (${title})`;
+  if (t.includes("flutter") || t.includes("react native") || t.includes("ios developer") || t.includes("android developer") || t.includes("mobile app")) return `మొబైల్ యాప్ డెవలపర్ (${title})`;
+  if (t.includes("software engineer") || t.includes("software developer") || t.includes("programmer") || t.includes("coder")) return `సాఫ్ట్‌వేర్ ఇంజనీర్ (${title})`;
   if (t.includes("trainee") || t.includes("fresher")) return `ట్రైనీ ఇంజనీర్ / ఫ్రెషర్ (${title})`;
-  if (t.includes("data analyst")) return `డేటా అనలిస్ట్ (${title})`;
+
+  // 4. Data, AI & Cloud
+  if (t.includes("ai engineer") || t.includes("machine learning") || t.includes("ml engineer") || t.includes("artificial intelligence")) return `ఏఐ & మెషిన్ లెర్నింగ్ ఇంజనీర్ (${title})`;
   if (t.includes("data scientist")) return `డేటా సైంటిస్ట్ (${title})`;
-  if (t.includes("devops") || t.includes("cloud")) return `డెవాప్స్ & క్లౌడ్ ఇంజనీర్ (${title})`;
-  if (t.includes("qa") || t.includes("tester") || t.includes("test engineer")) return `టెస్టింగ్ ఇంజనీర్ (${title})`;
-  if (t.includes("ui/ux") || t.includes("ui ux") || t.includes("designer")) return `యూఐ/యూఎక్స్ డిజైనర్ (${title})`;
-  if (t.includes("graphic designer")) return `గ్రాఫిక్ డిజైనర్ (${title})`;
+  if (t.includes("data analyst")) return `డేటా అనలిస్ట్ (${title})`;
+  if (t.includes("data engineer")) return `డేటా ఇంజనీర్ (${title})`;
+  if (t.includes("devops") || t.includes("cloud engineer") || t.includes("aws") || t.includes("azure")) return `డెవాప్స్ & క్లౌడ్ ఇంజనీర్ (${title})`;
+  if (t.includes("sysadmin") || t.includes("system admin") || t.includes("network engineer") || t.includes("it support")) return `సిస్టమ్ & నెట్‌వర్క్ ఇంజనీర్ (${title})`;
+  if (t.includes("cyber security") || t.includes("cybersecurity") || t.includes("security analyst") || t.includes("soc analyst")) return `సైబర్ సెక్యూరిటీ అనలిస్ట్ (${title})`;
+  if (t.includes("dba") || t.includes("database admin") || t.includes("sql developer")) return `డేటాబేస్ అడ్మినిస్ట్రేటర్ (${title})`;
 
-  // Business, Marketing & Operations
-  if (t.includes("marketing") || t.includes("digital marketing")) return `డిజిటల్ మార్కెటింగ్ (${title})`;
-  if (t.includes("content writer") || t.includes("copywriter")) return `కంటెంట్ రైటర్ (${title})`;
+  // 5. QA, UI/UX & Design
+  if (t.includes("qa") || t.includes("tester") || t.includes("quality assurance") || t.includes("test engineer")) return `టెస్టింగ్ ఇంజనీర్ (${title})`;
+  if (t.includes("ui/ux") || t.includes("ui ux") || t.includes("ui designer") || t.includes("ux designer")) return `యూఐ/యూఎక్స్ డిజైనర్ (${title})`;
+  if (t.includes("graphic designer") || t.includes("photoshop") || t.includes("video editor") || t.includes("animator")) return `గ్రాఫిక్ డిజైనర్ / ఎడిటర్ (${title})`;
+
+  // 6. Business, Marketing & Operations
+  if (t.includes("marketing") || t.includes("digital marketing") || t.includes("seo") || t.includes("social media")) return `డిజిటల్ మార్కెటింగ్ (${title})`;
+  if (t.includes("content writer") || t.includes("copywriter") || t.includes("content creator")) return `కంటెంట్ రైటర్ (${title})`;
   if (t.includes("translator") || t.includes("translation")) return `తెలుగు అనువాదకుడు / ట్రాన్స్‌లేటర్ (${title})`;
-  if (t.includes("data entry") || t.includes("typing")) return `డేటా ఎంట్రీ ఆపరేటర్ (${title})`;
-  if (t.includes("hr ") || t.includes("human resource") || t.includes("recruiter")) return `హెచ్‌ఆర్ రిక్రూటర్ (${title})`;
-  if (t.includes("accountant") || t.includes("accounting") || t.includes("tally")) return `అకౌంటెంట్ (${title})`;
-  if (t.includes("sales") || t.includes("business development") || t.includes("bde")) return `సేల్స్ ఎగ్జిక్యూటివ్ (${title})`;
-  if (t.includes("telecaller") || t.includes("bpo") || t.includes("customer care") || t.includes("customer support")) return `కస్టమర్ కేర్ / టెలికాలర్ (${title})`;
-  if (t.includes("office assistant") || t.includes("front office") || t.includes("admin")) return `ఆఫీస్ అసిస్టెంట్ (${title})`;
+  if (t.includes("data entry") || t.includes("typing") || t.includes("computer operator")) return `డేటా ఎంట్రీ ఆపరేటర్ (${title})`;
+  if (t.includes("hr ") || t.includes("human resource") || t.includes("recruiter") || t.includes("talent acquisition")) return `హెచ్‌ఆర్ రిక్రూటర్ (${title})`;
+  if (t.includes("accountant") || t.includes("accounting") || t.includes("tally") || t.includes("auditor") || t.includes("ca inter")) return `అకౌంటెంట్ (${title})`;
+  if (t.includes("sales") || t.includes("business development") || t.includes("bde") || t.includes("field sales")) return `సేల్స్ ఎగ్జిక్యూటివ్ (${title})`;
+  if (t.includes("telecaller") || t.includes("bpo") || t.includes("customer care") || t.includes("customer support") || t.includes("call center")) return `కస్టమర్ కేర్ / టెలికాలర్ (${title})`;
+  if (t.includes("office assistant") || t.includes("front office") || t.includes("admin assistant") || t.includes("receptionist") || t.includes("front desk")) return `ఆఫీస్ అసిస్టెంట్ / రిసెప్షనిస్ట్ (${title})`;
+  if (t.includes("cashier") || t.includes("billing")) return `క్యాషియర్ / బిల్లింగ్ ఆపరేటర్ (${title})`;
+  if (t.includes("supervisor")) return `సూపర్‌వైజర్ (${title})`;
 
-  // Logistics, Services, Teachers & Public Sector
-  if (t.includes("delivery") || t.includes("courier")) return `డెలివరీ ఎగ్జిక్యూటివ్ (${title})`;
-  if (t.includes("driver")) return `డ్రైవర్ (${title})`;
-  if (t.includes("technician") || t.includes("electrician")) return `టెక్నీషియన్ / ఎలక్ట్రీషియన్ (${title})`;
-  if (t.includes("teacher") || t.includes("tutor") || t.includes("faculty") || t.includes("trainer")) return `టీచర్ / ట్రైనర్ (${title})`;
-  if (t.includes("appsc") || t.includes("tspsc") || t.includes("government") || t.includes("police") || t.includes("railway") || t.includes("ssc")) return `ప్రభుత్వ ఉద్యోగం (${title})`;
+  // 7. Core Engineering & Construction
+  if (t.includes("civil engineer") || t.includes("site engineer") || t.includes("site supervisor")) return `సివిల్ & సైట్ ఇంజనీర్ (${title})`;
+  if (t.includes("mechanical engineer") || t.includes("autocad")) return `మెకానికల్ ఇంజనీర్ (${title})`;
+  if (t.includes("electrical engineer") || t.includes("electrician")) return `ఎలక్ట్రికల్ ఇంజనీర్ / ఎలక్ట్రీషియన్ (${title})`;
 
+  // 8. Healthcare, Teaching, Logistics & Public Sector
+  if (t.includes("pharmacist") || t.includes("pharmacy") || t.includes("nurse") || t.includes("nursing") || t.includes("doctor") || t.includes("lab technician")) return `మెడికల్ & హెల్త్‌కేర్ స్టాఫ్ (${title})`;
+  if (t.includes("teacher") || t.includes("tutor") || t.includes("faculty") || t.includes("trainer") || t.includes("professor") || t.includes("lecturer")) return `టీచర్ / లెక్చరర్ / ట్రైనర్ (${title})`;
+  if (t.includes("delivery") || t.includes("courier") || t.includes("zomato") || t.includes("swiggy")) return `డెలివరీ బాయ్ / ఎగ్జిక్యూటివ్ (${title})`;
+  if (t.includes("driver") || t.includes("chauffeur")) return `డ్రైవర్ (${title})`;
+  if (t.includes("security") || t.includes("guard")) return `సెక్యూరిటీ గార్డ్ (${title})`;
+  if (t.includes("helper") || t.includes("attender") || t.includes("peon") || t.includes("worker") || t.includes("housekeeping")) return `హెల్పర్ / అటెండర్ (${title})`;
+  if (t.includes("cook") || t.includes("chef")) return `వంట మాస్టర్ / చెఫ్ (${title})`;
+  if (t.includes("appsc") || t.includes("tspsc") || t.includes("government") || t.includes("police") || t.includes("railway") || t.includes("ssc") || t.includes("upsc") || t.includes("govt")) return `ప్రభుత్వ ఉద్యోగం (${title})`;
+
+  // Default fallback with clear Telugu indicator
   return `ఉద్యోగం: ${title}`;
 }
 
