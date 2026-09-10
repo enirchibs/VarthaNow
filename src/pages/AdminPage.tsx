@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { 
   BarChart3, Edit3, Eye, Search, Star, Trash2, Sparkles, Upload, Activity,
   Plus, RefreshCw, Play, CheckCircle2, XCircle, Clock, AlertTriangle, ListFilter,
-  ArrowRight, ShieldCheck, User, LogOut, ChevronRight
+  ArrowRight, ShieldCheck, User, LogOut, ChevronRight, Volume2
 } from "lucide-react";
 import type { BlogPost, NewsCategory } from "@/types/news";
 import { createPost, deletePost, getAdminPosts, updatePost } from "@/lib/news-api";
@@ -12,6 +12,7 @@ import { Button, Input } from "@/components/ui";
 import { setMeta } from "@/lib/seo";
 import { useLanguage, type Language } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
+import { TTSAdminDashboard } from "@/components/admin/TTSAdminDashboard";
 
 interface RssFeed {
   id: string;
@@ -42,7 +43,7 @@ interface PipelineJob {
   created_at: string;
 }
 
-type TabType = "articles" | "writer" | "feeds" | "queue";
+type TabType = "articles" | "writer" | "feeds" | "queue" | "tts";
 
 export function AdminPage() {
   const navigate = useNavigate();
@@ -672,6 +673,7 @@ export function AdminPage() {
           { id: "writer", label: "AI Generator", icon: Sparkles },
           { id: "feeds", label: "RSS Feeds", icon: Play },
           { id: "queue", label: "Queue Monitor", icon: Clock },
+          { id: "tts", label: "Telugu TTS Engine", icon: Volume2 },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -1337,6 +1339,9 @@ export function AdminPage() {
             </div>
           </div>
         )}
+
+        {/* ==================== TAB 5: TELUGU TTS ENGINE ==================== */}
+        {activeTab === "tts" && <TTSAdminDashboard />}
       </section>
 
       {/* ==================== EDIT ARTICLE MODAL SECTION (INLINE BOTTOM) ==================== */}
