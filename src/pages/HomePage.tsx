@@ -398,16 +398,6 @@ export function HomePage() {
             📍 {lang === "te" ? "మీ ప్రాంతం" : "Near You"}
           </button>
         </div>
-
-        {/* 🔀 Refresh & Shuffle Feed Button */}
-        <Button
-          onClick={handleRefreshShuffle}
-          disabled={isRefreshing}
-          className="h-8.5 px-3.5 rounded-full text-xs font-black bg-gradient-to-r from-red-600 to-indigo-600 text-white shadow-sm hover:shadow-md active:scale-95 transition flex items-center gap-1.5 shrink-0"
-        >
-          <RefreshCw className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
-          <span>{translations.shuffleBtn[lang] || translations.shuffleBtn.te}</span>
-        </Button>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
