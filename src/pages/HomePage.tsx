@@ -315,6 +315,79 @@ export function HomePage() {
         </section>
       )}
 
+      {/* 🏷️ MIDDLE FILTER TABS STRIP (BETWEEN GALLERY & NEWS ARTICLES) */}
+      <div className="flex flex-wrap items-center gap-2 py-2 px-1 my-1">
+        {/* All News / Latest News Tab */}
+        <button
+          onClick={() => setFeedMode("all")}
+          className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-black transition-all active:scale-95 cursor-pointer ${
+            feedMode === "all"
+              ? "bg-red-600 text-white shadow-md"
+              : "bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+          }`}
+        >
+          🌐 {translations.allNews[lang] || translations.allNews.te}
+        </button>
+
+        {/* Unread Tab */}
+        <button
+          onClick={() => setFeedMode("personalized")}
+          className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-black transition-all active:scale-95 cursor-pointer ${
+            feedMode === "personalized"
+              ? "bg-amber-500 text-white shadow-md"
+              : "bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+          }`}
+        >
+          👁️ {lang === "te" ? "చూడనివి" : "Unread"}
+        </button>
+
+        {/* Near You / Location Selector Tab */}
+        <div className="relative shrink-0">
+          <button
+            onClick={() => {
+              setFeedMode("location");
+              setShowLocationPicker(!showLocationPicker);
+            }}
+            className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center gap-1 ${
+              feedMode === "location"
+                ? "bg-emerald-600 text-white shadow-md"
+                : "bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+            }`}
+          >
+            <MapPin className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+            <span>📍 {selectedLocation || (lang === "te" ? "మీ ప్రాంతం" : "Near You")}</span>
+          </button>
+
+          {/* Location Selector Dropdown */}
+          {showLocationPicker && (
+            <div className="absolute left-0 mt-2 w-48 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 shadow-xl z-50 animate-in fade-in duration-200">
+              <div className="text-[10px] font-black text-[hsl(var(--muted-foreground))] px-2 py-1 uppercase tracking-wider flex justify-between items-center">
+                <span>Select Location</span>
+                <button onClick={handleDetectGPS} className="text-[9px] text-blue-500 hover:underline">Auto-GPS</button>
+              </div>
+              <div className="max-h-48 overflow-y-auto space-y-1 mt-1 no-scrollbar">
+                {["Hyderabad", "Vijayawada", "Visakhapatnam", "Tirupati", "Guntur", "Warangal", "Nellore", "Kakinada", "Rajahmundry", "Kurnool", "Anantapur", "Karimnagar", "Khammam", "Nizamabad"].map((city) => (
+                  <button
+                    key={city}
+                    onClick={() => {
+                      setSelectedLocation(city);
+                      setShowLocationPicker(false);
+                      setFeedMode("location");
+                    }}
+                    className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl font-bold transition flex items-center justify-between ${
+                      selectedLocation === city ? "bg-red-600 text-white" : "hover:bg-[hsl(var(--muted))]"
+                    }`}
+                  >
+                    <span>{city}</span>
+                    {selectedLocation === city && <span className="text-[10px]">✓</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-4">
           <NewsGrid posts={feed.posts.slice(numSlides)} loading={feed.loading} />
