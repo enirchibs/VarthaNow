@@ -315,105 +315,99 @@ export function HomePage() {
         </section>
       )}
 
-      {/* 🔀 FEED PERSONALIZATION & SHUFFLE TOOLBAR */}
-      <section className="rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 shadow-sm space-y-3">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[hsl(var(--border))]/50 pb-3">
-          <div className="flex items-center gap-2">
-            <Newspaper className="size-5 text-[hsl(var(--primary))]" />
-            <h2 className="text-lg md:text-xl font-black">
+      {/* 🔀 STREAMLINED SINGLE-ROW TOOLBAR */}
+      <section className="flex flex-wrap items-center justify-between gap-2.5 py-1 px-1">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Title Header */}
+          <div className="flex items-center gap-2 mr-1">
+            <Newspaper className="size-5 text-red-600 dark:text-red-500" />
+            <h2 className="text-lg md:text-xl font-black text-[hsl(var(--foreground))]">
               {translations.title[lang] || translations.title.te}
             </h2>
-            <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-black text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-              {feed.posts.length} {lang === "te" ? "కథనాలు" : "Articles Loaded"}
-            </span>
           </div>
 
-          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-            {/* Location Selector Pill */}
-            <div className="relative">
-              <button
-                onClick={() => setShowLocationPicker(!showLocationPicker)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black rounded-full bg-[hsl(var(--muted))] hover:bg-emerald-500/10 hover:text-emerald-600 transition border border-[hsl(var(--border))]"
-              >
-                <MapPin className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-                <span>📍 {selectedLocation}</span>
-              </button>
-
-              {/* Location Selector Modal / Dropdown */}
-              {showLocationPicker && (
-                <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 shadow-xl z-50 animate-in fade-in duration-200">
-                  <div className="text-[10px] font-black text-[hsl(var(--muted-foreground))] px-2 py-1 uppercase tracking-wider flex justify-between items-center">
-                    <span>Select Location</span>
-                    <button onClick={handleDetectGPS} className="text-[9px] text-blue-500 hover:underline">Auto-GPS</button>
-                  </div>
-                  <div className="max-h-48 overflow-y-auto space-y-1 mt-1 no-scrollbar">
-                    {CITIES.map((city) => (
-                      <button
-                        key={city}
-                        onClick={() => {
-                          setSelectedLocation(city);
-                          setShowLocationPicker(false);
-                        }}
-                        className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl font-bold transition flex items-center justify-between ${
-                          selectedLocation === city ? "bg-[hsl(var(--primary))] text-white" : "hover:bg-[hsl(var(--muted))]"
-                        }`}
-                      >
-                        <span>{city}</span>
-                        {selectedLocation === city && <span className="text-[10px]">✓</span>}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* 🔀 Refresh & Shuffle Feed Button */}
-            <Button
-              onClick={handleRefreshShuffle}
-              disabled={isRefreshing}
-              className="h-9 px-4 rounded-full text-xs font-black bg-gradient-to-r from-red-600 to-indigo-600 text-white shadow-md hover:shadow-lg active:scale-95 transition flex items-center gap-1.5 shrink-0"
+          {/* Location Selector Pill */}
+          <div className="relative">
+            <button
+              onClick={() => setShowLocationPicker(!showLocationPicker)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black rounded-full bg-[hsl(var(--muted))] hover:bg-emerald-500/10 hover:text-emerald-600 transition border border-[hsl(var(--border))]"
             >
-              <RefreshCw className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
-              <span>{translations.shuffleBtn[lang] || translations.shuffleBtn.te}</span>
-            </Button>
-          </div>
-        </div>
+              <MapPin className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>📍 {selectedLocation}</span>
+            </button>
 
-        {/* Mode Filter Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
+            {/* Location Selector Modal / Dropdown */}
+            {showLocationPicker && (
+              <div className="absolute left-0 mt-2 w-48 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 shadow-xl z-50 animate-in fade-in duration-200">
+                <div className="text-[10px] font-black text-[hsl(var(--muted-foreground))] px-2 py-1 uppercase tracking-wider flex justify-between items-center">
+                  <span>Select Location</span>
+                  <button onClick={handleDetectGPS} className="text-[9px] text-blue-500 hover:underline">Auto-GPS</button>
+                </div>
+                <div className="max-h-48 overflow-y-auto space-y-1 mt-1 no-scrollbar">
+                  {CITIES.map((city) => (
+                    <button
+                      key={city}
+                      onClick={() => {
+                        setSelectedLocation(city);
+                        setShowLocationPicker(false);
+                      }}
+                      className={`w-full text-left px-2.5 py-1.5 text-xs rounded-xl font-bold transition flex items-center justify-between ${
+                        selectedLocation === city ? "bg-red-600 text-white" : "hover:bg-[hsl(var(--muted))]"
+                      }`}
+                    >
+                      <span>{city}</span>
+                      {selectedLocation === city && <span className="text-[10px]">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Inline Filter Tabs: તાజా వార్తలు (Latest News) + చూడనివి (Unread) + Near You */}
           <button
             onClick={() => setFeedMode("all")}
-            className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-black transition ${
+            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-black transition ${
               feedMode === "all"
-                ? "bg-[hsl(var(--primary))] text-white shadow-sm"
+                ? "bg-red-600 text-white shadow-sm"
                 : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]/80"
             }`}
           >
-            {translations.allNews[lang] || translations.allNews.te}
+            🌐 {translations.allNews[lang] || translations.allNews.te}
           </button>
-          
+
           <button
             onClick={() => setFeedMode("personalized")}
-            className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-black transition ${
+            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-black transition ${
               feedMode === "personalized"
                 ? "bg-amber-500 text-white shadow-sm"
                 : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]/80"
             }`}
           >
-            {translations.forYou[lang] || translations.forYou.te}
+            👁️ {lang === "te" ? "చూడనివి" : "Unread"}
           </button>
 
           <button
             onClick={() => setFeedMode("location")}
-            className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-black transition ${
+            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-black transition ${
               feedMode === "location"
                 ? "bg-emerald-600 text-white shadow-sm"
                 : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]/80"
             }`}
           >
-            {translations.nearYou[lang] || translations.nearYou.te} ({selectedLocation})
+            📍 {lang === "te" ? "మీ ప్రాంతం" : "Near You"}
           </button>
         </div>
+
+        {/* 🔀 Refresh & Shuffle Feed Button */}
+        <Button
+          onClick={handleRefreshShuffle}
+          disabled={isRefreshing}
+          className="h-8.5 px-3.5 rounded-full text-xs font-black bg-gradient-to-r from-red-600 to-indigo-600 text-white shadow-sm hover:shadow-md active:scale-95 transition flex items-center gap-1.5 shrink-0"
+        >
+          <RefreshCw className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+          <span>{translations.shuffleBtn[lang] || translations.shuffleBtn.te}</span>
+        </Button>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
