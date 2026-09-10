@@ -148,54 +148,68 @@ export function TeluguAudioPlayer({
     });
   };
 
-  const playWebSpeechFallback = (text: string) => {
-    if (!("speechSynthesis" in window)) {
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+  const playDirectGooglePublicTTS = (text: string) => {
+    try {
+      const clean = text.slice(0, 180);
+      const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(clean)}&tl=te&client=tw-ob`;
+      playCloudAudioSource(url);
+    } catch {
       setIsLoading(false);
       setIsPlaying(false);
-      setStatusMsg("ఆడియో మద్దతు లేదు");
+      setStatusMsg("ఆడియో ప్లే ఫెయిల్ అయింది");
+    }
+  };
+
+  const playWebSpeechFallback = (text: string) => {
+    if (!("speechSynthesis" in window)) {
+      playDirectGooglePublicTTS(text);
       return;
     }
 
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "te-IN";
-    utterance.rate = playbackSpeed;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "te-IN";
+      utterance.rate = playbackSpeed;
 
-    const voices = window.speechSynthesis.getVoices();
-    const teluguVoice = voices.find((v) => v.lang.startsWith("te"));
-    if (teluguVoice) utterance.voice = teluguVoice;
+      const voices = window.speechSynthesis.getVoices();
+      const teluguVoice = voices.find((v) => v.lang.startsWith("te") || v.lang.includes("te"));
+      if (teluguVoice) utterance.voice = teluguVoice;
 
-    utterance.onstart = () => {
-      if (!isComponentMounted.current) return;
-      setIsLoading(false);
-      setIsPlaying(true);
-      setStatusMsg("⏸ ఆపండి (పరికరం)");
-    };
+      utterance.onstart = () => {
+        if (!isComponentMounted.current) return;
+        setIsLoading(false);
+        setIsPlaying(true);
+        setStatusMsg("⏸ ఆపండి");
+      };
 
-    utterance.onend = () => {
-      if (!isComponentMounted.current) return;
-      setIsPlaying(false);
-      setStatusMsg("🔊 వినండి (100 పదాలు)");
+      utterance.onend = () => {
+        if (!isComponentMounted.current) return;
+        setIsPlaying(false);
+        setStatusMsg("🔊 వినండి (100 పదాలు)");
 
-      // AUTO ADVANCE TO NEXT NEWS ARTICLE AUTOMATICALLY!
-      if (autoPlayNext && nextArticle && onNavigateToNext) {
-        setStatusMsg("⏭ తదుపరి వార్తకు వెళ్తోంది...");
-        setTimeout(() => {
-          if (isComponentMounted.current) {
-            onNavigateToNext(nextArticle.slug);
-          }
-        }, 800);
-      }
-    };
+        if (autoPlayNext && nextArticle && onNavigateToNext) {
+          setStatusMsg("⏭ తదుపరి వార్తకు వెళ్తోంది...");
+          setTimeout(() => {
+            if (isComponentMounted.current) {
+              onNavigateToNext(nextArticle.slug);
+            }
+          }, 800);
+        }
+      };
 
-    utterance.onerror = () => {
-      if (!isComponentMounted.current) return;
-      setIsLoading(false);
-      setIsPlaying(false);
-      setStatusMsg("🔊 వినండి (100 పదాలు)");
-    };
+      utterance.onerror = () => {
+        if (!isComponentMounted.current) return;
+        playDirectGooglePublicTTS(text);
+      };
 
-    window.speechSynthesis.speak(utterance);
+      utteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      playDirectGooglePublicTTS(text);
+    }
   };
 
   const handleSpeedChange = (speed: number) => {

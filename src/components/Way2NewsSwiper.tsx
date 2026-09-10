@@ -89,6 +89,8 @@ export function Way2NewsSwiper({ posts, onClose }: Way2NewsSwiperProps) {
     }
   };
 
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   // Text-To-Speech reader function
   const handleToggleSpeak = () => {
     if (!activePost) return;
@@ -98,46 +100,61 @@ export function Way2NewsSwiper({ posts, onClose }: Way2NewsSwiperProps) {
       return;
     }
 
-    if (!window.speechSynthesis) {
-      alert("TTS Speech is not supported on this browser.");
-      return;
-    }
-
-    // Use excerpt for 60-word concise reading
     const textToRead = `${activePost.title}. ${activePost.excerpt}`;
-    
-    const utterance = new SpeechSynthesisUtterance(textToRead);
-    
-    // Choose appropriate voice/lang
-    if (lang === "te") {
-      utterance.lang = "te-IN";
-    } else if (lang === "hi") {
-      utterance.lang = "hi-IN";
-    } else if (lang === "ta") {
-      utterance.lang = "ta-IN";
-    } else if (lang === "kn") {
-      utterance.lang = "kn-IN";
-    } else {
-      utterance.lang = "en-IN";
-    }
 
-    utterance.onend = () => {
-      setIsPlaying(false);
-      // AUTO-ADVANCE TO NEXT NEWS CARD AFTER AUDIO COMPLETES!
-      if (activeIndex < posts.length - 1) {
-        setTimeout(() => {
-          handleNext();
-        }, 500);
+    // Helper for playing Google Public TTS audio clip
+    const playFallbackAudio = () => {
+      try {
+        const clean = textToRead.slice(0, 180);
+        const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(clean)}&tl=te&client=tw-ob`;
+        const audio = new Audio(url);
+        audioRef.current = audio;
+
+        audio.onplay = () => setIsPlaying(true);
+        audio.onended = () => {
+          setIsPlaying(false);
+          if (activeIndex < posts.length - 1) {
+            setTimeout(() => handleNext(), 500);
+          }
+        };
+        audio.onerror = () => setIsPlaying(false);
+        audio.play().catch(() => setIsPlaying(false));
+      } catch {
+        setIsPlaying(false);
       }
     };
 
-    utterance.onerror = () => {
-      setIsPlaying(false);
-    };
+    if (!window.speechSynthesis) {
+      playFallbackAudio();
+      return;
+    }
 
-    speechUtt.current = utterance;
-    setIsPlaying(true);
-    window.speechSynthesis.speak(utterance);
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+      utterance.lang = "te-IN";
+
+      const voices = window.speechSynthesis.getVoices();
+      const teluguVoice = voices.find((v) => v.lang.startsWith("te") || v.lang.includes("te"));
+      if (teluguVoice) utterance.voice = teluguVoice;
+
+      utterance.onend = () => {
+        setIsPlaying(false);
+        if (activeIndex < posts.length - 1) {
+          setTimeout(() => handleNext(), 500);
+        }
+      };
+
+      utterance.onerror = () => {
+        playFallbackAudio();
+      };
+
+      speechUtt.current = utterance;
+      setIsPlaying(true);
+      window.speechSynthesis.speak(utterance);
+    } catch {
+      playFallbackAudio();
+    }
   };
 
   if (!activePost) {

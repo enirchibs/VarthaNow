@@ -12,6 +12,7 @@ import { AzureTTSProvider } from "./providers/azure-tts";
 import { SarvamTTSProvider } from "./providers/sarvam-tts";
 import { ElevenLabsTTSProvider } from "./providers/elevenlabs-tts";
 import { SelfHostedTTSProvider } from "./providers/selfhosted-tts";
+import { GooglePublicTTSProvider } from "./providers/google-public-tts";
 
 // Master Safety Settings (Default: FREE-ONLY = TRUE, ALLOW PAID = FALSE)
 export const MASTER_SAFETY_CONFIG = {
@@ -123,8 +124,9 @@ export class TTSProviderManager {
         { id: "google", providerName: "Google Cloud TTS", enabled: true, priority: 1, freeOnly: true, supportsTelugu: true, model: "standard", voice: "te-IN-Standard-A", freeCharacterLimit: 4000000, freeCreditLimit: 0, freeRequestLimit: 10000, resetType: "MONTHLY", resetDate: null, hardStop: true, status: "ACTIVE", circuitBreakerFailures: 0, cooldownUntil: null },
         { id: "azure", providerName: "Azure Speech", enabled: true, priority: 2, freeOnly: true, supportsTelugu: true, model: "neural", voice: "te-IN-ShrutiNeural", freeCharacterLimit: 500000, freeCreditLimit: 0, freeRequestLimit: 10000, resetType: "MONTHLY", resetDate: null, hardStop: true, status: "ACTIVE", circuitBreakerFailures: 0, cooldownUntil: null },
         { id: "sarvam", providerName: "Sarvam AI", enabled: true, priority: 3, freeOnly: true, supportsTelugu: true, model: "bulbul:v1", voice: "te-IN-female", freeCharacterLimit: 200000, freeCreditLimit: 100, freeRequestLimit: 10000, resetType: "MONTHLY", resetDate: null, hardStop: true, status: "ACTIVE", circuitBreakerFailures: 0, cooldownUntil: null },
-        { id: "elevenlabs", providerName: "ElevenLabs", enabled: true, priority: 4, freeOnly: true, supportsTelugu: true, model: "eleven_multilingual_v2", voice: "TeluguVoice1", freeCharacterLimit: 10000, freeCreditLimit: 0, freeRequestLimit: 1000, resetType: "MONTHLY", resetDate: null, hardStop: true, status: "ACTIVE", circuitBreakerFailures: 0, cooldownUntil: null },
-        { id: "selfhosted", providerName: "Self-Hosted", enabled: false, priority: 5, freeOnly: true, supportsTelugu: true, model: "vits-te", voice: "default", freeCharacterLimit: 10000000, freeCreditLimit: 0, freeRequestLimit: 100000, resetType: "NONE", resetDate: null, hardStop: true, status: "ACTIVE", circuitBreakerFailures: 0, cooldownUntil: null },
+        { id: "google-public", providerName: "Google Translate Public TTS", enabled: true, priority: 4, freeOnly: true, supportsTelugu: true, model: "public", voice: "te", freeCharacterLimit: 10000000, freeCreditLimit: 0, freeRequestLimit: 100000, resetType: "NONE", resetDate: null, hardStop: true, status: "ACTIVE", circuitBreakerFailures: 0, cooldownUntil: null },
+        { id: "elevenlabs", providerName: "ElevenLabs", enabled: true, priority: 5, freeOnly: true, supportsTelugu: true, model: "eleven_multilingual_v2", voice: "TeluguVoice1", freeCharacterLimit: 10000, freeCreditLimit: 0, freeRequestLimit: 1000, resetType: "MONTHLY", resetDate: null, hardStop: true, status: "ACTIVE", circuitBreakerFailures: 0, cooldownUntil: null },
+        { id: "selfhosted", providerName: "Self-Hosted", enabled: false, priority: 6, freeOnly: true, supportsTelugu: true, model: "vits-te", voice: "default", freeCharacterLimit: 10000000, freeCreditLimit: 0, freeRequestLimit: 100000, resetType: "NONE", resetDate: null, hardStop: true, status: "ACTIVE", circuitBreakerFailures: 0, cooldownUntil: null },
       ];
     }
 
@@ -148,6 +150,8 @@ export class TTSProviderManager {
         providerInstance = new AzureTTSProvider({ enabled: cfg.enabled, freeOnly: cfg.freeOnly, freeCharLimit: cfg.freeCharacterLimit });
       } else if (cfg.id === "sarvam") {
         providerInstance = new SarvamTTSProvider({ enabled: cfg.enabled, freeOnly: cfg.freeOnly, freeCharLimit: cfg.freeCharacterLimit });
+      } else if (cfg.id === "google-public") {
+        providerInstance = new GooglePublicTTSProvider();
       } else if (cfg.id === "elevenlabs") {
         providerInstance = new ElevenLabsTTSProvider({ enabled: cfg.enabled, freeOnly: cfg.freeOnly, freeCharLimit: cfg.freeCharacterLimit });
       } else if (cfg.id === "selfhosted") {
