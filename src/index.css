@@ -212,3 +212,18 @@ select {
 .animate-audio-wave-2 { animation: audioWave 0.9s ease-in-out infinite; }
 .animate-audio-wave-3 { animation: audioWave 1.4s ease-in-out infinite; }
 .animate-audio-wave-4 { animation: audioWave 1.0s ease-in-out infinite; }
+
+/* ── Animated Red Traveling Laser Border Around Gallery Slider ─────── */
+@keyframes redLaserTravel {
+  0% {
+    stroke-dashoffset: 1200;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-red-laser {
+  stroke-dasharray: 240 800;
+  animation: redLaserTravel 3.2s linear infinite;
+}

@@ -156,90 +156,135 @@ export function HomePage() {
       
       {slides.length > 0 && currentSlide && (
         <section className="grid gap-3 lg:grid-cols-[2fr_1fr]">
-          {/* 📸 Flash Cards Image Gallery - Sleek 16:9 Aspect Ratio with Zero Black Bars */}
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.6rem] border border-[hsl(var(--border))] bg-slate-900 shadow-md hover:shadow-xl transition-all duration-300 group/slider flex flex-col justify-between">
-            <Link to={`/news/${currentSlide.slug}`} className="absolute inset-0 size-full">
-              {currentSlide.og_image ? (
-                <img
-                  src={currentSlide.og_image}
-                  alt={currentSlide.title}
-                  referrerPolicy="no-referrer"
-                  className="size-full object-cover transition-transform duration-700 group-hover/slider:scale-105"
-                />
-              ) : (
-                <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white font-black text-3xl">
-                  VaartaNow
-                </div>
-              )}
+          {/* 📸 Flash Cards Image Gallery with Animated Traveling Red Laser Border */}
+          <div className="relative p-[3px] rounded-[1.8rem] overflow-hidden bg-zinc-950 shadow-[0_0_25px_rgba(239,68,68,0.3)] transition-all duration-300">
+            {/* SVG Animated Red Laser Beam Circuit (Top-Left -> Top-Right -> Bottom-Right -> Bottom-Left -> Top-Left) */}
+            <svg className="absolute inset-0 size-full pointer-events-none z-30 overflow-visible">
+              <defs>
+                <linearGradient id="redLaserBeamGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#ef4444" stopOpacity="1" />
+                  <stop offset="60%" stopColor="#f43f5e" stopOpacity="1" />
+                  <stop offset="100%" stopColor="#dc2626" stopOpacity="0.2" />
+                </linearGradient>
+                <filter id="redLaserGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur" />
+                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+              </defs>
 
-              {/* Gradient Overlay for text contrast */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
-            </Link>
+              {/* Static base red border line */}
+              <rect
+                x="2"
+                y="2"
+                width="calc(100% - 4px)"
+                height="calc(100% - 4px)"
+                rx="24"
+                fill="none"
+                stroke="#ef4444"
+                strokeWidth="2"
+                strokeOpacity="0.35"
+              />
 
-            {/* Top Badges Bar */}
-            <div className="relative z-10 p-3 sm:p-4 flex items-center justify-between pointer-events-none">
-              {/* Category badge — top left */}
-              <span className="inline-flex items-center rounded-full bg-red-600 text-white border border-red-500/30 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider shadow-md backdrop-blur-md">
-                {currentSlide.category?.replace("-", " ")}
-              </span>
+              {/* Animated traveling bright red laser pulse line */}
+              <rect
+                x="2"
+                y="2"
+                width="calc(100% - 4px)"
+                height="calc(100% - 4px)"
+                rx="24"
+                fill="none"
+                stroke="url(#redLaserBeamGrad)"
+                strokeWidth="3.5"
+                filter="url(#redLaserGlow)"
+                className="animate-red-laser"
+              />
+            </svg>
 
-              <div className="flex items-center gap-2">
-                {/* Breaking badge — top right (only if featured) */}
-                {currentSlide.featured && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-0.5 text-[11px] font-black text-white uppercase tracking-wider animate-pulse shadow-md">
-                    🔴 BREAKING
-                  </span>
+            {/* Inner 16:9 Gallery Slider Box */}
+            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.6rem] bg-slate-900 shadow-md group/slider flex flex-col justify-between">
+              <Link to={`/news/${currentSlide.slug}`} className="absolute inset-0 size-full">
+                {currentSlide.og_image ? (
+                  <img
+                    src={currentSlide.og_image}
+                    alt={currentSlide.title}
+                    referrerPolicy="no-referrer"
+                    className="size-full object-cover transition-transform duration-700 group-hover/slider:scale-105"
+                  />
+                ) : (
+                  <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white font-black text-3xl">
+                    VaartaNow
+                  </div>
                 )}
 
-                {/* Circular Index counter badge */}
-                <div className="bg-white/95 dark:bg-zinc-900/95 border-2 border-red-600 rounded-full w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-[11px] sm:text-xs font-black text-red-600 dark:text-red-400 shadow-lg pointer-events-auto">
-                  {activeSlide + 1}/{slides.length}
-                </div>
-              </div>
-            </div>
-
-            {/* Navigation Chevrons */}
-            <button
-              onClick={() => setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
-              className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
-              aria-label="Previous slide"
-            >
-              <ChevronLeft className="size-5" />
-            </button>
-            <button
-              onClick={() => setActiveSlide((prev) => (prev + 1) % slides.length)}
-              className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
-              aria-label="Next slide"
-            >
-              <ChevronRight className="size-5" />
-            </button>
-
-            {/* Bottom Content Area: Headline + Time + Overlay Pagination Dots */}
-            <div className="relative z-10 p-3 sm:p-5 pt-8 text-left pointer-events-none space-y-2">
-              <Link to={`/news/${currentSlide.slug}`} className="block pointer-events-auto group/title">
-                <h2 className="text-base sm:text-xl lg:text-2xl font-black leading-snug text-white drop-shadow-md transition-colors duration-300 group-hover/title:text-red-300 line-clamp-2">
-                  {currentSlide.title}
-                </h2>
-                <p className="mt-1 text-[11px] sm:text-xs font-bold text-white/80 flex items-center gap-2">
-                  <span>{new Date(currentSlide.published_at).toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}</span>
-                  {currentSlide.reading_time_min ? <span>· {currentSlide.reading_time_min} min read</span> : null}
-                </p>
+                {/* Gradient Overlay for text contrast */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
               </Link>
 
-              {/* Dots indicator floating cleanly over image bottom overlay */}
-              <div className="flex items-center justify-center gap-1.5 pt-0.5 pointer-events-auto">
-                {slides.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveSlide(idx)}
-                    className={`h-2 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
-                      activeSlide === idx 
-                        ? "w-6 bg-red-600" 
-                        : "w-2 bg-white/50 hover:bg-white/90"
-                    }`}
-                    aria-label={`Go to slide ${idx + 1}`}
-                  />
-                ))}
+              {/* Top Badges Bar */}
+              <div className="relative z-10 p-3 sm:p-4 flex items-center justify-between pointer-events-none">
+                {/* Category badge — top left */}
+                <span className="inline-flex items-center rounded-full bg-red-600 text-white border border-red-500/30 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider shadow-md backdrop-blur-md">
+                  {currentSlide.category?.replace("-", " ")}
+                </span>
+
+                <div className="flex items-center gap-2">
+                  {/* Breaking badge — top right (only if featured) */}
+                  {currentSlide.featured && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-0.5 text-[11px] font-black text-white uppercase tracking-wider animate-pulse shadow-md">
+                      🔴 BREAKING
+                    </span>
+                  )}
+
+                  {/* Circular Index counter badge */}
+                  <div className="bg-white/95 dark:bg-zinc-900/95 border-2 border-red-600 rounded-full w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-[11px] sm:text-xs font-black text-red-600 dark:text-red-400 shadow-lg pointer-events-auto">
+                    {activeSlide + 1}/{slides.length}
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Chevrons */}
+              <button
+                onClick={() => setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
+                className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+              <button
+                onClick={() => setActiveSlide((prev) => (prev + 1) % slides.length)}
+                className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="size-5" />
+              </button>
+
+              {/* Bottom Content Area: Headline + Time + Overlay Pagination Dots */}
+              <div className="relative z-10 p-3 sm:p-5 pt-8 text-left pointer-events-none space-y-2">
+                <Link to={`/news/${currentSlide.slug}`} className="block pointer-events-auto group/title">
+                  <h2 className="text-base sm:text-xl lg:text-2xl font-black leading-snug text-white drop-shadow-md transition-colors duration-300 group-hover/title:text-red-300 line-clamp-2">
+                    {currentSlide.title}
+                  </h2>
+                  <p className="mt-1 text-[11px] sm:text-xs font-bold text-white/80 flex items-center gap-2">
+                    <span>{new Date(currentSlide.published_at).toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}</span>
+                    {currentSlide.reading_time_min ? <span>· {currentSlide.reading_time_min} min read</span> : null}
+                  </p>
+                </Link>
+
+                {/* Dots indicator floating cleanly over image bottom overlay */}
+                <div className="flex items-center justify-center gap-1.5 pt-0.5 pointer-events-auto">
+                  {slides.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveSlide(idx)}
+                      className={`h-2 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
+                        activeSlide === idx 
+                          ? "w-6 bg-red-600" 
+                          : "w-2 bg-white/50 hover:bg-white/90"
+                      }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
