@@ -22,6 +22,7 @@ import { Way2NewsSwiper } from "@/components/Way2NewsSwiper";
 import { detectGPSLocation, getCachedGPSLocation } from "@/lib/location-detector";
 import { getUserInterests } from "@/lib/interest-tracker";
 import { useBookmarks } from "@/hooks/useBookmarks";
+import { demoPosts } from "@/lib/demo-data";
 
 const CITIES = [
   "Hyderabad",
@@ -67,6 +68,30 @@ export function HomePage() {
   const numSlides = useMemo(() => Math.floor(Math.random() * 3) + 4, []); // 4 to 6 slides
   const [activeSlide, setActiveSlide] = useState(0);
   const slides = useMemo(() => feed.posts.slice(0, numSlides), [feed.posts, numSlides]);
+
+  // Ensure AT LEAST 9 articles are ALWAYS displayed in the main grid
+  const displayGridPosts = useMemo(() => {
+    if (!feed.posts || feed.posts.length === 0) return [];
+
+    let gridList = feed.posts.slice(numSlides);
+
+    if (gridList.length < 9 && feed.posts.length >= 9) {
+      gridList = feed.posts;
+    }
+
+    if (gridList.length < 9) {
+      const combined = [...gridList];
+      for (const item of demoPosts) {
+        if (combined.length >= 9) break;
+        if (!combined.some((p) => p.slug === item.slug)) {
+          combined.push(item);
+        }
+      }
+      gridList = combined;
+    }
+
+    return gridList;
+  }, [feed.posts, numSlides]);
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -390,7 +415,7 @@ export function HomePage() {
 
       <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-4">
-          <NewsGrid posts={feed.posts.slice(numSlides)} loading={feed.loading} />
+          <NewsGrid posts={displayGridPosts} loading={feed.loading} />
           
           {feed.hasMore && (
             <div className="flex justify-center">
