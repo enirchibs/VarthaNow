@@ -41,37 +41,50 @@ export function Layout() {
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const [isNavAnimating, setIsNavAnimating] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
 
-  // 🎡 Auto-scroll category navigation bar to left after 1st round of image gallery completes
+  // 🎡 Step-by-step category tour with 1.8-second buffer per highlighted category pill
   useEffect(() => {
-    let animInterval: any = null;
+    let isCancelled = false;
+    let timeoutId: any = null;
 
-    const startNavAnimation = () => {
+    const startNavTour = async () => {
       if (!navRef.current) return;
       const navEl = navRef.current;
-      const maxScroll = navEl.scrollWidth - navEl.clientWidth;
-      if (maxScroll <= 0) return;
+      const children = Array.from(navEl.children) as HTMLElement[];
+      if (!children || children.length <= 1) return;
 
       setIsNavAnimating(true);
-      let currentLeft = 0;
-      const step = Math.min(220, Math.floor(maxScroll / 4));
 
-      animInterval = setInterval(() => {
-        currentLeft += step;
-        if (currentLeft >= maxScroll + step) {
-          clearInterval(animInterval);
-          navEl.scrollTo({ left: 0, behavior: "smooth" });
-          setTimeout(() => setIsNavAnimating(false), 1000);
-        } else {
-          navEl.scrollTo({ left: Math.min(currentLeft, maxScroll), behavior: "smooth" });
-        }
-      }, 1500);
+      for (let i = 0; i < children.length; i++) {
+        if (isCancelled) break;
+        const child = children[i];
+
+        // 1. Highlight this category pill
+        setHighlightedIndex(i);
+
+        // 2. Smoothly scroll container to center child pill
+        const targetLeft = Math.max(0, child.offsetLeft - (navEl.clientWidth / 2) + (child.clientWidth / 2));
+        navEl.scrollTo({ left: targetLeft, behavior: "smooth" });
+
+        // 3. Buffer period (1800ms / 1.8s) for user to inspect, think and click
+        await new Promise((resolve) => {
+          timeoutId = setTimeout(resolve, 1800);
+        });
+      }
+
+      if (!isCancelled) {
+        setHighlightedIndex(null);
+        navEl.scrollTo({ left: 0, behavior: "smooth" });
+        setTimeout(() => setIsNavAnimating(false), 800);
+      }
     };
 
-    window.addEventListener("gallery_first_round_complete", startNavAnimation);
+    window.addEventListener("gallery_first_round_complete", startNavTour);
     return () => {
-      window.removeEventListener("gallery_first_round_complete", startNavAnimation);
-      if (animInterval) clearInterval(animInterval);
+      isCancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      window.removeEventListener("gallery_first_round_complete", startNavTour);
     };
   }, []);
 
@@ -257,13 +270,16 @@ export function Layout() {
             <Search className="size-4" />
           </Link>
         </div>
-        <nav ref={navRef} className={`container-shell no-scrollbar flex gap-1.5 md:gap-2 overflow-x-auto pb-3 pt-1 transition-all duration-500 ${isNavAnimating ? "ring-2 ring-red-500/50 shadow-lg shadow-red-500/10 rounded-full" : ""}`}>
+        <nav ref={navRef} className={`container-shell no-scrollbar flex items-center gap-1.5 md:gap-2 overflow-x-auto pb-3 pt-2.5 transition-all duration-500 ${isNavAnimating ? "ring-2 ring-red-500/50 shadow-lg shadow-red-500/10 rounded-full" : ""}`}>
+          {/* Index 0: Home */}
           <NavLink
             to="/"
             end
             className={({ isActive }) =>
-              `shrink-0 rounded-full p-1.5 md:p-2.5 text-[9px] md:text-sm font-black transition border-2 ${
-                isActive
+              `shrink-0 rounded-full p-1.5 md:p-2.5 text-[9px] md:text-sm font-black transition-all duration-500 border-2 relative ${
+                highlightedIndex === 0
+                  ? "bg-gradient-to-r from-red-600 to-amber-500 text-white border-yellow-300 ring-4 ring-red-500/80 shadow-[0_0_24px_rgba(239,68,68,0.75)] scale-110 -translate-y-0.5 z-30"
+                  : isActive
                   ? "bg-red-600 text-white border-red-400 shadow-md shadow-red-600/30 scale-105"
                   : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-red-500 hover:text-red-600 hover:scale-105"
               }`
@@ -272,48 +288,76 @@ export function Layout() {
             <Home className="size-3.5 md:size-4.5" />
           </NavLink>
           
+          {/* Index 1: Your News */}
           <NavLink
             to="/"
             end
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition border-2 ${
-                isActive
+              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
+                highlightedIndex === 1
+                  ? "bg-gradient-to-r from-red-600 via-amber-600 to-rose-600 text-white border-yellow-300 ring-4 ring-red-500/80 shadow-[0_0_24px_rgba(239,68,68,0.75)] scale-110 -translate-y-0.5 z-30"
+                  : isActive
                   ? "bg-red-600 text-white border-red-400 shadow-md shadow-red-600/30 scale-105"
                   : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-red-500 hover:text-red-600 hover:scale-105"
               }`
             }
           >
-            {lang === "te" ? "మీ వార్తలు" : lang === "en" ? "Your News" : lang === "hi" ? "आपके समाचार" : lang === "ta" ? "உங்கள் செய்திகள்" : "ನಿಮ್ಮ ಸುದ್ದಿ"}
+            <span>{lang === "te" ? "మీ వార్తలు" : lang === "en" ? "Your News" : lang === "hi" ? "आपके समाचार" : lang === "ta" ? "உங்கள் செய்திகள்" : "ನಿಮ್ಮ ಸುದ್ದಿ"}</span>
+            {highlightedIndex === 1 && (
+              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-[7px] sm:text-[8px] font-black uppercase px-2 py-0.5 rounded-full shadow-lg animate-bounce border border-yellow-200 shrink-0 z-40 whitespace-nowrap">
+                👉 నొక్కండి
+              </span>
+            )}
           </NavLink>
 
+          {/* Index 2: Local Jobs */}
           <NavLink
             to="/jobs"
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition border-2 ${
-                isActive
+              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
+                highlightedIndex === 2
+                  ? "bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white border-yellow-300 ring-4 ring-indigo-500/80 shadow-[0_0_24px_rgba(79,70,229,0.75)] scale-110 -translate-y-0.5 z-30"
+                  : isActive
                   ? "bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-600/30 scale-105"
                   : "bg-[hsl(var(--card))] border-indigo-300/60 dark:border-indigo-800/60 text-[hsl(var(--foreground))] hover:border-indigo-500 hover:text-indigo-600 hover:scale-105"
               }`
             }
           >
-            {lang === "te" ? "💼 స్థానిక ఉద్యోగాలు" : lang === "en" ? "💼 Local Jobs" : lang === "hi" ? "💼 स्थानीय नौकरियां" : lang === "ta" ? "💼 உள்ளூர் வேலைகள்" : "💼 ಸ್ಥಳೀಯ ಉದ್ಯೋಗಗಳು"}
+            <span>{lang === "te" ? "💼 స్థానిక ఉద్యోగాలు" : lang === "en" ? "💼 Local Jobs" : lang === "hi" ? "💼 स्थानीय नौकरियां" : lang === "ta" ? "💼 உள்ளூர் வேலைகள்" : "💼 ಸ್ಥಳೀಯ ಉದ್ಯೋಗಗಳು"}</span>
+            {highlightedIndex === 2 && (
+              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-[7px] sm:text-[8px] font-black uppercase px-2 py-0.5 rounded-full shadow-lg animate-bounce border border-yellow-200 shrink-0 z-40 whitespace-nowrap">
+                👉 నొక్కండి
+              </span>
+            )}
           </NavLink>
 
-          {categories.map((category) => (
-            <NavLink
-              key={category.slug}
-              to={category.slug === "health" ? "/health" : `/category/${category.slug}`}
-              className={({ isActive }) =>
-                `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition border-2 ${
-                  isActive
-                    ? "bg-red-600 text-white border-red-400 shadow-md shadow-red-600/30 scale-105"
-                    : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-red-500 hover:text-red-600 hover:scale-105"
-                }`
-              }
-            >
-              {categoryEmojis[category.slug] ? `${categoryEmojis[category.slug]} ` : ""}{category.label[lang]}
-            </NavLink>
-          ))}
+          {/* Dynamic Categories (Index 3 + idx) */}
+          {categories.map((category, idx) => {
+            const itemIndex = 3 + idx;
+            const isHighlighted = highlightedIndex === itemIndex;
+            return (
+              <NavLink
+                key={category.slug}
+                to={category.slug === "health" ? "/health" : `/category/${category.slug}`}
+                className={({ isActive }) =>
+                  `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
+                    isHighlighted
+                      ? "bg-gradient-to-r from-red-600 via-rose-600 to-amber-500 text-white border-yellow-300 ring-4 ring-red-500/80 shadow-[0_0_24px_rgba(239,68,68,0.75)] scale-110 -translate-y-0.5 z-30"
+                      : isActive
+                      ? "bg-red-600 text-white border-red-400 shadow-md shadow-red-600/30 scale-105"
+                      : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-red-500 hover:text-red-600 hover:scale-105"
+                  }`
+                }
+              >
+                <span>{categoryEmojis[category.slug] ? `${categoryEmojis[category.slug]} ` : ""}{category.label[lang]}</span>
+                {isHighlighted && (
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-[7px] sm:text-[8px] font-black uppercase px-2 py-0.5 rounded-full shadow-lg animate-bounce border border-yellow-200 shrink-0 z-40 whitespace-nowrap">
+                    👉 నొక్కండి
+                  </span>
+                )}
+              </NavLink>
+            );
+          })}
         </nav>
       </header>
       <Outlet />
