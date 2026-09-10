@@ -23,7 +23,7 @@ import { detectGPSLocation, getCachedGPSLocation } from "@/lib/location-detector
 import { getUserInterests } from "@/lib/interest-tracker";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { demoPosts } from "@/lib/demo-data";
-import { categoryLabel } from "@/lib/categories";
+import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
 
 const CITIES = [
   "Hyderabad",
@@ -258,7 +258,7 @@ export function HomePage() {
                   {/* Middle: Category Pill / News Type Badge */}
                   <span className="inline-flex items-center gap-1 rounded-full bg-red-600 text-white border border-white/80 px-2 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider shadow-md backdrop-blur-md shrink-0">
                     <span className="size-1 rounded-full bg-white animate-pulse" />
-                    {categoryLabel(currentSlide.category)}
+                    {categoryLabel(detectCategoryFromTitleAndContent(currentSlide))}
                   </span>
 
                   {/* Right: Gallery Dots */}

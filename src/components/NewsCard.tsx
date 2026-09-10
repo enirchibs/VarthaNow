@@ -1,6 +1,6 @@
 import { Bookmark, BookmarkCheck, Send, Share2, Clock, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-import { categoryLabel } from "@/lib/categories";
+import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
 import { timeAgo } from "@/lib/format";
 import type { BlogPost } from "@/types/news";
 import { Badge, Button } from "@/components/ui";
@@ -48,6 +48,7 @@ export function NewsCard({
   priority?: boolean;
   isSpotlight?: boolean;
 }) {
+  const accurateCategory = detectCategoryFromTitleAndContent(post);
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const bookmarked = isBookmarked(post.slug);
 
@@ -106,8 +107,8 @@ export function NewsCard({
 
         {/* Category Pill Overlay with High-Visibility Beautiful Border */}
         <div className="absolute left-2 top-2 z-10 flex items-center gap-1">
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${categoryStyle(post.category)} backdrop-blur-md transition-transform group-hover:scale-105 shadow-md`}>
-            {categoryLabel(post.category)}
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${categoryStyle(accurateCategory)} backdrop-blur-md transition-transform group-hover:scale-105 shadow-md`}>
+            {categoryLabel(accurateCategory)}
           </span>
         </div>
 

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import type { BlogPost } from "@/types/news";
 import { getPostBySlug, getTrendingPosts } from "@/lib/news-api";
-import { categoryLabel } from "@/lib/categories";
+import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
 import { markdownToHtml, timeAgo, getOpenEndedQuestion } from "@/lib/format";
 import { postStructuredData, setMeta } from "@/lib/seo";
 import { Badge } from "@/components/ui";
@@ -175,7 +175,8 @@ export function NewsPage() {
   };
 
   const formattedDate = formatPublishDate(post.published_at);
-  const categoryBg = CATEGORY_COLORS[post.category] || "bg-blue-600";
+  const accurateCat = detectCategoryFromTitleAndContent(post);
+  const categoryBg = CATEGORY_COLORS[accurateCat] || "bg-blue-600";
 
   // Compute official publisher logo (e.g. TV9, NTV, Sakshi, Eenadu, Way2News, Disha, etc.)
   const publisherLogo = (() => {
@@ -302,7 +303,7 @@ export function NewsPage() {
             {/* Bottom Overlay: Category Pill Badge */}
             <div className="absolute left-4 bottom-4 z-20">
               <span className={`inline-flex items-center rounded-full px-3.5 py-1 text-[11px] font-black text-white uppercase tracking-wider shadow-xl backdrop-blur-md border-2 border-white/90 ring-2 ring-black/40 ${categoryBg}`}>
-                {categoryLabel(post.category, lang)}
+                {categoryLabel(accurateCat, lang)}
               </span>
             </div>
           </div>

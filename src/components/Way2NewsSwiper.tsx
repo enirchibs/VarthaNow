@@ -10,7 +10,7 @@ import {
   ArrowLeft 
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
-import { categoryLabel } from "@/lib/categories";
+import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
 import type { BlogPost } from "@/types/news";
 
 interface Way2NewsSwiperProps {
@@ -167,7 +167,8 @@ export function Way2NewsSwiper({ posts, onClose }: Way2NewsSwiperProps) {
     );
   }
 
-  const label = categoryLabel(activePost.category, lang);
+  const accurateCat = detectCategoryFromTitleAndContent(activePost);
+  const label = categoryLabel(accurateCat, lang);
 
   return (
     <div className="fixed inset-0 bg-black z-50 flex flex-col justify-between overflow-hidden">
