@@ -5,6 +5,7 @@ import { timeAgo } from "@/lib/format";
 import type { BlogPost } from "@/types/news";
 import { Badge, Button } from "@/components/ui";
 import { useBookmarks } from "@/hooks/useBookmarks";
+import { isArticleRead, markArticleAsRead } from "@/lib/read-tracker";
 
 // ─── Helpers ────────────────────────────────────────────────────
 const CATEGORY_STYLES: Record<string, string> = {
@@ -49,6 +50,7 @@ export function NewsCard({
   isSpotlight?: boolean;
 }) {
   const accurateCategory = detectCategoryFromTitleAndContent(post);
+  const isRead = isArticleRead(post.slug);
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const bookmarked = isBookmarked(post.slug);
 
@@ -76,6 +78,10 @@ export function NewsCard({
     return null;
   })();
 
+  const handleCardClick = () => {
+    markArticleAsRead(post.slug);
+  };
+
   return (
     <article className={`group flex flex-col overflow-hidden rounded-[1.2rem] border bg-[hsl(var(--card))] transition-all duration-500 cursor-pointer relative ${
       isSpotlight 
@@ -83,7 +89,7 @@ export function NewsCard({
         : "border-[hsl(var(--border))] shadow-sm hover:shadow-[0_12px_28px_rgba(239,68,68,0.18)] hover:border-red-500/60 hover:ring-2 hover:ring-red-500/20 hover:-translate-y-1 active:scale-[0.98]"
     }`}>
       {/* 1 ── Banner Image */}
-      <Link to={`/news/${post.slug}`} className="relative aspect-[20/9] w-full overflow-hidden bg-[hsl(var(--muted))] block">
+      <Link to={`/news/${post.slug}`} onClick={handleCardClick} className="relative aspect-[20/9] w-full overflow-hidden bg-[hsl(var(--muted))] block">
         {post.og_image ? (
           <img
             src={post.og_image}
@@ -112,6 +118,16 @@ export function NewsCard({
           </span>
         </div>
 
+        {/* 👁️ Unread Badge if article is unread */}
+        {!isRead && !isSpotlight && (
+          <div className="absolute right-2 top-2 z-10">
+            <span className="inline-flex items-center gap-1 rounded-full bg-cyan-600/95 border border-white/90 px-2 py-0.5 text-[8px] sm:text-[9px] font-black text-white uppercase tracking-wider shadow-md backdrop-blur-md">
+              <span className="size-1.5 rounded-full bg-cyan-200 animate-ping" />
+              చూడనిది
+            </span>
+          </div>
+        )}
+
         {/* 🌟 Rotating Spotlight "Read Now" Badge on active card */}
         {isSpotlight && (
           <div className="absolute right-2 top-2 z-10">
@@ -124,7 +140,7 @@ export function NewsCard({
 
       {/* 2 ── Content: Headline Title + Publisher/Time Footer */}
       <div className="flex flex-col flex-1 p-2 sm:p-2.5 space-y-1.5">
-        <Link to={`/news/${post.slug}`} className="block flex-1">
+        <Link to={`/news/${post.slug}`} onClick={handleCardClick} className="block flex-1">
           <h2 className="text-[11px] sm:text-xs font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors flex items-center justify-between gap-1">
             <span>{post.title}</span>
             <span className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-red-600 dark:text-red-400 shrink-0 text-[10px]">➔</span>

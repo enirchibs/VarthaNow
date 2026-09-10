@@ -33,6 +33,7 @@ export type BlogPost = {
   isLocationMatch?: boolean;
   isInterestMatch?: boolean;
   isFavoriteMatch?: boolean;
+  isRead?: boolean;
 };
 
 export type SearchFilters = {

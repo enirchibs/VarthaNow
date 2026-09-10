@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
+import { markArticleAsRead } from "@/lib/read-tracker";
 import type { BlogPost } from "@/types/news";
 
 interface Way2NewsSwiperProps {
@@ -37,7 +38,10 @@ export function Way2NewsSwiper({ posts, onClose }: Way2NewsSwiperProps) {
 
   useEffect(() => {
     stopSpeaking();
-  }, [activeIndex]);
+    if (activePost?.slug) {
+      markArticleAsRead(activePost.slug);
+    }
+  }, [activeIndex, activePost]);
 
   useEffect(() => {
     return () => {

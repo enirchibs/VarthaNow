@@ -22,6 +22,7 @@ import { ReadingProgress } from "@/components/ReadingProgress";
 import { ArticleEndActionBar } from "@/components/ArticleEndActionBar";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { trackArticleView } from "@/lib/interest-tracker";
+import { markArticleAsRead } from "@/lib/read-tracker";
 import { TeluguAudioPlayer } from "@/components/TeluguAudioPlayer";
 
 // Category pill colors mapping
@@ -84,6 +85,7 @@ export function NewsPage() {
           });
           try {
             trackArticleView(item.title, item.category);
+            markArticleAsRead(slug);
           } catch (e) {
             console.warn("Failed to track view:", e);
           }

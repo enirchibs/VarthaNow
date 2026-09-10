@@ -21,6 +21,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { Way2NewsSwiper } from "@/components/Way2NewsSwiper";
 import { detectGPSLocation, getCachedGPSLocation } from "@/lib/location-detector";
 import { getUserInterests } from "@/lib/interest-tracker";
+import { recordUserVisit } from "@/lib/read-tracker";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { demoPosts } from "@/lib/demo-data";
 import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
@@ -54,6 +55,7 @@ export function HomePage() {
 
   useEffect(() => {
     setUserInterests(getUserInterests());
+    recordUserVisit();
   }, []);
 
   // Fetch articles for the homepage feed (20-25 articles minimum per fetch)

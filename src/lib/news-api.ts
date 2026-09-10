@@ -2,6 +2,7 @@ import type { BlogPost, NewsCategory, SearchFilters } from "@/types/news";
 import { demoPosts } from "@/lib/demo-data";
 import { supabase } from "@/lib/supabase";
 import { getActiveLanguage, type Language } from "@/hooks/useLanguage";
+import { isArticleRead, getArticleAgeHours } from "@/lib/read-tracker";
 
 export const PAGE_SIZE = 25;
 
@@ -25,7 +26,7 @@ export interface PersonalizationOptions {
   userLocation?: string | null;
   userInterests?: string[];
   userBookmarks?: string[];
-  feedMode?: "all" | "personalized" | "location";
+  feedMode?: "all" | "personalized" | "location" | "unread";
 }
 
 export function rankAndPersonalizePosts(
@@ -69,6 +70,8 @@ export function rankAndPersonalizePosts(
     let isLocationMatch = false;
     let isInterestMatch = false;
     let isFavoriteMatch = false;
+    const read = isArticleRead(post.slug);
+    const hoursOld = getArticleAgeHours(post.published_at);
 
     const postText = [
       post.title,
@@ -101,17 +104,41 @@ export function rankAndPersonalizePosts(
       }
     }
 
-    // 4. Feed Mode Boosts
-    if (mode === "location" && isLocationMatch) score += 100;
-    if (mode === "personalized" && (isFavoriteMatch || isInterestMatch)) score += 100;
+    // 4. Feed Mode specific rules & unread prioritization logic
+    if (mode === "location" && isLocationMatch) {
+      score += 100;
+    } else if (mode === "personalized" || mode === "unread") {
+      // 👁️ "చూడనివి" (Unread News) logic:
+      // Priority 1: Unread articles published in the last 24 hours (+400 pts)
+      // Priority 2: Unread articles published between 24 and 48 hours (+250 pts)
+      // Priority 3: Unread articles published beyond 48 hours (+150 pts) (for non-daily visitors)
+      // Read articles get heavy penalty (-600 pts) to sink below all unread stories
+      if (!read) {
+        if (hoursOld <= 24) {
+          score += 400;
+        } else if (hoursOld <= 48) {
+          score += 250;
+        } else {
+          score += 150;
+        }
+      } else {
+        score -= 600;
+      }
+      if (isFavoriteMatch || isInterestMatch) score += 30;
+    } else if (mode === "all") {
+      // 🌐 "తాజా వార్తలు" (Latest News / Last 24 Hours) logic:
+      // Articles from the last 24 hours get highest priority (+300 pts)
+      if (hoursOld <= 24) {
+        score += 300;
+      }
+    }
 
-    // 5. Freshness boost (+0..20 pts)
-    const hoursOld = (Date.now() - new Date(post.published_at).getTime()) / (1000 * 3600);
-    const freshnessScore = Math.max(0, 20 - hoursOld);
+    // 5. Freshness boost (+0..40 pts)
+    const freshnessScore = Math.max(0, 40 - hoursOld * 1.5);
     score += freshnessScore;
 
-    // 6. Dynamic Shuffle pseudo-random noise (+0..35 pts)
-    const noise = pseudoRandom(seed, post.slug) * 35;
+    // 6. Dynamic Shuffle pseudo-random noise (+0..15 pts)
+    const noise = pseudoRandom(seed, post.slug) * 15;
     score += noise;
 
     return {
@@ -119,13 +146,19 @@ export function rankAndPersonalizePosts(
         ...post,
         isLocationMatch,
         isInterestMatch,
-        isFavoriteMatch
+        isFavoriteMatch,
+        isRead: read
       },
-      score
+      score,
+      publishedTime: new Date(post.published_at).getTime()
     };
   });
 
-  scored.sort((a, b) => b.score - a.score);
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return b.publishedTime - a.publishedTime;
+  });
+
   return scored.map((item) => item.post);
 }
 
