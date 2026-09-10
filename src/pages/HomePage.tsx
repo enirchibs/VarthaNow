@@ -67,6 +67,7 @@ export function HomePage() {
   const numSlides = useMemo(() => Math.floor(Math.random() * 3) + 4, []); // 4 to 6 slides
   const [activeSlide, setActiveSlide] = useState(0);
   const slides = useMemo(() => feed.posts.slice(0, numSlides), [feed.posts, numSlides]);
+  const belowGalleryPosts = useMemo(() => feed.posts.slice(numSlides, numSlides + 2), [feed.posts, numSlides]);
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -156,103 +157,134 @@ export function HomePage() {
       
       {slides.length > 0 && currentSlide && (
         <section className="grid gap-3 lg:grid-cols-[2fr_1fr]">
-          {/* 📸 Flash Cards Image Gallery - Full Bleed Edge-to-Edge with No White Gaps */}
-          <div className="relative overflow-hidden rounded-[1.8rem] border border-[hsl(var(--border))] bg-zinc-950 shadow-md hover:shadow-xl transition-all duration-300 min-h-[360px] sm:min-h-[420px] lg:min-h-[460px] group/slider flex flex-col justify-between">
-            <Link to={`/news/${currentSlide.slug}`} className="absolute inset-0 size-full flex items-center justify-center overflow-hidden bg-zinc-950">
-              {currentSlide.og_image ? (
-                <>
-                  {/* Ambient blurred background image for full fit atmosphere */}
-                  <img
-                    src={currentSlide.og_image}
-                    alt=""
-                    aria-hidden="true"
-                    referrerPolicy="no-referrer"
-                    className="absolute inset-0 size-full object-cover blur-xl opacity-40 scale-110 pointer-events-none"
-                  />
-                  {/* Full original image fit without any cropping */}
+          {/* Left Column: Sleek Gallery Slider + 2 News Articles Below */}
+          <div className="flex flex-col gap-3">
+            {/* 📸 Flash Cards Image Gallery - Sleek 16:9 Aspect Ratio with Zero Black Bars */}
+            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.6rem] border border-[hsl(var(--border))] bg-slate-900 shadow-md hover:shadow-xl transition-all duration-300 group/slider flex flex-col justify-between">
+              <Link to={`/news/${currentSlide.slug}`} className="absolute inset-0 size-full">
+                {currentSlide.og_image ? (
                   <img
                     src={currentSlide.og_image}
                     alt={currentSlide.title}
                     referrerPolicy="no-referrer"
-                    className="relative z-0 size-full object-contain transition-transform duration-700 group-hover/slider:scale-[1.02]"
+                    className="size-full object-cover transition-transform duration-700 group-hover/slider:scale-105"
                   />
-                </>
-              ) : (
-                <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white font-black text-3xl">
-                  VaartaNow
-                </div>
-              )}
-
-              {/* Gradient Overlay for text contrast */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-black/20 pointer-events-none" />
-            </Link>
-
-            {/* Top Badges Bar */}
-            <div className="relative z-10 p-3.5 sm:p-5 flex items-center justify-between pointer-events-none">
-              {/* Category badge — top left */}
-              <span className="inline-flex items-center rounded-full bg-red-600 text-white border border-red-500/30 px-3 py-1 text-xs font-black uppercase tracking-wider shadow-md backdrop-blur-md">
-                {currentSlide.category?.replace("-", " ")}
-              </span>
-
-              <div className="flex items-center gap-2">
-                {/* Breaking badge — top right (only if featured) */}
-                {currentSlide.featured && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-3 py-1 text-xs font-black text-white uppercase tracking-wider animate-pulse shadow-md">
-                    🔴 BREAKING
-                  </span>
+                ) : (
+                  <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white font-black text-3xl">
+                    VaartaNow
+                  </div>
                 )}
 
-                {/* Circular Index counter badge */}
-                <div className="bg-white/95 dark:bg-zinc-900/95 border-2 border-red-600 rounded-full w-10 h-10 flex items-center justify-center text-xs font-black text-red-600 dark:text-red-400 shadow-lg pointer-events-auto">
-                  {activeSlide + 1}/{slides.length}
+                {/* Gradient Overlay for text contrast */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
+              </Link>
+
+              {/* Top Badges Bar */}
+              <div className="relative z-10 p-3 sm:p-4 flex items-center justify-between pointer-events-none">
+                {/* Category badge — top left */}
+                <span className="inline-flex items-center rounded-full bg-red-600 text-white border border-red-500/30 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider shadow-md backdrop-blur-md">
+                  {currentSlide.category?.replace("-", " ")}
+                </span>
+
+                <div className="flex items-center gap-2">
+                  {/* Breaking badge — top right (only if featured) */}
+                  {currentSlide.featured && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-0.5 text-[11px] font-black text-white uppercase tracking-wider animate-pulse shadow-md">
+                      🔴 BREAKING
+                    </span>
+                  )}
+
+                  {/* Circular Index counter badge */}
+                  <div className="bg-white/95 dark:bg-zinc-900/95 border-2 border-red-600 rounded-full w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-[11px] sm:text-xs font-black text-red-600 dark:text-red-400 shadow-lg pointer-events-auto">
+                    {activeSlide + 1}/{slides.length}
+                  </div>
+                </div>
+              </div>
+
+              {/* Navigation Chevrons */}
+              <button
+                onClick={() => setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
+                className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="size-5" />
+              </button>
+              <button
+                onClick={() => setActiveSlide((prev) => (prev + 1) % slides.length)}
+                className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="size-5" />
+              </button>
+
+              {/* Bottom Content Area: Headline + Time + Overlay Pagination Dots */}
+              <div className="relative z-10 p-3 sm:p-5 pt-8 text-left pointer-events-none space-y-2">
+                <Link to={`/news/${currentSlide.slug}`} className="block pointer-events-auto group/title">
+                  <h2 className="text-base sm:text-xl lg:text-2xl font-black leading-snug text-white drop-shadow-md transition-colors duration-300 group-hover/title:text-red-300 line-clamp-2">
+                    {currentSlide.title}
+                  </h2>
+                  <p className="mt-1 text-[11px] sm:text-xs font-bold text-white/80 flex items-center gap-2">
+                    <span>{new Date(currentSlide.published_at).toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}</span>
+                    {currentSlide.reading_time_min ? <span>· {currentSlide.reading_time_min} min read</span> : null}
+                  </p>
+                </Link>
+
+                {/* Dots indicator floating cleanly over image bottom overlay */}
+                <div className="flex items-center justify-center gap-1.5 pt-0.5 pointer-events-auto">
+                  {slides.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveSlide(idx)}
+                      className={`h-2 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
+                        activeSlide === idx 
+                          ? "w-6 bg-red-600" 
+                          : "w-2 bg-white/50 hover:bg-white/90"
+                      }`}
+                      aria-label={`Go to slide ${idx + 1}`}
+                    />
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Navigation Chevrons - Positioned over full height */}
-            <button
-              onClick={() => setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
-              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 size-11 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
-              aria-label="Previous slide"
-            >
-              <ChevronLeft className="size-6" />
-            </button>
-            <button
-              onClick={() => setActiveSlide((prev) => (prev + 1) % slides.length)}
-              className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-20 size-11 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
-              aria-label="Next slide"
-            >
-              <ChevronRight className="size-6" />
-            </button>
-
-            {/* Bottom Content Area: Headline + Time + Overlay Pagination Dots */}
-            <div className="relative z-10 p-5 sm:p-7 pt-12 text-left pointer-events-none space-y-3">
-              <Link to={`/news/${currentSlide.slug}`} className="block pointer-events-auto group/title">
-                <h2 className="text-lg sm:text-2xl lg:text-3xl font-black leading-snug text-white drop-shadow-md transition-colors duration-300 group-hover/title:text-red-300 line-clamp-3">
-                  {currentSlide.title}
-                </h2>
-                <p className="mt-1.5 text-xs sm:text-sm font-bold text-white/80 flex items-center gap-2">
-                  <span>{new Date(currentSlide.published_at).toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}</span>
-                  {currentSlide.reading_time_min ? <span>· {currentSlide.reading_time_min} min read</span> : null}
-                </p>
-              </Link>
-
-              {/* Dots indicator floating cleanly over image bottom overlay */}
-              <div className="flex items-center justify-center gap-2 pt-1 pointer-events-auto">
-                {slides.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveSlide(idx)}
-                    className={`h-2.5 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
-                      activeSlide === idx 
-                        ? "w-8 bg-red-600" 
-                        : "w-2.5 bg-white/50 hover:bg-white/90"
-                    }`}
-                    aria-label={`Go to slide ${idx + 1}`}
-                  />
+            {/* 📰 2 News Articles Directly Below Gallery */}
+            {belowGalleryPosts.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {belowGalleryPosts.map((post) => (
+                  <Link
+                    key={post.slug}
+                    to={`/news/${post.slug}`}
+                    className="flex items-center gap-3 p-3 rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:shadow-md hover:border-red-500/40 transition duration-300 group"
+                  >
+                    <div className="relative size-16 sm:size-20 shrink-0 rounded-xl overflow-hidden bg-[hsl(var(--muted))] border border-[hsl(var(--border))]/50">
+                      {post.og_image ? (
+                        <img
+                          src={post.og_image}
+                          alt={post.title}
+                          referrerPolicy="no-referrer"
+                          className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex size-full items-center justify-center bg-red-600 text-white font-black text-xs">
+                          VN
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <span className="text-[10px] font-black text-red-600 dark:text-red-500 uppercase tracking-wide">
+                        {post.category?.replace("-", " ")}
+                      </span>
+                      <h4 className="text-xs sm:text-sm font-extrabold text-[hsl(var(--foreground))] group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors line-clamp-2 leading-snug">
+                        {post.title}
+                      </h4>
+                      <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">
+                        {new Date(post.published_at).toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
+                  </Link>
                 ))}
               </div>
-            </div>
+            )}
           </div>
 
           {/* 📰 Beside Flashcards: Top headlines */}
