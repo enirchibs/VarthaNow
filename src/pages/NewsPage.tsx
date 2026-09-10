@@ -19,7 +19,7 @@ import { postStructuredData, setMeta } from "@/lib/seo";
 import { Badge } from "@/components/ui";
 import { useLanguage } from "@/hooks/useLanguage";
 import { ReadingProgress } from "@/components/ReadingProgress";
-import { ArticleEngagementCard } from "@/components/ArticleEngagementCard";
+import { ArticleEndActionBar } from "@/components/ArticleEndActionBar";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { trackArticleView } from "@/lib/interest-tracker";
 import { TeluguAudioPlayer } from "@/components/TeluguAudioPlayer";
@@ -403,8 +403,8 @@ export function NewsPage() {
               </div>
             </div>
 
-            {/* 💬 INTELLIGENT ARTICLE-END ENGAGEMENT SYSTEM */}
-            <ArticleEngagementCard post={post} />
+            {/* 👍 💬 📢 ARTICLE END ACTION BAR (LIKE, COMMENT, SHARE, BOOKMARK) */}
+            <ArticleEndActionBar post={post} />
 
             {/* Hashtag Chips */}
             {post.tags && post.tags.length > 0 && (
