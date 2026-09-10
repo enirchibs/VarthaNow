@@ -177,13 +177,38 @@ export function NewsPage() {
   const formattedDate = formatPublishDate(post.published_at);
   const categoryBg = CATEGORY_COLORS[post.category] || "bg-blue-600";
 
+  // Compute official publisher logo (e.g. TV9, NTV, Sakshi, Eenadu, Way2News, Disha, etc.)
+  const publisherLogo = (() => {
+    if (post.source_logo) return post.source_logo;
+    const url = (post as any).source_article_url;
+    if (url) {
+      try {
+        const hostname = new URL(url).hostname;
+        if (hostname && !hostname.includes("google.com")) {
+          return `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
+        }
+      } catch {}
+    }
+    const name = (post.author_name || "").toLowerCase();
+    if (name.includes("tv9")) return "https://www.google.com/s2/favicons?domain=tv9telugu.com&sz=64";
+    if (name.includes("ntv")) return "https://www.google.com/s2/favicons?domain=ntvtelugu.com&sz=64";
+    if (name.includes("sakshi")) return "https://www.google.com/s2/favicons?domain=sakshi.com&sz=64";
+    if (name.includes("eenadu")) return "https://www.google.com/s2/favicons?domain=eenadu.net&sz=64";
+    if (name.includes("way2news")) return "https://www.google.com/s2/favicons?domain=way2news.co&sz=64";
+    if (name.includes("disha")) return "https://www.google.com/s2/favicons?domain=dishanews.in&sz=64";
+    if (name.includes("abp")) return "https://www.google.com/s2/favicons?domain=telugu.abplive.com&sz=64";
+    if (name.includes("v6")) return "https://www.google.com/s2/favicons?domain=v6velugu.com&sz=64";
+    if (name.includes("10tv")) return "https://www.google.com/s2/favicons?domain=10tv.in&sz=64";
+    return null;
+  })();
+
   return (
     <>
       <ReadingProgress />
       <main className="container-shell grid gap-5 py-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <article className="overflow-hidden rounded-[1.8rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition-all duration-300">
           
-          {/* 📸 1. BANNER IMAGE AT THE VERY TOP (WITH SUBTLE ZOOM ANIMATION & FLOATING BRAND ICONS) */}
+          {/* 📸 1. BANNER IMAGE AT THE VERY TOP (NO ZOOM ANIMATION) */}
           <div className="relative w-full aspect-[16/10] sm:aspect-[21/9] max-h-[30rem] overflow-hidden bg-black group/banner">
             {(() => {
               const ytId = (() => {
@@ -212,7 +237,7 @@ export function NewsPage() {
                   src={post.og_image}
                   alt={post.title}
                   referrerPolicy="no-referrer"
-                  className="size-full object-cover transition-transform duration-700 ease-out group-hover/banner:scale-105 animate-in fade-in zoom-in-95 duration-500"
+                  className="size-full object-cover"
                 />
               ) : (
                 <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white font-black text-3xl">
@@ -282,93 +307,13 @@ export function NewsPage() {
             </div>
           </div>
 
-          {/* 📰 2. HEADLINE + SOURCE LOGO + DATE & TIME (RIGHT BELOW BANNER IMAGE) */}
+          {/* 📰 2. HEADLINE + AUDIO PLAYER + ARTICLE TEXT BODY */}
           <div className="p-4 sm:p-6 md:p-8 space-y-4">
             
             {/* Headline Title */}
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black leading-snug sm:leading-tight text-[hsl(var(--foreground))] tracking-tight">
               {post.title}
             </h1>
-
-            {/* Source Publisher Logo + Author + Date & Time Strip */}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-y border-[hsl(var(--border))]/60 py-3 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
-              <div className="flex items-center gap-2.5">
-                {/* Source Publisher Logo (e.g. TV9, NTV, Disha, Way2News, VarthaNow) */}
-                <div className="flex items-center gap-2 rounded-full bg-[hsl(var(--muted))] px-2.5 py-1 border border-[hsl(var(--border))]/50">
-                  {post.source_logo ? (
-                    <img
-                      src={post.source_logo}
-                      alt={post.author_name}
-                      width={20}
-                      height={20}
-                      className="size-5 rounded-full object-contain"
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                    />
-                  ) : (
-                    <span className="size-5 rounded-full bg-blue-600 text-white font-black text-[10px] grid place-items-center uppercase">
-                      {post.author_name.charAt(0)}
-                    </span>
-                  )}
-                  <span className="font-extrabold text-[hsl(var(--foreground))] text-xs">
-                    {post.author_name}
-                  </span>
-                  <span className="text-blue-500 font-bold text-xs">✓</span>
-                </div>
-
-                <span className="text-gray-300 dark:text-zinc-700">•</span>
-
-                {/* Date & Time */}
-                <span className="font-bold text-xs text-[hsl(var(--muted-foreground))]">
-                  {formattedDate}
-                </span>
-
-                {post.reading_time_min > 0 && (
-                  <>
-                    <span className="text-gray-300 dark:text-zinc-700 hidden sm:inline">•</span>
-                    <span className="hidden sm:inline-flex items-center gap-1 font-bold text-xs">
-                      <Clock className="size-3 text-indigo-500" />
-                      {post.reading_time_min} {lang === "te" ? "నిమి పఠనం" : "min read"}
-                    </span>
-                  </>
-                )}
-              </div>
-
-              {/* Font Size Selector (A A A) */}
-              <div className="flex items-center gap-1 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-1 shrink-0">
-                <button
-                  onClick={() => setFontSize("small")}
-                  className={`rounded-full px-2 py-0.5 text-[9px] font-black transition ${ fontSize === "small" ? "bg-[hsl(var(--primary))] text-white shadow-sm" : "text-[hsl(var(--muted-foreground))]" }`}
-                  aria-label="Small font"
-                >A</button>
-                <button
-                  onClick={() => setFontSize("medium")}
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-black transition ${ fontSize === "medium" ? "bg-[hsl(var(--primary))] text-white shadow-sm" : "text-[hsl(var(--muted-foreground))]" }`}
-                  aria-label="Medium font"
-                >A</button>
-                <button
-                  onClick={() => setFontSize("large")}
-                  className={`rounded-full px-2 py-0.5 text-[14px] font-black transition ${ fontSize === "large" ? "bg-[hsl(var(--primary))] text-white shadow-sm" : "text-[hsl(var(--muted-foreground))]" }`}
-                  aria-label="Large font"
-                >A</button>
-              </div>
-            </div>
-
-            {/* Read Original Source Link Button (Copyright & Publisher Compliance) */}
-            {hasSourceLink && (
-              <div className="pt-1">
-                <a
-                  href={(post as any).source_article_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--muted))] px-4 py-2 text-xs font-bold text-[hsl(var(--foreground))] hover:bg-[hsl(var(--primary))]/10 hover:text-[hsl(var(--primary))] hover:border-[hsl(var(--primary))]/30 transition-all duration-200"
-                >
-                  <ExternalLink className="size-3.5 text-blue-500" />
-                  <span>
-                    {lang === "te" ? `మూల వార్త: ${post.author_name} లో చదవండి` : `Read original story at ${post.author_name}`}
-                  </span>
-                </a>
-              </div>
-            )}
 
             {/* 🔊 100-WORD TELUGU AUDIO PLAYER WITH AUTO-NEXT ARTICLE PLAYLIST */}
             <TeluguAudioPlayer
@@ -379,7 +324,7 @@ export function NewsPage() {
             />
 
             {/* 📝 3. NEWS ARTICLE BODY CONTENT */}
-            <div className="article-content pt-3">
+            <div className="article-content pt-1">
               {post.content ? (
                 <div dangerouslySetInnerHTML={{ __html: markdownToHtml(post.content) }} />
               ) : (
@@ -387,6 +332,75 @@ export function NewsPage() {
                   {post.excerpt}
                 </p>
               )}
+            </div>
+
+            {/* 🏷️ SINGLE COMPACT LINE BELOW THE NEWS TEXT (Publisher Logo + Name + Date + Source Link + Font Controls) */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[hsl(var(--border))]/60 pt-3 text-[11px] font-semibold text-[hsl(var(--muted-foreground))]">
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Source Publisher Logo & Name */}
+                <div className="flex items-center gap-1.5 rounded-full bg-[hsl(var(--muted))] px-2 py-0.5 border border-[hsl(var(--border))]/50">
+                  {publisherLogo ? (
+                    <img
+                      src={publisherLogo}
+                      alt={post.author_name}
+                      width={16}
+                      height={16}
+                      className="size-4 rounded-full object-contain"
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+                    />
+                  ) : (
+                    <span className="size-4 rounded-full bg-blue-600 text-white font-black text-[8px] grid place-items-center uppercase">
+                      {post.author_name.charAt(0)}
+                    </span>
+                  )}
+                  <span className="font-extrabold text-[hsl(var(--foreground))] text-[11px]">
+                    {post.author_name}
+                  </span>
+                  <span className="text-blue-500 font-bold text-[10px]">✓</span>
+                </div>
+
+                <span className="text-gray-300 dark:text-zinc-700">•</span>
+
+                {/* Date & Time */}
+                <span className="font-bold text-[11px]">
+                  {formattedDate}
+                </span>
+
+                {/* Read Original Source Link */}
+                {hasSourceLink && (
+                  <>
+                    <span className="text-gray-300 dark:text-zinc-700">•</span>
+                    <a
+                      href={(post as any).source_article_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] font-extrabold text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      <ExternalLink className="size-3 text-blue-500" />
+                      <span>{lang === "te" ? `మూల వార్త: ${post.author_name}` : `Source: ${post.author_name}`}</span>
+                    </a>
+                  </>
+                )}
+              </div>
+
+              {/* Compact Font Size Selector (A A A) */}
+              <div className="flex items-center gap-0.5 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-0.5 shrink-0">
+                <button
+                  onClick={() => setFontSize("small")}
+                  className={`rounded-full px-1.5 py-0.5 text-[8px] font-black transition ${ fontSize === "small" ? "bg-[hsl(var(--primary))] text-white shadow-sm" : "text-[hsl(var(--muted-foreground))]" }`}
+                  aria-label="Small font"
+                >A</button>
+                <button
+                  onClick={() => setFontSize("medium")}
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-black transition ${ fontSize === "medium" ? "bg-[hsl(var(--primary))] text-white shadow-sm" : "text-[hsl(var(--muted-foreground))]" }`}
+                  aria-label="Medium font"
+                >A</button>
+                <button
+                  onClick={() => setFontSize("large")}
+                  className={`rounded-full px-1.5 py-0.5 text-[12px] font-black transition ${ fontSize === "large" ? "bg-[hsl(var(--primary))] text-white shadow-sm" : "text-[hsl(var(--muted-foreground))]" }`}
+                  aria-label="Large font"
+                >A</button>
+              </div>
             </div>
 
             {/* 💬 INTELLIGENT ARTICLE-END ENGAGEMENT SYSTEM */}
