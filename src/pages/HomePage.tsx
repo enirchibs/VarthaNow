@@ -156,88 +156,91 @@ export function HomePage() {
       
       {slides.length > 0 && currentSlide && (
         <section className="grid gap-3 lg:grid-cols-[2fr_1fr]">
-          {/* 📸 Flash Cards Image Gallery */}
-          <div className="flex flex-col justify-between overflow-hidden rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 shadow-sm hover:shadow-md transition duration-300">
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.2rem] bg-[hsl(var(--muted))] border border-[hsl(var(--border))]/50 group/slider">
-              <Link to={`/news/${currentSlide.slug}`} className="block size-full">
-                {currentSlide.og_image ? (
-                  <img
-                    src={currentSlide.og_image}
-                    alt={currentSlide.title}
-                    referrerPolicy="no-referrer"
-                    className="size-full object-cover transition-transform duration-700 group-hover/slider:scale-105"
-                  />
-                ) : (
-                  <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-2xl">
-                    VaartaNow
-                  </div>
-                )}
-
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-opacity duration-300" />
-
-                {/* Category badge — top left */}
-                <div className="absolute left-3 top-3 z-10 pointer-events-none">
-                  <span className="inline-flex items-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30 px-2.5 py-1 text-[10px] font-black text-white uppercase tracking-wide">
-                    {currentSlide.category?.replace("-", " ")}
-                  </span>
+          {/* 📸 Flash Cards Image Gallery - Full Bleed Edge-to-Edge with No White Gaps */}
+          <div className="relative overflow-hidden rounded-[1.8rem] border border-[hsl(var(--border))] bg-zinc-950 shadow-md hover:shadow-xl transition-all duration-300 min-h-[360px] sm:min-h-[420px] lg:min-h-[460px] group/slider flex flex-col justify-between">
+            <Link to={`/news/${currentSlide.slug}`} className="absolute inset-0 size-full">
+              {currentSlide.og_image ? (
+                <img
+                  src={currentSlide.og_image}
+                  alt={currentSlide.title}
+                  referrerPolicy="no-referrer"
+                  className="size-full object-cover transition-transform duration-700 group-hover/slider:scale-105"
+                />
+              ) : (
+                <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white font-black text-3xl">
+                  VaartaNow
                 </div>
+              )}
 
+              {/* Deep Multi-Layer Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-opacity duration-300" />
+            </Link>
+
+            {/* Top Badges Bar */}
+            <div className="relative z-10 p-3.5 sm:p-5 flex items-center justify-between pointer-events-none">
+              {/* Category badge — top left */}
+              <span className="inline-flex items-center rounded-full bg-red-600 text-white border border-red-500/30 px-3 py-1 text-xs font-black uppercase tracking-wider shadow-md backdrop-blur-md">
+                {currentSlide.category?.replace("-", " ")}
+              </span>
+
+              <div className="flex items-center gap-2">
                 {/* Breaking badge — top right (only if featured) */}
                 {currentSlide.featured && (
-                  <div className="absolute right-14 top-3 z-10 pointer-events-none">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-1 text-[10px] font-black text-white uppercase tracking-wide animate-pulse">
-                      🔴 BREAKING
-                    </span>
-                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-3 py-1 text-xs font-black text-white uppercase tracking-wider animate-pulse shadow-md">
+                    🔴 BREAKING
+                  </span>
                 )}
 
-                {/* Headline + time overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10 text-left">
-                  <h2 className="text-base md:text-xl lg:text-2xl font-black leading-snug text-white drop-shadow-lg transition-colors duration-300 group-hover/slider:text-red-200">
-                    {currentSlide.title}
-                  </h2>
-                  <p className="mt-1 text-[11px] font-semibold text-white/70">
-                    {new Date(currentSlide.published_at).toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}
-                    {currentSlide.reading_time_min ? ` · ${currentSlide.reading_time_min} min read` : ""}
-                  </p>
+                {/* Circular Index counter badge */}
+                <div className="bg-white/95 dark:bg-zinc-900/95 border-2 border-red-600 rounded-full w-10 h-10 flex items-center justify-center text-xs font-black text-red-600 dark:text-red-400 shadow-lg pointer-events-auto">
+                  {activeSlide + 1}/{slides.length}
                 </div>
-              </Link>
-
-              {/* Circular Index indicator */}
-              <div className="absolute top-3 right-3 z-10 bg-white dark:bg-zinc-950 border-2 border-red-600 dark:border-red-500 rounded-full w-9 h-9 flex items-center justify-center text-xs font-black text-red-600 dark:text-red-500 shadow-md">
-                {activeSlide + 1}/{slides.length}
               </div>
-
-              {/* Navigation Chevrons */}
-              <button
-                onClick={() => setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
-                className="absolute left-4 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-black/55 text-white flex items-center justify-center hover:bg-black/80 transition-all border border-white/20 shadow-md active:scale-95 animate-fade-in"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft className="size-5" />
-              </button>
-              <button
-                onClick={() => setActiveSlide((prev) => (prev + 1) % slides.length)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 z-10 size-10 rounded-full bg-black/55 text-white flex items-center justify-center hover:bg-black/80 transition-all border border-white/20 shadow-md active:scale-95 animate-fade-in"
-                aria-label="Next slide"
-              >
-                <ChevronRight className="size-5" />
-              </button>
             </div>
 
-            {/* Dots indicator */}
-            <div className="flex justify-center gap-2 mt-4">
-              {slides.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveSlide(idx)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    activeSlide === idx ? "w-6 bg-red-600 dark:bg-red-500" : "w-2 bg-[hsl(var(--border))]/80 dark:bg-zinc-800"
-                  }`}
-                  aria-label={`Go to slide ${idx + 1}`}
-                />
-              ))}
+            {/* Navigation Chevrons - Positioned over full height */}
+            <button
+              onClick={() => setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 size-11 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
+              aria-label="Previous slide"
+            >
+              <ChevronLeft className="size-6" />
+            </button>
+            <button
+              onClick={() => setActiveSlide((prev) => (prev + 1) % slides.length)}
+              className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-20 size-11 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
+              aria-label="Next slide"
+            >
+              <ChevronRight className="size-6" />
+            </button>
+
+            {/* Bottom Content Area: Headline + Time + Overlay Pagination Dots */}
+            <div className="relative z-10 p-5 sm:p-7 pt-12 text-left pointer-events-none space-y-3">
+              <Link to={`/news/${currentSlide.slug}`} className="block pointer-events-auto group/title">
+                <h2 className="text-lg sm:text-2xl lg:text-3xl font-black leading-snug text-white drop-shadow-md transition-colors duration-300 group-hover/title:text-red-300 line-clamp-3">
+                  {currentSlide.title}
+                </h2>
+                <p className="mt-1.5 text-xs sm:text-sm font-bold text-white/80 flex items-center gap-2">
+                  <span>{new Date(currentSlide.published_at).toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}</span>
+                  {currentSlide.reading_time_min ? <span>· {currentSlide.reading_time_min} min read</span> : null}
+                </p>
+              </Link>
+
+              {/* Dots indicator floating cleanly over image bottom overlay */}
+              <div className="flex items-center justify-center gap-2 pt-1 pointer-events-auto">
+                {slides.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveSlide(idx)}
+                    className={`h-2.5 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
+                      activeSlide === idx 
+                        ? "w-8 bg-red-600" 
+                        : "w-2.5 bg-white/50 hover:bg-white/90"
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 
