@@ -42,6 +42,40 @@ export function Layout() {
   const navRef = useRef<HTMLElement>(null);
   const [isNavAnimating, setIsNavAnimating] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
+  const [showIdleAlertBanner, setShowIdleAlertBanner] = useState(false);
+
+  // 📱 Mobile Pre-Sleep Idle Haptic Buzz & Category Wake-Up Effect
+  useEffect(() => {
+    let idleTimer: any = null;
+
+    const resetIdleTimer = () => {
+      setShowIdleAlertBanner(false);
+      if (idleTimer) clearTimeout(idleTimer);
+
+      // 20-second idle threshold before mobile screen sleeps/dims
+      idleTimer = setTimeout(() => {
+        // 1. Haptic vibration buzz on mobile devices
+        if (typeof window !== "undefined" && "vibrate" in navigator) {
+          try {
+            navigator.vibrate([140, 70, 140]);
+          } catch (e) {}
+        }
+
+        // 2. Display pre-sleep wake-up banner & trigger category navigation tour
+        setShowIdleAlertBanner(true);
+        window.dispatchEvent(new CustomEvent("gallery_first_round_complete"));
+      }, 20000);
+    };
+
+    const events = ["touchstart", "touchmove", "scroll", "click", "keydown"];
+    events.forEach((evt) => window.addEventListener(evt, resetIdleTimer, { passive: true }));
+    resetIdleTimer();
+
+    return () => {
+      if (idleTimer) clearTimeout(idleTimer);
+      events.forEach((evt) => window.removeEventListener(evt, resetIdleTimer));
+    };
+  }, []);
 
   // 🎡 Step-by-step category tour with 1.8-second buffer per highlighted category pill
   useEffect(() => {
@@ -451,6 +485,34 @@ export function Layout() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 📱 Mobile Pre-Sleep Idle Wake-Up Banner with Haptic Buzz */}
+      {showIdleAlertBanner && (
+        <div className="fixed bottom-16 sm:bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-[92%] max-w-md rounded-2xl border-2 border-red-500 bg-gradient-to-r from-red-600 via-amber-600 to-rose-600 p-3 text-white shadow-[0_10px_35px_rgba(220,38,38,0.55)] animate-in slide-in-from-bottom-5 duration-300">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="size-8 rounded-full bg-white/20 flex items-center justify-center shrink-0 animate-bounce">
+                🔔
+              </div>
+              <div className="min-w-0 text-left">
+                <div className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-yellow-200 flex items-center gap-1">
+                  <span>⚡ మొబైల్ నిద్రావస్థ నివారణ (Mobile Wake Alert)</span>
+                </div>
+                <div className="text-xs font-black truncate leading-tight mt-0.5">
+                  తాజా వార్తలు & స్థానిక ఉద్యోగాలు చూసేందుకు క్లిక్ చేయండి!
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowIdleAlertBanner(false)}
+              className="size-7 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white shrink-0 text-xs font-black"
+              aria-label="Dismiss alert"
+            >
+              ✕
+            </button>
           </div>
         </div>
       )}
