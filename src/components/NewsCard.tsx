@@ -45,156 +45,95 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
 
   const shareUrl = `${window.location.origin}/news/${post.slug}`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${post.title} ${shareUrl}`)}`;
-  const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`;
-  const hasSourceLink = isRealPublisherUrl((post as any).source_article_url);
+
+  const publisherLogo = (() => {
+    if (post.source_logo) return post.source_logo;
+    const url = (post as any).source_article_url;
+    if (url) {
+      try {
+        const hostname = new URL(url).hostname;
+        if (hostname && !hostname.includes("google.com")) {
+          return `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
+        }
+      } catch {}
+    }
+    const name = (post.author_name || "").toLowerCase();
+    if (name.includes("tv9")) return "https://www.google.com/s2/favicons?domain=tv9telugu.com&sz=64";
+    if (name.includes("ntv")) return "https://www.google.com/s2/favicons?domain=ntvtelugu.com&sz=64";
+    if (name.includes("sakshi")) return "https://www.google.com/s2/favicons?domain=sakshi.com&sz=64";
+    if (name.includes("eenadu")) return "https://www.google.com/s2/favicons?domain=eenadu.net&sz=64";
+    if (name.includes("way2news")) return "https://www.google.com/s2/favicons?domain=way2news.co&sz=64";
+    if (name.includes("disha")) return "https://www.google.com/s2/favicons?domain=dishanews.in&sz=64";
+    return null;
+  })();
 
   return (
-    <article className="group flex flex-col sm:flex-row overflow-hidden rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-[0_8px_24px_rgba(37,99,235,0.06)] transition-all duration-300 hover:shadow-[0_16px_36px_rgba(37,99,235,0.14)] hover:-translate-y-0.5">
-      {/* 1 ── Image banner */}
-      <Link to={`/news/${post.slug}`} className="block sm:w-[40%] lg:w-[35%] shrink-0">
-        <div className="relative aspect-[16/10] sm:aspect-auto sm:h-full overflow-hidden bg-[hsl(var(--muted))]">
-          {post.og_image ? (
-            <img
-              src={post.og_image}
-              alt={post.title}
-              loading={priority ? "eager" : "lazy"}
-              referrerPolicy="no-referrer"
-              className="size-full object-cover transition duration-700 group-hover:scale-105"
-            />
-          ) : (
-            <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-black text-2xl">
-              VaartaNow
-            </div>
-          )}
-
-          {/* Subtle bottom gradient for text legibility */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-
-          {/* Category Badge — top left */}
-          <div className="absolute left-3 top-3 z-10 flex items-center gap-1.5 flex-wrap">
-            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-black text-white uppercase tracking-wide ${categoryColor(post.category)}`}>
-              {categoryLabel(post.category)}
-            </span>
-            {post.isLocationMatch && (
-              <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-600/90 backdrop-blur-sm px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wide border border-emerald-400/40 shadow-sm animate-fade-in">
-                📍 Near You
-              </span>
-            )}
-            {(post.isInterestMatch || post.isFavoriteMatch) && (
-              <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-500/90 backdrop-blur-sm px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wide border border-amber-300/40 shadow-sm animate-fade-in">
-                🌟 For You
-              </span>
-            )}
+    <article className="group flex flex-col overflow-hidden rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition-all duration-300 hover:shadow-md">
+      {/* 1 ── Banner Image */}
+      <Link to={`/news/${post.slug}`} className="relative aspect-[16/9] w-full overflow-hidden bg-[hsl(var(--muted))] block">
+        {post.og_image ? (
+          <img
+            src={post.og_image}
+            alt={post.title}
+            loading={priority ? "eager" : "lazy"}
+            referrerPolicy="no-referrer"
+            className="size-full object-cover"
+          />
+        ) : (
+          <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black text-xl">
+            VaartaNow
           </div>
+        )}
 
-          {/* Breaking badge — top right (only if featured) */}
-          {post.featured && (
-            <div className="absolute right-3 top-3 z-10">
-              <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-1 text-[10px] font-black text-white uppercase tracking-wide animate-pulse">
-                🔴 BREAKING
-              </span>
-            </div>
-          )}
+        {/* Category Pill Overlay */}
+        <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1">
+          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider ${categoryColor(post.category)} shadow-sm`}>
+            {categoryLabel(post.category)}
+          </span>
         </div>
       </Link>
 
-      {/* 2 ── Content */}
-      <div className="flex flex-col flex-1 p-4 sm:p-5">
-        <div className="space-y-2.5">
-          {/* Headline */}
-          <Link to={`/news/${post.slug}`} className="block">
-            <h2 className="text-base md:text-[1.15rem] font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 hover:text-[hsl(var(--primary))] transition-colors duration-200">
-              {post.title}
-            </h2>
-          </Link>
+      {/* 2 ── Content: Headline Title + Publisher/Time Footer */}
+      <div className="flex flex-col flex-1 p-3 space-y-2">
+        <Link to={`/news/${post.slug}`} className="block flex-1">
+          <h2 className="text-xs sm:text-sm font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 hover:text-[hsl(var(--primary))] transition-colors">
+            {post.title}
+          </h2>
+        </Link>
 
-          {/* Excerpt preview — key Inshorts/Dailyhunt feature */}
-          {post.excerpt && (
-            <p className="text-[0.85rem] md:text-[0.9rem] leading-relaxed text-[hsl(var(--muted-foreground))] line-clamp-3">
-              {post.excerpt}
-            </p>
-          )}
-
-          {/* Source link — copyright compliance */}
-          {hasSourceLink && (
-            <a
-              href={(post as any).source_article_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[10px] md:text-[11px] font-bold text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--primary))] transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ExternalLink className="size-3" />
-              {post.author_name} లో చదవండి
-            </a>
-          )}
-        </div>
-
-        {/* 3 ── Metadata + Actions */}
-        <div className="mt-4 sm:mt-auto flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-3 text-[11px] md:text-xs font-bold text-[hsl(var(--muted-foreground))]">
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Source chip */}
-            <span className="inline-flex items-center gap-1 rounded bg-blue-500/10 dark:bg-blue-400/10 px-1.5 py-0.5 text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-              {post.source_logo ? (
-                <img
-                  src={post.source_logo}
-                  alt={post.author_name}
-                  width={12}
-                  height={12}
-                  className="rounded-sm object-contain"
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                />
-              ) : null}
-              {post.author_name}
-              <span className="text-[10px]">✓</span>
-            </span>
-            <span className="text-gray-300 dark:text-zinc-700">·</span>
-            <span>{timeAgo(post.published_at)}</span>
-            {post.reading_time_min > 0 && (
-              <>
-                <span className="text-gray-300 dark:text-zinc-700">·</span>
-                <span className="inline-flex items-center gap-0.5">
-                  <Clock className="size-2.5" />
-                  {post.reading_time_min} min
-                </span>
-              </>
-            )}
+        {/* Footer: Publisher & Date */}
+        <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-2 text-[10px] font-bold text-[hsl(var(--muted-foreground))]">
+          <div className="flex items-center gap-1.5 min-w-0">
+            {publisherLogo ? (
+              <img
+                src={publisherLogo}
+                alt={post.author_name}
+                className="size-3.5 rounded-full object-contain shrink-0"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
+              />
+            ) : null}
+            <span className="truncate font-extrabold text-[hsl(var(--foreground))]">{post.author_name}</span>
+            <span>·</span>
+            <span className="shrink-0">{timeAgo(post.published_at)}</span>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            {/* Bookmark — Supabase synced */}
-            <Button
-              variant="ghost"
-              className="h-7 w-7 rounded-full p-0 hover:bg-[hsl(var(--muted))] transition-colors"
-              aria-label={bookmarked ? "Remove bookmark" : "Save article"}
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              aria-label="Save bookmark"
               onClick={(e) => { e.preventDefault(); toggleBookmark(post.slug); }}
+              className="p-1 hover:text-amber-500 transition"
             >
-              {bookmarked
-                ? <BookmarkCheck className="size-3.5 fill-[hsl(var(--primary))] text-[hsl(var(--primary))]" />
-                : <Bookmark className="size-3.5" />
-              }
-            </Button>
-            {/* WhatsApp */}
+              {bookmarked ? <BookmarkCheck className="size-3.5 fill-amber-500 text-amber-500" /> : <Bookmark className="size-3.5" />}
+            </button>
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="grid h-7 w-7 place-items-center rounded-full bg-emerald-500 text-white transition-transform hover:scale-105"
-              aria-label="WhatsApp share"
+              className="p-1 text-emerald-600 hover:text-emerald-700 transition"
+              aria-label="Share on WhatsApp"
               onClick={(e) => e.stopPropagation()}
             >
               <Share2 className="size-3.5" />
-            </a>
-            {/* Telegram */}
-            <a
-              href={telegramUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="grid h-7 w-7 place-items-center rounded-full bg-sky-500 text-white transition-transform hover:scale-105"
-              aria-label="Telegram share"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Send className="size-3.5" />
             </a>
           </div>
         </div>
