@@ -182,69 +182,29 @@ export function HomePage() {
       
       {slides.length > 0 && currentSlide && (
         <section className="grid gap-2.5 lg:grid-cols-[2fr_1fr]">
-          {/* 📸 Flash Cards Image Gallery with Animated Traveling Red Laser Border */}
-          <div className="relative p-[3px] rounded-[1.8rem] overflow-hidden bg-zinc-950 shadow-[0_0_25px_rgba(239,68,68,0.3)] transition-all duration-300">
-            {/* SVG Animated Red Laser Beam Circuit (Top-Left -> Top-Right -> Bottom-Right -> Bottom-Left -> Top-Left) */}
-            <svg className="absolute inset-0 size-full pointer-events-none z-30 overflow-visible">
-              <defs>
-                <linearGradient id="redLaserBeamGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#ef4444" stopOpacity="1" />
-                  <stop offset="60%" stopColor="#f43f5e" stopOpacity="1" />
-                  <stop offset="100%" stopColor="#dc2626" stopOpacity="0.2" />
-                </linearGradient>
-                <filter id="redLaserGlow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
-                  <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
-              </defs>
+          {/* 📸 Clean Flash Cards Image Gallery with Smooth Shimmer & Soft Shadow */}
+          <div className="relative aspect-[21/9] sm:aspect-[21/9] max-h-[210px] sm:max-h-[250px] w-full overflow-hidden rounded-[1.6rem] bg-slate-900 shadow-lg hover:shadow-2xl transition-all duration-500 group/slider flex flex-col justify-between border border-[hsl(var(--border))]/50">
+            <Link to={`/news/${currentSlide.slug}`} className="absolute inset-0 size-full overflow-hidden">
+              {currentSlide.og_image ? (
+                <img
+                  key={currentSlide.slug}
+                  src={currentSlide.og_image}
+                  alt={currentSlide.title}
+                  referrerPolicy="no-referrer"
+                  className="size-full object-cover transition-transform duration-700 ease-out group-hover/slider:scale-105 animate-in fade-in duration-500"
+                />
+              ) : (
+                <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white font-black text-3xl">
+                  VaartaNow
+                </div>
+              )}
 
-              {/* Static base red border line */}
-              <rect
-                x="2"
-                y="2"
-                width="calc(100% - 4px)"
-                height="calc(100% - 4px)"
-                rx="24"
-                fill="none"
-                stroke="#ef4444"
-                strokeWidth="2"
-                strokeOpacity="0.35"
-              />
+              {/* Gentle Glass Light Shimmer Sweep Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/slider:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
 
-              {/* Animated traveling bright red laser pulse line */}
-              <rect
-                x="2"
-                y="2"
-                width="calc(100% - 4px)"
-                height="calc(100% - 4px)"
-                rx="24"
-                fill="none"
-                stroke="url(#redLaserBeamGrad)"
-                strokeWidth="3.5"
-                filter="url(#redLaserGlow)"
-                className="animate-red-laser"
-              />
-            </svg>
-
-            {/* Inner Sleek Gallery Slider Box */}
-            <div className="relative aspect-[21/9] sm:aspect-[21/9] max-h-[210px] sm:max-h-[250px] w-full overflow-hidden rounded-[1.6rem] bg-slate-900 shadow-md group/slider flex flex-col justify-between">
-              <Link to={`/news/${currentSlide.slug}`} className="absolute inset-0 size-full">
-                {currentSlide.og_image ? (
-                  <img
-                    src={currentSlide.og_image}
-                    alt={currentSlide.title}
-                    referrerPolicy="no-referrer"
-                    className="size-full object-cover transition-transform duration-700 group-hover/slider:scale-105"
-                  />
-                ) : (
-                  <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white font-black text-3xl">
-                    VaartaNow
-                  </div>
-                )}
-
-                {/* Gradient Overlay for text contrast */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
-              </Link>
+              {/* Gradient Overlay for text contrast */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
+            </Link>
 
               {/* Top Badges Bar */}
               <div className="relative z-10 p-2 sm:p-3 flex items-center justify-between pointer-events-none">
@@ -314,7 +274,6 @@ export function HomePage() {
                 </div>
               </div>
             </div>
-          </div>
 
           {/* 📰 Beside Flashcards: Top headlines */}
           <div className="hidden lg:flex flex-col rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 shadow-sm hover:shadow-md transition duration-300">
