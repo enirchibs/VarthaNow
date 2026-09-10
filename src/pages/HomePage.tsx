@@ -207,23 +207,23 @@ export function HomePage() {
             </Link>
 
               {/* Top Badges Bar */}
-              <div className="relative z-10 p-2 sm:p-3 flex items-center justify-between pointer-events-none">
+              <div className="relative z-10 p-1.5 sm:p-2.5 flex items-center justify-between pointer-events-none">
                 {/* Category badge — top left */}
-                <span className="inline-flex items-center gap-1 rounded-full bg-red-600 text-white border-2 border-white/90 ring-2 ring-red-500/50 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-lg backdrop-blur-md">
-                  <span className="size-1.5 rounded-full bg-white animate-pulse" />
+                <span className="inline-flex items-center gap-1 rounded-full bg-red-600 text-white border border-white/90 px-2 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider shadow-md backdrop-blur-md">
+                  <span className="size-1 rounded-full bg-white animate-pulse" />
                   {categoryLabel(currentSlide.category)}
                 </span>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   {/* Breaking badge — top right (only if featured) */}
                   {currentSlide.featured && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-black text-white uppercase tracking-wider animate-pulse shadow-md">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-1.5 py-0.5 text-[8px] sm:text-[9px] font-black text-white uppercase tracking-wider animate-pulse shadow-md">
                       🔴 BREAKING
                     </span>
                   )}
 
                   {/* Circular Index counter badge */}
-                  <div className="bg-white/95 dark:bg-zinc-900/95 border-2 border-red-600 rounded-full size-7 sm:size-8 flex items-center justify-center text-[10px] font-black text-red-600 dark:text-red-400 shadow-lg pointer-events-auto">
+                  <div className="bg-white/95 dark:bg-zinc-900/95 border border-red-600 rounded-full size-6 sm:size-7 flex items-center justify-center text-[8px] sm:text-[9px] font-black text-red-600 dark:text-red-400 shadow-md pointer-events-auto">
                     {activeSlide + 1}/{slides.length}
                   </div>
                 </div>
@@ -245,32 +245,36 @@ export function HomePage() {
                 <ChevronRight className="size-4" />
               </button>
 
-              {/* Bottom Content Area: Headline + Time + Overlay Pagination Dots */}
-              <div className="relative z-10 p-2 sm:p-4 pt-6 text-left pointer-events-none space-y-1">
+              {/* Bottom Content Area: Headline + Time beside Gallery Dots */}
+              <div className="relative z-10 p-2 sm:p-3 pt-4 text-left pointer-events-none space-y-1">
                 <Link to={`/news/${currentSlide.slug}`} className="block pointer-events-auto group/title">
-                  <h2 className="text-sm sm:text-lg font-black leading-snug text-white drop-shadow-md transition-colors duration-300 group-hover/title:text-red-300 line-clamp-1">
+                  <h2 className="text-xs sm:text-base font-black leading-tight text-white drop-shadow-md transition-colors duration-300 group-hover/title:text-red-300 line-clamp-1">
                     {currentSlide.title}
                   </h2>
-                  <p className="mt-0.5 text-[10px] sm:text-[11px] font-bold text-white/80 flex items-center gap-2">
+                </Link>
+
+                {/* Single line bar: Time & min read placed cleanly beside pagination dots */}
+                <div className="flex items-center justify-between gap-2 pt-0.5 pointer-events-auto">
+                  <p className="text-[9px] sm:text-[10px] font-extrabold text-white/90 drop-shadow-sm flex items-center gap-1">
                     <span>{new Date(currentSlide.published_at).toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}</span>
                     {currentSlide.reading_time_min ? <span>· {currentSlide.reading_time_min} min read</span> : null}
                   </p>
-                </Link>
 
-                {/* Dots indicator floating cleanly over image bottom overlay */}
-                <div className="flex items-center justify-center gap-1 pt-0.5 pointer-events-auto">
-                  {slides.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveSlide(idx)}
-                      className={`h-1.5 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
-                        activeSlide === idx 
-                          ? "w-5 bg-red-600" 
-                          : "w-1.5 bg-white/50 hover:bg-white/90"
-                      }`}
-                      aria-label={`Go to slide ${idx + 1}`}
-                    />
-                  ))}
+                  {/* Dots indicator floating cleanly beside time */}
+                  <div className="flex items-center gap-1 shrink-0">
+                    {slides.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveSlide(idx)}
+                        className={`h-1.5 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
+                          activeSlide === idx 
+                            ? "w-4 bg-red-600" 
+                            : "w-1.5 bg-white/50 hover:bg-white/90"
+                        }`}
+                        aria-label={`Go to slide ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
