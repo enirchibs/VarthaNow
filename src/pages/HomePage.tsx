@@ -23,6 +23,7 @@ import { detectGPSLocation, getCachedGPSLocation } from "@/lib/location-detector
 import { getUserInterests } from "@/lib/interest-tracker";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { demoPosts } from "@/lib/demo-data";
+import { categoryLabel } from "@/lib/categories";
 
 const CITIES = [
   "Hyderabad",
@@ -248,8 +249,9 @@ export function HomePage() {
               {/* Top Badges Bar */}
               <div className="relative z-10 p-2 sm:p-3 flex items-center justify-between pointer-events-none">
                 {/* Category badge — top left */}
-                <span className="inline-flex items-center rounded-full bg-red-600 text-white border border-red-500/30 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-md backdrop-blur-md">
-                  {currentSlide.category?.replace("-", " ")}
+                <span className="inline-flex items-center gap-1 rounded-full bg-red-600 text-white border-2 border-white/90 ring-2 ring-red-500/50 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-lg backdrop-blur-md">
+                  <span className="size-1.5 rounded-full bg-white animate-pulse" />
+                  {categoryLabel(currentSlide.category)}
                 </span>
 
                 <div className="flex items-center gap-2">
@@ -345,10 +347,10 @@ export function HomePage() {
         {/* All News / Latest News Tab */}
         <button
           onClick={() => setFeedMode("all")}
-          className={`shrink-0 rounded-full px-3 py-1 text-xs font-black transition-all active:scale-95 cursor-pointer whitespace-nowrap ${
+          className={`shrink-0 rounded-full px-3.5 py-1 text-xs font-black transition-all active:scale-95 cursor-pointer whitespace-nowrap border-2 ${
             feedMode === "all"
-              ? "bg-red-600 text-white shadow-md"
-              : "bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+              ? "bg-red-600 text-white border-red-400 shadow-md shadow-red-600/30"
+              : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-red-500 hover:text-red-600"
           }`}
         >
           🌐 {translations.allNews[lang] || translations.allNews.te}
@@ -357,10 +359,10 @@ export function HomePage() {
         {/* Unread Tab */}
         <button
           onClick={() => setFeedMode("personalized")}
-          className={`shrink-0 rounded-full px-3 py-1 text-xs font-black transition-all active:scale-95 cursor-pointer whitespace-nowrap ${
+          className={`shrink-0 rounded-full px-3.5 py-1 text-xs font-black transition-all active:scale-95 cursor-pointer whitespace-nowrap border-2 ${
             feedMode === "personalized"
-              ? "bg-amber-500 text-white shadow-md"
-              : "bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+              ? "bg-amber-500 text-white border-amber-300 shadow-md shadow-amber-500/30"
+              : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-amber-500 hover:text-amber-600"
           }`}
         >
           👁️ {lang === "te" ? "చూడనివి" : "Unread"}
@@ -373,10 +375,10 @@ export function HomePage() {
               setFeedMode("location");
               setShowLocationPicker(!showLocationPicker);
             }}
-            className={`shrink-0 rounded-full px-3 py-1 text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center gap-1 whitespace-nowrap ${
+            className={`shrink-0 rounded-full px-3.5 py-1 text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center gap-1 whitespace-nowrap border-2 ${
               feedMode === "location"
-                ? "bg-emerald-600 text-white shadow-md"
-                : "bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+                ? "bg-emerald-600 text-white border-emerald-400 shadow-md shadow-emerald-600/30"
+                : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-emerald-500 hover:text-emerald-600"
             }`}
           >
             <MapPin className="size-3 text-emerald-600 dark:text-emerald-400" />

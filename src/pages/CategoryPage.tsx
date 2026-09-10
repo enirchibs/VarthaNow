@@ -396,14 +396,18 @@ export function CategoryPage() {
   return (
     <main className="container-shell space-y-5 py-4">
       {/* Category banner */}
-      <section className="rounded-[1.5rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5">
-        <h1 className="text-3xl font-black">{label}</h1>
-        <p className="mt-2 text-[hsl(var(--muted-foreground))]">
+      <section className="relative overflow-hidden rounded-[1.6rem] border-2 border-[hsl(var(--primary))]/30 bg-[hsl(var(--card))] p-5 shadow-sm">
+        <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-red-600 via-amber-500 to-emerald-500" />
+        <h1 className="text-2xl sm:text-3xl font-black text-[hsl(var(--foreground))] flex items-center gap-2">
+          <span className="inline-block size-3 rounded-full bg-red-600 animate-pulse" />
+          {label}
+        </h1>
+        <p className="mt-2 text-xs sm:text-sm font-semibold text-[hsl(var(--muted-foreground))]">
           {lang === "te" && "Google News RSS నుంచి Gemini AI ద్వారా రూపొందించిన తాజా తెలుగు కథనాలు."}
           {lang === "en" && "Latest articles curated from Google News RSS and generated via Gemini AI."}
           {lang === "hi" && "गूगल न्यूज RSS से क्यूरेट और जेमिनी एआई द्वारा उत्पन्न नवीनतम समाचार।"}
-          {lang === "ta" && "கூகுள் நியூஸ் ஆர்எஸ்எஸ் மூலம் தொகுக்கப்பட்டு ஜெமினி ஏஐ மூலம் உருவாக்கப்பட்ட முக்கிய செய்திகள்."}
-          {lang === "kn" && "ಗೂಗಲ್ ನ್ಯೂಸ್ ಆರ್‌ಎಸ್‌ಎಸ್‌ನಿಂದ ಸಂಗ್ರಹಿಸಿ ಜೆಮಿನಿ ಎಐ ಮೂಲಕ ರಚಿಸಲಾದ ಇತ್ತೀಚಿನ ಸುದ್ದಿಗಳು."}
+          {lang === "ta" && "கூகுள் நியூஸ் ஆர்எஸ்எஸ் மூலம் தொகுக்கப்பட்டு ஜெமினி ఏఐ மூலம் உருவாக்கப்பட்ட முக்கிய செய்திகள்."}
+          {lang === "kn" && "ಗೂಗಲ್ ನ್ಯೂಸ್ ಆರ್‌ಎಸ್‌ಎಸ್‌ನಿಂದ ಸಂಗ್ರಹಿಸಿ ಜೆಮಿನಿ ఎఐ ಮೂಲಕ ರಚಿಸಲಾದ ಇತ್ತೀಚಿನ ಸುದ್ದಿಗಳು."}
         </p>
       </section>
 

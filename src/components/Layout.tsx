@@ -218,25 +218,29 @@ export function Layout() {
             <Search className="size-4" />
           </Link>
         </div>
-        <nav className="container-shell no-scrollbar flex gap-1 md:gap-2 overflow-x-auto pb-3 pt-1">
+        <nav className="container-shell no-scrollbar flex gap-1.5 md:gap-2 overflow-x-auto pb-3 pt-1">
           <NavLink
             to="/"
             end
             className={({ isActive }) =>
-              `shrink-0 rounded-full p-1 md:p-2.5 text-[9px] md:text-sm font-black transition ${
-                isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
+              `shrink-0 rounded-full p-1.5 md:p-2.5 text-[9px] md:text-sm font-black transition border-2 ${
+                isActive
+                  ? "bg-red-600 text-white border-red-400 shadow-md shadow-red-600/30 scale-105"
+                  : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-red-500 hover:text-red-600 hover:scale-105"
               }`
             }
           >
-            <Home className="size-3 md:size-4.5" />
+            <Home className="size-3.5 md:size-4.5" />
           </NavLink>
           
           <NavLink
             to="/"
             end
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-2.5 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition ${
-                isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
+              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition border-2 ${
+                isActive
+                  ? "bg-red-600 text-white border-red-400 shadow-md shadow-red-600/30 scale-105"
+                  : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-red-500 hover:text-red-600 hover:scale-105"
               }`
             }
           >
@@ -246,8 +250,10 @@ export function Layout() {
           <NavLink
             to="/jobs"
             className={({ isActive }) =>
-              `shrink-0 rounded-full px-2.5 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition ${
-                isActive ? "bg-[hsl(var(--primary))] text-white shadow-sm shadow-indigo-500/15" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]/80 hover:text-[hsl(var(--foreground))]"
+              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition border-2 ${
+                isActive
+                  ? "bg-indigo-600 text-white border-indigo-400 shadow-md shadow-indigo-600/30 scale-105"
+                  : "bg-[hsl(var(--card))] border-indigo-300/60 dark:border-indigo-800/60 text-[hsl(var(--foreground))] hover:border-indigo-500 hover:text-indigo-600 hover:scale-105"
               }`
             }
           >
@@ -259,8 +265,10 @@ export function Layout() {
               key={category.slug}
               to={category.slug === "health" ? "/health" : `/category/${category.slug}`}
               className={({ isActive }) =>
-                `shrink-0 rounded-full px-2.5 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition ${
-                  isActive ? "bg-[hsl(var(--primary))] text-white" : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
+                `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition border-2 ${
+                  isActive
+                    ? "bg-red-600 text-white border-red-400 shadow-md shadow-red-600/30 scale-105"
+                    : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-red-500 hover:text-red-600 hover:scale-105"
                 }`
               }
             >

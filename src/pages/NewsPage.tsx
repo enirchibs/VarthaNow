@@ -301,7 +301,7 @@ export function NewsPage() {
 
             {/* Bottom Overlay: Category Pill Badge */}
             <div className="absolute left-4 bottom-4 z-20">
-              <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-black text-white uppercase tracking-wider shadow-md backdrop-blur-sm border border-white/20 ${categoryBg}`}>
+              <span className={`inline-flex items-center rounded-full px-3.5 py-1 text-[11px] font-black text-white uppercase tracking-wider shadow-xl backdrop-blur-md border-2 border-white/90 ring-2 ring-black/40 ${categoryBg}`}>
                 {categoryLabel(post.category, lang)}
               </span>
             </div>

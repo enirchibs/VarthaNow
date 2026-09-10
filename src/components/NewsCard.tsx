@@ -7,25 +7,25 @@ import { Badge, Button } from "@/components/ui";
 import { useBookmarks } from "@/hooks/useBookmarks";
 
 // ─── Helpers ────────────────────────────────────────────────────
-const CATEGORY_COLORS: Record<string, string> = {
-  politics:        "bg-red-600",
-  "andhra-pradesh":"bg-orange-600",
-  telangana:       "bg-yellow-600",
-  cricket:         "bg-green-600",
-  cinema:          "bg-pink-600",
-  technology:      "bg-blue-600",
-  business:        "bg-emerald-700",
-  health:          "bg-teal-600",
-  devotional:      "bg-amber-600",
-  viralshorts:     "bg-rose-600",
-  vizag:           "bg-cyan-600",
-  jobs:            "bg-indigo-600",
-  national:        "bg-red-700",
-  education:       "bg-violet-600",
+const CATEGORY_STYLES: Record<string, string> = {
+  politics:        "bg-red-600 border-2 border-white text-white shadow-[0_2px_8px_rgba(220,38,38,0.6)]",
+  "andhra-pradesh":"bg-orange-600 border-2 border-white text-white shadow-[0_2px_8px_rgba(234,88,12,0.6)]",
+  telangana:       "bg-amber-600 border-2 border-yellow-200 text-white shadow-[0_2px_8px_rgba(217,119,6,0.6)]",
+  cricket:         "bg-emerald-600 border-2 border-white text-white shadow-[0_2px_8px_rgba(5,150,105,0.6)]",
+  cinema:          "bg-pink-600 border-2 border-white text-white shadow-[0_2px_8px_rgba(219,39,119,0.6)]",
+  technology:      "bg-blue-600 border-2 border-white text-white shadow-[0_2px_8px_rgba(37,99,235,0.6)]",
+  business:        "bg-teal-700 border-2 border-white text-white shadow-[0_2px_8px_rgba(15,118,110,0.6)]",
+  health:          "bg-green-600 border-2 border-white text-white shadow-[0_2px_8px_rgba(22,163,74,0.6)]",
+  devotional:      "bg-amber-700 border-2 border-yellow-300 text-white shadow-[0_2px_8px_rgba(180,83,9,0.6)]",
+  viralshorts:     "bg-rose-600 border-2 border-white text-white shadow-[0_2px_8px_rgba(225,29,72,0.6)]",
+  vizag:           "bg-cyan-600 border-2 border-white text-white shadow-[0_2px_8px_rgba(8,145,178,0.6)]",
+  jobs:            "bg-indigo-600 border-2 border-white text-white shadow-[0_2px_8px_rgba(79,70,229,0.6)]",
+  national:        "bg-red-700 border-2 border-white text-white shadow-[0_2px_8px_rgba(185,28,28,0.6)]",
+  education:       "bg-violet-600 border-2 border-white text-white shadow-[0_2px_8px_rgba(124,58,237,0.6)]",
 };
 
-function categoryColor(cat: string) {
-  return CATEGORY_COLORS[cat] ?? "bg-blue-600";
+function categoryStyle(cat: string) {
+  return CATEGORY_STYLES[cat] ?? "bg-blue-600 border-2 border-white text-white shadow-md";
 }
 
 function isRealPublisherUrl(url?: string | null): boolean {
@@ -85,9 +85,9 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
           </div>
         )}
 
-        {/* Category Pill Overlay */}
+        {/* Category Pill Overlay with High-Visibility Beautiful Border */}
         <div className="absolute left-2 top-2 z-10 flex items-center gap-1">
-          <span className={`inline-flex items-center rounded-full px-2 py-0.2 text-[8px] font-black text-white uppercase tracking-wider ${categoryColor(post.category)} shadow-sm`}>
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${categoryStyle(post.category)} backdrop-blur-md transition-transform group-hover:scale-105`}>
             {categoryLabel(post.category)}
           </span>
         </div>
