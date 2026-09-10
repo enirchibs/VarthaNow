@@ -35,7 +35,13 @@ export function NewsGrid({ posts, loading }: { posts: BlogPost[]; loading?: bool
   return (
     <div className="grid grid-cols-2 gap-3 sm:gap-4">
       {displayPosts.map((post, index) => (
-        <NewsCard key={post.slug} post={post} priority={index === 0} />
+        <div 
+          key={post.slug} 
+          className="animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
+          style={{ animationDelay: `${(index % 8) * 70}ms` }}
+        >
+          <NewsCard post={post} priority={index === 0} />
+        </div>
       ))}
     </div>
   );

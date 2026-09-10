@@ -68,7 +68,7 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
   })();
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-[1.2rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition-all duration-300 hover:shadow-xl hover:border-red-500/60 hover:-translate-y-1 active:scale-[0.98] cursor-pointer relative">
+    <article className="group flex flex-col overflow-hidden rounded-[1.2rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition-all duration-300 hover:shadow-[0_12px_28px_rgba(239,68,68,0.18)] hover:border-red-500/60 hover:ring-2 hover:ring-red-500/20 hover:-translate-y-1 active:scale-[0.98] cursor-pointer relative">
       {/* 1 ── Banner Image */}
       <Link to={`/news/${post.slug}`} className="relative aspect-[20/9] w-full overflow-hidden bg-[hsl(var(--muted))] block">
         {post.og_image ? (
@@ -99,8 +99,9 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
       {/* 2 ── Content: Headline Title + Publisher/Time Footer */}
       <div className="flex flex-col flex-1 p-2 sm:p-2.5 space-y-1.5">
         <Link to={`/news/${post.slug}`} className="block flex-1">
-          <h2 className="text-[11px] sm:text-xs font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
-            {post.title}
+          <h2 className="text-[11px] sm:text-xs font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors flex items-center justify-between gap-1">
+            <span>{post.title}</span>
+            <span className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-red-600 dark:text-red-400 shrink-0 text-[10px]">➔</span>
           </h2>
         </Link>
 
