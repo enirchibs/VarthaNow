@@ -158,22 +158,33 @@ export function HomePage() {
         <section className="grid gap-3 lg:grid-cols-[2fr_1fr]">
           {/* 📸 Flash Cards Image Gallery - Full Bleed Edge-to-Edge with No White Gaps */}
           <div className="relative overflow-hidden rounded-[1.8rem] border border-[hsl(var(--border))] bg-zinc-950 shadow-md hover:shadow-xl transition-all duration-300 min-h-[360px] sm:min-h-[420px] lg:min-h-[460px] group/slider flex flex-col justify-between">
-            <Link to={`/news/${currentSlide.slug}`} className="absolute inset-0 size-full">
+            <Link to={`/news/${currentSlide.slug}`} className="absolute inset-0 size-full flex items-center justify-center overflow-hidden bg-zinc-950">
               {currentSlide.og_image ? (
-                <img
-                  src={currentSlide.og_image}
-                  alt={currentSlide.title}
-                  referrerPolicy="no-referrer"
-                  className="size-full object-cover transition-transform duration-700 group-hover/slider:scale-105"
-                />
+                <>
+                  {/* Ambient blurred background image for full fit atmosphere */}
+                  <img
+                    src={currentSlide.og_image}
+                    alt=""
+                    aria-hidden="true"
+                    referrerPolicy="no-referrer"
+                    className="absolute inset-0 size-full object-cover blur-xl opacity-40 scale-110 pointer-events-none"
+                  />
+                  {/* Full original image fit without any cropping */}
+                  <img
+                    src={currentSlide.og_image}
+                    alt={currentSlide.title}
+                    referrerPolicy="no-referrer"
+                    className="relative z-0 size-full object-contain transition-transform duration-700 group-hover/slider:scale-[1.02]"
+                  />
+                </>
               ) : (
                 <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 text-white font-black text-3xl">
                   VaartaNow
                 </div>
               )}
 
-              {/* Deep Multi-Layer Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-opacity duration-300" />
+              {/* Gradient Overlay for text contrast */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/35 to-black/20 pointer-events-none" />
             </Link>
 
             {/* Top Badges Bar */}
