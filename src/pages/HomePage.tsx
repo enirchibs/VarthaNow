@@ -99,7 +99,13 @@ export function HomePage() {
   useEffect(() => {
     if (slides.length <= 1) return;
     const interval = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % slides.length);
+      setActiveSlide((prev) => {
+        const next = (prev + 1) % slides.length;
+        if (next === 0) {
+          window.dispatchEvent(new CustomEvent("gallery_first_round_complete"));
+        }
+        return next;
+      });
     }, 5000);
     return () => clearInterval(interval);
   }, [slides]);

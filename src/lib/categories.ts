@@ -149,14 +149,26 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
   {
     slug: "jobs" as any,
     label: {
-      te: "ఉద్యోగాలు",
-      en: "Jobs",
-      hi: "नौकरियां",
-      ta: "வேலைவாய்ப்பு",
-      kn: "ಉದ್ಯೋಗಗಳು"
+      te: "స్థానిక ఉద్యోగాలు",
+      en: "Local Jobs",
+      hi: "स्थानीय नौकरियां",
+      ta: "உள்ளூர் வேலைகள்",
+      kn: "ಸ್ಥಳೀಯ ಉದ್ಯೋಗಗಳು"
     },
-    short: "Jobs",
+    short: "Local Jobs",
     rssQuery: "jobs recruitment notification"
+  },
+  {
+    slug: "jathakam" as any,
+    label: {
+      te: "జాతకము",
+      en: "Jathakam / Horoscope",
+      hi: "राशिफल",
+      ta: "ஜாதகம்",
+      kn: "ಜಾತಕ"
+    },
+    short: "Jathakam",
+    rssQuery: "astrology rasi phalalu horoscopes jathakam panchangam vastu"
   },
   {
     slug: "education" as any,
@@ -184,7 +196,8 @@ export const TELUGU_CATEGORY_MAP: Record<string, string> = {
   devotional:      "భక్తి",
   viralshorts:     "వైరల్ షార్ట్స్",
   vizag:           "విశాఖ",
-  jobs:            "ఉద్యోగాలు",
+  jobs:            "స్థానిక ఉద్యోగాలు",
+  jathakam:        "జాతకము",
   national:        "జాతీయ వార్తలు",
   education:       "విద్య",
 };

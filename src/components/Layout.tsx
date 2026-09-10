@@ -1,6 +1,6 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles, Sprout, Wrench, UtensilsCrossed } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -20,7 +20,11 @@ const categoryEmojis: Record<string, string> = {
   cinema: "🎬",
   vizag: "🌊",
   technology: "💻",
-  business: "📈"
+  business: "📈",
+  jobs: "💼",
+  jathakam: "🔮",
+  national: "🌐",
+  education: "🎓"
 };
 
 export function Layout() {
@@ -35,6 +39,41 @@ export function Layout() {
   const [user, setUser] = useState<any>(null);
   const [showMoreCategories, setShowMoreCategories] = useState(false);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const [isNavAnimating, setIsNavAnimating] = useState(false);
+
+  // 🎡 Auto-scroll category navigation bar to left after 1st round of image gallery completes
+  useEffect(() => {
+    let animInterval: any = null;
+
+    const startNavAnimation = () => {
+      if (!navRef.current) return;
+      const navEl = navRef.current;
+      const maxScroll = navEl.scrollWidth - navEl.clientWidth;
+      if (maxScroll <= 0) return;
+
+      setIsNavAnimating(true);
+      let currentLeft = 0;
+      const step = Math.min(220, Math.floor(maxScroll / 4));
+
+      animInterval = setInterval(() => {
+        currentLeft += step;
+        if (currentLeft >= maxScroll + step) {
+          clearInterval(animInterval);
+          navEl.scrollTo({ left: 0, behavior: "smooth" });
+          setTimeout(() => setIsNavAnimating(false), 1000);
+        } else {
+          navEl.scrollTo({ left: Math.min(currentLeft, maxScroll), behavior: "smooth" });
+        }
+      }, 1500);
+    };
+
+    window.addEventListener("gallery_first_round_complete", startNavAnimation);
+    return () => {
+      window.removeEventListener("gallery_first_round_complete", startNavAnimation);
+      if (animInterval) clearInterval(animInterval);
+    };
+  }, []);
 
   // 📜 Scroll to top of window automatically on route change
   useEffect(() => {
@@ -218,7 +257,7 @@ export function Layout() {
             <Search className="size-4" />
           </Link>
         </div>
-        <nav className="container-shell no-scrollbar flex gap-1.5 md:gap-2 overflow-x-auto pb-3 pt-1">
+        <nav ref={navRef} className={`container-shell no-scrollbar flex gap-1.5 md:gap-2 overflow-x-auto pb-3 pt-1 transition-all duration-500 ${isNavAnimating ? "ring-2 ring-red-500/50 shadow-lg shadow-red-500/10 rounded-full" : ""}`}>
           <NavLink
             to="/"
             end
@@ -257,7 +296,7 @@ export function Layout() {
               }`
             }
           >
-            {lang === "te" ? "💼 ఉద్యోగాలు" : lang === "en" ? "💼 Jobs Hub" : lang === "hi" ? "💼 जॉब्स हब" : lang === "ta" ? "💼 வேலைவாய்ப்பு" : "💼 ಉದ್ಯೋಗಗಳು"}
+            {lang === "te" ? "💼 స్థానిక ఉద్యోగాలు" : lang === "en" ? "💼 Local Jobs" : lang === "hi" ? "💼 स्थानीय नौकरियां" : lang === "ta" ? "💼 உள்ளூர் வேலைகள்" : "💼 ಸ್ಥಳೀಯ ಉದ್ಯೋಗಗಳು"}
           </NavLink>
 
           {categories.map((category) => (
