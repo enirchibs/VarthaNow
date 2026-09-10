@@ -207,13 +207,7 @@ export function HomePage() {
             </Link>
 
               {/* Top Badges Bar */}
-              <div className="relative z-10 p-1.5 sm:p-2.5 flex items-center justify-between pointer-events-none">
-                {/* Category badge — top left */}
-                <span className="inline-flex items-center gap-1 rounded-full bg-red-600 text-white border border-white/90 px-2 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider shadow-md backdrop-blur-md">
-                  <span className="size-1 rounded-full bg-white animate-pulse" />
-                  {categoryLabel(currentSlide.category)}
-                </span>
-
+              <div className="relative z-10 p-1.5 sm:p-2.5 flex items-center justify-end pointer-events-none">
                 <div className="flex items-center gap-1.5">
                   {/* Breaking badge — top right (only if featured) */}
                   {currentSlide.featured && (
@@ -245,7 +239,7 @@ export function HomePage() {
                 <ChevronRight className="size-4" />
               </button>
 
-              {/* Bottom Content Area: Headline + Time beside Gallery Dots */}
+              {/* Bottom Content Area: Headline + Time + Category Badge + Gallery Dots */}
               <div className="relative z-10 p-2 sm:p-3 pt-4 text-left pointer-events-none space-y-1">
                 <Link to={`/news/${currentSlide.slug}`} className="block pointer-events-auto group/title">
                   <h2 className="text-xs sm:text-base font-black leading-tight text-white drop-shadow-md transition-colors duration-300 group-hover/title:text-red-300 line-clamp-1">
@@ -253,14 +247,21 @@ export function HomePage() {
                   </h2>
                 </Link>
 
-                {/* Single line bar: Time & min read placed cleanly beside pagination dots */}
-                <div className="flex items-center justify-between gap-2 pt-0.5 pointer-events-auto">
-                  <p className="text-[9px] sm:text-[10px] font-extrabold text-white/90 drop-shadow-sm flex items-center gap-1">
+                {/* Single line bar: Time & min read (Left) <---> Category Badge (Middle) <---> Gallery Dots (Right) */}
+                <div className="flex items-center justify-between gap-1.5 pt-0.5 pointer-events-auto">
+                  {/* Left: Time & Reading Duration */}
+                  <p className="text-[8px] sm:text-[10px] font-extrabold text-white/90 drop-shadow-sm flex items-center gap-1 shrink-0">
                     <span>{new Date(currentSlide.published_at).toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}</span>
-                    {currentSlide.reading_time_min ? <span>· {currentSlide.reading_time_min} min read</span> : null}
+                    {currentSlide.reading_time_min ? <span>· {currentSlide.reading_time_min} min</span> : null}
                   </p>
 
-                  {/* Dots indicator floating cleanly beside time */}
+                  {/* Middle: Category Pill / News Type Badge */}
+                  <span className="inline-flex items-center gap-1 rounded-full bg-red-600 text-white border border-white/80 px-2 py-0.5 text-[8px] sm:text-[9px] font-black uppercase tracking-wider shadow-md backdrop-blur-md shrink-0">
+                    <span className="size-1 rounded-full bg-white animate-pulse" />
+                    {categoryLabel(currentSlide.category)}
+                  </span>
+
+                  {/* Right: Gallery Dots */}
                   <div className="flex items-center gap-1 shrink-0">
                     {slides.map((_, idx) => (
                       <button
