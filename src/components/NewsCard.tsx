@@ -68,7 +68,7 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
   })();
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-[1.2rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition-all duration-300 hover:shadow-md">
+    <article className="group flex flex-col overflow-hidden rounded-[1.2rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition-all duration-300 hover:shadow-xl hover:border-red-500/60 hover:-translate-y-1 active:scale-[0.98] cursor-pointer relative">
       {/* 1 ── Banner Image */}
       <Link to={`/news/${post.slug}`} className="relative aspect-[20/9] w-full overflow-hidden bg-[hsl(var(--muted))] block">
         {post.og_image ? (
@@ -77,7 +77,7 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
             alt={post.title}
             loading={priority ? "eager" : "lazy"}
             referrerPolicy="no-referrer"
-            className="size-full object-cover"
+            className="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
         ) : (
           <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black text-lg">
@@ -85,9 +85,12 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
           </div>
         )}
 
+        {/* Light Shimmer reflection sweep on hover */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+
         {/* Category Pill Overlay with High-Visibility Beautiful Border */}
         <div className="absolute left-2 top-2 z-10 flex items-center gap-1">
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${categoryStyle(post.category)} backdrop-blur-md transition-transform group-hover:scale-105`}>
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${categoryStyle(post.category)} backdrop-blur-md transition-transform group-hover:scale-105 shadow-md`}>
             {categoryLabel(post.category)}
           </span>
         </div>
@@ -96,7 +99,7 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
       {/* 2 ── Content: Headline Title + Publisher/Time Footer */}
       <div className="flex flex-col flex-1 p-2 sm:p-2.5 space-y-1.5">
         <Link to={`/news/${post.slug}`} className="block flex-1">
-          <h2 className="text-[11px] sm:text-xs font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 hover:text-[hsl(var(--primary))] transition-colors">
+          <h2 className="text-[11px] sm:text-xs font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
             {post.title}
           </h2>
         </Link>

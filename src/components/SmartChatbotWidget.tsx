@@ -259,17 +259,17 @@ export function SmartChatbotWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-[9990] flex items-center gap-2.5 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-4 py-3 shadow-[0_10px_25px_rgba(37,99,235,0.5)] hover:scale-110 active:scale-95 transition-all duration-300 border-2 border-white/30 cursor-pointer group animate-bounce hover:animate-none"
+          className="fixed bottom-14 right-3 sm:bottom-6 sm:right-6 z-[9990] flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white px-3 py-2 sm:px-4 sm:py-2.5 shadow-[0_8px_20px_rgba(37,99,235,0.4)] hover:scale-105 active:scale-95 transition-all duration-300 border-2 border-white/40 cursor-pointer group animate-bounce hover:animate-none backdrop-blur-md opacity-90 hover:opacity-100"
           aria-label="Open Assistant Chat"
         >
           <div className="relative flex items-center justify-center">
-            <Bot className="size-6 text-white group-hover:rotate-12 transition-transform duration-300" />
-            <span className="absolute -top-1 -right-1 size-3 rounded-full bg-emerald-400 animate-ping" />
-            <span className="absolute -top-1 -right-1 size-3 rounded-full bg-emerald-400" />
+            <Bot className="size-5 sm:size-6 text-white group-hover:rotate-12 transition-transform duration-300" />
+            <span className="absolute -top-1 -right-1 size-2.5 rounded-full bg-emerald-400 animate-ping" />
+            <span className="absolute -top-1 -right-1 size-2.5 rounded-full bg-emerald-400" />
           </div>
-          <div className="text-left leading-tight pr-1">
-            <span className="block text-xs font-black text-white tracking-wide">మాట్లాడు</span>
-            <span className="block text-[9px] text-blue-200 font-bold">Smart Assistant</span>
+          <div className="text-left leading-tight pr-0.5">
+            <span className="block text-[11px] sm:text-xs font-black text-white tracking-wide">మాట్లాడు</span>
+            <span className="block text-[8px] sm:text-[9px] text-blue-200 font-bold">Smart Assistant</span>
           </div>
         </button>
       )}

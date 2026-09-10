@@ -177,7 +177,7 @@ export function HomePage() {
   }, [lang]);
 
   return (
-    <main className="container-shell space-y-2 py-1 sm:py-2">
+    <main className="container-shell space-y-2 py-1 sm:py-2 pb-16 sm:pb-24">
       <BreakingTicker posts={trending.length ? trending : feed.posts} />
       
       {slides.length > 0 && currentSlide && (
