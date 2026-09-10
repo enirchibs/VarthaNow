@@ -39,7 +39,15 @@ function isRealPublisherUrl(url?: string | null): boolean {
 }
 
 // ─── Component ──────────────────────────────────────────────────
-export function NewsCard({ post, priority = false }: { post: BlogPost & { source_article_url?: string | null }; priority?: boolean }) {
+export function NewsCard({ 
+  post, 
+  priority = false,
+  isSpotlight = false
+}: { 
+  post: BlogPost & { source_article_url?: string | null }; 
+  priority?: boolean;
+  isSpotlight?: boolean;
+}) {
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const bookmarked = isBookmarked(post.slug);
 
@@ -68,7 +76,11 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
   })();
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-[1.2rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition-all duration-300 hover:shadow-[0_12px_28px_rgba(239,68,68,0.18)] hover:border-red-500/60 hover:ring-2 hover:ring-red-500/20 hover:-translate-y-1 active:scale-[0.98] cursor-pointer relative">
+    <article className={`group flex flex-col overflow-hidden rounded-[1.2rem] border bg-[hsl(var(--card))] transition-all duration-500 cursor-pointer relative ${
+      isSpotlight 
+        ? "border-red-500 ring-2 ring-red-500/60 scale-[1.02] -translate-y-1 shadow-[0_12px_28px_rgba(239,68,68,0.35)]" 
+        : "border-[hsl(var(--border))] shadow-sm hover:shadow-[0_12px_28px_rgba(239,68,68,0.18)] hover:border-red-500/60 hover:ring-2 hover:ring-red-500/20 hover:-translate-y-1 active:scale-[0.98]"
+    }`}>
       {/* 1 ── Banner Image */}
       <Link to={`/news/${post.slug}`} className="relative aspect-[20/9] w-full overflow-hidden bg-[hsl(var(--muted))] block">
         {post.og_image ? (
@@ -77,7 +89,9 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
             alt={post.title}
             loading={priority ? "eager" : "lazy"}
             referrerPolicy="no-referrer"
-            className="size-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            className={`size-full object-cover transition-transform duration-700 ease-out ${
+              isSpotlight ? "scale-105" : "group-hover:scale-105"
+            }`}
           />
         ) : (
           <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black text-lg">
@@ -85,8 +99,10 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
           </div>
         )}
 
-        {/* Light Shimmer reflection sweep on hover */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+        {/* Light Shimmer reflection sweep on hover or spotlight focus */}
+        <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-1000 ease-in-out pointer-events-none ${
+          isSpotlight ? "translate-x-full duration-1000" : "-translate-x-full group-hover:translate-x-full"
+        }`} />
 
         {/* Category Pill Overlay with High-Visibility Beautiful Border */}
         <div className="absolute left-2 top-2 z-10 flex items-center gap-1">
@@ -94,6 +110,15 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
             {categoryLabel(post.category)}
           </span>
         </div>
+
+        {/* 🌟 Rotating Spotlight "Read Now" Badge on active card */}
+        {isSpotlight && (
+          <div className="absolute right-2 top-2 z-10">
+            <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[8px] sm:text-[9px] font-black text-white uppercase tracking-wider shadow-lg animate-pulse">
+              🔥 చదవండి
+            </span>
+          </div>
+        )}
       </Link>
 
       {/* 2 ── Content: Headline Title + Publisher/Time Footer */}
