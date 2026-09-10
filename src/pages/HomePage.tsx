@@ -315,12 +315,12 @@ export function HomePage() {
         </section>
       )}
 
-      {/* 🏷️ MIDDLE FILTER TABS STRIP (BETWEEN GALLERY & NEWS ARTICLES) */}
-      <div className="flex flex-wrap items-center gap-2 py-2 px-1 my-1">
+      {/* 🏷️ MIDDLE FILTER TABS STRIP (ONE SINGLE HORIZONTAL LINE) */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2 px-1 my-1 whitespace-nowrap">
         {/* All News / Latest News Tab */}
         <button
           onClick={() => setFeedMode("all")}
-          className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-black transition-all active:scale-95 cursor-pointer ${
+          className={`shrink-0 rounded-full px-3 py-1 text-xs font-black transition-all active:scale-95 cursor-pointer whitespace-nowrap ${
             feedMode === "all"
               ? "bg-red-600 text-white shadow-md"
               : "bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
@@ -332,7 +332,7 @@ export function HomePage() {
         {/* Unread Tab */}
         <button
           onClick={() => setFeedMode("personalized")}
-          className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-black transition-all active:scale-95 cursor-pointer ${
+          className={`shrink-0 rounded-full px-3 py-1 text-xs font-black transition-all active:scale-95 cursor-pointer whitespace-nowrap ${
             feedMode === "personalized"
               ? "bg-amber-500 text-white shadow-md"
               : "bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
@@ -348,13 +348,13 @@ export function HomePage() {
               setFeedMode("location");
               setShowLocationPicker(!showLocationPicker);
             }}
-            className={`shrink-0 rounded-full px-3.5 py-1.5 text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center gap-1 ${
+            className={`shrink-0 rounded-full px-3 py-1 text-xs font-black transition-all active:scale-95 cursor-pointer flex items-center gap-1 whitespace-nowrap ${
               feedMode === "location"
                 ? "bg-emerald-600 text-white shadow-md"
                 : "bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
             }`}
           >
-            <MapPin className="size-3.5 text-emerald-600 dark:text-emerald-400" />
+            <MapPin className="size-3 text-emerald-600 dark:text-emerald-400" />
             <span>📍 {selectedLocation || (lang === "te" ? "మీ ప్రాంతం" : "Near You")}</span>
           </button>
 
