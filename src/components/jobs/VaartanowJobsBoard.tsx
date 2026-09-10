@@ -258,37 +258,37 @@ export function VaartanowJobsBoard({
 
   return (
     <div className="space-y-6">
-      {/* 🚀 Hero Section: SaaS Gradient Header */}
-      <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-indigo-900 via-indigo-950 to-zinc-950 p-6 md:p-12 text-center text-white border border-white/10 shadow-2xl">
-        <div className="absolute -left-32 -top-32 size-72 rounded-full bg-blue-500/20 blur-3xl animate-pulse" />
-        <div className="absolute -right-32 -bottom-32 size-72 rounded-full bg-indigo-500/20 blur-3xl animate-pulse" />
+      {/* 🚀 Hero Section: SaaS Gradient Header (Compact & Height-Reduced) */}
+      <section className="relative overflow-hidden rounded-[1.6rem] bg-gradient-to-br from-indigo-900 via-indigo-950 to-zinc-950 p-4 sm:p-5 md:p-6 text-center text-white border border-white/10 shadow-lg">
+        <div className="absolute -left-32 -top-32 size-56 rounded-full bg-blue-500/20 blur-3xl animate-pulse" />
+        <div className="absolute -right-32 -bottom-32 size-56 rounded-full bg-indigo-500/20 blur-3xl animate-pulse" />
 
-        <div className="max-w-2xl mx-auto space-y-4 relative z-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-xs font-black text-indigo-300 uppercase tracking-widest animate-pulse">
-            <Sparkles className="size-3.5 text-indigo-400" />
+        <div className="max-w-xl mx-auto space-y-2 relative z-10">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-[10px] sm:text-xs font-black text-indigo-300 uppercase tracking-widest animate-pulse">
+            <Sparkles className="size-3 text-indigo-400" />
             VaartaNow జాబ్స్ హబ్ (Jobs Hub)
           </span>
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight leading-snug">
             మీ కెరీర్‌కు సరైన <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-rose-400">ఉద్యోగ అవకాశాలు</span>
           </h1>
-          <p className="text-sm md:text-base font-semibold text-zinc-300">
+          <p className="text-xs sm:text-sm font-semibold text-zinc-300">
             ఆంధ్రప్రదేశ్, తెలంగాణ & రిమోట్ ఐటీ రంగాలలో వేల ఉద్యోగ అవకాశాలు — నేరుగా దరఖాస్తు చేసుకోండి!
           </p>
 
-          <div className="pt-2">
+          <div className="pt-1">
             <button
               onClick={() => setIsPostModalOpen(true)}
-              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:opacity-95 text-white px-6 py-3.5 text-xs sm:text-sm font-black transition-all shadow-xl active:scale-95 cursor-pointer min-h-[46px] touch-manipulation"
+              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:opacity-95 text-white px-4 py-2 text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer touch-manipulation"
             >
-              <PlusCircle className="size-5 text-white" />
+              <PlusCircle className="size-4 text-white" />
               + ఉద్యోగ ప్రకటన పోస్ట్ చేయండి (Post a Job)
             </button>
           </div>
 
-          {/* Search Box */}
-          <div className="pt-4 flex flex-col sm:flex-row gap-2 max-w-lg mx-auto">
+          {/* Search Box & All AP/TG Regional Locations Dropdown */}
+          <div className="pt-2 flex flex-col sm:flex-row gap-2 max-w-lg mx-auto">
             <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4.5 text-zinc-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
               <input
                 type="text"
                 placeholder="ఉద్యోగం, టెక్నాలజీ లేదా కంపెనీ పేరుతో వెతకండి..."
@@ -299,11 +299,11 @@ export function VaartanowJobsBoard({
                     setSearchQuery(searchInput);
                   }
                 }}
-                className="w-full h-11 pl-11 pr-24 rounded-2xl bg-white/10 border border-white/10 text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-zinc-400 transition animate-all duration-300"
+                className="w-full h-10 pl-9 pr-20 rounded-xl bg-white/10 border border-white/10 text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-zinc-400 transition"
               />
               <button
                 onClick={() => setSearchQuery(searchInput)}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white text-[10px] font-black uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1 shadow-md shadow-indigo-500/25 cursor-pointer"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[10px] font-black uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1 shadow-sm cursor-pointer"
               >
                 వెతకండి
               </button>
@@ -311,14 +311,31 @@ export function VaartanowJobsBoard({
             <select
               value={selectedDistrict}
               onChange={(e) => setSelectedDistrict(e.target.value)}
-              className="h-11 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold text-xs px-4 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer shadow-sm"
+              className="h-10 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold text-xs px-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer shadow-sm"
             >
-              <option value="" className="bg-slate-900 text-white">-- అన్ని జిల్లాలు (All Districts) --</option>
-              <option value="Hyderabad" className="bg-slate-900 text-white">హైదరాబాద్ (Hyderabad)</option>
-              <option value="Visakhapatnam" className="bg-slate-900 text-white">విశాఖపట్నం (Visakhapatnam)</option>
-              <option value="Vijayawada" className="bg-slate-900 text-white">విజయవాడ (Vijayawada)</option>
-              <option value="Guntur" className="bg-slate-900 text-white">గుంటూరు (Guntur)</option>
-              <option value="Bengaluru" className="bg-slate-900 text-white">బెంగళూరు (Bengaluru)</option>
+              <option value="" className="bg-slate-900 text-white">-- అన్ని జిల్లాలు & ప్రాంతాలు (All Locations) --</option>
+              
+              {/* 🏛️ TELANGANA */}
+              <option value="Hyderabad" className="bg-slate-900 text-white">🏢 హైదరాబాద్ (Hyderabad)</option>
+              <option value="Warangal" className="bg-slate-900 text-white">🏰 వరంగల్ (Warangal)</option>
+              <option value="Karimnagar" className="bg-slate-900 text-white">🌾 కరీంనగర్ (Karimnagar)</option>
+              <option value="Nizamabad" className="bg-slate-900 text-white">🏭 నిజామాబాద్ (Nizamabad)</option>
+              <option value="Khammam" className="bg-slate-900 text-white">🌳 ఖమ్మం (Khammam)</option>
+              <option value="Mahbubnagar" className="bg-slate-900 text-white">🏞️ మహబూబ్‌నగర్ (Mahbubnagar)</option>
+
+              {/* 🏖️ ANDHRA PRADESH REGIONS */}
+              <option value="Visakhapatnam" className="bg-slate-900 text-white">🌊 విశాఖపట్నం (Vizag) — North Coastal AP</option>
+              <option value="Vijayawada" className="bg-slate-900 text-white">🏙️ విజయవాడ (Vijayawada) — Central AP</option>
+              <option value="Tirupati" className="bg-slate-900 text-white">🕉️ తిరుపతి (Tirupati) — South AP</option>
+              <option value="Kurnool" className="bg-slate-900 text-white">⛰️ కర్నూలు (Kurnool) — Rayalaseema</option>
+              <option value="Rajahmundry" className="bg-slate-900 text-white">🌊 రాజమండ్రి (Rajamahendravaram) — East/Central Godavari</option>
+              <option value="Nellore" className="bg-slate-900 text-white">🦐 నెల్లూరు (Nellore) — South Coastal AP</option>
+              <option value="Guntur" className="bg-slate-900 text-white">🌶️ గుంటూరు (Guntur)</option>
+              <option value="Amaravati" className="bg-slate-900 text-white">🏛️ అమరావతి (Amaravati)</option>
+
+              {/* 🏠 REMOTE / OTHERS */}
+              <option value="Remote" className="bg-slate-900 text-white">💻 రిమోట్ / వర్క్ ఫ్రమ్ హోమ్ (Remote WFH)</option>
+              <option value="Bengaluru" className="bg-slate-900 text-white">🚀 బెంగళూరు (Bengaluru)</option>
             </select>
           </div>
         </div>
