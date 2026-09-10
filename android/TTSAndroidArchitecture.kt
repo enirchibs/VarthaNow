@@ -170,7 +170,22 @@ class ArticleAudioPlayerViewModel : ViewModel() {
         return actNw.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
-    fun onPlayClick(context: Context, articleId: String, text: String, backendUrl: String) {
+    fun extract100WordsTeluguSummary(text: String): String {
+        val cleanText = text.replace(Regex("<[^>]*>?"), "")
+            .replace(Regex("(https?://[^\\s]+)"), "")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+        val words = cleanText.split(Regex("\\s+"))
+        return if (words.size <= 100) cleanText else words.take(100).joinToString(" ") + "।"
+    }
+
+    fun onPlayClick(
+        context: Context, 
+        articleId: String, 
+        text: String, 
+        backendUrl: String, 
+        onPlaybackComplete: (() -> Unit)? = null
+    ) {
         initializeTTS(context)
 
         when (_playerState.value) {
@@ -181,12 +196,19 @@ class ArticleAudioPlayerViewModel : ViewModel() {
                 resumeAudio()
             }
             else -> {
-                synthesizeAndPlay(context, articleId, text, backendUrl)
+                val summary100Words = extract100WordsTeluguSummary(text)
+                synthesizeAndPlay(context, articleId, summary100Words, backendUrl, onPlaybackComplete)
             }
         }
     }
 
-    private fun synthesizeAndPlay(context: Context, articleId: String, text: String, backendUrl: String) {
+    private fun synthesizeAndPlay(
+        context: Context, 
+        articleId: String, 
+        text: String, 
+        backendUrl: String, 
+        onPlaybackComplete: (() -> Unit)? = null
+    ) {
         _playerState.value = PlayerState.PREPARING
         _statusText.value = "⏳ ఆడియో సిద్ధమవుతోంది..."
 
@@ -195,7 +217,7 @@ class ArticleAudioPlayerViewModel : ViewModel() {
             if (!isNetworkAvailable(context)) {
                 // Offline Mode -> Directly use Native Device TTS
                 withContext(Dispatchers.Main) {
-                    playViaNativeDeviceTTS(text)
+                    playViaNativeDeviceTTS(text, onPlaybackComplete)
                 }
                 return@launch
             }
@@ -205,10 +227,10 @@ class ArticleAudioPlayerViewModel : ViewModel() {
 
             withContext(Dispatchers.Main) {
                 if (response.success && response.mode == "CLOUD_AUDIO" && (!response.audioUrl.isNullOrEmpty() || !response.audioBase64.isNullOrEmpty())) {
-                    playCloudAudio(response.audioUrl ?: "data:audio/mp3;base64,${response.audioBase64}")
+                    playCloudAudio(response.audioUrl ?: "data:audio/mp3;base64,${response.audioBase64}", onPlaybackComplete)
                 } else {
                     // Fallback to Native Device TTS
-                    playViaNativeDeviceTTS(text)
+                    playViaNativeDeviceTTS(text, onPlaybackComplete)
                 }
             }
         }
@@ -253,7 +275,7 @@ class ArticleAudioPlayerViewModel : ViewModel() {
         }
     }
 
-    private fun playCloudAudio(audioSource: String) {
+    private fun playCloudAudio(audioSource: String, onPlaybackComplete: (() -> Unit)? = null) {
         try {
             stopAudio()
             mediaPlayer = MediaPlayer().apply {
@@ -273,23 +295,25 @@ class ArticleAudioPlayerViewModel : ViewModel() {
                 }
                 setOnCompletionListener {
                     _playerState.value = PlayerState.IDLE
-                    _statusText.value = "🔊 వినండి"
+                    _statusText.value = "🔊 వినండి (100 పదాలు)"
+                    onPlaybackComplete?.invoke()
                 }
             }
         } catch (e: Exception) {
             _playerState.value = PlayerState.ERROR
-            _statusText.value = "🔊 వినండి"
+            _statusText.value = "🔊 వినండి (100 పదాలు)"
         }
     }
 
-    private fun playViaNativeDeviceTTS(text: String) {
+    private fun playViaNativeDeviceTTS(text: String, onPlaybackComplete: (() -> Unit)? = null) {
         _playerState.value = PlayerState.PLAYING
         _statusText.value = "⏸ సంభాషణను ఆపండి (ఫోన్ పరికరం)"
 
         nativeTTSManager?.speakTeluguArticle(text, _playbackSpeed.value) {
             viewModelScope.launch(Dispatchers.Main) {
                 _playerState.value = PlayerState.IDLE
-                _statusText.value = "🔊 వినండి"
+                _statusText.value = "🔊 వినండి (100 పదాలు)"
+                onPlaybackComplete?.invoke()
             }
         }
     }

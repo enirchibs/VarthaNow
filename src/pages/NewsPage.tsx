@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, 
   Send, 
@@ -22,6 +22,7 @@ import { ReadingProgress } from "@/components/ReadingProgress";
 import { ArticleEngagementCard } from "@/components/ArticleEngagementCard";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { trackArticleView } from "@/lib/interest-tracker";
+import { TeluguAudioPlayer } from "@/components/TeluguAudioPlayer";
 
 // Category pill colors mapping
 const CATEGORY_COLORS: Record<string, string> = {
@@ -53,6 +54,7 @@ function formatPublishDate(dateStr: string): string {
 }
 
 export function NewsPage() {
+  const navigate = useNavigate();
   const { lang } = useLanguage();
   const { slug = "" } = useParams();
   const [post, setPost] = useState<BlogPost | null>(null);
@@ -367,6 +369,14 @@ export function NewsPage() {
                 </a>
               </div>
             )}
+
+            {/* 🔊 100-WORD TELUGU AUDIO PLAYER WITH AUTO-NEXT ARTICLE PLAYLIST */}
+            <TeluguAudioPlayer
+              article={post}
+              nextArticle={related[0] || null}
+              onNavigateToNext={(nextSlug) => navigate(`/news/${nextSlug}`)}
+              autoPlayNext={true}
+            />
 
             {/* 📝 3. NEWS ARTICLE BODY CONTENT */}
             <div className="article-content pt-3">

@@ -123,6 +123,12 @@ export function Way2NewsSwiper({ posts, onClose }: Way2NewsSwiperProps) {
 
     utterance.onend = () => {
       setIsPlaying(false);
+      // AUTO-ADVANCE TO NEXT NEWS CARD AFTER AUDIO COMPLETES!
+      if (activeIndex < posts.length - 1) {
+        setTimeout(() => {
+          handleNext();
+        }, 500);
+      }
     };
 
     utterance.onerror = () => {
