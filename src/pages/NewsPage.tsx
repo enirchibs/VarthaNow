@@ -319,7 +319,7 @@ export function NewsPage() {
             <TeluguAudioPlayer
               article={post}
               nextArticle={related[0] || null}
-              onNavigateToNext={(nextSlug) => navigate(`/news/${nextSlug}`)}
+              onNavigateToNext={(nextSlug) => navigate(`/news/${nextSlug}?autoplay=true`)}
               autoPlayNext={true}
             />
 

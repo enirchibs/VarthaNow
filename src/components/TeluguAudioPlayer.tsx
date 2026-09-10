@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import { Volume2, VolumeX, Play, Pause, Square, SkipForward, RefreshCw } from "lucide-react";
 import type { BlogPost } from "@/types/news";
 
@@ -38,17 +39,9 @@ export function TeluguAudioPlayer({
   const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
+  const location = useLocation();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isComponentMounted = useRef(true);
-
-  useEffect(() => {
-    isComponentMounted.current = true;
-    stopAudio();
-    return () => {
-      isComponentMounted.current = false;
-      stopAudio();
-    };
-  }, [article.slug]);
 
   const stopAudio = () => {
     if (audioRef.current) {
@@ -107,6 +100,29 @@ export function TeluguAudioPlayer({
       playWebSpeechFallback(summaryText);
     }
   };
+
+  useEffect(() => {
+    isComponentMounted.current = true;
+
+    if (location.search.includes("autoplay=true")) {
+      const timer = setTimeout(() => {
+        if (isComponentMounted.current) {
+          handlePlayClick();
+        }
+      }, 400);
+      return () => {
+        clearTimeout(timer);
+        isComponentMounted.current = false;
+        stopAudio();
+      };
+    }
+
+    stopAudio();
+    return () => {
+      isComponentMounted.current = false;
+      stopAudio();
+    };
+  }, [article.slug, location.search]);
 
   const playCloudAudioSource = (src: string) => {
     stopAudio();
