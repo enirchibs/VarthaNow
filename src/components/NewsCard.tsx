@@ -68,9 +68,9 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
   })();
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition-all duration-300 hover:shadow-md">
+    <article className="group flex flex-col overflow-hidden rounded-[1.2rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm transition-all duration-300 hover:shadow-md">
       {/* 1 ── Banner Image */}
-      <Link to={`/news/${post.slug}`} className="relative aspect-[16/9] w-full overflow-hidden bg-[hsl(var(--muted))] block">
+      <Link to={`/news/${post.slug}`} className="relative aspect-[20/9] w-full overflow-hidden bg-[hsl(var(--muted))] block">
         {post.og_image ? (
           <img
             src={post.og_image}
@@ -80,35 +80,35 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
             className="size-full object-cover"
           />
         ) : (
-          <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black text-xl">
+          <div className="flex size-full items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black text-lg">
             VaartaNow
           </div>
         )}
 
         {/* Category Pill Overlay */}
-        <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1">
-          <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-black text-white uppercase tracking-wider ${categoryColor(post.category)} shadow-sm`}>
+        <div className="absolute left-2 top-2 z-10 flex items-center gap-1">
+          <span className={`inline-flex items-center rounded-full px-2 py-0.2 text-[8px] font-black text-white uppercase tracking-wider ${categoryColor(post.category)} shadow-sm`}>
             {categoryLabel(post.category)}
           </span>
         </div>
       </Link>
 
       {/* 2 ── Content: Headline Title + Publisher/Time Footer */}
-      <div className="flex flex-col flex-1 p-3 space-y-2">
+      <div className="flex flex-col flex-1 p-2 sm:p-2.5 space-y-1.5">
         <Link to={`/news/${post.slug}`} className="block flex-1">
-          <h2 className="text-xs sm:text-sm font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 hover:text-[hsl(var(--primary))] transition-colors">
+          <h2 className="text-[11px] sm:text-xs font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 hover:text-[hsl(var(--primary))] transition-colors">
             {post.title}
           </h2>
         </Link>
 
         {/* Footer: Publisher & Date */}
-        <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-2 text-[10px] font-bold text-[hsl(var(--muted-foreground))]">
-          <div className="flex items-center gap-1.5 min-w-0">
+        <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-1.5 text-[9px] sm:text-[10px] font-bold text-[hsl(var(--muted-foreground))]">
+          <div className="flex items-center gap-1 min-w-0">
             {publisherLogo ? (
               <img
                 src={publisherLogo}
                 alt={post.author_name}
-                className="size-3.5 rounded-full object-contain shrink-0"
+                className="size-3 rounded-full object-contain shrink-0"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
               />
             ) : null}
@@ -117,23 +117,23 @@ export function NewsCard({ post, priority = false }: { post: BlogPost & { source
             <span className="shrink-0">{timeAgo(post.published_at)}</span>
           </div>
 
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="flex items-center gap-0.5 shrink-0">
             <button
               aria-label="Save bookmark"
               onClick={(e) => { e.preventDefault(); toggleBookmark(post.slug); }}
-              className="p-1 hover:text-amber-500 transition"
+              className="p-0.5 hover:text-amber-500 transition"
             >
-              {bookmarked ? <BookmarkCheck className="size-3.5 fill-amber-500 text-amber-500" /> : <Bookmark className="size-3.5" />}
+              {bookmarked ? <BookmarkCheck className="size-3 fill-amber-500 text-amber-500" /> : <Bookmark className="size-3" />}
             </button>
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="p-1 text-emerald-600 hover:text-emerald-700 transition"
+              className="p-0.5 text-emerald-600 hover:text-emerald-700 transition"
               aria-label="Share on WhatsApp"
               onClick={(e) => e.stopPropagation()}
             >
-              <Share2 className="size-3.5" />
+              <Share2 className="size-3" />
             </a>
           </div>
         </div>

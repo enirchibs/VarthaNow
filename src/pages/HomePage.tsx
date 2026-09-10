@@ -151,11 +151,11 @@ export function HomePage() {
   }, [lang]);
 
   return (
-    <main className="container-shell space-y-4 py-3">
+    <main className="container-shell space-y-2 py-1 sm:py-2">
       <BreakingTicker posts={trending.length ? trending : feed.posts} />
       
       {slides.length > 0 && currentSlide && (
-        <section className="grid gap-3 lg:grid-cols-[2fr_1fr]">
+        <section className="grid gap-2.5 lg:grid-cols-[2fr_1fr]">
           {/* 📸 Flash Cards Image Gallery with Animated Traveling Red Laser Border */}
           <div className="relative p-[3px] rounded-[1.8rem] overflow-hidden bg-zinc-950 shadow-[0_0_25px_rgba(239,68,68,0.3)] transition-all duration-300">
             {/* SVG Animated Red Laser Beam Circuit (Top-Left -> Top-Right -> Bottom-Right -> Bottom-Left -> Top-Left) */}
@@ -200,8 +200,8 @@ export function HomePage() {
               />
             </svg>
 
-            {/* Inner 16:9 Gallery Slider Box */}
-            <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[1.6rem] bg-slate-900 shadow-md group/slider flex flex-col justify-between">
+            {/* Inner Sleek Gallery Slider Box */}
+            <div className="relative aspect-[21/9] sm:aspect-[21/9] max-h-[210px] sm:max-h-[250px] w-full overflow-hidden rounded-[1.6rem] bg-slate-900 shadow-md group/slider flex flex-col justify-between">
               <Link to={`/news/${currentSlide.slug}`} className="absolute inset-0 size-full">
                 {currentSlide.og_image ? (
                   <img
@@ -221,22 +221,22 @@ export function HomePage() {
               </Link>
 
               {/* Top Badges Bar */}
-              <div className="relative z-10 p-3 sm:p-4 flex items-center justify-between pointer-events-none">
+              <div className="relative z-10 p-2 sm:p-3 flex items-center justify-between pointer-events-none">
                 {/* Category badge — top left */}
-                <span className="inline-flex items-center rounded-full bg-red-600 text-white border border-red-500/30 px-2.5 py-0.5 text-[11px] font-black uppercase tracking-wider shadow-md backdrop-blur-md">
+                <span className="inline-flex items-center rounded-full bg-red-600 text-white border border-red-500/30 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-md backdrop-blur-md">
                   {currentSlide.category?.replace("-", " ")}
                 </span>
 
                 <div className="flex items-center gap-2">
                   {/* Breaking badge — top right (only if featured) */}
                   {currentSlide.featured && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2.5 py-0.5 text-[11px] font-black text-white uppercase tracking-wider animate-pulse shadow-md">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-red-600 px-2 py-0.5 text-[10px] font-black text-white uppercase tracking-wider animate-pulse shadow-md">
                       🔴 BREAKING
                     </span>
                   )}
 
                   {/* Circular Index counter badge */}
-                  <div className="bg-white/95 dark:bg-zinc-900/95 border-2 border-red-600 rounded-full w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-[11px] sm:text-xs font-black text-red-600 dark:text-red-400 shadow-lg pointer-events-auto">
+                  <div className="bg-white/95 dark:bg-zinc-900/95 border-2 border-red-600 rounded-full size-7 sm:size-8 flex items-center justify-center text-[10px] font-black text-red-600 dark:text-red-400 shadow-lg pointer-events-auto">
                     {activeSlide + 1}/{slides.length}
                   </div>
                 </div>
@@ -245,41 +245,41 @@ export function HomePage() {
               {/* Navigation Chevrons */}
               <button
                 onClick={() => setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1))}
-                className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
+                className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 size-8 sm:size-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
                 aria-label="Previous slide"
               >
-                <ChevronLeft className="size-5" />
+                <ChevronLeft className="size-4" />
               </button>
               <button
                 onClick={() => setActiveSlide((prev) => (prev + 1) % slides.length)}
-                className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 size-9 sm:size-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
+                className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 size-8 sm:size-9 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/20 shadow-xl active:scale-95 hover:scale-110 cursor-pointer backdrop-blur-md"
                 aria-label="Next slide"
               >
-                <ChevronRight className="size-5" />
+                <ChevronRight className="size-4" />
               </button>
 
               {/* Bottom Content Area: Headline + Time + Overlay Pagination Dots */}
-              <div className="relative z-10 p-3 sm:p-5 pt-8 text-left pointer-events-none space-y-2">
+              <div className="relative z-10 p-2 sm:p-4 pt-6 text-left pointer-events-none space-y-1">
                 <Link to={`/news/${currentSlide.slug}`} className="block pointer-events-auto group/title">
-                  <h2 className="text-base sm:text-xl lg:text-2xl font-black leading-snug text-white drop-shadow-md transition-colors duration-300 group-hover/title:text-red-300 line-clamp-2">
+                  <h2 className="text-sm sm:text-lg font-black leading-snug text-white drop-shadow-md transition-colors duration-300 group-hover/title:text-red-300 line-clamp-1">
                     {currentSlide.title}
                   </h2>
-                  <p className="mt-1 text-[11px] sm:text-xs font-bold text-white/80 flex items-center gap-2">
+                  <p className="mt-0.5 text-[10px] sm:text-[11px] font-bold text-white/80 flex items-center gap-2">
                     <span>{new Date(currentSlide.published_at).toLocaleTimeString("te-IN", { hour: "2-digit", minute: "2-digit" })}</span>
                     {currentSlide.reading_time_min ? <span>· {currentSlide.reading_time_min} min read</span> : null}
                   </p>
                 </Link>
 
                 {/* Dots indicator floating cleanly over image bottom overlay */}
-                <div className="flex items-center justify-center gap-1.5 pt-0.5 pointer-events-auto">
+                <div className="flex items-center justify-center gap-1 pt-0.5 pointer-events-auto">
                   {slides.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveSlide(idx)}
-                      className={`h-2 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
+                      className={`h-1.5 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
                         activeSlide === idx 
-                          ? "w-6 bg-red-600" 
-                          : "w-2 bg-white/50 hover:bg-white/90"
+                          ? "w-5 bg-red-600" 
+                          : "w-1.5 bg-white/50 hover:bg-white/90"
                       }`}
                       aria-label={`Go to slide ${idx + 1}`}
                     />
@@ -290,21 +290,21 @@ export function HomePage() {
           </div>
 
           {/* 📰 Beside Flashcards: Top headlines */}
-          <div className="hidden lg:flex flex-col rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 shadow-sm hover:shadow-md transition duration-300">
-            <div className="flex items-center gap-3 mb-4">
+          <div className="hidden lg:flex flex-col rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 shadow-sm hover:shadow-md transition duration-300">
+            <div className="flex items-center gap-3 mb-3">
               <div className="h-[2px] flex-1 bg-gradient-to-r from-transparent to-red-600" />
-              <h3 className="text-base font-black text-red-600 dark:text-red-500 uppercase tracking-wider">
+              <h3 className="text-sm font-black text-red-600 dark:text-red-500 uppercase tracking-wider">
                 {translations.title[lang] || translations.title.te}
               </h3>
               <div className="h-[2px] flex-1 bg-gradient-to-l from-transparent to-red-600" />
             </div>
 
-            <ul className="space-y-3.5 flex-1 pr-1 overflow-y-auto max-h-[380px] no-scrollbar">
+            <ul className="space-y-2.5 flex-1 pr-1 overflow-y-auto max-h-[220px] no-scrollbar">
               {slides.map((post) => (
-                <li key={post.slug} className="border-b border-[hsl(var(--border))]/40 pb-3 last:border-0 last:pb-0">
-                  <Link to={`/news/${post.slug}`} className="flex items-start gap-3 group">
-                    <span className="mt-1.5 size-2 shrink-0 bg-red-600 dark:bg-red-500 transition-transform group-hover:scale-110 shadow-sm" />
-                    <span className="text-sm font-extrabold text-[hsl(var(--foreground))] group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors line-clamp-2 leading-relaxed">
+                <li key={post.slug} className="border-b border-[hsl(var(--border))]/40 pb-2 last:border-0 last:pb-0">
+                  <Link to={`/news/${post.slug}`} className="flex items-start gap-2.5 group">
+                    <span className="mt-1.5 size-1.5 shrink-0 bg-red-600 dark:bg-red-500 transition-transform group-hover:scale-110 shadow-sm" />
+                    <span className="text-xs font-extrabold text-[hsl(var(--foreground))] group-hover:text-red-600 dark:group-hover:text-red-500 transition-colors line-clamp-1 leading-snug">
                       {post.title}
                     </span>
                   </Link>
@@ -315,8 +315,8 @@ export function HomePage() {
         </section>
       )}
 
-      {/* 🏷️ MIDDLE FILTER TABS STRIP (ONE SINGLE HORIZONTAL LINE) */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-2 px-1 my-1 whitespace-nowrap">
+      {/* 🏷️ MIDDLE FILTER TABS STRIP (COMPACT NO WHITE GAPS) */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 px-0.5 my-0.5 whitespace-nowrap">
         {/* All News / Latest News Tab */}
         <button
           onClick={() => setFeedMode("all")}
