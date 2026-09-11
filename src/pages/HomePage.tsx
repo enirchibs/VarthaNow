@@ -27,16 +27,21 @@ import { demoPosts } from "@/lib/demo-data";
 import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
 
 const CITIES = [
-  "Hyderabad",
-  "Vijayawada",
   "Visakhapatnam",
+  "Vijayawada",
   "Tirupati",
-  "Amaravati",
-  "Warangal",
+  "Rajahmundry",
+  "Nellore",
   "Guntur",
   "Kurnool",
+  "Amaravati",
   "Kakinada",
-  "Rajahmundry"
+  "Hyderabad",
+  "Warangal",
+  "Nizamabad",
+  "Karimnagar",
+  "Khammam",
+  "Mahbubnagar"
 ];
 
 export function HomePage() {

@@ -280,20 +280,20 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
                   onChange={(e) => setLocality(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition"
                 >
-                  <option value="Hyderabad">🏢 హైదరాబాద్ (Hyderabad)</option>
-                  <option value="Warangal">🏰 వరంగల్ (Warangal)</option>
-                  <option value="Karimnagar">🌾 కరీంనగర్ (Karimnagar)</option>
-                  <option value="Nizamabad">🏭 నిజామాబాద్ (Nizamabad)</option>
-                  <option value="Khammam">🌳 ఖమ్మం (Khammam)</option>
-                  <option value="Mahbubnagar">🏞️ మహబూబ్‌నగర్ (Mahbubnagar)</option>
                   <option value="Visakhapatnam">🌊 విశాఖపట్నం (Vizag) — North Coastal AP</option>
                   <option value="Vijayawada">🏙️ విజయవాడ (Vijayawada) — Central AP</option>
                   <option value="Tirupati">🕉️ తిరుపతి (Tirupati) — South AP</option>
-                  <option value="Kurnool">⛰️ కర్నూలు (Kurnool) — Rayalaseema</option>
                   <option value="Rajahmundry">🌊 రాజమండ్రి (Rajamahendravaram) — East/Central Godavari</option>
                   <option value="Nellore">🦐 నెల్లూరు (Nellore) — South Coastal AP</option>
                   <option value="Guntur">🌶️ గుంటూరు (Guntur)</option>
+                  <option value="Kurnool">⛰️ కర్నూలు (Kurnool) — Rayalaseema</option>
                   <option value="Amaravati">🏛️ అమరావతి (Amaravati)</option>
+                  <option value="Hyderabad">🏢 హైదరాబాద్ (Hyderabad)</option>
+                  <option value="Warangal">🏰 వరంగల్ (Warangal)</option>
+                  <option value="Nizamabad">🏭 నిజామాబాద్ (Nizamabad)</option>
+                  <option value="Karimnagar">🌾 కరీంనగర్ (Karimnagar)</option>
+                  <option value="Khammam">🌳 ఖమ్మం (Khammam)</option>
+                  <option value="Mahbubnagar">🏞️ మహబూబ్‌నగర్ (Mahbubnagar)</option>
                   <option value="Remote">💻 రిమోట్ / వర్క్ ఫ్రమ్ హోమ్ (Remote WFH)</option>
                 </select>
               </div>

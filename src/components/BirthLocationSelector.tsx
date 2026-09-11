@@ -109,7 +109,7 @@ export function BirthLocationSelector({ lang, onSelect, selectedLocation }: Birt
     ? "జన్మ గ్రామం, పట్టణం, నగరం లేదా జిల్లా ద్వారా వెతకండి" 
     : "Search Birth Village, Town, City or District";
   const helperLabel = isTe ? "ఉదాహరణలు:" : "Examples:";
-  const examples = ["Visakhapatnam", "Madhurawada", "Gajuwaka", "Rajahmundry", "Hyderabad", "Bengaluru"];
+  const examples = ["Visakhapatnam", "Vijayawada", "Tirupati", "Rajahmundry", "Hyderabad"];
 
   return (
     <div ref={containerRef} className="space-y-1.5 relative w-full">
