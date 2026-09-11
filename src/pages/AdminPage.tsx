@@ -13,6 +13,7 @@ import { setMeta } from "@/lib/seo";
 import { useLanguage, type Language } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
 import { TTSAdminDashboard } from "@/components/admin/TTSAdminDashboard";
+import { DailyShareAdminDashboard } from "@/components/admin/DailyShareAdminDashboard";
 
 interface RssFeed {
   id: string;
@@ -43,7 +44,7 @@ interface PipelineJob {
   created_at: string;
 }
 
-type TabType = "articles" | "writer" | "feeds" | "queue" | "tts";
+type TabType = "articles" | "writer" | "daily_share" | "feeds" | "queue" | "tts";
 
 export function AdminPage() {
   const navigate = useNavigate();
@@ -671,6 +672,7 @@ export function AdminPage() {
         {[
           { id: "articles", label: "Articles Manager", icon: ListFilter },
           { id: "writer", label: "AI Generator", icon: Sparkles },
+          { id: "daily_share", label: "Daily WhatsApp & Media", icon: Upload },
           { id: "feeds", label: "RSS Feeds", icon: Play },
           { id: "queue", label: "Queue Monitor", icon: Clock },
           { id: "tts", label: "Telugu TTS Engine", icon: Volume2 },
@@ -1339,6 +1341,9 @@ export function AdminPage() {
             </div>
           </div>
         )}
+
+        {/* ==================== TAB: DAILY SHARE & MEDIA MANAGER ==================== */}
+        {activeTab === "daily_share" && <DailyShareAdminDashboard />}
 
         {/* ==================== TAB 5: TELUGU TTS ENGINE ==================== */}
         {activeTab === "tts" && <TTSAdminDashboard />}

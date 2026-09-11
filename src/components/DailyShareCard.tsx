@@ -46,22 +46,39 @@ export function DailyShareCard({ item, compact = false }: DailyShareCardProps) {
       <div className={`group relative overflow-hidden rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] shadow-sm hover:shadow-xl hover:border-red-500/40 transition-all duration-300 flex flex-col justify-between ${
         compact ? "min-w-[240px] max-w-[260px] shrink-0" : "w-full"
       }`}>
-        {/* Top Image Preview & Quote Overlay */}
+        {/* Top Image or Video Preview & Quote Overlay */}
         <div className="relative aspect-[9/16] w-full overflow-hidden bg-slate-950">
-          <img
-            src={item.image_url}
-            alt={item.title}
-            className="size-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-85"
-          />
+          {item.video_url || item.content_type === "video" ? (
+            <video
+              src={item.video_url || item.image_url}
+              poster={item.thumbnail_url || item.image_url}
+              controls
+              playsInline
+              className="size-full object-cover z-0"
+            />
+          ) : (
+            <img
+              src={item.image_url}
+              alt={item.title}
+              className="size-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-85"
+            />
+          )}
 
           {/* Dark Overlay Gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
 
           {/* Category Badge & VaartaNow Watermark */}
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10 pointer-events-none">
-            <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-600/90 text-white shadow-sm border border-white/20">
-              {item.category}
-            </span>
+            <div className="flex items-center gap-1">
+              <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-600/90 text-white shadow-sm border border-white/20">
+                {item.category}
+              </span>
+              {(item.video_url || item.content_type === "video") && (
+                <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-600/90 text-white shadow-sm border border-white/20">
+                  🎥 వీడియో
+                </span>
+              )}
+            </div>
             <span className="text-[9px] font-black text-white/80 bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-xs">
               VaartaNow
             </span>

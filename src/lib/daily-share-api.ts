@@ -193,9 +193,52 @@ export const DAILY_SHARE_SEED_ITEMS: DailyShareItem[] = [
   }
 ];
 
-// Local storage key for saved creations
+// Local storage key for saved creations & admin items
 const USER_CREATIONS_STORAGE_KEY = "vaartanow_user_daily_share_creations";
 const LIKED_ITEMS_STORAGE_KEY = "vaartanow_liked_daily_share_items";
+export const CUSTOM_DAILY_SHARE_STORAGE_KEY = "vaartanow_admin_daily_share_items_v1";
+
+// Admin custom daily share items helpers
+export function getCustomDailyShareItems(): DailyShareItem[] {
+  try {
+    const data = localStorage.getItem(CUSTOM_DAILY_SHARE_STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function addDailyShareItem(
+  newItem: Omit<DailyShareItem, "id" | "created_at" | "likes_count" | "shares_count">
+): DailyShareItem {
+  const item: DailyShareItem = {
+    ...newItem,
+    id: `ds-admin-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    likes_count: Math.floor(Math.random() * 500) + 120,
+    shares_count: Math.floor(Math.random() * 300) + 40,
+    created_at: new Date().toISOString(),
+  };
+
+  try {
+    const existing = getCustomDailyShareItems();
+    const updated = [item, ...existing];
+    localStorage.setItem(CUSTOM_DAILY_SHARE_STORAGE_KEY, JSON.stringify(updated));
+  } catch (e) {
+    console.warn("Failed to save custom daily share item:", e);
+  }
+
+  return item;
+}
+
+export function deleteDailyShareItem(id: string): void {
+  try {
+    const existing = getCustomDailyShareItems();
+    const updated = existing.filter((item) => item.id !== id);
+    localStorage.setItem(CUSTOM_DAILY_SHARE_STORAGE_KEY, JSON.stringify(updated));
+  } catch (e) {
+    console.warn("Failed to delete daily share item:", e);
+  }
+}
 
 // API helper functions
 export function getDailyShareCategories(): DailyShareCategory[] {
@@ -203,14 +246,19 @@ export function getDailyShareCategories(): DailyShareCategory[] {
 }
 
 export function getDailyShareItems(categorySlug?: string): DailyShareItem[] {
+  const customItems = getCustomDailyShareItems();
+  const allItems = [...customItems, ...DAILY_SHARE_SEED_ITEMS];
+
   if (!categorySlug || categorySlug === "all") {
-    return DAILY_SHARE_SEED_ITEMS;
+    return allItems;
   }
-  return DAILY_SHARE_SEED_ITEMS.filter((item) => item.category === categorySlug);
+  return allItems.filter((item) => item.category === categorySlug);
 }
 
 export function getDailyShareBySlug(slug: string): DailyShareItem | undefined {
-  return DAILY_SHARE_SEED_ITEMS.find((item) => item.slug === slug || item.id === slug);
+  const customItems = getCustomDailyShareItems();
+  const allItems = [...customItems, ...DAILY_SHARE_SEED_ITEMS];
+  return allItems.find((item) => item.slug === slug || item.id === slug);
 }
 
 // ⏱️ Get scheduled Daily Share item depending on hour of day
