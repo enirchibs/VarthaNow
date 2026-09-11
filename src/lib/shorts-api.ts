@@ -191,7 +191,68 @@ export function generateDailyViralShorts(): ShortVideoItem[] {
   }));
 }
 
+export const CUSTOM_SHORTS_STORAGE_KEY = "vaartanow_admin_custom_shorts_v1";
+
+export function getCustomShortVideos(): ShortVideoItem[] {
+  try {
+    const data = localStorage.getItem(CUSTOM_SHORTS_STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function addShortVideo(item: Omit<ShortVideoItem, "id" | "published_at">): ShortVideoItem {
+  const newItem: ShortVideoItem = {
+    ...item,
+    id: `short-custom-${Date.now()}`,
+    published_at: new Date().toISOString()
+  };
+
+  try {
+    const existing = getCustomShortVideos();
+    const updated = [newItem, ...existing];
+    localStorage.setItem(CUSTOM_SHORTS_STORAGE_KEY, JSON.stringify(updated));
+  } catch (e) {
+    console.warn("Failed to store custom short video:", e);
+  }
+
+  if (supabase) {
+    supabase.from("viral_videos").insert([{
+      title: newItem.title,
+      link: newItem.link,
+      thumbnail_url: newItem.thumbnail,
+      video_url: newItem.clip,
+      channel: newItem.channel,
+      duration: newItem.duration,
+      published_at: newItem.published_at
+    }]).then(({ error }) => {
+      if (error) console.log("Supabase insert short error note:", error.message);
+    });
+  }
+
+  return newItem;
+}
+
+export function deleteShortVideo(id: string): void {
+  try {
+    const existing = getCustomShortVideos();
+    const updated = existing.filter(i => i.id !== id);
+    localStorage.setItem(CUSTOM_SHORTS_STORAGE_KEY, JSON.stringify(updated));
+  } catch (e) {
+    console.warn("Failed to delete custom short video:", e);
+  }
+
+  if (supabase) {
+    supabase.from("viral_videos").delete().eq("id", id).then(({ error }) => {
+      if (error) console.log("Supabase delete short error note:", error.message);
+    });
+  }
+}
+
 export async function getShortVideos(query: string = "telugu news"): Promise<ShortVideoItem[]> {
+  const customList = getCustomShortVideos();
+
   if (supabase) {
     try {
       const { data, error } = await supabase
@@ -201,7 +262,7 @@ export async function getShortVideos(query: string = "telugu news"): Promise<Sho
         .limit(30);
 
       if (!error && data && data.length > 0) {
-        return data.map((v: any, idx: number) => ({
+        const supaList = data.map((v: any, idx: number) => ({
           id: v.id || `supa-short-${idx}`,
           title: v.title,
           link: v.video_url || v.link || "",
@@ -213,12 +274,13 @@ export async function getShortVideos(query: string = "telugu news"): Promise<Sho
           duration: v.duration || "0:45",
           published_at: v.published_at || new Date().toISOString()
         }));
+        return [...customList, ...supaList];
       }
     } catch (error) {
       console.warn("Failed to query Supabase viral_videos table, returning daily catalog fallback:", error);
     }
   }
 
-  // Always return non-empty daily catalog
-  return generateDailyViralShorts();
+  // Always return custom + daily catalog
+  return [...customList, ...generateDailyViralShorts()];
 }

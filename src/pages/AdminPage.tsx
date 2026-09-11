@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { 
   BarChart3, Edit3, Eye, Search, Star, Trash2, Sparkles, Upload, Activity,
   Plus, RefreshCw, Play, CheckCircle2, XCircle, Clock, AlertTriangle, ListFilter,
-  ArrowRight, ShieldCheck, User, LogOut, ChevronRight, Volume2
+  ArrowRight, ShieldCheck, User, LogOut, ChevronRight, Volume2, Briefcase, Globe
 } from "lucide-react";
 import type { BlogPost, NewsCategory } from "@/types/news";
 import { createPost, deletePost, getAdminPosts, updatePost } from "@/lib/news-api";
@@ -14,6 +14,10 @@ import { useLanguage, type Language } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
 import { TTSAdminDashboard } from "@/components/admin/TTSAdminDashboard";
 import { DailyShareAdminDashboard } from "@/components/admin/DailyShareAdminDashboard";
+import { JobsAdminDashboard } from "@/components/jobs/JobsAdminDashboard";
+import { VideoNewsAdminDashboard } from "@/components/admin/VideoNewsAdminDashboard";
+import { SEOAdminDashboard } from "@/components/admin/SEOAdminDashboard";
+import { AnalyticsAdminDashboard } from "@/components/admin/AnalyticsAdminDashboard";
 
 interface RssFeed {
   id: string;
@@ -44,7 +48,7 @@ interface PipelineJob {
   created_at: string;
 }
 
-type TabType = "articles" | "writer" | "daily_share" | "feeds" | "queue" | "tts";
+type TabType = "articles" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
 
 export function AdminPage() {
   const navigate = useNavigate();
@@ -670,10 +674,14 @@ export function AdminPage() {
       {/* 🎛️ Navigation Tabs */}
       <section className="flex border-b border-[hsl(var(--border))] gap-1 pb-px overflow-x-auto no-scrollbar">
         {[
-          { id: "articles", label: "Articles Manager", icon: ListFilter },
+          { id: "articles", label: "Articles & Posts", icon: ListFilter },
           { id: "writer", label: "AI Generator", icon: Sparkles },
           { id: "daily_share", label: "Daily WhatsApp & Media", icon: Upload },
-          { id: "feeds", label: "RSS Feeds", icon: Play },
+          { id: "jobs", label: "Local Jobs Manager", icon: Briefcase },
+          { id: "video_news", label: "Video News & Shorts", icon: Play },
+          { id: "seo", label: "SEO & Meta Engine", icon: Globe },
+          { id: "analytics", label: "Analytics & Traffic", icon: BarChart3 },
+          { id: "feeds", label: "RSS Feeds", icon: Activity },
           { id: "queue", label: "Queue Monitor", icon: Clock },
           { id: "tts", label: "Telugu TTS Engine", icon: Volume2 },
         ].map((tab) => {
@@ -1345,7 +1353,19 @@ export function AdminPage() {
         {/* ==================== TAB: DAILY SHARE & MEDIA MANAGER ==================== */}
         {activeTab === "daily_share" && <DailyShareAdminDashboard />}
 
-        {/* ==================== TAB 5: TELUGU TTS ENGINE ==================== */}
+        {/* ==================== TAB: LOCAL JOBS MANAGER ==================== */}
+        {activeTab === "jobs" && <JobsAdminDashboard />}
+
+        {/* ==================== TAB: VIDEO NEWS & SHORTS MANAGER ==================== */}
+        {activeTab === "video_news" && <VideoNewsAdminDashboard />}
+
+        {/* ==================== TAB: SEO & META ENGINE ==================== */}
+        {activeTab === "seo" && <SEOAdminDashboard />}
+
+        {/* ==================== TAB: ANALYTICS & TRAFFIC ==================== */}
+        {activeTab === "analytics" && <AnalyticsAdminDashboard />}
+
+        {/* ==================== TAB: TELUGU TTS ENGINE ==================== */}
         {activeTab === "tts" && <TTSAdminDashboard />}
       </section>
 
