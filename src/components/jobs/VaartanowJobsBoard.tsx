@@ -637,7 +637,7 @@ export function VaartanowJobsBoard({
             <div className="flex items-center gap-2 pb-3 border-b border-[hsl(var(--border))]/70">
               <Brain className="size-5 text-indigo-500 animate-pulse" />
               <h3 className="font-black text-sm uppercase tracking-wider text-[hsl(var(--foreground))]">
-                Gemini AI రెజ్యూమ్ & ATS చెకర్ (Resume Analyzer)
+                స్మార్ట్ రెజ్యూమ్ & ATS చెకర్ (Resume Analyzer)
               </h3>
             </div>
 

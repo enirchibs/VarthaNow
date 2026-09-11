@@ -285,10 +285,10 @@ export function Layout() {
               <span className="block truncate text-lg font-black">VaartaNow</span>
               <span className="block truncate text-xs font-semibold text-[hsl(var(--muted-foreground))]">
                 {lang === "te" && "తాజా వార్తలు, తక్షణం"}
-                {lang === "en" && "Multilingual AI News"}
-                {lang === "hi" && "बहुभाषी एआई समाचार"}
-                {lang === "ta" && "பல்மொழி ஏஐ செய்திகள்"}
-                {lang === "kn" && "ಬಹುಭಾಷಾ ಎಐ ಸುದ್ದಿ"}
+                {lang === "en" && "Multilingual Live News"}
+                {lang === "hi" && "बहुभाषी ताज़ा समाचार"}
+                {lang === "ta" && "பல்மொழி செய்திகள்"}
+                {lang === "kn" && "ಬಹುಭಾಷಾ ಸುದ್ದಿ"}
               </span>
             </span>
           </Link>
@@ -442,11 +442,11 @@ export function Layout() {
           <div>
             <div className="font-black text-[hsl(var(--foreground))]">VaartaNow</div>
             <p className="mt-1 max-w-xl text-xs">
-              {lang === "te" && "AI-శక్తితో తెలుగు వార్తలు, 24/7 నిరంతరంగా."}
-              {lang === "en" && "AI-powered Telugu news, delivered 24/7."}
-              {lang === "hi" && "AI-संचालित तेलुगु समाचार, 24/7 उपलब्ध।"}
-              {lang === "ta" && "AI-இயக்கும் தెலுగு செய்திகள், 24/7."}
-              {lang === "kn" && "AI-ಚಾಲಿತ ತೆಲುಗು ಸುದ್ದಿ, 24/7."}
+              {lang === "te" && "తాజా తెలుగు వార్తలు, 24/7 నిరంతరంగా."}
+              {lang === "en" && "Live Telugu news, delivered 24/7."}
+              {lang === "hi" && "ताज़ा तेलुगु समाचार, 24/7 उपलब्ध।"}
+              {lang === "ta" && "தெலுங்கு செய்திகள், 24/7."}
+              {lang === "kn" && "ತೆಲುಗು ಸುದ್ದಿ, 24/7."}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">

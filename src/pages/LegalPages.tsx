@@ -14,32 +14,32 @@ export function AboutPage() {
           </h1>
           <p className="text-sm font-bold text-[hsl(var(--muted-foreground))]">
             {lang === "te"
-              ? "గూగుల్ న్యూస్ RSS + జెమిని AI సాయంతో నడిచే ఒక వినూత్న బహుభాషా వార్తా వేదిక."
-              : "An innovative multilingual AI news platform powered by Google News RSS & Gemini AI."}
+              ? "విశ్లేషణలతో కూడిన ఒక వినూత్న బహుభాషా వార్తా వేదిక."
+              : "An innovative multilingual live news platform."}
           </p>
         </div>
 
         <div className="space-y-4 text-xs font-bold text-[hsl(var(--muted-foreground))] leading-relaxed">
           <p>
             {lang === "te"
-              ? "VaartaNow అనేది భారతదేశంలోనే అత్యంత వేగంగా అభివృద్ధి చెందుతున్న బహుభాషా మరియు స్థానిక ఆల్-ఇన్-వన్ వార్తా వేదిక. మా ఏకైక లక్ష్యం నిష్పక్షపాతంగా, ఖచ్చితమైన మరియు లోతైన విశ్లేషణలతో కూడిన వార్తలను మా పాఠకులకు అందించడం. మేము గూగుల్ న్యూస్ ఆర్ఎస్ఎస్ ఫీడ్‌ల ఆధారంగా అత్యాధునిక జెమిని ఆర్టిఫిషియల్ ఇంటెలిజెన్స్ (Gemini AI) సహాయంతో అసలైన వార్తలను సేకరించి, అత్యంత నిష్పక్షపాత శైలిలో రీరైట్ చేసి ప్రచురిస్తాము."
-              : "VaartaNow is India's fastest-growing multilingual AI-powered news platform. Our sole mission is to deliver unbiased, accurate, and deeply analyzed updates to our readers. Using the latest Google News RSS feeds combined with state-of-the-art Gemini Artificial Intelligence (AI), we curate, synthesize, and rewrite stories into copyright-safe, highly readable, professional articles."}
+              ? "VaartaNow అనేది భారతదేశంలోనే అత్యంత వేగంగా అభివృద్ధి చెందుతున్న బహుభాషా మరియు స్థానిక ఆల్-ఇన్-వన్ వార్తా వేదిక. మా ఏకైక లక్ష్యం నిష్పక్షపాతంగా, ఖచ్చితమైన మరియు లోతైన విశ్లేషణలతో కూడిన వార్తలను మా పాఠకులకు అందించడం. మేము తాజా వార్తలను సేకరించి, అత్యంత నిష్పక్షపాత శైలిలో రీరైట్ చేసి ప్రచురిస్తాము."
+              : "VaartaNow is India's fastest-growing multilingual news platform. Our sole mission is to deliver unbiased, accurate, and deeply analyzed updates to our readers."}
           </p>
 
           <h3 className="text-sm font-black text-[hsl(var(--foreground))] mt-6 uppercase tracking-wider">
-            {lang === "te" ? "🚀 మా లక్యం (Our Mission)" : "🚀 Our Mission"}
+            {lang === "te" ? "🚀 మా లక్ష్యం (Our Mission)" : "🚀 Our Mission"}
           </h3>
           <p>
             {lang === "te"
-              ? "స్థానిక సంస్కృతి, రాజకీయాలు, క్రీడలు (క్రికెట్), సాంకేతికత, వ్యాపార రంగాల తాజా సమాచారాన్ని తెలుగు, ఇంగ్లీష్, హిందీ, తమిళం, మరియు కన్నడ భాషల్లో క్షణాల్లో పంపిణీ చేయడం. AI శక్తితో కూడిన విశ్వసనీయ సమాచార వనరుగా ఎదగడమే మా అంతిమ లక్ష్యం."
-              : "To bridge the regional communication gap by delivering breaking updates on politics, cinema, cricket, technology, and business across 5 Indian languages (Telugu, English, Hindi, Tamil, and Kannada). We strive to remain your ultimate, highly trusted source of AI-enhanced digital journalism."}
+              ? "స్థానిక సంస్కృతి, రాజకీయాలు, క్రీడలు (క్రికెట్), సాంకేతికత, వ్యాపార రంగాల తాజా సమాచారాన్ని తెలుగు, ఇంగ్లీష్, హిందీ, తమిళం, మరియు కన్నడ భాషల్లో క్షణాల్లో పంపిణీ చేయడం. విశ్వసనీయ సమాచార వనరుగా ఎదగడమే మా అంతిమ లక్ష్యం."
+              : "To bridge the regional communication gap by delivering breaking updates on politics, cinema, cricket, technology, and business across 5 Indian languages (Telugu, English, Hindi, Tamil, and Kannada). We strive to remain your ultimate, highly trusted source of digital journalism."}
           </p>
 
           <h3 className="text-sm font-black text-[hsl(var(--foreground))] mt-6 uppercase tracking-wider">
             {lang === "te" ? "🔮 మేము అందించే సేవలు (What We Offer)" : "🔮 What We Offer"}
           </h3>
           <ul className="list-disc list-inside space-y-2 ml-2">
-            <li>{lang === "te" ? "బహుభాషా అనువాదం మరియు ఏఐ ఆధారిత సులభతర వార్తలు" : "AI-driven multilingual rewriting across 5 major languages."}</li>
+            <li>{lang === "te" ? "బహుభాషా అనువాదం మరియు సులభతర వార్తలు" : "Multilingual news across 5 major languages."}</li>
             <li>{lang === "te" ? "ఆంధ్రప్రదేశ్, తెలంగాణ మరియు విశాఖపట్నం ప్రత్యేక స్థానిక కవరేజ్" : "Hyperlocal coverage for Andhra Pradesh, Telangana, and Vizag corridor."}</li>
             <li>{lang === "te" ? "నిజ సమయ క్రికెట్ లైవ్ స్కోర్లు, పాయింట్ల పట్టికలు & మ్యాచ్ ప్రిడిక్షన్లు" : "Live cricket scoreboards, fixtures, and interactive match prediction polls."}</li>
             <li>{lang === "te" ? "రిమోట్ వర్క్ మరియు ప్రభుత్వ ఉద్యోగాల కోసం ప్రత్యేక జాబ్స్ హబ్" : "A comprehensive Jobs Hub for remote work, internships, and government alerts."}</li>
