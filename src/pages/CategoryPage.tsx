@@ -399,7 +399,6 @@ export function CategoryPage() {
       <section className="relative overflow-hidden rounded-[1.6rem] border-2 border-[hsl(var(--primary))]/30 bg-[hsl(var(--card))] p-5 shadow-sm">
         <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-red-600 via-amber-500 to-emerald-500" />
         <h1 className="text-2xl sm:text-3xl font-black text-[hsl(var(--foreground))] flex items-center gap-2">
-          <span className="inline-block size-3 rounded-full bg-red-600 animate-pulse" />
           {label}
         </h1>
         <p className="mt-2 text-xs sm:text-sm font-semibold text-[hsl(var(--muted-foreground))]">
@@ -413,7 +412,7 @@ export function CategoryPage() {
 
       {category === "health" && <HealthAssistant />}
 
-      {category === "devotional" && <DevotionalHub />}
+      {(category === "devotional" || category === "jathakam") && <DevotionalHub />}
 
       {category === "cricket" && <CricketLiveScoreHub />}
 

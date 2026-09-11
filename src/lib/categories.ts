@@ -17,14 +17,14 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
   {
     slug: "devotional",
     label: {
-      te: "భక్తి",
-      en: "Devotional",
-      hi: "भक्ति",
-      ta: "பக்தி",
-      kn: "ಭಕ್ತಿ"
+      te: "భక్తి & జాతకము",
+      en: "Bhakti & Jathakam",
+      hi: "भक्ति व राशिफल",
+      ta: "பக்தி & ஜாதகம்",
+      kn: "ಭಕ್ತಿ ಮತ್ತು ಜಾತಕ"
     },
-    short: "Bhakti",
-    rssQuery: "panchangam rasi phalalu vastu bhakti temple"
+    short: "భక్తి & జాతకము",
+    rssQuery: "panchangam rasi phalalu vastu bhakti temple astrology horoscopes jathakam"
   },
   {
     slug: "health",
@@ -159,18 +159,6 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     rssQuery: "jobs recruitment notification"
   },
   {
-    slug: "jathakam" as any,
-    label: {
-      te: "జాతకము",
-      en: "Jathakam / Horoscope",
-      hi: "राशिफल",
-      ta: "ஜாதகம்",
-      kn: "ಜಾತಕ"
-    },
-    short: "Jathakam",
-    rssQuery: "astrology rasi phalalu horoscopes jathakam panchangam vastu"
-  },
-  {
     slug: "education" as any,
     label: {
       te: "విద్య",
@@ -193,11 +181,11 @@ export const TELUGU_CATEGORY_MAP: Record<string, string> = {
   technology:      "టెక్నాలజీ",
   business:        "వ్యాపారం",
   health:          "ఆరోగ్యం",
-  devotional:      "భక్తి",
+  devotional:      "భక్తి & జాతకము",
   viralshorts:     "వైరల్ షార్ట్స్",
   vizag:           "విశాఖ",
   jobs:            "స్థానిక ఉద్యోగాలు",
-  jathakam:        "జాతకము",
+  jathakam:        "భక్తి & జాతకము",
   national:        "జాతీయ వార్తలు",
   education:       "విద్య",
 };
@@ -205,6 +193,15 @@ export const TELUGU_CATEGORY_MAP: Record<string, string> = {
 export function categoryLabel(category: string, lang?: Language): string {
   const activeLang = lang ?? getActiveLanguage();
   const lowerCat = (category || "").toLowerCase().trim();
+  
+  if (lowerCat === "devotional" || lowerCat === "jathakam") {
+    if (activeLang === "te") return "భక్తి & జాతకము";
+    if (activeLang === "en") return "Bhakti & Jathakam";
+    if (activeLang === "hi") return "भक्ति व राशिफल";
+    if (activeLang === "ta") return "பக்தி & ஜாதகம்";
+    if (activeLang === "kn") return "ಭಕ್ತಿ ಮತ್ತು ಜಾತಕ";
+  }
+
   const catObj = categories.find((item) => item.slug === lowerCat || item.slug === category);
   
   if (catObj && catObj.label[activeLang]) {
@@ -224,7 +221,7 @@ export function categoryLabel(category: string, lang?: Language): string {
     if (lowerCat === "technology" || lowerCat === "tech") return "టెక్నాలజీ";
     if (lowerCat === "business" || lowerCat === "finance") return "వ్యాపారం";
     if (lowerCat === "health") return "ఆరోగ్యం";
-    if (lowerCat === "devotional") return "భక్తి";
+    if (lowerCat === "devotional" || lowerCat === "jathakam") return "భక్తి & జాతకము";
     if (lowerCat === "jobs") return "ఉద్యోగాలు";
     if (lowerCat === "vizag") return "విశాఖ";
   }

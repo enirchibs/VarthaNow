@@ -13,7 +13,7 @@ const categoryEmojis: Record<string, string> = {
   viralshorts: "🔥",
   "andhra-pradesh": "🏛️",
   telangana: "🏛️",
-  devotional: "🕉️",
+  devotional: "🙏",
   health: "🏥",
   cricket: "🏏",
   politics: "📢",
