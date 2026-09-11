@@ -11,6 +11,7 @@ import { DevotionalHub } from "@/components/DevotionalHub";
 import { ShortsReel } from "@/components/ShortsReel";
 import { CricketLiveScoreHub } from "@/components/CricketLiveScoreHub";
 import { HealthAssistant } from "@/components/HealthAssistant";
+import { SidebarViralVideosWidget } from "@/components/SidebarViralVideosWidget";
 import { Check } from "lucide-react";
 
 // 🏢 AP & Telangana Hyperlocal & Real Estate rates tool
@@ -442,10 +443,8 @@ export function CategoryPage() {
 
 
 
-          {/* Fallback standard AdSense block */}
-          <div className="rounded-[1.4rem] border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 text-center text-sm font-bold text-[hsl(var(--muted-foreground))]">
-            AdSense 300x250
-          </div>
+          {/* Live Viral Videos Sidebar Widget */}
+          <SidebarViralVideosWidget limit={4} />
         </aside>
       </section>
       )}

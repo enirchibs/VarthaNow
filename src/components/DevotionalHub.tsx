@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { BirthLocationSelector } from "./BirthLocationSelector";
+import { SidebarViralVideosWidget } from "./SidebarViralVideosWidget";
 
 type RasiKey = 
   | "mesha" | "vrishabha" | "mithuna" | "karka" 
@@ -1028,30 +1029,9 @@ export function DevotionalHub() {
                 )}
               </div>
 
-              {/* Right Column: Google AdSense Sidebar */}
-              <div className="lg:col-span-1 rounded-2xl border-2 border-dashed border-[hsl(var(--border))]/70 bg-[hsl(var(--muted))]/15 p-5 flex flex-col items-center justify-center min-h-[360px] text-center space-y-4 relative overflow-hidden">
-                <span className="absolute top-2.5 right-2.5 text-[9px] font-black uppercase text-[hsl(var(--muted-foreground))] bg-[hsl(var(--muted))] px-2.5 py-0.5 rounded-full tracking-wider border border-[hsl(var(--border))]/30">Ad</span>
-                <div className="size-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shadow-sm">
-                  <Sparkles className="size-6 animate-pulse" />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="text-xs font-black text-[hsl(var(--foreground))]">గూగుల్ ఆడ్సెన్స్ ప్రకటన</h4>
-                  <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))] leading-relaxed max-w-[220px]">
-                    {lang === "te"
-                      ? "మీ ఆడ్సెన్స్ కోడ్ లేదా బ్యానర్ ప్రకటనలను ఈ ప్రదేశంలో ప్రదర్శించవచ్చు."
-                      : "Display your Google AdSense units, responsive banner ads, or custom sponsor content here."}
-                  </p>
-                </div>
-                
-                {/* Visual Ad Box representation */}
-                <div className="w-full h-[180px] rounded-xl border border-dashed border-[hsl(var(--border))]/80 bg-[hsl(var(--card))]/65 flex flex-col items-center justify-center p-4 text-center shadow-inner relative group hover:border-amber-500/30 transition-all duration-300">
-                  <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.02] to-transparent pointer-events-none" />
-                  <span className="text-[10px] font-mono font-bold text-[hsl(var(--muted-foreground))]">Google AdSense</span>
-                  <span className="text-[9px] font-mono text-[hsl(var(--muted-foreground))]/70 mt-1">Responsive Banner Ad Slot</span>
-                  <div className="mt-3 text-[9px] font-black text-amber-600 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20 uppercase tracking-widest animate-pulse">
-                    300 × 250 Medium Rectangle
-                  </div>
-                </div>
+              {/* Right Column: Sidebar Viral Videos Widget */}
+              <div className="lg:col-span-1">
+                <SidebarViralVideosWidget limit={4} />
               </div>
             </div>
           ) : (
