@@ -395,7 +395,7 @@ export function CategoryPage() {
   }, [category, label, lang]);
 
   return (
-    <main className="container-shell space-y-5 py-4">
+    <main className="container-shell space-y-3 py-2 px-1 sm:px-4">
       {category === "health" && <HealthAssistant />}
 
       {(category === "devotional" || category === "jathakam") && <DevotionalHub />}

@@ -560,27 +560,27 @@ export function DevotionalHub() {
   };
 
   return (
-    <section className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden p-5 shadow-sm space-y-4">
+    <section className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden p-2.5 sm:p-4 shadow-sm space-y-3">
       {/* 🔮 Devotional Hub Section Navigation Tabs */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-[hsl(var(--border))]/70 pb-3 gap-3">
-        <h2 className="text-lg font-black flex items-center gap-2">
-          <Sparkles className="size-5 text-amber-500 animate-pulse" />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-[hsl(var(--border))]/70 pb-2 gap-2">
+        <h2 className="text-xs sm:text-sm font-black flex items-center gap-1.5 shrink-0">
+          <Sparkles className="size-3.5 sm:size-4 text-amber-500 animate-pulse" />
           {lang === "te" ? "జ్యోతిష్యం & ఆధ్యాత్మికం" : lang === "en" ? "Astrology & Spirituality" : lang === "hi" ? "ज्योतिष और आध्यात्मिकता" : lang === "ta" ? "ஜோதிடம் & ஆன்மீகம்" : "ಜ್ಯೋತಿಷ್ಯ ಮತ್ತು ಅಧ್ಯಾತ್ಮ"}
         </h2>
-        <div className="flex border border-amber-500/30 bg-[hsl(var(--muted))]/40 p-1 rounded-full text-xs font-black w-full md:w-auto overflow-x-auto no-scrollbar shrink-0 gap-1 shadow-sm">
+        <div className="grid grid-cols-4 sm:flex border border-amber-500/30 bg-[hsl(var(--muted))]/40 p-0.5 sm:p-1 rounded-xl text-[9.5px] sm:text-xs font-black w-full sm:w-auto shrink-0 gap-0.5 sm:gap-1 shadow-sm">
           <button 
             onClick={() => setActiveTab("realtime_astrology")}
-            className={`rounded-full px-4 py-1.5 transition whitespace-nowrap font-extrabold ${
+            className={`rounded-lg px-1 sm:px-3 py-1 transition text-center truncate font-extrabold ${
               activeTab === "realtime_astrology" 
                 ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-sm" 
                 : "text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
             }`}
           >
-            {lang === "te" ? "వ్యక్తిగత జాతకం 🔮" : lang === "en" ? "My Horoscope 🔮" : lang === "hi" ? "व्यक्तिगत कुंडली 🔮" : lang === "ta" ? "ஜாதகம் கணித்தல் 🔮" : "ವೈಯಕ್ತಿಕ ಜಾತಕ 🔮"}
+            {lang === "te" ? "వ్యక్తిగత జాతకం 🔮" : lang === "en" ? "My Horoscope 🔮" : lang === "hi" ? "व्यक्तिगत कुंडली 🔮" : lang === "ta" ? "ஜாதகம் 🔮" : "వైయక్తిక ಜಾತಕ 🔮"}
           </button>
           <button 
             onClick={() => setActiveTab("panchangam")}
-            className={`rounded-full px-4 py-1.5 transition whitespace-nowrap ${
+            className={`rounded-lg px-1 sm:px-3 py-1 transition text-center truncate ${
               activeTab === "panchangam" ? "bg-[hsl(var(--primary))] text-white" : "text-[hsl(var(--muted-foreground))]"
             }`}
           >
@@ -588,7 +588,7 @@ export function DevotionalHub() {
           </button>
           <button 
             onClick={() => setActiveTab("rasiphalalu")}
-            className={`rounded-full px-4 py-1.5 transition whitespace-nowrap ${
+            className={`rounded-lg px-1 sm:px-3 py-1 transition text-center truncate ${
               activeTab === "rasiphalalu" ? "bg-[hsl(var(--primary))] text-white" : "text-[hsl(var(--muted-foreground))]"
             }`}
           >
@@ -596,7 +596,7 @@ export function DevotionalHub() {
           </button>
           <button 
             onClick={() => setActiveTab("vastu")}
-            className={`rounded-full px-4 py-1.5 transition whitespace-nowrap ${
+            className={`rounded-lg px-1 sm:px-3 py-1 transition text-center truncate ${
               activeTab === "vastu" ? "bg-[hsl(var(--primary))] text-white" : "text-[hsl(var(--muted-foreground))]"
             }`}
           >
@@ -607,73 +607,73 @@ export function DevotionalHub() {
 
       {/* 📅 Tab 1: Daily Panchangam (నేటి పంచాంగం) */}
       {activeTab === "panchangam" && (
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="grid gap-2.5 sm:grid-cols-2 md:grid-cols-3">
           {/* Calendar card */}
-          <div className="rounded-2xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-amber-500/5 to-orange-500/5 p-4 flex gap-4 items-center shadow-sm">
-            <div className="size-12 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-300 flex items-center justify-center shrink-0">
-              <Calendar className="size-6" />
+          <div className="rounded-xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-amber-500/5 to-orange-500/5 p-3 flex gap-3 items-center shadow-sm">
+            <div className="size-9 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-300 flex items-center justify-center shrink-0">
+              <Calendar className="size-4.5" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+              <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                 {ui.tithi[lang] || ui.tithi.te}
               </h4>
-              <p className="text-base font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+              <p className="text-xs sm:text-sm font-extrabold text-[hsl(var(--foreground))] mt-0.5">
                 {lang === "te" ? "ద్వాదశి (మధ్యాహ్నం 1:40 వరకు)" : "Dwadashi (until 1:40 PM)"}
               </p>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-amber-500/5 to-orange-500/5 p-4 flex gap-4 items-center shadow-sm">
-            <div className="size-12 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0">
-              <Sparkles className="size-6" />
+          <div className="rounded-xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-amber-500/5 to-orange-500/5 p-3 flex gap-3 items-center shadow-sm">
+            <div className="size-9 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0">
+              <Sparkles className="size-4.5" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+              <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                 {ui.nakshatra[lang] || ui.nakshatra.te}
               </h4>
-              <p className="text-base font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+              <p className="text-xs sm:text-sm font-extrabold text-[hsl(var(--foreground))] mt-0.5">
                 {lang === "te" ? "చిత్తా నక్షత్రం (రాత్రి 10:15 వరకు)" : "Chitra Nakshatram (until 10:15 PM)"}
               </p>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-red-500/5 to-orange-500/5 p-4 flex gap-4 items-center shadow-sm">
-            <div className="size-12 rounded-xl bg-red-500/10 text-red-600 dark:text-red-300 flex items-center justify-center shrink-0">
-              <Clock className="size-6" />
+          <div className="rounded-xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-red-500/5 to-orange-500/5 p-3 flex gap-3 items-center shadow-sm">
+            <div className="size-9 rounded-lg bg-red-500/10 text-red-600 dark:text-red-300 flex items-center justify-center shrink-0">
+              <Clock className="size-4.5" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+              <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                 {ui.rahu[lang] || ui.rahu.te}
               </h4>
-              <p className="text-base font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+              <p className="text-xs sm:text-sm font-extrabold text-[hsl(var(--foreground))] mt-0.5">
                 {lang === "te" ? "సాయంత్రం 4:30 - 6:00" : "4:30 PM - 6:00 PM"}
               </p>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-red-500/5 to-pink-500/5 p-4 flex gap-4 items-center shadow-sm">
-            <div className="size-12 rounded-xl bg-pink-500/10 text-pink-600 dark:text-pink-300 flex items-center justify-center shrink-0">
-              <Clock className="size-6" />
+          <div className="rounded-xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-red-500/5 to-pink-500/5 p-3 flex gap-3 items-center shadow-sm">
+            <div className="size-9 rounded-lg bg-pink-500/10 text-pink-600 dark:text-pink-300 flex items-center justify-center shrink-0">
+              <Clock className="size-4.5" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+              <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                 {ui.durmuhurtham[lang] || ui.durmuhurtham.te}
               </h4>
-              <p className="text-base font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+              <p className="text-xs sm:text-sm font-extrabold text-[hsl(var(--foreground))] mt-0.5">
                 {lang === "te" ? "మధ్యాహ్నం 12:00 - 12:48" : "12:00 PM - 12:48 PM"}
               </p>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 p-4 flex gap-4 items-center shadow-sm sm:col-span-2 md:col-span-1">
-            <div className="size-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0">
-              <Clock className="size-6" />
+          <div className="rounded-xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 p-3 flex gap-3 items-center shadow-sm sm:col-span-2 md:col-span-1">
+            <div className="size-9 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0">
+              <Clock className="size-4.5" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+              <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
                 {ui.amrutha[lang] || ui.amrutha.te}
               </h4>
-              <p className="text-base font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+              <p className="text-xs sm:text-sm font-extrabold text-[hsl(var(--foreground))] mt-0.5">
                 {lang === "te" ? "ఉదయం 9:00 - 10:30" : "9:00 AM - 10:30 AM"}
               </p>
             </div>

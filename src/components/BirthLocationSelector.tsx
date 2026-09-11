@@ -112,8 +112,8 @@ export function BirthLocationSelector({ lang, onSelect, selectedLocation }: Birt
   const examples = ["Visakhapatnam", "Vijayawada", "Tirupati", "Rajahmundry", "Hyderabad"];
 
   return (
-    <div ref={containerRef} className="space-y-1.5 relative w-full">
-      <label className="text-xs font-black text-[hsl(var(--foreground))] uppercase tracking-wider block">
+    <div ref={containerRef} className="space-y-1 relative w-full">
+      <label className="text-[10.5px] font-black text-[hsl(var(--foreground))] uppercase tracking-wider block">
         {label} <span className="text-red-500">*</span>
       </label>
       
@@ -126,19 +126,19 @@ export function BirthLocationSelector({ lang, onSelect, selectedLocation }: Birt
           onKeyDown={handleKeyDown}
           onFocus={() => setIsOpen(true)}
           placeholder={placeholder}
-          className="w-full text-xs font-bold pl-9.5 pr-9.5 py-2.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--input))] text-[hsl(var(--foreground))] focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-none transition-all"
+          className="w-full text-xs font-bold pl-8 pr-8 py-2 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--input))] text-[hsl(var(--foreground))] focus:ring-2 focus:ring-amber-500 focus:border-amber-500 focus:outline-none transition-all"
           aria-autocomplete="list"
           aria-controls="location-suggestions-list"
           aria-expanded={isOpen}
         />
         
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]">
-          <Search className="size-4" />
+        <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))]">
+          <Search className="size-3.5" />
         </div>
 
         {isLoading && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-500">
-            <Loader2 className="size-4 animate-spin" />
+          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-amber-500">
+            <Loader2 className="size-3.5 animate-spin" />
           </div>
         )}
       </div>
