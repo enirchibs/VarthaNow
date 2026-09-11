@@ -395,21 +395,6 @@ export function CategoryPage() {
 
   return (
     <main className="container-shell space-y-5 py-4">
-      {/* Category banner */}
-      <section className="relative overflow-hidden rounded-[1.6rem] border-2 border-[hsl(var(--primary))]/30 bg-[hsl(var(--card))] p-5 shadow-sm">
-        <div className="absolute top-0 left-0 h-1.5 w-full bg-gradient-to-r from-red-600 via-amber-500 to-emerald-500" />
-        <h1 className="text-2xl sm:text-3xl font-black text-[hsl(var(--foreground))] flex items-center gap-2">
-          {label}
-        </h1>
-        <p className="mt-2 text-xs sm:text-sm font-semibold text-[hsl(var(--muted-foreground))]">
-          {lang === "te" && "తాజా మరియు ప్రత్యక్ష విశ్వసనీయ తెలుగు వార్తా కథనాలు."}
-          {lang === "en" && "Latest live and trusted news stories."}
-          {lang === "hi" && "ताज़ा और विश्वसनीय समाचार।"}
-          {lang === "ta" && "சமீபத்திய மற்றும் நம்பகமான செய்திகள்."}
-          {lang === "kn" && "ಇತ್ತೀಚಿನ ಮತ್ತು ವಿಶ್ವಾಸಾರ್ಹ ಸುದ್ದಿಗಳು."}
-        </p>
-      </section>
-
       {category === "health" && <HealthAssistant />}
 
       {(category === "devotional" || category === "jathakam") && <DevotionalHub />}
