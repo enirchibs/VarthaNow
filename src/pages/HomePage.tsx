@@ -20,7 +20,6 @@ import { setMeta } from "@/lib/seo";
 import { useHomeData, useInfinitePosts } from "@/hooks/usePosts";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Way2NewsSwiper } from "@/components/Way2NewsSwiper";
-import { DailyShareModule } from "@/components/DailyShareModule";
 import { detectGPSLocation, getCachedGPSLocation } from "@/lib/location-detector";
 import { getUserInterests } from "@/lib/interest-tracker";
 import { recordUserVisit } from "@/lib/read-tracker";
@@ -208,6 +207,27 @@ export function HomePage() {
 
   return (
     <main className="container-shell space-y-2 py-1 sm:py-2 pb-16 sm:pb-24">
+      {/* ✏️ Compact 2-Line WhatsApp Status Personalizer Banner Strip */}
+      <Link 
+        to="/daily-share" 
+        className="group flex items-center justify-between overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 px-3 py-1.5 text-white shadow-sm hover:shadow-md transition-all duration-300 border border-amber-400/40 hover:scale-[1.005]"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-xs sm:text-sm shrink-0">✏️</span>
+          <div className="flex flex-col text-left leading-tight truncate">
+            <span className="text-[10px] sm:text-[11px] font-black text-white truncate">
+              మీ పేరు మరియు ఫోటోతో వాట్సాప్ స్టేటస్ తయారు చేసుకోవాలనుకుంటున్నారా?
+            </span>
+            <span className="text-[9px] sm:text-[10px] font-bold text-amber-100/90 truncate">
+              [టెంప్లేట్లు చూడండి ›]
+            </span>
+          </div>
+        </div>
+        <div className="shrink-0 ml-2 rounded-full bg-white/95 px-2 py-0.5 text-[9px] sm:text-[10px] font-black text-amber-800 shadow-xs group-hover:bg-white group-hover:scale-105 transition-all">
+          ఓపెన్ చేయండి ›
+        </div>
+      </Link>
+
       {slides.length > 0 && currentSlide && (
         <section className="grid gap-2.5 lg:grid-cols-[2fr_1fr]">
           {/* 📸 Clean Flash Cards Image Gallery with Smooth Shimmer & Soft Shadow */}
@@ -406,9 +426,6 @@ export function HomePage() {
           )}
         </div>
       </div>
-
-      {/* ✨ TODAY'S DAILY SHARE MODULE */}
-      <DailyShareModule />
 
       <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-4">

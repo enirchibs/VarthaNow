@@ -410,23 +410,30 @@ export function Layout() {
             )}
           </NavLink>
 
-          {/* Index 3: Daily Share (ఈరోజు షేర్) */}
+          {/* Index 3: Daily WhatsApp Share */}
           <NavLink
             to="/daily-share"
             className={({ isActive }) =>
               `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
-                isActive
-                  ? "bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white border-yellow-300 shadow-md scale-105"
-                  : "bg-red-500/10 border-red-500/40 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white hover:scale-105"
+                highlightedIndex === 3
+                  ? "bg-gradient-to-r from-amber-500 via-orange-600 to-rose-600 text-white border-yellow-300 ring-4 ring-amber-500/80 shadow-[0_0_24px_rgba(245,158,11,0.75)] scale-110 -translate-y-0.5 z-30"
+                  : isActive
+                  ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white border-amber-300 shadow-md scale-105"
+                  : "bg-amber-500/10 border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-600 hover:text-white hover:scale-105"
               }`
             }
           >
-            <span>✨ {lang === "te" ? "ఈరోజు షేర్" : "Daily Share"}</span>
+            <span>✨ {lang === "te" ? "ఈరోజు వాట్సాప్ షేర్" : lang === "en" ? "Daily WhatsApp Share" : lang === "hi" ? "दैनिक व्हाट्सएप शेयर" : lang === "ta" ? "தினசரி வாட்ஸ்அப் பகிர்வு" : "ದೈನಂದಿನ ವಾಟ್ಸಾಪ್ ಶೇರ್"}</span>
+            {highlightedIndex === 3 && (
+              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-[7px] sm:text-[8px] font-black uppercase px-2 py-0.5 rounded-full shadow-lg animate-bounce border border-yellow-200 shrink-0 z-40 whitespace-nowrap">
+                👉 నొక్కండి
+              </span>
+            )}
           </NavLink>
 
-          {/* Dynamic Categories (Index 3 + idx) */}
+          {/* Dynamic Categories (Index 4 + idx) */}
           {categories.map((category, idx) => {
-            const itemIndex = 3 + idx;
+            const itemIndex = 4 + idx;
             const isHighlighted = highlightedIndex === itemIndex;
             return (
               <NavLink
