@@ -22,6 +22,7 @@ import {
 import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
 import { PropertyPostModal } from "./PropertyPostModal";
+import { LocationAreaSelector } from "./LocationAreaSelector";
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -256,23 +257,14 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
         {/* Scrollable Modal Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
 
-          {/* Area Selector (Default for general categories) */}
+          {/* Area Selector (Universal GPS & Autocomplete Search) */}
           {(!selectedCategory || (selectedCategory !== "complaint" && selectedCategory !== "news")) && (
-            <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/50 p-3.5 space-y-1.5">
-              <label className="text-xs font-black text-[hsl(var(--muted-foreground))] flex items-center gap-1.5">
-                <MapPin className="size-3.5 text-blue-600 dark:text-blue-400" />
-                మీ ఏరియా ఎంచుకోండి (Select Area)
-              </label>
-              <select
-                value={selectedArea}
-                onChange={(e) => setSelectedArea(e.target.value)}
-                className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] py-2 px-3 text-xs font-bold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-              >
-                {ANDHRA_LOCALITIES.map((loc) => (
-                  <option key={loc} value={loc}>{loc}</option>
-                ))}
-              </select>
-            </div>
+            <LocationAreaSelector
+              value={selectedArea}
+              onChange={setSelectedArea}
+              label="మీ ఏరియా ఎంచుకోండి (Select Area, Mandal, Village or Street)"
+              placeholder="గ్రామం, మండలం, వీధి లేదా నగరం ఎంచుకోండి..."
+            />
           )}
 
           {/* SUCCESS MESSAGE BANNER */}

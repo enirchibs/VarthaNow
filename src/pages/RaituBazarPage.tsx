@@ -26,6 +26,7 @@ import {
   User
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
+import { LocationAreaSelector } from "@/components/LocationAreaSelector";
 
 export interface RaituAgriItem {
   id: string;
@@ -544,19 +545,13 @@ export function RaituBazarPage() {
                     </select>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-slate-800">
-                      గ్రామం / ప్రాంతం (Locality) <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={village}
-                      onChange={(e) => setVillage(e.target.value)}
-                      placeholder="ఉదా: ఆనందపురం (Anandapuram)"
-                      required
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition"
-                    />
-                  </div>
+                  <LocationAreaSelector
+                    value={village}
+                    onChange={setVillage}
+                    label="గ్రామం / మండలం / ప్రాంతం (Locality / Village)"
+                    placeholder="గ్రామం, వీధి, మండలం, పట్టణం టైప్ చేయండి లేదా ఎంచుకోండి..."
+                    required
+                  />
                 </div>
 
                 {/* Field 4: Listing Title */}

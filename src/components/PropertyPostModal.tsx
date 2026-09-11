@@ -15,6 +15,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { LocationAreaSelector } from "./LocationAreaSelector";
 
 interface PropertyPostModalProps {
   isOpen: boolean;
@@ -526,21 +527,14 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
               </div>
             )}
 
-            {/* Locality */}
-            <div>
-              <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
-                Locality / City * (ప్రాంతం)
-              </label>
-              <select
-                value={locality}
-                onChange={(e) => setLocality(e.target.value)}
-                className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
-              >
-                {LOCALITIES.map((loc) => (
-                  <option key={loc} value={loc}>{loc}</option>
-                ))}
-              </select>
-            </div>
+            {/* Locality with Universal GPS & Places Search */}
+            <LocationAreaSelector
+              value={locality}
+              onChange={setLocality}
+              label="Property Locality / Area * (ప్రాంతం / గ్రామం / మండలం / వీధి)"
+              placeholder="గ్రామం, మండలం, వీధి, పట్నం లేదా నగరం టైప్ చేయండి..."
+              required
+            />
 
             {/* Amenities Toggle */}
             <div>

@@ -20,6 +20,7 @@ import {
   ClassifiedCategory, 
   SellerProfile 
 } from "@/lib/classifieds-api";
+import { LocationAreaSelector } from "@/components/LocationAreaSelector";
 
 interface ClassifiedPostModalProps {
   isOpen: boolean;
@@ -248,30 +249,13 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                 </select>
               </div>
 
-              <div className="space-y-1">
-                <label className="font-extrabold text-slate-800 flex items-center justify-between">
-                  <span>ప్రాంతం (Locality Dropdown) <span className="text-red-500">*</span></span>
-                </label>
-                <select
-                  value={locality}
-                  onChange={(e) => setLocality(e.target.value)}
-                  required
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition"
-                >
-                  <option value="">ప్రాంతాన్ని ఎంచుకోండి (Select a Locality)</option>
-                  <option value="ఆనందపురం (Anandapuram)">ఆనందపురం (Anandapuram)</option>
-                  <option value="ఎంవీపీ కాలనీ (MVP Colony)">ఎంవీపీ కాలనీ (MVP Colony)</option>
-                  <option value="మధురవాడ (Madhurawada)">మధురవాడ (Madhurawada)</option>
-                  <option value="గాజువాక (Gajuwaka)">గాజువాక (Gajuwaka)</option>
-                  <option value="విశాఖపట్నం (Visakhapatnam)">విశాఖపట్నం (Visakhapatnam)</option>
-                  <option value="గచ్చిబౌలి (Gachibowli)">గచ్చిబౌలి (Gachibowli, Hyderabad)</option>
-                  <option value="హైదరాబాద్ (Hyderabad)">హైదరాబాద్ (Hyderabad)</option>
-                  <option value="విజయవాడ (Vijayawada)">విజయవాడ (Vijayawada)</option>
-                  <option value="గుంటూరు (Guntur)">గుంటూరు (Guntur)</option>
-                  <option value="తిరుపతి (Tirupati)">తిరుపతి (Tirupati)</option>
-                  <option value="వరంగల్ (Warangal)">వరంగల్ (Warangal)</option>
-                </select>
-              </div>
+              <LocationAreaSelector
+                value={locality}
+                onChange={setLocality}
+                label="ప్రాంతం / ఏరియా / గ్రామం / పట్టణం (Locality / Area)"
+                placeholder="గ్రామం, వీధి, మండలం, పట్టణం టైప్ చేయండి లేదా ఎంచుకోండి..."
+                required
+              />
 
             </div>
 

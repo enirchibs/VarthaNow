@@ -20,6 +20,7 @@ import {
   Gift
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
+import { LocationAreaSelector } from "@/components/LocationAreaSelector";
 
 export interface MahilaItem {
   id: string;
@@ -576,25 +577,13 @@ export function MahilaMarketPage() {
                     </select>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-slate-800">
-                      ప్రాంతం (Locality Dropdown) <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={locality}
-                      onChange={(e) => setLocality(e.target.value)}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 cursor-pointer transition"
-                    >
-                      <option value="మధురవాడ (Madhurawada)">మధురవాడ (Madhurawada)</option>
-                      <option value="గాజువాక (Gajuwaka)">గాజువాక (Gajuwaka)</option>
-                      <option value="ఎంవీపీ కాలనీ (MVP Colony)">ఎంవీపీ కాలనీ (MVP Colony)</option>
-                      <option value="విశాఖపట్నం (Visakhapatnam)">విశాఖపట్నం (Visakhapatnam)</option>
-                      <option value="హైదరాబాద్ (Hyderabad)">హైదరాబాద్ (Hyderabad)</option>
-                      <option value="విజయవాడ (Vijayawada)">విజయవాడ (Vijayawada)</option>
-                      <option value="గుంటూరు (Guntur)">గుంటూరు (Guntur)</option>
-                      <option value="తిరుపతి (Tirupati)">తిరుపతి (Tirupati)</option>
-                    </select>
-                  </div>
+                  <LocationAreaSelector
+                    value={locality}
+                    onChange={setLocality}
+                    label="ప్రాంతం / ఏరియా / గ్రామం / పట్టణం (Locality / Area)"
+                    placeholder="గ్రామం, వీధి, మండలం, పట్టణం టైప్ చేయండి లేదా ఎంచుకోండి..."
+                    required
+                  />
                 </div>
 
                 {/* Field 4: Product / Service Title */}
