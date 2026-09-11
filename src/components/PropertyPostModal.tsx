@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { 
   X, 
   Home, 
@@ -11,7 +11,8 @@ import {
   Sparkles, 
   MessageCircle,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  RefreshCw
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -103,6 +104,76 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Real-Time Live WebCam / Device Camera Viewfinder State
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const startRealCamera = async (mode: "environment" | "user" = "environment") => {
+    setIsCameraOpen(true);
+    setCameraError(null);
+
+    try {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((track) => track.stop());
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { 
+          facingMode: { ideal: mode },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      });
+
+      setCameraStream(stream);
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play().catch(() => {});
+        }
+      }, 100);
+    } catch (err: any) {
+      console.warn("Live camera access note:", err);
+      setCameraError("కెమెరా అనుమతి లేదు. దయచేసి బ్రౌజర్ కెమెరా పర్మిషన్ ఎనేబుల్ చేయండి (Camera access was not granted or blocked).");
+    }
+  };
+
+  const stopRealCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach((track) => track.stop());
+      setCameraStream(null);
+    }
+    setIsCameraOpen(false);
+    setCameraError(null);
+  };
+
+  const captureRealPhoto = () => {
+    if (videoRef.current && canvasRef.current) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
+        setImages((prev) => [...prev, dataUrl].slice(0, 4));
+        stopRealCamera();
+      }
+    }
+  };
+
+  const switchCameraFacing = () => {
+    const nextMode = facingMode === "environment" ? "user" : "environment";
+    setFacingMode(nextMode);
+    startRealCamera(nextMode);
+  };
 
   if (!isOpen) return null;
 
@@ -557,21 +628,18 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
                     />
                   </label>
 
-                  {/* Option 2: Camera Capture */}
-                  <label className="flex items-center justify-center gap-2 p-3 rounded-2xl border-2 border-dashed border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10 cursor-pointer transition text-center group">
+                  {/* Option 2: Live Real Camera Capture */}
+                  <button
+                    type="button"
+                    onClick={() => startRealCamera("environment")}
+                    className="flex items-center justify-center gap-2 p-3 rounded-2xl border-2 border-dashed border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10 cursor-pointer transition text-center group"
+                  >
                     <Camera className="size-5 text-emerald-600 group-hover:scale-110 transition shrink-0" />
                     <div className="flex flex-col text-left">
                       <span className="text-xs font-black text-emerald-600">Camera</span>
-                      <span className="text-[9px] font-bold text-emerald-800/70 dark:text-emerald-300">Take Photo (ఫోటో తీయండి)</span>
+                      <span className="text-[9px] font-bold text-emerald-800/70 dark:text-emerald-300">Take Live Photo (ఫోటో తీయండి)</span>
                     </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      capture="environment"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </label>
+                  </button>
                 </div>
               )}
 
@@ -606,6 +674,92 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
           </form>
         </div>
       </div>
+
+      {/* 📷 Real-Time Live WebCam / Device Camera Viewfinder Modal Overlay */}
+      {isCameraOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-3xl bg-slate-950 border border-slate-800 p-4 shadow-2xl space-y-4 text-white overflow-hidden flex flex-col items-center">
+            
+            {/* Header Controls */}
+            <div className="flex items-center justify-between w-full border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Camera className="size-5 text-emerald-400 animate-pulse" />
+                <span className="text-sm font-black">Live Camera (లైవ్ కెమెరా - ఫోటో తీయండి)</span>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={switchCameraFacing}
+                  className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold flex items-center gap-1 text-slate-200 transition"
+                  title="Switch Front/Rear Camera"
+                >
+                  <RefreshCw className="size-3.5" />
+                  <span>మార్చండి</span>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={stopRealCamera}
+                  className="rounded-full p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Error Message if camera access blocked */}
+            {cameraError ? (
+              <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold text-center space-y-3 my-4">
+                <p>{cameraError}</p>
+                <button
+                  type="button"
+                  onClick={stopRealCamera}
+                  className="px-4 py-2 rounded-xl bg-red-600 text-white font-black text-xs shadow-md"
+                >
+                  మూసివేయండి (Close)
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Live Camera Video Stream Viewfinder */}
+                <div className="relative aspect-[4/3] w-full bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="size-full object-cover"
+                  />
+                  
+                  {/* Hidden Canvas for Frame Capture */}
+                  <canvas ref={canvasRef} className="hidden" />
+
+                  {/* Viewfinder Framing Overlay */}
+                  <div className="absolute inset-6 border-2 border-emerald-400/40 rounded-xl pointer-events-none flex items-center justify-center">
+                    <span className="text-[10px] font-black text-emerald-400/80 bg-black/60 px-2.5 py-1 rounded-full backdrop-blur-xs">
+                      ఫోటో తీయడానికి కింద బటన్ నొక్కండి
+                    </span>
+                  </div>
+                </div>
+
+                {/* Snap Photo Trigger Button */}
+                <div className="flex items-center justify-center pt-2">
+                  <button
+                    type="button"
+                    onClick={captureRealPhoto}
+                    className="size-16 rounded-full bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-600 text-white shadow-[0_0_25px_rgba(52,211,153,0.6)] hover:scale-105 active:scale-95 transition-all flex items-center justify-center border-4 border-white cursor-pointer"
+                    title="Snap Real Photo"
+                  >
+                    <Camera className="size-7" />
+                  </button>
+                </div>
+              </>
+            )}
+
+          </div>
+        </div>
+      )}
     </div>
   );
 }
