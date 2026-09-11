@@ -83,13 +83,13 @@ export function PrakatanaluPage() {
           className="p-5 rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] hover:bg-amber-500/10 hover:border-amber-500/30 transition-all cursor-pointer space-y-3 group"
         >
           <div className="size-12 rounded-2xl bg-amber-500/10 text-amber-600 flex items-center justify-center font-black">
-            <Smartphone className="size-6" />
+            <Home className="size-6" />
           </div>
           <h3 className="text-base font-extrabold text-[hsl(var(--foreground))] group-hover:text-amber-600 transition-colors">
-            📱 4. మీ వస్తువులు అమ్మండి / కొనండి
+            🏡 4. రియల్ ఎస్టేట్ & ప్రాపర్టీ ప్రకటనలు
           </h3>
           <p className="text-xs text-[hsl(var(--muted-foreground))]">
-            మొబైల్స్, బైక్స్, ల్యాప్‌టాప్, ఇల్లు స్థానికంగా అమ్మండి లేదా కొనండి.
+            మీ ఫ్లాట్, ఇల్లు, ప్లాట్, ల్యాండ్, హాస్టల్, ఫామ్‌హౌస్, షాప్ అమ్మకానికి లేదా అద్దెకు ఉచిత ప్రకటన ఇవ్వండి.
           </p>
         </div>
       </div>

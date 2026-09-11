@@ -1,0 +1,580 @@
+import React, { useState } from "react";
+import { 
+  X, 
+  Home, 
+  Building2, 
+  MapPin, 
+  Phone, 
+  Check, 
+  Upload, 
+  Camera, 
+  Sparkles, 
+  MessageCircle,
+  ShieldCheck,
+  CheckCircle2
+} from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
+
+interface PropertyPostModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+}
+
+export type PropertyCategory = "residential" | "commercial";
+
+export type PropertyType = 
+  | "flat" 
+  | "house_villa" 
+  | "plot_land" 
+  | "pg_hostel" 
+  | "farmhouse" 
+  | "shop_showroom" 
+  | "office" 
+  | "warehouse" 
+  | "other";
+
+export type ListingType = "sale" | "rent" | "lease";
+
+const RESIDENTIAL_TYPES = [
+  { id: "flat", label: "Flat / Apartment", labelTe: "🏢 ఫ్లాట్ / అపార్ట్‌మెంట్" },
+  { id: "house_villa", label: "Independent House / Villa", labelTe: "🏠 ఇల్లు / విల్లా" },
+  { id: "plot_land", label: "Plot / Land", labelTe: "📐 ప్లాట్ / ల్యాండ్" },
+  { id: "pg_hostel", label: "PG / Hostel", labelTe: "🏢 పీజీ / హాస్టల్" },
+  { id: "farmhouse", label: "Farmhouse", labelTe: "🌴 ఫామ్‌హౌస్" },
+  { id: "other", label: "Other Residential", labelTe: "🏘️ ఇతర నివాస స్థలం" }
+];
+
+const COMMERCIAL_TYPES = [
+  { id: "shop_showroom", label: "Shop / Showroom", labelTe: "🏬 షాప్ / షోరూమ్" },
+  { id: "office", label: "Office Space", labelTe: "🏢 ఆఫీస్" },
+  { id: "warehouse", label: "Warehouse / Godown", labelTe: "🏭 గోదాము" },
+  { id: "plot_land", label: "Commercial Plot / Land", labelTe: "📐 వాణిజ్య ప్లాట్" },
+  { id: "farmhouse", label: "Commercial Farmhouse", labelTe: "🌴 కమర్షియల్ ఫామ్‌హౌస్" },
+  { id: "other", label: "Other Commercial", labelTe: "🏬 ఇతర వాణిజ్య స్థలం" }
+];
+
+const AMENITIES_LIST = [
+  "Parking", "Gym", "Swimming Pool", "Security", 
+  "Power Backup", "Elevator", "Garden", "Club House", 
+  "Wifi", "Furnished"
+];
+
+const LOCALITIES = [
+  "విశాఖపట్నం (Visakhapatnam)",
+  "మధురవాడ (Madhurawada)",
+  "గాజువాక (Gajuwaka)",
+  "ఎంవీపీ కాలనీ (MVP Colony)",
+  "విజయవాడ (Vijayawada)",
+  "హైదరాబాద్ (Hyderabad)",
+  "తిరుపతి (Tirupati)",
+  "గుంటూరు (Guntur)",
+  "కాకినాడ (Kakinada)",
+  "నెల్లూరు (Nellore)",
+  "రాజమండ్రి (Rajahmundry)",
+  "ఇతర ప్రాంతం (Other Area)"
+];
+
+export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostModalProps) {
+  const { lang } = useLanguage();
+
+  // Category & Type Selection
+  const [propertyCategory, setPropertyCategory] = useState<PropertyCategory>("residential");
+  const [propertyType, setPropertyType] = useState<PropertyType>("flat");
+  const [listingType, setListingType] = useState<ListingType>("sale");
+
+  // Form Fields
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [areaSqft, setAreaSqft] = useState("");
+  const [bedrooms, setBedrooms] = useState("2");
+  const [bathrooms, setBathrooms] = useState("2");
+  const [floorNumber, setFloorNumber] = useState("");
+  const [totalFloors, setTotalFloors] = useState("");
+  const [locality, setLocality] = useState("మధురవాడ (Madhurawada)");
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>(["Parking", "Security"]);
+  const [agentName, setAgentName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
+
+  // Media & UI States
+  const [images, setImages] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  if (!isOpen) return null;
+
+  // Toggle Amenities
+  const toggleAmenity = (amenity: string) => {
+    setSelectedAmenities((prev) => 
+      prev.includes(amenity) ? prev.filter((a) => a !== amenity) : [...prev, amenity]
+    );
+  };
+
+  // Image Upload Handler
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    const newImages: string[] = [];
+    Array.from(files).forEach((file) => {
+      if (images.length + newImages.length >= 4) return;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setImages((prev) => [...prev, reader.result as string].slice(0, 4));
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Submit Handler
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) {
+      setErrorMsg("దయచేసి ప్రాపర్టీ శీర్షిక ఎంటర్ చేయండి (Please enter property title)");
+      return;
+    }
+    if (!contactPhone.trim()) {
+      setErrorMsg("దయచేసి సంప్రదించాల్సిన ఫోన్ నెంబర్ నమోదు చేయండి (Please enter contact phone)");
+      return;
+    }
+
+    setSubmitting(true);
+    setErrorMsg("");
+
+    try {
+      const propertyAd = {
+        id: `prop_${Date.now()}`,
+        category: "property",
+        property_category: propertyCategory,
+        property_type: propertyType,
+        listing_type: listingType,
+        title: title.trim(),
+        description: description.trim(),
+        price: price.trim(),
+        area_sqft: areaSqft.trim(),
+        bedrooms,
+        bathrooms,
+        floor_number: floorNumber,
+        total_floors: totalFloors,
+        locality,
+        amenities: selectedAmenities,
+        seller_name: agentName.trim() || "ప్రాపర్టీ యజమాని",
+        contact: contactPhone.trim(),
+        whatsapp: whatsappNumber.trim() || contactPhone.trim(),
+        images: images.length > 0 ? images : ["https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80"],
+        created_at: new Date().toISOString()
+      };
+
+      // Save to localStorage for instant persistence
+      const existing = JSON.parse(localStorage.getItem("vaartanow_user_classifieds") || "[]");
+      localStorage.setItem("vaartanow_user_classifieds", JSON.stringify([propertyAd, ...existing]));
+
+      setSuccessMsg("✨ మీ ప్రాపర్టీ ప్రకటన విజయవంతంగా పోస్ట్ చేయబడింది! (Your property ad was listed successfully!)");
+      setTimeout(() => {
+        if (onSuccess) onSuccess();
+        onClose();
+      }, 1800);
+    } catch (err: any) {
+      setErrorMsg(`Failed to save listing: ${err.message}`);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const currentPropertyTypes = propertyCategory === "residential" ? RESIDENTIAL_TYPES : COMMERCIAL_TYPES;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200">
+      <div className="relative my-6 w-full max-w-2xl rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        
+        {/* Header Bar */}
+        <div className="flex items-center justify-between border-b border-[hsl(var(--border))] bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 text-white shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-white/20 text-white backdrop-blur-xs shadow-inner">
+              <Home className="size-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black tracking-tight">List Your Property for Sale or Rent</h2>
+              <p className="text-[11px] font-bold text-blue-100">
+                ప్లాట్, ఇల్లు, ఫ్లాట్, హాస్టల్, ఫామ్‌హౌస్, షాప్ ఉచితంగా పోస్ట్ చేయండి
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-full p-1.5 text-white/80 hover:bg-white/20 hover:text-white transition"
+          >
+            <X className="size-5" />
+          </button>
+        </div>
+
+        {/* Scrollable Form Body */}
+        <div className="p-6 overflow-y-auto space-y-6">
+          
+          {/* WhatsApp Direct Posting Strip */}
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-left space-y-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div>
+                <h4 className="text-xs font-black text-emerald-700 dark:text-emerald-400">
+                  Prefer WhatsApp? List via WhatsApp!
+                </h4>
+                <p className="text-[11px] text-emerald-800/80 dark:text-emerald-300 font-medium">
+                  Share property details directly on WhatsApp and our team will list it for you.
+                </p>
+              </div>
+              <a
+                href={`https://api.whatsapp.com/send?phone=919876543210&text=${encodeURIComponent("Hi VaartaNow Team, I want to list my property for sale/rent on VaartaNow Real Estate.")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black shadow-sm transition flex items-center gap-1.5 shrink-0"
+              >
+                <MessageCircle className="size-4" />
+                <span>Post Property via WhatsApp</span>
+              </a>
+            </div>
+          </div>
+
+          <div className="relative flex items-center justify-center my-2">
+            <div className="border-t border-[hsl(var(--border))] w-full" />
+            <span className="absolute bg-[hsl(var(--card))] px-3 text-[10px] font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+              OR fill the form below
+            </span>
+          </div>
+
+          {/* Success / Error Toast */}
+          {successMsg && (
+            <div className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 p-4 text-xs font-bold flex items-center gap-2">
+              <CheckCircle2 className="size-5 shrink-0" />
+              <span>{successMsg}</span>
+            </div>
+          )}
+          {errorMsg && (
+            <div className="rounded-2xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 p-3.5 text-xs font-bold">
+              {errorMsg}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            
+            {/* Property Category Buttons (Residential vs Commercial) */}
+            <div>
+              <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                Property Category *
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPropertyCategory("residential");
+                    setPropertyType("flat");
+                  }}
+                  className={`p-3.5 rounded-2xl border-2 text-left transition flex flex-col justify-between ${
+                    propertyCategory === "residential"
+                      ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                      : "bg-[hsl(var(--muted))]/50 border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-blue-500"
+                  }`}
+                >
+                  <span className="text-sm font-black">Residential</span>
+                  <span className="text-[10px] font-bold opacity-90">Homes, Flats, Plots, PG, Farmhouse</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPropertyCategory("commercial");
+                    setPropertyType("shop_showroom");
+                  }}
+                  className={`p-3.5 rounded-2xl border-2 text-left transition flex flex-col justify-between ${
+                    propertyCategory === "commercial"
+                      ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                      : "bg-[hsl(var(--muted))]/50 border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-blue-500"
+                  }`}
+                >
+                  <span className="text-sm font-black">Commercial</span>
+                  <span className="text-[10px] font-bold opacity-90">Office, Shop, Showroom, Warehouse</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Property Type & Listing Type */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                  Property Type * (ప్లాట్ / ఫ్లాట్ / ఇల్లు / హాస్టల్ / ఫామ్‌హౌస్)
+                </label>
+                <select
+                  value={propertyType}
+                  onChange={(e) => setPropertyType(e.target.value as PropertyType)}
+                  className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
+                >
+                  {currentPropertyTypes.map((pt) => (
+                    <option key={pt.id} value={pt.id}>
+                      {pt.labelTe} ({pt.label})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                  Listing Type * (అమ్మకం / అద్దె / లీజు)
+                </label>
+                <select
+                  value={listingType}
+                  onChange={(e) => setListingType(e.target.value as ListingType)}
+                  className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
+                >
+                  <option value="sale">Sale (అమ్మకానికి)</option>
+                  <option value="rent">Rent (అద్దెకు)</option>
+                  <option value="lease">Lease (లీజుకు)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Property Title */}
+            <div>
+              <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                Property Title * (శీర్షిక)
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g., Spacious 2BHK Apartment in Madhurawada / 200 Sq Yds Plot in Gajuwaka"
+                className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
+                required
+              />
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                Description (వివరాలు)
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                placeholder="Describe your property details, facing, landmarks, nearby schools/hospitals..."
+                className="w-full p-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600 resize-none"
+              />
+            </div>
+
+            {/* Price & Area */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                  Price (₹) *
+                </label>
+                <input
+                  type="text"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value)}
+                  placeholder="e.g., 5000000 or 15000 / month"
+                  className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                  Area (Sq Ft / Sq Yds)
+                </label>
+                <input
+                  type="text"
+                  value={areaSqft}
+                  onChange={(e) => setAreaSqft(e.target.value)}
+                  placeholder="e.g., 1200 sqft or 200 sq yds"
+                  className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
+                />
+              </div>
+            </div>
+
+            {/* Bedrooms, Bathrooms, Floor info (if flat/house) */}
+            {(propertyType === "flat" || propertyType === "house_villa") && (
+              <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] mb-1">
+                    Bedrooms
+                  </label>
+                  <select
+                    value={bedrooms}
+                    onChange={(e) => setBedrooms(e.target.value)}
+                    className="w-full h-9 px-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold"
+                  >
+                    {["1", "2", "3", "4", "5+"].map((b) => (
+                      <option key={b} value={b}>{b} BHK</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] mb-1">
+                    Bathrooms
+                  </label>
+                  <select
+                    value={bathrooms}
+                    onChange={(e) => setBathrooms(e.target.value)}
+                    className="w-full h-9 px-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold"
+                  >
+                    {["1", "2", "3", "4+"].map((b) => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] mb-1">
+                    Floor Number
+                  </label>
+                  <input
+                    type="text"
+                    value={floorNumber}
+                    onChange={(e) => setFloorNumber(e.target.value)}
+                    placeholder="e.g., 3rd Floor"
+                    className="w-full h-9 px-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] mb-1">
+                    Total Floors
+                  </label>
+                  <input
+                    type="text"
+                    value={totalFloors}
+                    onChange={(e) => setTotalFloors(e.target.value)}
+                    placeholder="e.g., 5"
+                    className="w-full h-9 px-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Locality */}
+            <div>
+              <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                Locality / City * (ప్రాంతం)
+              </label>
+              <select
+                value={locality}
+                onChange={(e) => setLocality(e.target.value)}
+                className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
+              >
+                {LOCALITIES.map((loc) => (
+                  <option key={loc} value={loc}>{loc}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Amenities Toggle */}
+            <div>
+              <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-2">
+                Amenities (సౌకర్యాలు)
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {AMENITIES_LIST.map((amenity) => {
+                  const isSelected = selectedAmenities.includes(amenity);
+                  return (
+                    <button
+                      key={amenity}
+                      type="button"
+                      onClick={() => toggleAmenity(amenity)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                        isSelected
+                          ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                          : "bg-[hsl(var(--muted))]/40 border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-blue-400"
+                      }`}
+                    >
+                      {amenity} {isSelected ? "✓" : "+"}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Agent / Owner Info */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                  Agent / Owner Name *
+                </label>
+                <input
+                  type="text"
+                  value={agentName}
+                  onChange={(e) => setAgentName(e.target.value)}
+                  placeholder="e.g., Sekhar V"
+                  className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                  Contact Phone Number *
+                </label>
+                <input
+                  type="tel"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  placeholder="+91 9876543210"
+                  className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Property Images Upload */}
+            <div>
+              <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                Property Images (Upload up to 4 Photos)
+              </label>
+
+              <div className="grid grid-cols-4 gap-2">
+                {images.map((img, idx) => (
+                  <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-[hsl(var(--border))]">
+                    <img src={img} alt="Upload preview" className="size-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setImages((prev) => prev.filter((_, i) => i !== idx))}
+                      className="absolute top-1 right-1 rounded-full bg-black/60 p-1 text-white hover:bg-red-600"
+                    >
+                      <X className="size-3" />
+                    </button>
+                  </div>
+                ))}
+
+                {images.length < 4 && (
+                  <label className="flex flex-col items-center justify-center aspect-square rounded-xl border-2 border-dashed border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30 hover:bg-[hsl(var(--muted))]/60 cursor-pointer transition p-2 text-center">
+                    <Upload className="size-5 text-blue-600 mb-1" />
+                    <span className="text-[10px] font-black text-blue-600">Upload Photo</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* Primary Submit Button */}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="w-full h-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2 active:scale-[0.99]"
+            >
+              <Home className="size-4" />
+              <span>List Property / ప్రాపర్టీ ప్రకటన పోస్ట్ చేయండి</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}

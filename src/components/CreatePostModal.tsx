@@ -16,10 +16,12 @@ import {
   Phone,
   Camera,
   Mic,
-  Navigation
+  Navigation,
+  Home
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
+import { PropertyPostModal } from "./PropertyPostModal";
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -71,9 +73,9 @@ const POST_CATEGORIES: PostCategoryItem[] = [
   },
   {
     id: "buy_sell_items",
-    title: "4. మీ వస్తువులు అమ్మండి / కొనండి (మన మార్కెట్)",
-    subtitle: "మీ పాత వస్తువులు, మొబైల్స్, బైక్స్, ల్యాప్‌టాప్, ఇల్లు స్థానికంగా అమ్మండి లేదా కొనండి",
-    icon: ShoppingBag,
+    title: "4. రియల్ ఎస్టేట్ & ప్రాపర్టీ అమ్మకం / అద్దె (List Your Property)",
+    subtitle: "మీ ఫ్లాట్, ఇల్లు/విల్లా, ప్లాట్/ల్యాండ్, షాప్, హాస్టల్/పిజి, ఫామ్‌హౌస్ అమ్మకానికి లేదా అద్దెకు పోస్ట్ చేయండి",
+    icon: Home,
     iconColor: "text-amber-600 dark:text-amber-400",
     bgColor: "bg-amber-500/10 dark:bg-amber-400/10"
   },
@@ -116,6 +118,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   const { lang } = useLanguage();
   const [selectedArea, setSelectedArea] = useState<string>("విశాఖపట్నం (Visakhapatnam)");
   const [selectedCategory, setSelectedCategory] = useState<PostCategoryType | null>(null);
+  const [isPropertyModalOpen, setIsPropertyModalOpen] = useState<boolean>(false);
 
   // Form Fields
   const [itemType, setItemType] = useState<string>("మొబైల్ (Mobile)");
@@ -126,7 +129,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  if (!isOpen) return null;
+  if (!isOpen && !isPropertyModalOpen) return null;
 
   const handleSelectCategory = (catId: PostCategoryType) => {
     if (catId === "job") {
@@ -136,7 +139,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
     }
     if (catId === "buy_sell_items") {
       onClose();
-      navigate("/market?post=true");
+      setIsPropertyModalOpen(true);
       return;
     }
     if (catId === "agriculture") {
@@ -691,6 +694,12 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
 
         </div>
       </div>
+
+      {/* 🏠 List Your Property Modal */}
+      <PropertyPostModal
+        isOpen={isPropertyModalOpen}
+        onClose={() => setIsPropertyModalOpen(false)}
+      />
     </div>
   );
 }

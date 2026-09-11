@@ -236,7 +236,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
                   required
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer transition"
                 >
-                  <option value="">విభాగాన్ని ఎంచుకోండి (Select a Category)</option>
+                  <option value="property">🏡 రియల్ ఎస్టేట్ & ప్రాపర్టీ - అమ్మకం / అద్దె (Property for Sale or Rent: Flat, House, Land, Plot, Shop)</option>
                   <option value="electronics">📱 ఎలక్ట్రానిక్స్ & మొబైల్స్ (Electronics)</option>
                   <option value="furniture">🛋️ ఫర్నిచర్ (Furniture & Appliances)</option>
                   <option value="vehicles">🚗 వాహనాలు & బైక్‌లు (Vehicles & Bikes)</option>
