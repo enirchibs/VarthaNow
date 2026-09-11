@@ -207,24 +207,37 @@ export function HomePage() {
 
   return (
     <main className="container-shell space-y-2 py-1 sm:py-2 pb-16 sm:pb-24">
-      {/* ✏️ Compact 2-Line WhatsApp Status Personalizer Banner Strip */}
+      {/* ✏️ Premium Animated WhatsApp Status Personalizer Banner Strip */}
       <Link 
         to="/daily-share" 
-        className="group flex items-center justify-between overflow-hidden rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-orange-500 px-3 py-1.5 text-white shadow-sm hover:shadow-md transition-all duration-300 border border-amber-400/40 hover:scale-[1.005]"
+        className="group relative flex items-center justify-between overflow-hidden rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-3 py-2 text-white border-2 border-yellow-300/80 transition-all duration-500 hover:scale-[1.01] active:scale-[0.99] animate-pulse-glow"
       >
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs sm:text-sm shrink-0">✏️</span>
-          <div className="flex flex-col text-left leading-tight truncate">
-            <span className="text-[10px] sm:text-[11px] font-black text-white truncate">
+        {/* 🌟 Continuous Light Shimmer Sweep Animation */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/35 to-transparent animate-shimmer-sweep pointer-events-none" />
+
+        <div className="relative z-10 flex items-center gap-2.5 min-w-0 flex-1">
+          {/* ✏️ Animated Bouncing Icon */}
+          <div 
+            className="flex size-7 sm:size-8 shrink-0 items-center justify-center rounded-xl bg-white/25 text-sm sm:text-base backdrop-blur-xs shadow-inner animate-bounce" 
+            style={{ animationDuration: "2s" }}
+          >
+            ✏️
+          </div>
+
+          <div className="flex flex-col text-left leading-tight min-w-0">
+            <span className="text-[10px] sm:text-[11px] md:text-xs font-black tracking-tight text-white drop-shadow-xs leading-snug">
               మీ పేరు మరియు ఫోటోతో వాట్సాప్ స్టేటస్ తయారు చేసుకోవాలనుకుంటున్నారా?
             </span>
-            <span className="text-[9px] sm:text-[10px] font-bold text-amber-100/90 truncate">
-              [టెంప్లేట్లు చూడండి ›]
+            <span className="text-[9px] sm:text-[10px] font-extrabold text-yellow-100 flex items-center gap-1">
+              [టెంప్లేట్లు చూడండి <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">›</span>]
             </span>
           </div>
         </div>
-        <div className="shrink-0 ml-2 rounded-full bg-white/95 px-2 py-0.5 text-[9px] sm:text-[10px] font-black text-amber-800 shadow-xs group-hover:bg-white group-hover:scale-105 transition-all">
-          ఓపెన్ చేయండి ›
+
+        {/* 🚀 Animated Glowing Action Button */}
+        <div className="relative z-10 shrink-0 ml-2 rounded-full bg-white px-2.5 py-1 text-[9px] sm:text-[10px] font-black text-amber-900 shadow-md group-hover:bg-yellow-300 group-hover:text-black group-hover:scale-105 transition-all duration-300 flex items-center gap-1 border border-yellow-200">
+          <span>ఓపెన్ చేయండి</span>
+          <span className="inline-block transition-transform duration-300 group-hover:translate-x-1">›</span>
         </div>
       </Link>
 
