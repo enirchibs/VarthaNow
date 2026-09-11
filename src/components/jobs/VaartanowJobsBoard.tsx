@@ -97,56 +97,80 @@ export function VaartanowJobsBoard({
 
     async function loadJobs() {
       setLoading(true);
-      const filters: JobFilters = {
+      
+      // Determine district filter parameter
+      const districtFilter = (selectedDistrict === "Remote" || selectedDistrict === "Freelance" || selectedDistrict === "Apprenticeship")
+        ? ""
+        : selectedDistrict;
+
+      const data = await getJobsList({
         query: searchQuery,
+        district: districtFilter,
         workMode: initialWorkModeFilter as any,
         contractType: initialContractFilter as any
-      };
-
-      // Map category tabs to filters
-      if (activeTab === "Freshers") filters.experienceLevel = "Fresher";
-      if (activeTab === "Experienced") filters.experienceLevel = "Experienced";
-      if (activeTab === "Freelance") filters.contractType = "Freelance";
-      if (activeTab === "Apprenticeship") filters.contractType = "Apprenticeship";
-      if (activeTab === "WFH") filters.workMode = "Remote";
-      if (activeTab === "Internships") filters.contractType = "Internship";
-
-      if (selectedDistrict) {
-        if (selectedDistrict === "Remote") {
-          filters.workMode = "Remote";
-        } else if (selectedDistrict === "Freelance") {
-          filters.contractType = "Freelance";
-        } else if (selectedDistrict === "Apprenticeship") {
-          filters.contractType = "Apprenticeship";
-        } else {
-          filters.district = selectedDistrict;
-        }
-      }
-
-      const data = await getJobsList(filters);
+      });
       
       if (!isMounted) return;
 
-      // Filter startup and remote IT custom logic in JS
+      // Filter related jobs for activeCategoryTab from the entire jobs list
       let filteredData = data;
-      const tabLower = activeTab.toLowerCase();
+      const tabSlug = activeTab;
 
-      if (tabLower === "startup") {
-        filteredData = data.filter((j) => (j.tags || []).some(t => t.toLowerCase().includes("startup")));
-      }
-      if (tabLower === "remote it") {
-        filteredData = data.filter((j) => 
-          (j.skills || []).some(s => ["react", "next.js", "python", "software", "typescript", "developer", "engineer", "frontend", "backend"].includes(s.toLowerCase())) ||
-          (j.tags || []).some(t => t.toLowerCase().includes("it") || t.toLowerCase().includes("remote"))
+      if (tabSlug === "WFH") {
+        filteredData = data.filter(j => 
+          j.work_mode === "Remote" || 
+          /remote|wfh|work from home|వర్క్ ఫ్రమ్ హోమ్/i.test(j.title + j.location + j.description_snippet + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Freelance") {
+        filteredData = data.filter(j => 
+          j.contract_type === "Freelance" || 
+          /freelance|ఫ్రీలాన్స్/i.test(j.title + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Apprenticeship") {
+        filteredData = data.filter(j => 
+          j.contract_type === "Apprenticeship" || 
+          /apprentice|అప్రెంటిస్/i.test(j.title + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Freshers") {
+        filteredData = data.filter(j => 
+          j.experience_level === "Fresher" || 
+          /fresher|trainee|ఫ్రెషర్|ట్రైనీ/i.test(j.title + j.experience_level + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Experienced") {
+        filteredData = data.filter(j => 
+          j.experience_level === "Experienced" || 
+          /experienced|senior|lead|అనుభవం/i.test(j.title + j.experience_level + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Government") {
+        filteredData = data.filter(j => 
+          (j.tags || []).some(t => /govt|government/i.test(t)) || 
+          /govt|government|appsc|tspsc|ప్రభుత్వ/i.test(j.title + j.company_name + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Startup") {
+        filteredData = data.filter(j => 
+          (j.tags || []).some(t => /startup/i.test(t)) || 
+          /startup|స్టార్టప్/i.test(j.title + j.company_name + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Remote IT") {
+        filteredData = data.filter(j => 
+          (j.tags || []).some(t => /remote it|it jobs/i.test(t)) ||
+          j.skills.some(s => /react|next\.js|python|software|typescript|developer|engineer|frontend|backend|java|node|cloud/i.test(s)) ||
+          /it|developer|engineer|software|రిమోట్ ఐటీ/i.test(j.title + j.description_snippet)
+        );
+      } else if (tabSlug === "Internships") {
+        filteredData = data.filter(j => 
+          j.contract_type === "Internship" || 
+          /intern|internship|ఇంటర్న్‌షిప్/i.test(j.title + j.contract_type + (j.tags || []).join(" "))
         );
       }
-      if (tabLower === "government") {
-        filteredData = data.filter((j) => (j.tags || []).some(t => t.toLowerCase().includes("government") || t.toLowerCase().includes("govt")));
-      }
 
-      // If strict filter produced 0, fallback gracefully to full data
-      if (filteredData.length === 0 && data.length > 0 && tabLower !== "all") {
-        filteredData = data;
+      // Secondary District Override for Special Filter items
+      if (selectedDistrict === "Remote") {
+        filteredData = filteredData.filter(j => j.work_mode === "Remote");
+      } else if (selectedDistrict === "Freelance") {
+        filteredData = filteredData.filter(j => j.contract_type === "Freelance");
+      } else if (selectedDistrict === "Apprenticeship") {
+        filteredData = filteredData.filter(j => j.contract_type === "Apprenticeship");
       }
 
       setJobs(filteredData);
@@ -247,7 +271,7 @@ export function VaartanowJobsBoard({
     { name: "🎯 ఇంటర్న్‌షిప్స్ (Internships)", slug: "Internships" }
   ];
 
-  // 🎡 Auto-tour category tabs: stay 3 seconds on each category, move rightwards, loop to start at end
+  // 🎡 Auto-tour category tabs: stay 10 seconds on each category, move rightwards, loop to start at end
   useEffect(() => {
     if (!isTabAutoTouring) return;
 
@@ -277,7 +301,7 @@ export function VaartanowJobsBoard({
 
         return nextIdx;
       });
-    }, 3000); // 3 seconds stay on each category tab
+    }, 10000); // 10 seconds stay on each category tab
 
     return () => {
       clearInterval(tourTimer);
@@ -402,7 +426,7 @@ export function VaartanowJobsBoard({
             >
               <span>{t.name}</span>
               {isActive && isTabAutoTouring && (
-                <span className="size-1.5 rounded-full bg-indigo-600 animate-ping shrink-0" title="3s Stay" />
+                <span className="size-1.5 rounded-full bg-indigo-600 animate-ping shrink-0" title="10s Stay" />
               )}
             </button>
           );
