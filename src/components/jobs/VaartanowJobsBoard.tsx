@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { 
   Briefcase, 
@@ -60,7 +60,10 @@ export function VaartanowJobsBoard({
   const [activeChip, setActiveChip] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<string>(initialCategoryFilter || "all");
   const [selectedDistrict, setSelectedDistrict] = useState("");
-  const [visibleCount, setVisibleCount] = useState(30);
+  const [visibleCount, setVisibleCount] = useState(3); // show 2 or 3 job posts initially
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const [activeTabIdx, setActiveTabIdx] = useState<number>(0);
+  const [isTabAutoTouring, setIsTabAutoTouring] = useState<boolean>(true);
   const location = useLocation();
   const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(() => {
     try {
@@ -268,39 +271,76 @@ export function VaartanowJobsBoard({
     { name: "🎯 ఇంటర్న్‌షిప్స్ (Internships)", slug: "Internships" }
   ];
 
-  return (
-    <div className="space-y-6">
-      {/* 🚀 Hero Section: SaaS Gradient Header (Compact & Height-Reduced) */}
-      <section className="relative overflow-hidden rounded-[1.6rem] bg-gradient-to-br from-indigo-900 via-indigo-950 to-zinc-950 p-4 sm:p-5 md:p-6 text-center text-white border border-white/10 shadow-lg">
-        <div className="absolute -left-32 -top-32 size-56 rounded-full bg-blue-500/20 blur-3xl animate-pulse" />
-        <div className="absolute -right-32 -bottom-32 size-56 rounded-full bg-indigo-500/20 blur-3xl animate-pulse" />
+  // 🎡 Auto-tour category tabs: stay 3 seconds on each category, move rightwards, loop to start at end
+  useEffect(() => {
+    if (!isTabAutoTouring) return;
 
-        <div className="max-w-xl mx-auto space-y-2 relative z-10">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-[10px] sm:text-xs font-black text-indigo-300 uppercase tracking-widest animate-pulse">
-            <Sparkles className="size-3 text-indigo-400" />
+    const tourTimer = setInterval(() => {
+      setActiveTabIdx((prevIdx) => {
+        const nextIdx = (prevIdx + 1) % tabs.length;
+        const targetTab = tabs[nextIdx];
+        if (targetTab) {
+          setActiveTab(targetTab.slug);
+          setVisibleCount(3); // show 2 or 3 job posts per view
+        }
+
+        // Smooth scroll container rightwards to center tab element
+        if (tabsRef.current) {
+          const container = tabsRef.current;
+          const children = Array.from(container.children) as HTMLElement[];
+          if (children[nextIdx]) {
+            const child = children[nextIdx];
+            if (nextIdx === 0) {
+              container.scrollTo({ left: 0, behavior: "auto" });
+            } else {
+              const targetLeft = Math.max(0, child.offsetLeft - (container.clientWidth / 2) + (child.clientWidth / 2));
+              container.scrollTo({ left: targetLeft, behavior: "smooth" });
+            }
+          }
+        }
+
+        return nextIdx;
+      });
+    }, 3000); // 3 seconds stay on each category tab
+
+    return () => {
+      clearInterval(tourTimer);
+    };
+  }, [isTabAutoTouring, tabs]);
+
+  return (
+    <div className="space-y-3.5">
+      {/* 🚀 Hero Section: SaaS Gradient Header (Compact & Height-Reduced) */}
+      <section className="relative overflow-hidden rounded-[1.4rem] bg-gradient-to-br from-indigo-950 via-indigo-900 to-zinc-950 p-3 sm:p-3.5 text-center text-white border border-white/10 shadow-md">
+        <div className="absolute -left-32 -top-32 size-48 rounded-full bg-blue-500/20 blur-3xl animate-pulse" />
+        <div className="absolute -right-32 -bottom-32 size-48 rounded-full bg-indigo-500/20 blur-3xl animate-pulse" />
+
+        <div className="max-w-xl mx-auto space-y-1.5 relative z-10">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-[9px] sm:text-[10px] font-black text-indigo-300 uppercase tracking-widest animate-pulse">
+            <Sparkles className="size-2.5 text-indigo-400" />
             VaartaNow జాబ్స్ హబ్ (Jobs Hub)
           </span>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight leading-snug">
+          <h1 className="text-sm sm:text-base md:text-lg font-black tracking-tight leading-snug">
             మీ కెరీర్‌కు సరైన <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-rose-400">ఉద్యోగ అవకాశాలు</span>
           </h1>
-          <p className="text-xs sm:text-sm font-semibold text-zinc-300">
-            ఆంధ్రప్రదేశ్, తెలంగాణ & రిమోట్ ఐటీ రంగాలలో వేల ఉద్యోగ అవకాశాలు — నేరుగా దరఖాస్తు చేసుకోండి!
+          <p className="text-[10.5px] sm:text-xs font-bold text-zinc-300">
+            ఆంధ్రప్రదేశ్, తెలంగాణ & రిమోట్ ఐటీ రంగాలలో వేల ఉద్యోగాలు — నేరుగా దరఖాస్తు చేసుకోండి!
           </p>
 
-          <div className="pt-1">
+          <div className="pt-0.5">
             <button
               onClick={() => setIsPostModalOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:opacity-95 text-white px-4 py-2 text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer touch-manipulation"
+              className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:opacity-95 text-white px-3.5 py-1.5 text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer touch-manipulation"
             >
-              <PlusCircle className="size-4 text-white" />
+              <PlusCircle className="size-3.5 text-white" />
               + ఉద్యోగ ప్రకటన పోస్ట్ చేయండి (Post a Job)
             </button>
           </div>
 
           {/* Search Box & All AP/TG Regional Locations Dropdown */}
-          <div className="pt-2 flex flex-col sm:flex-row gap-2 max-w-lg mx-auto">
+          <div className="pt-1 flex flex-col sm:flex-row gap-1.5 max-w-lg mx-auto">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400" />
               <input
                 type="text"
                 placeholder="ఉద్యోగం, టెక్నాలజీ లేదా కంపెనీ పేరుతో వెతకండి..."
@@ -311,11 +351,11 @@ export function VaartanowJobsBoard({
                     setSearchQuery(searchInput);
                   }
                 }}
-                className="w-full h-10 pl-9 pr-20 rounded-xl bg-white/10 border border-white/10 text-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-zinc-400 transition"
+                className="w-full h-9 pl-8 pr-16 rounded-xl bg-white/10 border border-white/10 text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-zinc-400 transition"
               />
               <button
                 onClick={() => setSearchQuery(searchInput)}
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[10px] font-black uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1 shadow-sm cursor-pointer"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[9.5px] font-black uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1 shadow-sm cursor-pointer"
               >
                 వెతకండి
               </button>
@@ -323,7 +363,7 @@ export function VaartanowJobsBoard({
             <select
               value={selectedDistrict}
               onChange={(e) => setSelectedDistrict(e.target.value)}
-              className="h-10 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold text-xs px-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer shadow-sm"
+              className="h-9 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold text-xs px-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer shadow-sm"
             >
               {/* 1. ALL DISTRICTS */}
               <option value="" className="bg-slate-900 text-white">-- అన్ని జిల్లాలు & ప్రాంతాలు (All Districts) --</option>
@@ -360,14 +400,17 @@ export function VaartanowJobsBoard({
       </section>
 
       {/* 🏷️ Horizontal Filter Chips */}
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+      <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
         {chips.map((c) => (
           <button
             key={c.slug}
-            onClick={() => setActiveChip(c.slug)}
-            className={"h-9 px-4 rounded-full text-xs font-black shrink-0 transition flex items-center gap-1.5 border cursor-pointer " + (
+            onClick={() => {
+              setActiveChip(c.slug);
+              setVisibleCount(3);
+            }}
+            className={"h-8 px-3 rounded-full text-xs font-black shrink-0 transition flex items-center gap-1 border cursor-pointer " + (
               activeChip === c.slug
-                ? "bg-indigo-600 border-indigo-500 text-white shadow-md shadow-indigo-500/25"
+                ? "bg-indigo-600 border-indigo-500 text-white shadow-xs"
                 : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:border-indigo-500 hover:text-indigo-600"
             )}
           >
@@ -376,21 +419,38 @@ export function VaartanowJobsBoard({
         ))}
       </div>
 
-      {/* 🗂️ Category Tabs */}
-      <div className="flex border-b border-[hsl(var(--border))]/70 overflow-x-auto no-scrollbar gap-1">
-        {tabs.map((t) => (
-          <button
-            key={t.slug}
-            onClick={() => setActiveTab(t.slug)}
-            className={"py-3 px-4 text-xs font-black border-b-2 shrink-0 transition cursor-pointer " + (
-              activeTab === t.slug
-                ? "border-indigo-600 text-indigo-600 font-extrabold"
-                : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
-            )}
-          >
-            {t.name}
-          </button>
-        ))}
+      {/* 🗂️ Category Tabs with 3s Auto Tour */}
+      <div 
+        ref={tabsRef}
+        onMouseEnter={() => setIsTabAutoTouring(false)}
+        onMouseLeave={() => setIsTabAutoTouring(true)}
+        onTouchStart={() => setIsTabAutoTouring(false)}
+        className="flex border-b border-[hsl(var(--border))]/70 overflow-x-auto no-scrollbar gap-1 py-0.5 relative"
+      >
+        {tabs.map((t, idx) => {
+          const isActive = activeTab === t.slug;
+          return (
+            <button
+              key={t.slug}
+              onClick={() => {
+                setIsTabAutoTouring(false);
+                setActiveTab(t.slug);
+                setActiveTabIdx(idx);
+                setVisibleCount(3);
+              }}
+              className={"py-2 px-3 text-xs font-black border-b-2 shrink-0 transition cursor-pointer relative flex items-center gap-1.5 " + (
+                isActive
+                  ? "border-indigo-600 text-indigo-600 font-extrabold bg-indigo-50/60 dark:bg-indigo-950/40 rounded-t-lg"
+                  : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              )}
+            >
+              <span>{t.name}</span>
+              {isActive && isTabAutoTouring && (
+                <span className="size-1.5 rounded-full bg-indigo-600 animate-ping shrink-0" title="3s Stay" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* 🗄️ Double Column Grid layout */}
@@ -546,10 +606,10 @@ export function VaartanowJobsBoard({
               })}
 
               {visibleCount < jobs.length && (
-                <div className="flex justify-center pt-4">
+                <div className="flex justify-center pt-2">
                   <button
-                    onClick={() => setVisibleCount((prev) => prev + 30)}
-                    className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md shadow-indigo-500/20 active:scale-95 transition flex items-center gap-2 cursor-pointer"
+                    onClick={() => setVisibleCount((prev) => prev + 10)}
+                    className="px-5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-md shadow-indigo-500/20 active:scale-95 transition flex items-center gap-2 cursor-pointer"
                   >
                     <span>
                       {"మరిన్ని ఉద్యోగాలు చూడండి (" + (jobs.length - visibleCount) + " మిగిలి ఉన్నాయి)"}
