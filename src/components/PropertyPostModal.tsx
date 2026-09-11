@@ -527,30 +527,27 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
               </div>
             </div>
 
-            {/* Property Images Upload */}
-            <div>
-              <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
-                Property Images (Upload up to 4 Photos)
-              </label>
+            {/* Property Images Upload & Camera Capture */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))]">
+                  Property Images (Upload or Take Photo - up to 4 Photos)
+                </label>
+                <span className="text-[10px] font-bold text-blue-600 bg-blue-500/10 px-2 py-0.5 rounded-full">
+                  {images.length}/4 Images
+                </span>
+              </div>
 
-              <div className="grid grid-cols-4 gap-2">
-                {images.map((img, idx) => (
-                  <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-[hsl(var(--border))]">
-                    <img src={img} alt="Upload preview" className="size-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => setImages((prev) => prev.filter((_, i) => i !== idx))}
-                      className="absolute top-1 right-1 rounded-full bg-black/60 p-1 text-white hover:bg-red-600"
-                    >
-                      <X className="size-3" />
-                    </button>
-                  </div>
-                ))}
-
-                {images.length < 4 && (
-                  <label className="flex flex-col items-center justify-center aspect-square rounded-xl border-2 border-dashed border-[hsl(var(--border))] bg-[hsl(var(--muted))]/30 hover:bg-[hsl(var(--muted))]/60 cursor-pointer transition p-2 text-center">
-                    <Upload className="size-5 text-blue-600 mb-1" />
-                    <span className="text-[10px] font-black text-blue-600">Upload Photo</span>
+              {/* Upload & Camera Buttons */}
+              {images.length < 4 && (
+                <div className="grid grid-cols-2 gap-2.5 mb-2">
+                  {/* Option 1: File / Gallery Upload */}
+                  <label className="flex items-center justify-center gap-2 p-3 rounded-2xl border-2 border-dashed border-blue-500/40 bg-blue-500/5 hover:bg-blue-500/10 cursor-pointer transition text-center group">
+                    <Upload className="size-5 text-blue-600 group-hover:scale-110 transition shrink-0" />
+                    <div className="flex flex-col text-left">
+                      <span className="text-xs font-black text-blue-600">Upload Images</span>
+                      <span className="text-[9px] font-bold text-blue-800/70 dark:text-blue-300">From Gallery / Files</span>
+                    </div>
                     <input
                       type="file"
                       accept="image/*"
@@ -559,8 +556,42 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
                       className="hidden"
                     />
                   </label>
-                )}
-              </div>
+
+                  {/* Option 2: Camera Capture */}
+                  <label className="flex items-center justify-center gap-2 p-3 rounded-2xl border-2 border-dashed border-emerald-500/40 bg-emerald-500/5 hover:bg-emerald-500/10 cursor-pointer transition text-center group">
+                    <Camera className="size-5 text-emerald-600 group-hover:scale-110 transition shrink-0" />
+                    <div className="flex flex-col text-left">
+                      <span className="text-xs font-black text-emerald-600">Camera</span>
+                      <span className="text-[9px] font-bold text-emerald-800/70 dark:text-emerald-300">Take Photo (ఫోటో తీయండి)</span>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              )}
+
+              {/* Thumbnails Grid */}
+              {images.length > 0 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {images.map((img, idx) => (
+                    <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-[hsl(var(--border))] shadow-xs group">
+                      <img src={img} alt="Upload preview" className="size-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setImages((prev) => prev.filter((_, i) => i !== idx))}
+                        className="absolute top-1 right-1 rounded-full bg-black/70 p-1 text-white hover:bg-red-600 transition"
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Primary Submit Button */}
