@@ -46,124 +46,103 @@ export function ShortsReel() {
   const refreshShortsPool = async (showLoading = false, setActiveToFirst = false) => {
     if (showLoading) setLoading(true);
     try {
-      if (!supabase) return;
-      // Fetch latest 60 viral videos candidate pool
-      const { data, error } = await supabase
-        .from("viral_videos")
-        .select("*")
-        .order("published_at", { ascending: false })
-        .limit(60);
-      
-      if (error) throw error;
+      let dataList: ShortVideoItem[] = [];
 
-      // --- PERSONALIZATION SCORING ENGINE ---
-      const interestKeywords = new Set<string>();
-      
-      // 1. Gather browser interest keywords tracked via localStorage
-      try {
-        const { getUserInterests } = await import("@/lib/interest-tracker");
-        getUserInterests().forEach(w => interestKeywords.add(w.toLowerCase()));
-      } catch (err) {
-        console.warn("Failed to load interest tracker:", err);
+      if (supabase) {
+        try {
+          const { data, error } = await supabase
+            .from("viral_videos")
+            .select("*")
+            .order("published_at", { ascending: false })
+            .limit(60);
+          
+          if (!error && data && data.length > 0) {
+            // --- PERSONALIZATION SCORING ENGINE ---
+            const interestKeywords = new Set<string>();
+            try {
+              const { getUserInterests } = await import("@/lib/interest-tracker");
+              getUserInterests().forEach(w => interestKeywords.add(w.toLowerCase()));
+            } catch {}
+
+            try {
+              const stored = localStorage.getItem("vaartanow_bookmarks");
+              const bms = stored ? JSON.parse(stored) : [];
+              bms.forEach((slug: string) => {
+                slug.split("-").forEach(w => {
+                  if (w.length > 3) interestKeywords.add(w.toLowerCase());
+                });
+              });
+            } catch {}
+
+            let gpsLocation: any = null;
+            try {
+              const { detectGPSLocation } = await import("@/lib/location-detector");
+              gpsLocation = await detectGPSLocation();
+            } catch {}
+
+            const now = Date.now();
+            const scored = data.map((v: any) => {
+              const pubTime = new Date(v.published_at || v.created_at || now).getTime();
+              const ageInHours = Math.max(0, (now - pubTime) / (1000 * 3600));
+              
+              let recencyScore = (ageInHours <= 6) ? 300 - (ageInHours * 15) : Math.max(0, 50 - ageInHours);
+              let score = recencyScore + (Math.random() * 5);
+              
+              const titleLower = (v.title || "").toLowerCase();
+              const descLower = (v.description || "").toLowerCase();
+              const channelLower = (v.channel || "").toLowerCase();
+
+              interestKeywords.forEach(kw => {
+                if (titleLower.includes(kw) || descLower.includes(kw) || channelLower.includes(kw)) {
+                  score += 15;
+                }
+              });
+
+              if (gpsLocation) {
+                const cityLower = gpsLocation.city.toLowerCase();
+                if (titleLower.includes(cityLower) || descLower.includes(cityLower)) {
+                  score += 25;
+                }
+              }
+
+              return { video: v, score };
+            });
+
+            const sortedCandidates = scored
+              .sort((a, b) => b.score - a.score)
+              .map(item => item.video)
+              .slice(0, 20);
+
+            dataList = sortedCandidates.map((v: any) => ({
+              title: v.title,
+              duration: v.duration || "0:45",
+              thumbnail: v.thumbnail_url || "",
+              link: v.video_url || "",
+              clip: v.clip || v.video_url || "",
+              channel: v.channel || "VarthaNow",
+              source: v.channel || "VarthaNow",
+              source_icon: v.source_icon || "/icons/icon-192.svg"
+            }));
+          }
+        } catch (e) {
+          console.warn("Supabase viral_videos query notice:", e);
+        }
       }
 
-      // 2. Gather bookmark interests
-      try {
-        const stored = localStorage.getItem("vaartanow_bookmarks");
-        const bms = stored ? JSON.parse(stored) : [];
-        bms.forEach((slug: string) => {
-          slug.split("-").forEach(w => {
-            if (w.length > 3) interestKeywords.add(w.toLowerCase());
-          });
-        });
-      } catch {}
-
-      // 3. Detect user GPS geolocation coordinates
-      let gpsLocation: any = null;
-      try {
-        const { detectGPSLocation } = await import("@/lib/location-detector");
-        gpsLocation = await detectGPSLocation();
-      } catch (err) {
-        console.warn("Failed to detect GPS location:", err);
+      // If database query produced 0 results, fallback to daily catalog
+      if (dataList.length === 0) {
+        dataList = await getShortVideos();
       }
-
-      const now = Date.now();
-      const scored = (data || []).map((v: any) => {
-        // 🕒 1. RECENCY SCORE (Primary weighting: up to +300 points for brand-new videos)
-        const pubTime = new Date(v.published_at || v.created_at || now).getTime();
-        const ageInHours = Math.max(0, (now - pubTime) / (1000 * 3600));
-        
-        let recencyScore = 0;
-        if (ageInHours <= 6) {
-          recencyScore = 300 - (ageInHours * 15); // 210 to 300 pts
-        } else if (ageInHours <= 24) {
-          recencyScore = 200 - (ageInHours * 5); // 80 to 170 pts
-        } else if (ageInHours <= 48) {
-          recencyScore = 50 - (ageInHours * 0.5); // 26 to 50 pts
-        } else {
-          recencyScore = Math.max(0, 20 - (ageInHours * 0.1));
-        }
-
-        let score = recencyScore + (Math.random() * 5);
-        
-        const titleLower = (v.title || "").toLowerCase();
-        const descLower = (v.description || "").toLowerCase();
-        const channelLower = (v.channel || "").toLowerCase();
-
-        // 🎯 Match bookmark and browser click interests (+15 per match)
-        interestKeywords.forEach(kw => {
-          if (titleLower.includes(kw) || descLower.includes(kw) || channelLower.includes(kw)) {
-            score += 15;
-          }
-        });
-
-        // 📍 Match GPS location (+25 for direct city match, +15 for state matching keywords)
-        if (gpsLocation) {
-          const cityLower = gpsLocation.city.toLowerCase();
-          const stateLower = gpsLocation.state.toLowerCase();
-
-          if (titleLower.includes(cityLower) || descLower.includes(cityLower)) {
-            score += 25;
-          }
-
-          if (stateLower.includes("andhra") || stateLower.includes("ap")) {
-            if (titleLower.includes("ap") || titleLower.includes("ఆంధ్ర") || titleLower.includes("ఆంధ్రప్రదేశ్")) {
-              score += 15;
-            }
-          }
-          if (stateLower.includes("telangana") || stateLower.includes("tg")) {
-            if (titleLower.includes("telangana") || titleLower.includes("తెలంగాణ") || titleLower.includes("హైదరాబాద్") || titleLower.includes("hyderabad")) {
-              score += 15;
-            }
-          }
-        }
-
-        return { video: v, score };
-      });
-
-      // Sort descending by personalization score and take top 20
-      const sortedCandidates = scored
-        .sort((a, b) => b.score - a.score)
-        .map(item => item.video)
-        .slice(0, 20);
-
-      const mapped: ShortVideoItem[] = sortedCandidates.map((v: any) => ({
-        title: v.title,
-        duration: v.duration || "0:30",
-        thumbnail: v.thumbnail_url || "",
-        link: v.video_url || "",
-        clip: v.clip || v.video_url || "",
-        channel: v.channel || "VarthaNow",
-        source: v.channel || "VarthaNow",
-        source_icon: v.source_icon || "/icons/icon-192.svg"
-      }));
       
-      setVideos(mapped);
-      if (setActiveToFirst && mapped.length > 0) {
-        setActiveVideo(mapped[0]);
+      setVideos(dataList);
+      if ((setActiveToFirst || !activeVideo) && dataList.length > 0) {
+        setActiveVideo(dataList[0]);
       }
     } catch (err) {
-      console.error("Error loading shorts from database:", err);
+      console.error("Error loading shorts:", err);
+      const fallback = await getShortVideos();
+      setVideos(fallback);
+      if (fallback.length > 0) setActiveVideo(fallback[0]);
     } finally {
       setLoading(false);
     }
