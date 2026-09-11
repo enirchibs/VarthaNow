@@ -370,7 +370,7 @@ export function HomePage() {
                 <button onClick={handleDetectGPS} className="text-[9px] text-blue-500 hover:underline">Auto-GPS</button>
               </div>
               <div className="max-h-48 overflow-y-auto space-y-1 mt-1 no-scrollbar">
-                {["Hyderabad", "Vijayawada", "Visakhapatnam", "Tirupati", "Guntur", "Warangal", "Nellore", "Kakinada", "Rajahmundry", "Kurnool", "Anantapur", "Karimnagar", "Khammam", "Nizamabad"].map((city) => (
+                {CITIES.map((city) => (
                   <button
                     key={city}
                     onClick={() => {

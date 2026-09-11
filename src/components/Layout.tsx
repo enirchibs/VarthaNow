@@ -77,40 +77,63 @@ export function Layout() {
     };
   }, []);
 
-  // 🎡 Step-by-step category tour with 1.8-second buffer per highlighted category pill
+  // 🎡 Serial step-by-step category tour: moves right slowly (3.5s buffer for human decision/click), looping serially back to first category
   useEffect(() => {
     let isCancelled = false;
     let timeoutId: any = null;
+    let isPaused = false;
+
+    const navEl = navRef.current;
+    if (!navEl) return;
+
+    const handleMouseEnter = () => { isPaused = true; };
+    const handleMouseLeave = () => { isPaused = false; };
+    const handleTouchStart = () => { isPaused = true; };
+    const handleTouchEnd = () => {
+      setTimeout(() => { isPaused = false; }, 4500);
+    };
+
+    navEl.addEventListener("mouseenter", handleMouseEnter);
+    navEl.addEventListener("mouseleave", handleMouseLeave);
+    navEl.addEventListener("touchstart", handleTouchStart, { passive: true });
+    navEl.addEventListener("touchend", handleTouchEnd, { passive: true });
 
     const startNavTour = async () => {
       if (!navRef.current) return;
-      const navEl = navRef.current;
-      const children = Array.from(navEl.children) as HTMLElement[];
+      const currentNavEl = navRef.current;
+      const children = Array.from(currentNavEl.children) as HTMLElement[];
       if (!children || children.length <= 1) return;
 
       setIsNavAnimating(true);
+      let currentIndex = 0;
 
-      for (let i = 0; i < children.length; i++) {
+      while (!isCancelled) {
+        // Pause movement while user is touching or hovering over the category bar
+        while (isPaused && !isCancelled) {
+          await new Promise((r) => { timeoutId = setTimeout(r, 400); });
+        }
+
         if (isCancelled) break;
-        const child = children[i];
+        const child = children[currentIndex];
 
-        // 1. Highlight this category pill
-        setHighlightedIndex(i);
+        if (child) {
+          // 1. Highlight this category pill with glowing indicator & '👉 నొక్కండి' badge
+          setHighlightedIndex(currentIndex);
 
-        // 2. Smoothly scroll container to center child pill
-        const targetLeft = Math.max(0, child.offsetLeft - (navEl.clientWidth / 2) + (child.clientWidth / 2));
-        navEl.scrollTo({ left: targetLeft, behavior: "smooth" });
+          // 2. Smoothly scroll container rightwards to center current child pill
+          const targetLeft = Math.max(0, child.offsetLeft - (currentNavEl.clientWidth / 2) + (child.clientWidth / 2));
+          currentNavEl.scrollTo({ left: targetLeft, behavior: "smooth" });
+        }
 
-        // 3. Buffer period (1800ms / 1.8s) for user to inspect, think and click
+        // 3. Buffer period (3500ms / 3.5 seconds) for human user to catch, read, think and click
         await new Promise((resolve) => {
-          timeoutId = setTimeout(resolve, 1800);
+          timeoutId = setTimeout(resolve, 3500);
         });
-      }
 
-      if (!isCancelled) {
-        setHighlightedIndex(null);
-        navEl.scrollTo({ left: 0, behavior: "smooth" });
-        setTimeout(() => setIsNavAnimating(false), 800);
+        if (isCancelled) break;
+
+        // Move to next category on the right, looping back to first category (index 0) when reaching the end
+        currentIndex = (currentIndex + 1) % children.length;
       }
     };
 
@@ -119,6 +142,12 @@ export function Layout() {
       isCancelled = true;
       if (timeoutId) clearTimeout(timeoutId);
       window.removeEventListener("gallery_first_round_complete", startNavTour);
+      if (navEl) {
+        navEl.removeEventListener("mouseenter", handleMouseEnter);
+        navEl.removeEventListener("mouseleave", handleMouseLeave);
+        navEl.removeEventListener("touchstart", handleTouchStart);
+        navEl.removeEventListener("touchend", handleTouchEnd);
+      }
     };
   }, []);
 
