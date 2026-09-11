@@ -1,6 +1,6 @@
 export type ExperienceLevel = "Fresher" | "Experienced" | "Any";
 export type WorkMode = "On-site" | "Remote" | "Hybrid";
-export type ContractType = "Full-time" | "Part-time" | "Contract" | "Freelance" | "Internship";
+export type ContractType = "Full-time" | "Part-time" | "Contract" | "Freelance" | "Internship" | "Apprenticeship";
 
 export interface VaartanowJob {
   job_id: string;

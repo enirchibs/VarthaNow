@@ -618,6 +618,7 @@ export function JobsAdminDashboard() {
                     <option value="Contract">Contract</option>
                     <option value="Freelance">Freelance</option>
                     <option value="Internship">Internship</option>
+                    <option value="Apprenticeship">Apprenticeship</option>
                   </select>
                 </div>
               </div>

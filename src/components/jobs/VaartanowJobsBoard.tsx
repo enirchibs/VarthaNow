@@ -109,16 +109,26 @@ export function VaartanowJobsBoard({
       if (activeChip === "Experienced") filters.experienceLevel = "Experienced";
       if (activeChip === "Internship") filters.contractType = "Internship";
       if (activeChip === "Freelance") filters.contractType = "Freelance";
+      if (activeChip === "Apprenticeship") filters.contractType = "Apprenticeship";
 
       // Map category tabs to filters
       if (activeTab === "Freshers") filters.experienceLevel = "Fresher";
       if (activeTab === "Experienced") filters.experienceLevel = "Experienced";
       if (activeTab === "Freelance") filters.contractType = "Freelance";
+      if (activeTab === "Apprenticeship") filters.contractType = "Apprenticeship";
       if (activeTab === "WFH") filters.workMode = "Remote";
       if (activeTab === "Internships") filters.contractType = "Internship";
 
       if (selectedDistrict) {
-        filters.district = selectedDistrict;
+        if (selectedDistrict === "Remote") {
+          filters.workMode = "Remote";
+        } else if (selectedDistrict === "Freelance") {
+          filters.contractType = "Freelance";
+        } else if (selectedDistrict === "Apprenticeship") {
+          filters.contractType = "Apprenticeship";
+        } else {
+          filters.district = selectedDistrict;
+        }
       }
 
       const data = await getJobsList(filters);
@@ -236,20 +246,22 @@ export function VaartanowJobsBoard({
   const chips = [
     { label: "అన్నీ (All Jobs)", slug: "all" },
     { label: "వర్క్ ఫ్రమ్ హోమ్ 🏠", slug: "Remote" },
+    { label: "ఫ్రీలాన్స్ 💻", slug: "Freelance" },
+    { label: "అప్రెంటిస్‌షిప్ 🛠️", slug: "Apprenticeship" },
     { label: "హైబ్రిడ్ 🏢", slug: "Hybrid" },
     { label: "ప్రభుత్వ ఉద్యోగాలు 🏛️", slug: "Government" },
     { label: "ఫ్రెషర్స్ 🎓", slug: "Fresher" },
     { label: "అనుభవం 💼", slug: "Experienced" },
-    { label: "ఇంటర్న్‌షిప్ 🎯", slug: "Internship" },
-    { label: "ఫ్రీలాన్స్ 💻", slug: "Freelance" }
+    { label: "ఇంటర్న్‌షిప్ 🎯", slug: "Internship" }
   ];
 
   const tabs = [
     { name: "అన్ని విభాగాలు (All)", slug: "all" },
+    { name: "🏠 వర్క్ ఫ్రమ్ హోమ్ (WFH)", slug: "WFH" },
+    { name: "🌍 ఫ్రీలాన్స్ (Freelance)", slug: "Freelance" },
+    { name: "🛠️ అప్రెంటిస్‌షిప్ (Apprenticeship)", slug: "Apprenticeship" },
     { name: "🎓 ఫ్రెషర్స్ (Freshers)", slug: "Freshers" },
     { name: "💼 అనుభవం (Experienced)", slug: "Experienced" },
-    { name: "🌍 ఫ్రీలాన్స్ (Freelance)", slug: "Freelance" },
-    { name: "🏠 వర్క్ ఫ్రమ్ హోమ్ (WFH)", slug: "WFH" },
     { name: "🏛️ ప్రభుత్వ ఉద్యోగాలు (Govt)", slug: "Government" },
     { name: "🚀 స్టార్టప్స్ (Startups)", slug: "Startup" },
     { name: "📱 రిమోట్ ఐటీ (Remote IT)", slug: "Remote IT" },
@@ -313,9 +325,19 @@ export function VaartanowJobsBoard({
               onChange={(e) => setSelectedDistrict(e.target.value)}
               className="h-10 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold text-xs px-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer shadow-sm"
             >
-              <option value="" className="bg-slate-900 text-white">-- అన్ని జిల్లాలు & ప్రాంతాలు (All Locations) --</option>
+              {/* 1. ALL DISTRICTS */}
+              <option value="" className="bg-slate-900 text-white">-- అన్ని జిల్లాలు & ప్రాంతాలు (All Districts) --</option>
+
+              {/* 2. REMOTE / WFH JOBS */}
+              <option value="Remote" className="bg-slate-900 text-white">💻 రిమోట్ / వర్క్ ఫ్రమ్ హోమ్ (Remote WFH Jobs)</option>
+
+              {/* 3. FREELANCE JOBS */}
+              <option value="Freelance" className="bg-slate-900 text-white">🌍 ఫ్రీలాన్స్ ఉద్యోగాలు (Freelance Jobs)</option>
+
+              {/* 4. APPRENTICESHIP JOBS */}
+              <option value="Apprenticeship" className="bg-slate-900 text-white">🛠️ అప్రెంటిస్‌షిప్ ఉద్యోగాలు (Apprenticeship Jobs)</option>
               
-              {/* 🏖️ ANDHRA PRADESH CITIES (FIRST) */}
+              {/* 5. ANDHRA PRADESH CITIES (FIRST) */}
               <option value="Visakhapatnam" className="bg-slate-900 text-white">🌊 విశాఖపట్నం (Vizag) — North Coastal AP</option>
               <option value="Vijayawada" className="bg-slate-900 text-white">🏙️ విజయవాడ (Vijayawada) — Central AP</option>
               <option value="Tirupati" className="bg-slate-900 text-white">🕉️ తిరుపతి (Tirupati) — South AP</option>
@@ -325,16 +347,13 @@ export function VaartanowJobsBoard({
               <option value="Kurnool" className="bg-slate-900 text-white">⛰️ కర్నూలు (Kurnool) — Rayalaseema</option>
               <option value="Amaravati" className="bg-slate-900 text-white">🏛️ అమరావతి (Amaravati)</option>
 
-              {/* 🏛️ TELANGANA CITIES (SECOND) */}
+              {/* TELANGANA CITIES (SECOND) */}
               <option value="Hyderabad" className="bg-slate-900 text-white">🏢 హైదరాబాద్ (Hyderabad)</option>
               <option value="Warangal" className="bg-slate-900 text-white">🏰 వరంగల్ (Warangal)</option>
               <option value="Nizamabad" className="bg-slate-900 text-white">🏭 నిజామాబాద్ (Nizamabad)</option>
               <option value="Karimnagar" className="bg-slate-900 text-white">🌾 కరీంనగర్ (Karimnagar)</option>
               <option value="Khammam" className="bg-slate-900 text-white">🌳 ఖమ్మం (Khammam)</option>
               <option value="Mahbubnagar" className="bg-slate-900 text-white">🏞️ మహబూబ్‌నగర్ (Mahbubnagar)</option>
-
-              {/* 🏠 REMOTE / WORK FROM HOME */}
-              <option value="Remote" className="bg-slate-900 text-white">💻 రిమోట్ / వర్క్ ఫ్రమ్ హోమ్ (Remote WFH)</option>
             </select>
           </div>
         </div>

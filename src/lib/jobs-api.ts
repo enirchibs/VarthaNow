@@ -1,5 +1,5 @@
 import { supabase } from "./supabase";
-import type { VaartanowJob, JobFilters } from "@/types/jobs";
+import type { VaartanowJob, JobFilters, ContractType } from "@/types/jobs";
 
 
 // ====================================================
@@ -154,6 +154,29 @@ export const mockJobs: VaartanowJob[] = [
     is_featured: false,
     is_approved: true,
     is_active: true
+  },
+  {
+    job_id: "job-7",
+    title: "విశాఖ స్టీల్ ప్లాంట్ గ్రాడ్యుయేట్ & డిప్లొమా అప్రెంటిస్ (Vizag Steel Plant Apprentice 2026)",
+    company_name: "రాష్ట్రీయ ఇస్పాత్ నిగమ్ లిమిటెడ్ (RINL - Vizag Steel)",
+    location: "విశాఖపట్నం (Visakhapatnam, AP)",
+    district: "Visakhapatnam",
+    state: "Andhra Pradesh",
+    description_snippet: "విశాఖపట్నం స్టీల్ ప్లాంట్‌లో ఇంజనీరింగ్ గ్రాడ్యుయేట్ మరియు డిప్లొమా అభ్యర్థులకు 1 సంవత్సరం అప్రెంటిస్‌షిప్ శిక్షణ.",
+    full_description: "వైజాగ్ స్టీల్ ప్లాంట్ లో 2026 విద్యా సంవత్సరానికి గానూ గ్రాడ్యుయేట్ మరియు డిప్లొమా అప్రెంటిస్ పోస్టులకు ప్రకటన విడుదలైనది.\n\n## వివరాలు:\n- విభాగాలు: Mechanical, Electrical, CSE, ECE, Civil.\n- నెలవారీ స్టైపెండ్: ₹12,500 - ₹15,000 / నెలకు.\n- గడువు: ఆన్‌లైన్ దరఖాస్తులు ప్రారంభమైనవి.",
+    apply_link: "https://www.vizagsteel.com/code/careers/job-apprentice-2026",
+    source_platform: "Vizag Steel Official Portal",
+    posted_date: new Date(Date.now() - 3600000 * 5).toISOString(),
+    salary_range: "₹12,500 - ₹15,000 / నెల స్టైపెండ్",
+    skills: ["Engineering", "Technical Training", "Apprenticeship"],
+    tags: ["Apprenticeship", "AP Jobs", "Visakhapatnam"],
+    logo_url: companyLogos[0],
+    experience_level: "Fresher",
+    work_mode: "On-site",
+    contract_type: "Apprenticeship",
+    is_featured: true,
+    is_approved: true,
+    is_active: true
   }
 ];
 
@@ -268,6 +291,7 @@ export function formatWorkModeTelugu(mode?: string): string {
 export function formatContractTypeTelugu(type?: string): string {
   if (!type) return "పూర్తి సమయం (Full-time)";
   const t = type.toLowerCase();
+  if (t.includes("apprentice") || t.includes("అప్రెంటిస్")) return "🛠️ అప్రెంటిస్‌షిప్ (Apprenticeship)";
   if (t.includes("freelance")) return "💻 ఫ్రీలాన్స్ (Freelance)";
   if (t.includes("intern")) return "🎯 ఇంటర్న్‌షిప్ (Internship)";
   if (t.includes("contract") || t.includes("temp")) return "📜 కాంట్రాక్ట్ (Contract)";
@@ -303,8 +327,11 @@ export function autoDetectWorkMode(title: string, desc: string): "Remote" | "Hyb
   return "On-site";
 }
 
-export function autoDetectContractType(title: string, desc: string): "Full-time" | "Part-time" | "Contract" | "Freelance" | "Internship" {
+export function autoDetectContractType(title: string, desc: string): ContractType {
   const text = `${title} ${desc}`.toLowerCase();
+  if (text.includes("apprentice") || text.includes("apprenticeship") || text.includes("అప్రెంటిస్")) {
+    return "Apprenticeship";
+  }
   if (text.includes("intern") || text.includes("internship") || text.includes("trainee")) {
     return "Internship";
   }

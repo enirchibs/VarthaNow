@@ -259,6 +259,7 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
                   className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition"
                 >
                   <option value="IT & Software">💻 ఐటీ & సాఫ్ట్‌వేర్ (IT & Software)</option>
+                  <option value="Apprenticeship">🛠️ అప్రెంటిస్‌షిప్ (Apprenticeship Jobs)</option>
                   <option value="Office & Admin">🏢 ఆఫీస్ అడ్మిన్ & అకౌంట్స్ (Office/Admin)</option>
                   <option value="Sales & Marketing">📈 సేల్స్ & మార్కెటింగ్ (Sales & Marketing)</option>
                   <option value="Drivers & Delivery">🚚 డ్రైవర్లు & డెలివరీ (Drivers & Delivery)</option>
