@@ -57,7 +57,6 @@ export function VaartanowJobsBoard({
   // Search & Filters State
   const [searchInput, setSearchInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeChip, setActiveChip] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<string>(initialCategoryFilter || "all");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [visibleCount, setVisibleCount] = useState(3); // show 2 or 3 job posts initially
@@ -104,16 +103,6 @@ export function VaartanowJobsBoard({
         contractType: initialContractFilter as any
       };
 
-      // Map scrollable chips to filters
-      if (activeChip === "Remote") filters.workMode = "Remote";
-      if (activeChip === "Hybrid") filters.workMode = "Hybrid";
-      if (activeChip === "Contract") filters.contractType = "Contract";
-      if (activeChip === "Fresher") filters.experienceLevel = "Fresher";
-      if (activeChip === "Experienced") filters.experienceLevel = "Experienced";
-      if (activeChip === "Internship") filters.contractType = "Internship";
-      if (activeChip === "Freelance") filters.contractType = "Freelance";
-      if (activeChip === "Apprenticeship") filters.contractType = "Apprenticeship";
-
       // Map category tabs to filters
       if (activeTab === "Freshers") filters.experienceLevel = "Fresher";
       if (activeTab === "Experienced") filters.experienceLevel = "Experienced";
@@ -140,24 +129,23 @@ export function VaartanowJobsBoard({
 
       // Filter startup and remote IT custom logic in JS
       let filteredData = data;
-      const chipLower = activeChip.toLowerCase();
       const tabLower = activeTab.toLowerCase();
 
-      if (tabLower === "startup" || chipLower === "startup") {
+      if (tabLower === "startup") {
         filteredData = data.filter((j) => (j.tags || []).some(t => t.toLowerCase().includes("startup")));
       }
-      if (tabLower === "remote it" || chipLower === "ai jobs") {
+      if (tabLower === "remote it") {
         filteredData = data.filter((j) => 
           (j.skills || []).some(s => ["react", "next.js", "python", "software", "typescript", "developer", "engineer", "frontend", "backend"].includes(s.toLowerCase())) ||
           (j.tags || []).some(t => t.toLowerCase().includes("it") || t.toLowerCase().includes("remote"))
         );
       }
-      if (tabLower === "government" || chipLower === "government") {
+      if (tabLower === "government") {
         filteredData = data.filter((j) => (j.tags || []).some(t => t.toLowerCase().includes("government") || t.toLowerCase().includes("govt")));
       }
 
       // If strict filter produced 0, fallback gracefully to full data
-      if (filteredData.length === 0 && data.length > 0 && (tabLower !== "all" || chipLower !== "all")) {
+      if (filteredData.length === 0 && data.length > 0 && tabLower !== "all") {
         filteredData = data;
       }
 
@@ -172,7 +160,7 @@ export function VaartanowJobsBoard({
     return () => {
       isMounted = false;
     };
-  }, [searchQuery, activeChip, activeTab, selectedDistrict, initialWorkModeFilter, initialContractFilter]);
+  }, [searchQuery, activeTab, selectedDistrict, initialWorkModeFilter, initialContractFilter]);
 
   // Handle Bookmarks
   const toggleSaveJob = (id: string) => {
@@ -245,18 +233,6 @@ export function VaartanowJobsBoard({
       setPreppingInterview(false);
     }, 1000);
   };
-
-  const chips = [
-    { label: "అన్నీ (All Jobs)", slug: "all" },
-    { label: "వర్క్ ఫ్రమ్ హోమ్ 🏠", slug: "Remote" },
-    { label: "ఫ్రీలాన్స్ 💻", slug: "Freelance" },
-    { label: "అప్రెంటిస్‌షిప్ 🛠️", slug: "Apprenticeship" },
-    { label: "హైబ్రిడ్ 🏢", slug: "Hybrid" },
-    { label: "ప్రభుత్వ ఉద్యోగాలు 🏛️", slug: "Government" },
-    { label: "ఫ్రెషర్స్ 🎓", slug: "Fresher" },
-    { label: "అనుభవం 💼", slug: "Experienced" },
-    { label: "ఇంటర్న్‌షిప్ 🎯", slug: "Internship" }
-  ];
 
   const tabs = [
     { name: "అన్ని విభాగాలు (All)", slug: "all" },
@@ -398,26 +374,6 @@ export function VaartanowJobsBoard({
           </div>
         </div>
       </section>
-
-      {/* 🏷️ Horizontal Filter Chips */}
-      <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
-        {chips.map((c) => (
-          <button
-            key={c.slug}
-            onClick={() => {
-              setActiveChip(c.slug);
-              setVisibleCount(3);
-            }}
-            className={"h-8 px-3 rounded-full text-xs font-black shrink-0 transition flex items-center gap-1 border cursor-pointer " + (
-              activeChip === c.slug
-                ? "bg-indigo-600 border-indigo-500 text-white shadow-xs"
-                : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:border-indigo-500 hover:text-indigo-600"
-            )}
-          >
-            {c.label}
-          </button>
-        ))}
-      </div>
 
       {/* 🗂️ Category Tabs with 3s Auto Tour */}
       <div 
