@@ -683,23 +683,23 @@ export function DevotionalHub() {
       {/* 🔮 Tab 2: Daily Horoscopes (నేటి రాశి ఫలాలు) */}
       {activeTab === "rasiphalalu" && (
         <div className="space-y-5">
-          {/* Horizontal deck scroll to select zodiac signs */}
-          <div className="no-scrollbar flex gap-2.5 overflow-x-auto py-1">
+          {/* Horizontal deck scroll to select zodiac signs (Compact 3-per-window layout with borders) */}
+          <div className="no-scrollbar flex gap-1.5 overflow-x-auto py-0.5 snap-x snap-mandatory">
             {rasis.map((rasi) => {
               const active = pinnedRasi === rasi.key;
               return (
                 <button
                   key={rasi.key}
                   onClick={() => handlePinRasi(rasi.key)}
-                  className={`shrink-0 h-11 px-4 rounded-full text-xs font-black flex items-center gap-1.5 transition border ${
+                  className={`w-[calc(33.333%-0.375rem)] sm:w-auto shrink-0 snap-start h-9 px-2 sm:px-3.5 rounded-full text-[11px] sm:text-xs font-black flex items-center justify-center gap-1 transition border-2 ${
                     active 
-                      ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-black border-yellow-400 shadow-md scale-105" 
-                      : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] border-transparent hover:border-[hsl(var(--border))]"
+                      ? "bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-black border-amber-600 shadow-md ring-2 ring-amber-400/40 scale-[1.02]" 
+                      : "bg-white dark:bg-zinc-900 text-slate-800 dark:text-slate-200 border-amber-500/40 dark:border-amber-500/30 hover:border-amber-500 shadow-2xs"
                   }`}
                 >
-                  <span className="text-base">{rasi.emoji}</span>
-                  <span>{rasi.name[lang] || rasi.name.te}</span>
-                  {active && <span>📌</span>}
+                  <span className="text-xs sm:text-sm">{rasi.emoji}</span>
+                  <span className="truncate">{rasi.name[lang] || rasi.name.te}</span>
+                  {active && <span className="text-[10px]">📌</span>}
                 </button>
               );
             })}
