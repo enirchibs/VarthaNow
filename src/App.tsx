@@ -29,12 +29,14 @@ import { AboutPage, ContactPage, PrivacyPage, TermsPage, DisclaimerPage } from "
 import { HealthPortal } from "@/pages/health/HealthPortal";
 
 import { MaatlaaduAIPage } from "@/pages/tutor/MaatlaaduAIPage";
+import { DailySharePage } from "@/pages/DailySharePage";
 
 const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
       { path: "/", element: <HomePage /> },
+      { path: "/daily-share", element: <DailySharePage /> },
       { path: "/market", element: <ManaMarketPage /> },
       { path: "/mahila-market", element: <MahilaMarketPage /> },
       { path: "/services", element: <ServicesRentalPage /> },

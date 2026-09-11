@@ -20,6 +20,7 @@ import { setMeta } from "@/lib/seo";
 import { useHomeData, useInfinitePosts } from "@/hooks/usePosts";
 import { useLanguage } from "@/hooks/useLanguage";
 import { Way2NewsSwiper } from "@/components/Way2NewsSwiper";
+import { DailyShareModule } from "@/components/DailyShareModule";
 import { detectGPSLocation, getCachedGPSLocation } from "@/lib/location-detector";
 import { getUserInterests } from "@/lib/interest-tracker";
 import { recordUserVisit } from "@/lib/read-tracker";
@@ -407,6 +408,9 @@ export function HomePage() {
           )}
         </div>
       </div>
+
+      {/* ✨ TODAY'S DAILY SHARE MODULE */}
+      <DailyShareModule />
 
       <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-4">

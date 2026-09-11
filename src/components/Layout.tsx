@@ -410,6 +410,20 @@ export function Layout() {
             )}
           </NavLink>
 
+          {/* Index 3: Daily Share (ఈరోజు షేర్) */}
+          <NavLink
+            to="/daily-share"
+            className={({ isActive }) =>
+              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
+                isActive
+                  ? "bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white border-yellow-300 shadow-md scale-105"
+                  : "bg-red-500/10 border-red-500/40 text-red-600 dark:text-red-400 hover:bg-red-600 hover:text-white hover:scale-105"
+              }`
+            }
+          >
+            <span>✨ {lang === "te" ? "ఈరోజు షేర్" : "Daily Share"}</span>
+          </NavLink>
+
           {/* Dynamic Categories (Index 3 + idx) */}
           {categories.map((category, idx) => {
             const itemIndex = 3 + idx;
