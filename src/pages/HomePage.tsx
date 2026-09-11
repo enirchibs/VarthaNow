@@ -10,7 +10,8 @@ import {
   Sparkles,
   Filter,
   RefreshCw,
-  BookmarkCheck
+  BookmarkCheck,
+  Briefcase
 } from "lucide-react";
 import { BreakingTicker } from "@/components/BreakingTicker";
 import { NewsGrid } from "@/components/NewsGrid";
@@ -25,6 +26,8 @@ import { recordUserVisit } from "@/lib/read-tracker";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { demoPosts } from "@/lib/demo-data";
 import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
+import { getJobsList, formatJobTitleTelugu } from "@/lib/jobs-api";
+import type { VaartanowJob } from "@/types/jobs";
 
 const CITIES = [
   "Visakhapatnam",
@@ -57,11 +60,24 @@ export function HomePage() {
   const [userInterests, setUserInterests] = useState<string[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [homeJobs, setHomeJobs] = useState<VaartanowJob[]>([]);
 
   useEffect(() => {
     setUserInterests(getUserInterests());
     recordUserVisit();
   }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    getJobsList().then((list) => {
+      if (isMounted && list && list.length > 0) {
+        setHomeJobs(list.slice(0, 3)); // strictly show 2 or 3 job posts
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedLocation]);
 
   // Fetch articles for the homepage feed (20-25 articles minimum per fetch)
   const feed = useInfinitePosts(undefined, {
@@ -392,6 +408,66 @@ export function HomePage() {
         </div>
       </div>
 
+      {/* 💼 COMPACT 2-3 LOCAL JOBS SECTION (Reduced Size) */}
+      {homeJobs.length > 0 && (
+        <section className="rounded-[1.4rem] border border-indigo-200/80 dark:border-indigo-900/60 bg-gradient-to-r from-indigo-900 via-indigo-950 to-slate-900 p-3 sm:p-3.5 text-white shadow-md space-y-2 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="flex size-5.5 items-center justify-center rounded-lg bg-indigo-500/30 text-indigo-200 border border-indigo-400/40 text-xs font-black">
+                💼
+              </span>
+              <h3 className="text-xs sm:text-sm font-black tracking-tight text-white flex items-center gap-1.5">
+                {lang === "te" ? "స్థానిక ఉద్యోగాలు & అవకాశాలు" : "Local Jobs & Opportunities"}
+                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">
+                  {homeJobs.length} ఖాళీలు
+                </span>
+              </h3>
+            </div>
+            <Link
+              to="/jobs"
+              className="text-[10px] font-black text-indigo-300 hover:text-white transition flex items-center gap-1 bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-full border border-white/15"
+            >
+              {lang === "te" ? "ఉద్యోగాల హబ్ →" : "Jobs Hub →"}
+            </Link>
+          </div>
+
+          {/* 3 Compact Height Job Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {homeJobs.slice(0, 3).map((job) => (
+              <Link
+                key={job.job_id}
+                to="/jobs"
+                className="group relative flex flex-col justify-between rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 p-2.5 transition-all duration-300 shadow-xs"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="truncate text-[9px] font-black text-indigo-300 uppercase tracking-wider">
+                      {job.company_name}
+                    </span>
+                    <span className="shrink-0 text-[8px] font-bold px-1.5 py-0.2 rounded bg-indigo-500/40 text-indigo-100 border border-indigo-400/30">
+                      {job.work_mode === "Remote" ? "WFH" : job.contract_type}
+                    </span>
+                  </div>
+                  <h4 className="text-xs font-black text-white line-clamp-1 group-hover:text-indigo-200 transition">
+                    {formatJobTitleTelugu(job.title)}
+                  </h4>
+                </div>
+
+                <div className="flex items-center justify-between gap-1 pt-1.5 mt-1 border-t border-white/10 text-[9px] font-bold text-zinc-300">
+                  <span className="truncate flex items-center gap-0.5 text-zinc-300">
+                    <MapPin className="size-2.5 text-indigo-400 shrink-0" />
+                    {job.district || job.location.split("(")[0]}
+                  </span>
+                  <span className="shrink-0 text-emerald-300 font-black">
+                    {job.salary_range ? job.salary_range.split("/")[0] : "ఆకర్షణీయ జీతం"}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-4">
           <NewsGrid posts={displayGridPosts} loading={feed.loading} />
@@ -410,6 +486,44 @@ export function HomePage() {
         </div>
         
         <aside className="space-y-4">
+          {/* 💼 SIDEBAR COMPACT JOBS WIDGET (3 Jobs) */}
+          {homeJobs.length > 0 && (
+            <div className="rounded-[1.4rem] border border-indigo-200 dark:border-indigo-900/60 bg-gradient-to-br from-indigo-50/50 via-white to-purple-50/30 dark:from-indigo-950/40 dark:via-zinc-900 dark:to-purple-950/20 p-3.5 shadow-sm space-y-2.5">
+              <div className="flex items-center justify-between">
+                <h3 className="flex items-center gap-1.5 text-xs font-black text-indigo-900 dark:text-indigo-200 uppercase tracking-wider">
+                  <Briefcase className="size-3.5 text-indigo-600 dark:text-indigo-400" />
+                  {lang === "te" ? "💼 స్థానిక ఉద్యోగాలు" : "💼 Local Jobs"}
+                </h3>
+                <Link to="/jobs" className="text-[10px] font-extrabold text-indigo-600 dark:text-indigo-400 hover:underline">
+                  {lang === "te" ? "అన్నీ చూడండి →" : "View All →"}
+                </Link>
+              </div>
+
+              <div className="space-y-2">
+                {homeJobs.slice(0, 3).map((job) => (
+                  <Link
+                    key={job.job_id}
+                    to="/jobs"
+                    className="block rounded-xl border border-indigo-100 dark:border-indigo-900/40 bg-white/90 dark:bg-zinc-900/90 p-2.5 hover:border-indigo-500 transition group shadow-2xs"
+                  >
+                    <div className="flex items-start justify-between gap-1.5">
+                      <h4 className="text-xs font-black text-slate-900 dark:text-slate-100 line-clamp-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">
+                        {formatJobTitleTelugu(job.title)}
+                      </h4>
+                      <span className="shrink-0 px-1.5 py-0.5 rounded text-[8px] font-black bg-indigo-50 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60">
+                        {job.work_mode === "Remote" ? "WFH" : job.contract_type}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between gap-2 mt-1 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                      <span className="truncate">{job.company_name}</span>
+                      <span className="shrink-0 text-emerald-600 dark:text-emerald-400 font-extrabold">{job.salary_range ? job.salary_range.split("/")[0] : "ఆకర్షణీయ జీతం"}</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
             <h3 className="mb-3 flex items-center gap-2 font-black">
               <TrendingUp className="size-4 text-emerald-500" />
