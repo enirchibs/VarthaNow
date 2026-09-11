@@ -77,7 +77,7 @@ export function Layout() {
     };
   }, []);
 
-  // 🎡 Serial step-by-step category tour: moves right slowly (3.5s buffer for human decision/click), looping serially back to first category
+  // 🎡 Serial step-by-step category tour: moves right slowly (3.5s buffer per category starting with Mee Vaartalu), looping back to Mee Vaartalu instantly at end without backward scrolling
   useEffect(() => {
     let isCancelled = false;
     let timeoutId: any = null;
@@ -105,7 +105,8 @@ export function Layout() {
       if (!children || children.length <= 1) return;
 
       setIsNavAnimating(true);
-      let currentIndex = 0;
+      // Start with Mee Vaartulu (index 1), followed by Local Jobs (index 2), then categories...
+      let currentIndex = 1;
 
       while (!isCancelled) {
         // Pause movement while user is touching or hovering over the category bar
@@ -114,26 +115,37 @@ export function Layout() {
         }
 
         if (isCancelled) break;
+
+        // When looping back to 'Mee Vaartulu' (index 1), instantly reset scroll position without playing backward animation
+        if (currentIndex === 1) {
+          currentNavEl.scrollTo({ left: 0, behavior: "auto" });
+        }
+
         const child = children[currentIndex];
 
         if (child) {
           // 1. Highlight this category pill with glowing indicator & '👉 నొక్కండి' badge
           setHighlightedIndex(currentIndex);
 
-          // 2. Smoothly scroll container rightwards to center current child pill
-          const targetLeft = Math.max(0, child.offsetLeft - (currentNavEl.clientWidth / 2) + (child.clientWidth / 2));
-          currentNavEl.scrollTo({ left: targetLeft, behavior: "smooth" });
+          // 2. Smoothly scroll container rightwards to center current child pill (for items after start)
+          if (currentIndex > 1) {
+            const targetLeft = Math.max(0, child.offsetLeft - (currentNavEl.clientWidth / 2) + (child.clientWidth / 2));
+            currentNavEl.scrollTo({ left: targetLeft, behavior: "smooth" });
+          }
         }
 
-        // 3. Buffer period (3500ms / 3.5 seconds) for human user to catch, read, think and click
+        // 3. Human decision buffer period (3500ms / 3.5 seconds) for user to catch, read, think and click
         await new Promise((resolve) => {
           timeoutId = setTimeout(resolve, 3500);
         });
 
         if (isCancelled) break;
 
-        // Move to next category on the right, looping back to first category (index 0) when reaching the end
-        currentIndex = (currentIndex + 1) % children.length;
+        // Move serial way rightwards: 1 (Mee Vaartalu) -> 2 (Local Jobs) -> 3 -> 4 ... -> End -> 1 (Mee Vaartalu)
+        currentIndex++;
+        if (currentIndex >= children.length) {
+          currentIndex = 1; // Loop back to 'Mee Vaartulu'
+        }
       }
     };
 
