@@ -272,19 +272,26 @@ export function ShortsReel() {
     // 📡 SUPABASE REALTIME LISTENER FOR NEW SHORTS
     let channel: any = null;
     if (supabase) {
-      channel = supabase
-        .channel("shorts_reel_realtime")
-        .on("postgres_changes", { event: "INSERT", schema: "public", table: "viral_videos" }, () => {
-          console.log("⚡ ShortsReel Realtime INSERT detected! Refreshing pool...");
-          refreshShortsPool(false, false);
-        })
-        .subscribe();
+      try {
+        const channelId = `shorts_reel_${Math.random().toString(36).substring(2, 9)}`;
+        channel = supabase
+          .channel(channelId)
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "viral_videos" }, () => {
+            console.log("⚡ ShortsReel Realtime INSERT detected! Refreshing pool...");
+            refreshShortsPool(false, false);
+          })
+          .subscribe();
+      } catch (err) {
+        console.warn("Supabase Realtime subscription notice:", err);
+      }
     }
 
     return () => {
       clearInterval(interval);
       if (channel && supabase) {
-        supabase.removeChannel(channel);
+        try {
+          supabase.removeChannel(channel);
+        } catch {}
       }
     };
   }, [lang]);

@@ -128,19 +128,26 @@ export function useViralVideos(limit = 10) {
     // 📡 SUPABASE REALTIME SUBSCRIPTION FOR INSTANT SHORTS UPDATES
     let channel: any = null;
     if (supabase) {
-      channel = supabase
-        .channel("viral_videos_changes")
-        .on("postgres_changes", { event: "INSERT", schema: "public", table: "viral_videos" }, () => {
-          fetchVideos();
-        })
-        .subscribe();
+      try {
+        const channelId = `viral_videos_${Math.random().toString(36).substring(2, 9)}`;
+        channel = supabase
+          .channel(channelId)
+          .on("postgres_changes", { event: "INSERT", schema: "public", table: "viral_videos" }, () => {
+            fetchVideos();
+          })
+          .subscribe();
+      } catch (err) {
+        console.warn("Supabase Realtime subscription notice:", err);
+      }
     }
 
     return () => {
       mounted = false;
       clearInterval(fiveMinInterval);
       if (channel && supabase) {
-        supabase.removeChannel(channel);
+        try {
+          supabase.removeChannel(channel);
+        } catch {}
       }
     };
   }, [bookmarks, limit]);
