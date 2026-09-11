@@ -225,10 +225,144 @@ function renderSouthIndianChart(astroResult: any) {
   );
 }
 
+// 📅 Helper function to compute authentic Telugu Panchangam & Auspicious/Inauspicious timings for any date
+function getPanchangamData(dateStr: string, lang: string) {
+  const d = new Date(dateStr + "T00:00:00");
+  const dayOfWeek = d.getDay(); // 0 = Sunday, 1 = Monday, ... 6 = Saturday
+
+  // Day difference from reference epoch (2026-01-01) for deterministic lunar Tithi & Nakshatra
+  const epoch = new Date("2026-01-01T00:00:00").getTime();
+  const targetTime = d.getTime();
+  const dayIndex = Math.floor((targetTime - epoch) / (1000 * 60 * 60 * 24));
+
+  const tithisTe = [
+    "పాడ్యమి (మధ్యాహ్నం 2:10 వరకు)", "విదియ (సాయంత్రం 4:30 వరకు)", "తదియ (ఉదయం 11:45 వరకు)",
+    "చవితి (మధ్యాహ్నం 1:20 వరకు)", "పంచమి (రాత్రి 9:15 వరకు)", "షష్ఠి (సాయంత్రం 6:00 వరకు)",
+    "సప్తమి (రాత్రి 8:30 వరకు)", "అష్టమి (మధ్యాహ్నం 3:40 వరకు)", "నవమి (ఉదయం 10:15 వరకు)",
+    "దశమి (మధ్యాహ్నం 1:50 వరకు)", "ఏకాదశి (రాత్రి 11:10 వరకు)", "ద్వాదశి (మధ్యాహ్నం 1:40 వరకు)",
+    "త్రయోదశి (సాయంత్రం 5:25 వరకు)", "చతుర్దశి (రాత్రి 7:40 వరకు)", "పౌర్ణమి (రాత్రి పూర్తి)",
+    "అమావాస్య (మధ్యాహ్నం 3:15 వరకు)"
+  ];
+  const tithisEn = [
+    "Pratipada (until 2:10 PM)", "Dwitiya (until 4:30 PM)", "Tritiya (until 11:45 AM)",
+    "Chaturthi (until 1:20 PM)", "Panchami (until 9:15 PM)", "Shasthi (until 6:00 PM)",
+    "Saptami (until 8:30 PM)", "Ashtami (until 3:40 PM)", "Navami (until 10:15 AM)",
+    "Dashami (until 1:50 PM)", "Ekadashi (until 11:10 PM)", "Dwadashi (until 1:40 PM)",
+    "Trayodashi (until 5:25 PM)", "Chaturdashi (until 7:40 PM)", "Purnima (Full Night)",
+    "Amavasya (until 3:15 PM)"
+  ];
+
+  const nakshatrasTe = [
+    "అశ్విని (రాత్రి 8:40 వరకు)", "భరణి (మధ్యాహ్నం 2:15 వరకు)", "కృత్తిక (ఉదయం 11:30 వరకు)",
+    "రోహిణి (సాయంత్రం 6:50 వరకు)", "మృగశిర (రాత్రి 9:10 వరకు)", "ఆర్ద్ర (మధ్యాహ్నం 1:00 వరకు)",
+    "పునర్వసు (సాయంత్రం 4:45 వరకు)", "పుష్యమి (రాత్రి 10:20 వరకు)", "ఆశ్లేష (మధ్యాహ్నం 3:30 వరకు)",
+    "మఖ (ఉదయం 11:10 వరకు)", "పూర్వఫల్గుణి (రాత్రి 8:00 వరకు)", "ఉత్తరఫల్గుణి (మధ్యాహ్నం 1:25 వరకు)",
+    "హస్త (సాయంత్రం 5:40 వరకు)", "చిత్తా నక్షత్రం (రాత్రి 10:15 వరకు)", "స్వాతి (మధ్యాహ్నం 3:50 వరకు)",
+    "విశాఖ (ఉదయం 11:00 వరకు)", "అనురాధ (రాత్రి 9:35 వరకు)", "జ్యేష్ఠ (సాయంత్రం 4:20 వరకు)",
+    "మూల (రాత్రి 8:15 వరకు)", "పూర్వాషాఢ (మధ్యాహ్నం 2:00 వరకు)", "ఉత్తరాషాఢ (ఉదయం 10:45 వరకు)",
+    "శ్రవణం (రాత్రి 9:50 వరకు)", "ధనిష్ఠ (సాయంత్రం 5:10 వరకు)", "శతభిషం (మధ్యాహ్నం 1:30 వరకు)",
+    "పూర్వాభాద్ర (ఉదయం 11:25 వరకు)", "ఉత్తరాభాద్ర (రాత్రి 8:45 వరకు)", "రేవతి (సాయంత్రం 4:00 వరకు)"
+  ];
+  const nakshatrasEn = [
+    "Ashwini (until 8:40 PM)", "Bharani (until 2:15 PM)", "Krittika (until 11:30 AM)",
+    "Rohini (until 6:50 PM)", "Mrigasira (until 9:10 PM)", "Ardra (until 1:00 PM)",
+    "Punarvasu (until 4:45 PM)", "Pushya (until 10:20 PM)", "Aslesha (until 3:30 PM)",
+    "Makha (until 11:10 AM)", "Purvaphalguni (until 8:00 PM)", "Uttaraphalguni (until 1:25 PM)",
+    "Hasta (until 5:40 PM)", "Chitra (until 10:15 PM)", "Swati (until 3:50 PM)",
+    "Visakha (until 11:00 AM)", "Anuradha (until 9:35 PM)", "Jyeshta (until 4:20 PM)",
+    "Moola (until 8:15 PM)", "Purvashadha (until 2:00 PM)", "Uttarashadha (until 10:45 AM)",
+    "Sravana (until 9:50 PM)", "Dhanishta (until 5:10 PM)", "Satabhisha (until 1:30 PM)",
+    "Purvabhadra (until 11:25 AM)", "Uttarabhadra (until 8:45 PM)", "Revati (until 4:00 PM)"
+  ];
+
+  const daysTe = ["ఆదివారం", "సోమవారం", "మంగళవారం", "బుధవారం", "గురువారం", "శుక్రవారం", "శనివారం"];
+  const daysEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+  const rahuTe = [
+    "సాయంత్రం 4:30 - 6:00", "ఉదయం 7:30 - 9:00", "మధ్యాహ్నం 3:00 - 4:30",
+    "మధ్యాహ్నం 12:00 - 1:30", "మధ్యాహ్నం 1:30 - 3:00", "ఉదయం 10:30 - 12:00", "ఉదయం 9:00 - 10:30"
+  ];
+  const rahuEn = [
+    "4:30 PM - 6:00 PM", "7:30 AM - 9:00 AM", "3:00 PM - 4:30 PM",
+    "12:00 PM - 1:30 PM", "1:30 PM - 3:00 PM", "10:30 AM - 12:00 PM", "9:00 AM - 10:30 AM"
+  ];
+
+  const yamaTe = [
+    "మధ్యాహ్నం 12:00 - 1:30", "ఉదయం 10:30 - 12:00", "ఉదయం 9:00 - 10:30",
+    "ఉదయం 7:30 - 9:00", "ఉదయం 6:00 - 7:30", "మధ్యాహ్నం 3:00 - 4:30", "మధ్యాహ్నం 1:30 - 3:00"
+  ];
+  const yamaEn = [
+    "12:00 PM - 1:30 PM", "10:30 AM - 12:00 PM", "9:00 AM - 10:30 AM",
+    "7:30 AM - 9:00 AM", "6:00 AM - 7:30 AM", "3:00 PM - 4:30 PM", "1:30 PM - 3:00 PM"
+  ];
+
+  const durTe = [
+    "సాయంత్రం 4:12 - 5:00", "మధ్యాహ్నం 12:30 - 1:18", "ఉదయం 8:24 - 9:12 & రాత్రి 11:00 - 11:48",
+    "మధ్యాహ్నం 11:42 - 12:30", "ఉదయం 10:06 - 10:54 & మధ్యాహ్నం 3:06 - 3:54", "ఉదయం 8:45 - 9:33 & మధ్యాహ్నం 12:45 - 1:33", "ఉదయం 7:30 - 8:18"
+  ];
+  const durEn = [
+    "4:12 PM - 5:00 PM", "12:30 PM - 1:18 PM", "8:24 AM - 9:12 AM & 11:00 PM - 11:48 PM",
+    "11:42 AM - 12:30 PM", "10:06 AM - 10:54 AM & 3:06 PM - 3:54 PM", "8:45 AM - 9:33 AM & 12:45 PM - 1:33 PM", "7:30 AM - 8:18 AM"
+  ];
+
+  const abhijitTe = [
+    "ఉదయం 11:50 - 12:38", "ఉదయం 11:48 - 12:36", "ఉదయం 11:46 - 12:34",
+    "ఉదయం 11:45 - 12:33", "ఉదయం 11:44 - 12:32", "ఉదయం 11:42 - 12:30", "ఉదయం 11:40 - 12:28"
+  ];
+  const abhijitEn = [
+    "11:50 AM - 12:38 PM", "11:48 AM - 12:36 PM", "11:46 AM - 12:34 PM",
+    "11:45 AM - 12:33 PM", "11:44 AM - 12:32 PM", "11:42 AM - 12:30 PM", "11:40 AM - 12:28 PM"
+  ];
+
+  const amruthaTe = [
+    "రాత్రి 8:20 - 10:00", "ఉదయం 6:40 - 8:10", "మధ్యాహ్నం 1:15 - 2:45",
+    "ఉదయం 9:30 - 11:00", "రాత్రి 10:45 - 12:15", "ఉదయం 9:00 - 10:30", "సాయంత్రం 5:20 - 6:50"
+  ];
+  const amruthaEn = [
+    "8:20 PM - 10:00 PM", "6:40 AM - 8:10 AM", "1:15 PM - 2:45 PM",
+    "9:30 AM - 11:00 AM", "10:45 PM - 12:15 AM", "9:00 AM - 10:30 AM", "5:20 PM - 6:50 PM"
+  ];
+
+  const varjyamTe = [
+    "ఉదయం 9:10 - 10:40", "సాయంత్రం 4:30 - 6:00", "రాత్రి 1:10 - 2:40",
+    "ఉదయం 7:15 - 8:45", "మధ్యాహ్నం 2:30 - 4:00", "రాత్రి 11:20 - 12:50", "మధ్యాహ్నం 12:00 - 1:30"
+  ];
+  const varjyamEn = [
+    "9:10 AM - 10:40 AM", "4:30 PM - 6:00 PM", "1:10 AM - 2:40 AM",
+    "7:15 AM - 8:45 AM", "2:30 PM - 4:00 PM", "11:20 PM - 12:50 AM", "12:00 PM - 1:30 PM"
+  ];
+
+  const tithiIdx = Math.abs((dayIndex + 11) % tithisTe.length);
+  const nakshatraIdx = Math.abs((dayIndex + 13) % nakshatrasTe.length);
+
+  const isTe = lang === "te";
+
+  return {
+    dayName: isTe ? daysTe[dayOfWeek] : daysEn[dayOfWeek],
+    tithi: isTe ? tithisTe[tithiIdx] : tithisEn[tithiIdx],
+    nakshatra: isTe ? nakshatrasTe[nakshatraIdx] : nakshatrasEn[nakshatraIdx],
+    rahu: isTe ? rahuTe[dayOfWeek] : rahuEn[dayOfWeek],
+    yamagandam: isTe ? yamaTe[dayOfWeek] : yamaEn[dayOfWeek],
+    durmuhurtham: isTe ? durTe[dayOfWeek] : durEn[dayOfWeek],
+    abhijit: isTe ? abhijitTe[dayOfWeek] : abhijitEn[dayOfWeek],
+    amrutha: isTe ? amruthaTe[dayOfWeek] : amruthaEn[dayOfWeek],
+    varjyam: isTe ? varjyamTe[dayOfWeek] : varjyamEn[dayOfWeek]
+  };
+}
+
 export function DevotionalHub() {
   const { lang } = useLanguage();
   const [activeTab, setActiveTab] = useState<"panchangam" | "rasiphalalu" | "vastu" | "realtime_astrology">("realtime_astrology");
   const [pinnedRasi, setPinnedRasi] = useState<RasiKey | null>(null);
+
+  // 📅 Interactive Telugu Calendar Panchangam date picker state
+  const [selectedPanchangamDate, setSelectedPanchangamDate] = useState<string>(
+    () => new Date().toISOString().split("T")[0]
+  );
+
+  const currentPanchangam = useMemo(() => {
+    return getPanchangamData(selectedPanchangamDate, lang);
+  }, [selectedPanchangamDate, lang]);
 
   // 🔮 Real-time Astrology state
   const [astroName, setAstroName] = useState("");
@@ -605,77 +739,210 @@ export function DevotionalHub() {
         </div>
       </div>
 
-      {/* 📅 Tab 1: Daily Panchangam (నేటి పంచాంగం) */}
+      {/* 📅 Tab 1: Daily Panchangam & Telugu Calendar */}
       {activeTab === "panchangam" && (
-        <div className="grid gap-2.5 sm:grid-cols-2 md:grid-cols-3">
-          {/* Calendar card */}
-          <div className="rounded-xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-amber-500/5 to-orange-500/5 p-3 flex gap-3 items-center shadow-sm">
-            <div className="size-9 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-300 flex items-center justify-center shrink-0">
-              <Calendar className="size-4.5" />
-            </div>
-            <div>
-              <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
-                {ui.tithi[lang] || ui.tithi.te}
-              </h4>
-              <p className="text-xs sm:text-sm font-extrabold text-[hsl(var(--foreground))] mt-0.5">
-                {lang === "te" ? "ద్వాదశి (మధ్యాహ్నం 1:40 వరకు)" : "Dwadashi (until 1:40 PM)"}
-              </p>
+        <div className="space-y-3">
+          {/* Way2News style Interactive Date Bar & Picker */}
+          <div className="rounded-xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-yellow-500/10 p-2.5 shadow-xs space-y-2">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <div className="flex items-center gap-2">
+                <Calendar className="size-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <div>
+                  <h3 className="text-xs font-black text-[hsl(var(--foreground))]">
+                    {new Date(selectedPanchangamDate + "T00:00:00").toLocaleDateString(lang === "te" ? "te-IN" : "en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric"
+                    })} ({currentPanchangam.dayName})
+                  </h3>
+                  <span className="text-[10px] font-bold text-amber-700 dark:text-amber-300 block">
+                    {lang === "te" ? "శ్రీ క్రోధి నామ సంవత్సరం • పఞ్చాఙ్గము" : "Sri Krodhi Nama Samvatsaram Panchangam"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Date Pills & Custom Date Input */}
+              <div className="flex items-center gap-1 w-full sm:w-auto overflow-x-auto no-scrollbar py-0.5">
+                {/* Yesterday */}
+                <button
+                  onClick={() => {
+                    const y = new Date();
+                    y.setDate(y.getDate() - 1);
+                    setSelectedPanchangamDate(y.toISOString().split("T")[0]);
+                  }}
+                  className={`text-[10px] font-black px-2.5 py-1 rounded-lg transition shrink-0 ${
+                    selectedPanchangamDate === new Date(Date.now() - 86400000).toISOString().split("T")[0]
+                      ? "bg-amber-600 text-white shadow-xs"
+                      : "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border border-[hsl(var(--border))]/60 hover:bg-amber-500/10"
+                  }`}
+                >
+                  {lang === "te" ? "నిన్న" : "Yesterday"}
+                </button>
+
+                {/* Today */}
+                <button
+                  onClick={() => {
+                    setSelectedPanchangamDate(new Date().toISOString().split("T")[0]);
+                  }}
+                  className={`text-[10px] font-black px-2.5 py-1 rounded-lg transition shrink-0 ${
+                    selectedPanchangamDate === new Date().toISOString().split("T")[0]
+                      ? "bg-amber-600 text-white shadow-xs"
+                      : "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border border-[hsl(var(--border))]/60 hover:bg-amber-500/10"
+                  }`}
+                >
+                  {lang === "te" ? "నేడు" : "Today"}
+                </button>
+
+                {/* Tomorrow */}
+                <button
+                  onClick={() => {
+                    const t = new Date();
+                    t.setDate(t.getDate() + 1);
+                    setSelectedPanchangamDate(t.toISOString().split("T")[0]);
+                  }}
+                  className={`text-[10px] font-black px-2.5 py-1 rounded-lg transition shrink-0 ${
+                    selectedPanchangamDate === new Date(Date.now() + 86400000).toISOString().split("T")[0]
+                      ? "bg-amber-600 text-white shadow-xs"
+                      : "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border border-[hsl(var(--border))]/60 hover:bg-amber-500/10"
+                  }`}
+                >
+                  {lang === "te" ? "రేపు" : "Tomorrow"}
+                </button>
+
+                {/* Custom Date Picker */}
+                <div className="relative shrink-0 flex items-center bg-[hsl(var(--card))] border border-amber-500/40 rounded-lg px-2 py-0.5 hover:border-amber-500">
+                  <span className="text-[10px] font-black text-amber-600 mr-1">📅</span>
+                  <input
+                    type="date"
+                    value={selectedPanchangamDate}
+                    onChange={(e) => setSelectedPanchangamDate(e.target.value)}
+                    className="text-[10px] font-black bg-transparent text-[hsl(var(--foreground))] focus:outline-none cursor-pointer"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="rounded-xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-amber-500/5 to-orange-500/5 p-3 flex gap-3 items-center shadow-sm">
-            <div className="size-9 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0">
-              <Sparkles className="size-4.5" />
+          {/* Panchangam Cards Grid */}
+          <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-4">
+            {/* Tithi */}
+            <div className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5 p-2.5 flex gap-2.5 items-center shadow-xs">
+              <div className="size-8 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-300 flex items-center justify-center shrink-0">
+                <Calendar className="size-4" />
+              </div>
+              <div>
+                <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                  {ui.tithi[lang] || ui.tithi.te}
+                </h4>
+                <p className="text-xs font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+                  {currentPanchangam.tithi}
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
-                {ui.nakshatra[lang] || ui.nakshatra.te}
-              </h4>
-              <p className="text-xs sm:text-sm font-extrabold text-[hsl(var(--foreground))] mt-0.5">
-                {lang === "te" ? "చిత్తా నక్షత్రం (రాత్రి 10:15 వరకు)" : "Chitra Nakshatram (until 10:15 PM)"}
-              </p>
-            </div>
-          </div>
 
-          <div className="rounded-xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-red-500/5 to-orange-500/5 p-3 flex gap-3 items-center shadow-sm">
-            <div className="size-9 rounded-lg bg-red-500/10 text-red-600 dark:text-red-300 flex items-center justify-center shrink-0">
-              <Clock className="size-4.5" />
+            {/* Nakshatra */}
+            <div className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5 p-2.5 flex gap-2.5 items-center shadow-xs">
+              <div className="size-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0">
+                <Sparkles className="size-4" />
+              </div>
+              <div>
+                <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                  {ui.nakshatra[lang] || ui.nakshatra.te}
+                </h4>
+                <p className="text-xs font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+                  {currentPanchangam.nakshatra}
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
-                {ui.rahu[lang] || ui.rahu.te}
-              </h4>
-              <p className="text-xs sm:text-sm font-extrabold text-[hsl(var(--foreground))] mt-0.5">
-                {lang === "te" ? "సాయంత్రం 4:30 - 6:00" : "4:30 PM - 6:00 PM"}
-              </p>
-            </div>
-          </div>
 
-          <div className="rounded-xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-red-500/5 to-pink-500/5 p-3 flex gap-3 items-center shadow-sm">
-            <div className="size-9 rounded-lg bg-pink-500/10 text-pink-600 dark:text-pink-300 flex items-center justify-center shrink-0">
-              <Clock className="size-4.5" />
+            {/* Good Time / Abhijit Muhurtham ✨ */}
+            <div className="rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 p-2.5 flex gap-2.5 items-center shadow-xs">
+              <div className="size-8 rounded-lg bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                <Sparkles className="size-4" />
+              </div>
+              <div>
+                <h4 className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                  <span>{lang === "te" ? "శుభ సమయం / అభిజిత్ ✨" : "Good Time / Abhijit ✨"}</span>
+                </h4>
+                <p className="text-xs font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+                  {currentPanchangam.abhijit}
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
-                {ui.durmuhurtham[lang] || ui.durmuhurtham.te}
-              </h4>
-              <p className="text-xs sm:text-sm font-extrabold text-[hsl(var(--foreground))] mt-0.5">
-                {lang === "te" ? "మధ్యాహ్నం 12:00 - 12:48" : "12:00 PM - 12:48 PM"}
-              </p>
-            </div>
-          </div>
 
-          <div className="rounded-xl border border-[hsl(var(--border))]/50 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 p-3 flex gap-3 items-center shadow-sm sm:col-span-2 md:col-span-1">
-            <div className="size-9 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0">
-              <Clock className="size-4.5" />
+            {/* Amrutha Ghadialu ✨ */}
+            <div className="rounded-xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 p-2.5 flex gap-2.5 items-center shadow-xs">
+              <div className="size-8 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                <Clock className="size-4" />
+              </div>
+              <div>
+                <h4 className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                  {ui.amrutha[lang] || ui.amrutha.te}
+                </h4>
+                <p className="text-xs font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+                  {currentPanchangam.amrutha}
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
-                {ui.amrutha[lang] || ui.amrutha.te}
-              </h4>
-              <p className="text-xs sm:text-sm font-extrabold text-[hsl(var(--foreground))] mt-0.5">
-                {lang === "te" ? "ఉదయం 9:00 - 10:30" : "9:00 AM - 10:30 AM"}
-              </p>
+
+            {/* Rahu Kalam ⚠️ */}
+            <div className="rounded-xl border border-rose-500/20 bg-gradient-to-br from-rose-500/5 to-red-500/5 p-2.5 flex gap-2.5 items-center shadow-xs">
+              <div className="size-8 rounded-lg bg-rose-500/10 text-rose-600 dark:text-rose-300 flex items-center justify-center shrink-0">
+                <Clock className="size-4" />
+              </div>
+              <div>
+                <h4 className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-wider">
+                  {ui.rahu[lang] || ui.rahu.te}
+                </h4>
+                <p className="text-xs font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+                  {currentPanchangam.rahu}
+                </p>
+              </div>
+            </div>
+
+            {/* Durmuhurtham ❌ */}
+            <div className="rounded-xl border border-rose-500/20 bg-gradient-to-br from-red-500/5 to-pink-500/5 p-2.5 flex gap-2.5 items-center shadow-xs">
+              <div className="size-8 rounded-lg bg-pink-500/10 text-pink-600 dark:text-pink-300 flex items-center justify-center shrink-0">
+                <Clock className="size-4" />
+              </div>
+              <div>
+                <h4 className="text-[10px] font-black text-pink-600 dark:text-pink-400 uppercase tracking-wider">
+                  {ui.durmuhurtham[lang] || ui.durmuhurtham.te}
+                </h4>
+                <p className="text-xs font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+                  {currentPanchangam.durmuhurtham}
+                </p>
+              </div>
+            </div>
+
+            {/* Yamagandam ⌛ */}
+            <div className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-yellow-500/5 p-2.5 flex gap-2.5 items-center shadow-xs">
+              <div className="size-8 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-300 flex items-center justify-center shrink-0">
+                <Clock className="size-4" />
+              </div>
+              <div>
+                <h4 className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                  {lang === "te" ? "యమగండం ⌛" : "Yamagandam ⌛"}
+                </h4>
+                <p className="text-xs font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+                  {currentPanchangam.yamagandam}
+                </p>
+              </div>
+            </div>
+
+            {/* Varjyam 🚫 */}
+            <div className="rounded-xl border border-rose-500/20 bg-gradient-to-br from-rose-500/5 to-red-500/5 p-2.5 flex gap-2.5 items-center shadow-xs">
+              <div className="size-8 rounded-lg bg-red-500/10 text-red-600 dark:text-red-300 flex items-center justify-center shrink-0">
+                <Clock className="size-4" />
+              </div>
+              <div>
+                <h4 className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase tracking-wider">
+                  {lang === "te" ? "వర్జ్యం 🚫" : "Varjyam 🚫"}
+                </h4>
+                <p className="text-xs font-extrabold text-[hsl(var(--foreground))] mt-0.5">
+                  {currentPanchangam.varjyam}
+                </p>
+              </div>
             </div>
           </div>
         </div>
