@@ -114,7 +114,7 @@ export function DailyShareCard({ item, compact = false }: DailyShareCardProps) {
               className="flex-1 py-1.5 px-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white font-black text-[10px] sm:text-xs shadow-xs active:scale-95 transition flex items-center justify-center gap-1"
             >
               <Edit3 className="size-3.5" />
-              <span>{lang === "te" ? "పర్సనలైజ్ ✏️" : "Personalize"}</span>
+              <span>{lang === "te" ? "మీ పేరు & ఫోటో ✏️" : "Name & Photo ✏️"}</span>
             </button>
 
             <button

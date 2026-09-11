@@ -239,14 +239,14 @@ export function DailySharePersonalizerModal({ item, isOpen, onClose }: DailyShar
         <div className="flex items-center justify-between border-b border-[hsl(var(--border))] pb-3">
           <div className="flex items-center gap-2">
             <div className="size-9 rounded-xl bg-red-600 text-white flex items-center justify-center shadow-md">
-              <Sparkles className="size-5" />
+              <Sparkles className="size-5 animate-pulse" />
             </div>
             <div>
-              <h3 className="text-sm sm:text-base font-black text-[hsl(var(--foreground))]">
-                {lang === "te" ? "ఈరోజు షేర్ పర్సనలైజేషన్ ✏️" : "Personalize Daily Share ✏️"}
+              <h3 className="text-sm sm:text-base font-black text-red-600 dark:text-red-400">
+                {lang === "te" ? "మీ పేరు & ఫోటోతో ఈరోజు షేర్ / వాట్సాప్ స్టేటస్! ✏️" : "Create Status with Your Name & Photo ✏️"}
               </h3>
-              <p className="text-[11px] font-bold text-[hsl(var(--muted-foreground))]">
-                {lang === "te" ? "మీ ఫోటో మరియు పేరుతో 15 సెకన్లలో వాట్సాప్ స్టేటస్ తయారు చేసుకోండి" : "Add your photo & name in 15 seconds for WhatsApp status"}
+              <p className="text-[11px] font-extrabold text-amber-700 dark:text-amber-300">
+                {lang === "te" ? "మీ పేరు మరియు ఫోటోతో ఈ కార్డ్‌ని పర్సనలైజ్ చేయాలనుకుంటున్నారా? కింద మీ వివరాలు ఇవ్వండి:" : "Do you want your Name and Photo on this status card? Enter details below:"}
               </p>
             </div>
           </div>
@@ -262,22 +262,22 @@ export function DailySharePersonalizerModal({ item, isOpen, onClose }: DailyShar
         {/* Modal Main Grid (Form on Left, 9:16 Canvas Preview on Right) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
           {/* Left Column: Personalization Form */}
-          <div className="space-y-4 rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--muted))]/30 p-4">
-            <h4 className="text-xs font-black text-[hsl(var(--foreground))] uppercase tracking-wider flex items-center gap-1.5">
+          <div className="space-y-4 rounded-2xl border border-red-500/30 bg-gradient-to-br from-amber-500/5 to-red-500/5 p-4">
+            <h4 className="text-xs font-black text-[hsl(var(--foreground))] uppercase tracking-wider flex items-center gap-1.5 border-b border-red-500/20 pb-2">
               <User className="size-4 text-red-500" />
-              {lang === "te" ? "మీ వివరాలు నమోదు చేయండి" : "Enter Your Personal Details"}
+              {lang === "te" ? "1. మీ పేరు మరియు ఫోటో వివరాలు" : "1. Enter Name & Photo Details"}
             </h4>
 
             {/* Photo Selection */}
             <div className="space-y-2">
               <label className="text-[11px] font-black text-[hsl(var(--foreground))] block">
-                {lang === "te" ? "మీ ఫోటో ఎంచుకోండి / అప్‌లోడ్ చేయండి" : "Choose / Upload Your Photo"}
+                📷 {lang === "te" ? "వాట్సాప్ స్టేటస్ కోసం మీ ఫోటో ఎంచుకోండి" : "Select Your Photo for Status"}
               </label>
               
               <div className="flex items-center gap-3">
-                <label className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-600 text-white text-xs font-black cursor-pointer hover:bg-red-700 active:scale-95 transition shadow-sm">
+                <label className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-600 text-white text-xs font-black cursor-pointer hover:bg-red-700 active:scale-95 transition shadow-md">
                   <Upload className="size-4" />
-                  <span>{lang === "te" ? "గ్యాలరీ నుండి" : "Upload Photo"}</span>
+                  <span>{lang === "te" ? "గ్యాలరీ ఫోటో" : "Upload Photo"}</span>
                   <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
                 </label>
 

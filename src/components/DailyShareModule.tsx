@@ -43,32 +43,32 @@ export function DailyShareModule() {
         </Link>
       </div>
 
-      {/* Category Pills Slider */}
+      {/* Category Pills Slider - Links to /daily-share */}
       <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-        <button
-          onClick={() => setActiveCategory("all")}
-          className={`px-3 py-1 rounded-full text-[10px] sm:text-xs font-black transition shrink-0 border ${
-            activeCategory === "all"
-              ? "bg-red-600 text-white border-red-600 shadow-xs"
-              : "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]/70 hover:border-red-500"
-          }`}
+        <Link
+          to="/daily-share"
+          className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black transition shrink-0 bg-red-600 text-white border border-red-600 shadow-xs hover:bg-red-700"
         >
-          🔥 {lang === "te" ? "అన్నీ (All)" : "All"}
-        </button>
+          🔥 {lang === "te" ? "అన్ని 30 విభాగాలు" : "All Categories"}
+        </Link>
 
-        {DAILY_SHARE_CATEGORIES.slice(0, 10).map((cat) => (
-          <button
+        {DAILY_SHARE_CATEGORIES.slice(0, 12).map((cat) => (
+          <Link
             key={cat.id}
-            onClick={() => setActiveCategory(cat.slug)}
-            className={`px-3 py-1 rounded-full text-[10px] sm:text-xs font-black transition shrink-0 border ${
-              activeCategory === cat.slug
-                ? "bg-red-600 text-white border-red-600 shadow-xs"
-                : "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]/70 hover:border-red-500"
-            }`}
+            to={`/daily-share?category=${cat.slug}`}
+            className="px-3 py-1 rounded-full text-[10px] sm:text-xs font-black transition shrink-0 bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border border-[hsl(var(--border))]/70 hover:border-red-500 hover:text-red-600"
           >
             <span>{cat.emoji} {cat.title_te}</span>
-          </button>
+          </Link>
         ))}
+      </div>
+
+      {/* Prominent Telugu Question Prompt */}
+      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] font-black text-amber-900 dark:text-amber-200 flex items-center justify-between gap-2">
+        <span>✏️ మీ పేరు మరియు ఫోటోతో వాట్సాప్ స్టేటస్ తయారు చేసుకోవాలనుకుంటున్నారా? (Add Your Name & Photo on Status?)</span>
+        <Link to="/daily-share" className="text-[10px] bg-amber-600 text-white px-2.5 py-0.5 rounded-full shrink-0 uppercase tracking-wide">
+          టెంప్లేట్లు చూడండి ›
+        </Link>
       </div>
 
       {/* Daily Share Cards Horizontal Scroll Deck */}

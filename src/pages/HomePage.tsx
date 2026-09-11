@@ -208,8 +208,6 @@ export function HomePage() {
 
   return (
     <main className="container-shell space-y-2 py-1 sm:py-2 pb-16 sm:pb-24">
-      <BreakingTicker posts={trending.length ? trending : feed.posts} />
-      
       {slides.length > 0 && currentSlide && (
         <section className="grid gap-2.5 lg:grid-cols-[2fr_1fr]">
           {/* 📸 Clean Flash Cards Image Gallery with Smooth Shimmer & Soft Shadow */}

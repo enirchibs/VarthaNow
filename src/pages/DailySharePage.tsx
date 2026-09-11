@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Sparkles, Search, Flame, Heart, Share2, Download, UserCheck, Plus, Filter, Building2, BookOpen } from "lucide-react";
 import { DAILY_SHARE_CATEGORIES, getDailyShareItems, getUserCreations } from "@/lib/daily-share-api";
 import { DailyShareCard } from "@/components/DailyShareCard";
@@ -7,9 +8,18 @@ import { setMeta } from "@/lib/seo";
 
 export function DailySharePage() {
   const { lang } = useLanguage();
+  const [searchParams] = useSearchParams();
+  const categoryParam = searchParams.get("category");
+
   const [activeTab, setActiveTab] = useState<"all" | "my_creations" | "business">("all");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>(categoryParam || "all");
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [categoryParam]);
 
   const creations = useMemo(() => getUserCreations(), [activeTab]);
 
