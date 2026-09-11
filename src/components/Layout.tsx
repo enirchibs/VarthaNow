@@ -77,7 +77,7 @@ export function Layout() {
     };
   }, []);
 
-  // 🎡 Serial step-by-step category tour: moves right slowly (3.5s buffer per category starting with Mee Vaartalu), looping back to Mee Vaartalu instantly at end without backward scrolling
+  // 🎡 Serial 1-round category tour: stays 5s on each category, moves rightwards, completes ONLY 1 ROUND and stops without continuous looping
   useEffect(() => {
     let isCancelled = false;
     let timeoutId: any = null;
@@ -116,7 +116,7 @@ export function Layout() {
 
         if (isCancelled) break;
 
-        // When looping back to 'Mee Vaartulu' (index 1), instantly reset scroll position without playing backward animation
+        // When starting or returning to 'Mee Vaartulu' (index 1), reset scroll position cleanly
         if (currentIndex === 1) {
           currentNavEl.scrollTo({ left: 0, behavior: "auto" });
         }
@@ -134,17 +134,21 @@ export function Layout() {
           }
         }
 
-        // 3. Human decision buffer period (3500ms / 3.5 seconds) for user to catch, read, think and click
+        // 3. Human decision buffer period (5000ms / 5 seconds) for user to catch, read, think and click
         await new Promise((resolve) => {
-          timeoutId = setTimeout(resolve, 3500);
+          timeoutId = setTimeout(resolve, 5000);
         });
 
         if (isCancelled) break;
 
-        // Move serial way rightwards: 1 (Mee Vaartalu) -> 2 (Local Jobs) -> 3 -> 4 ... -> End -> 1 (Mee Vaartalu)
+        // Move serial way rightwards: 1 (Mee Vaartalu) -> 2 (Local Jobs) -> 3 -> 4 ... -> End
         currentIndex++;
         if (currentIndex >= children.length) {
-          currentIndex = 1; // Loop back to 'Mee Vaartulu'
+          // 🛑 ONLY ONE ROUND IS ENOUGH: Stop auto-tour after 1 pass and return smoothly to Home!
+          setHighlightedIndex(null);
+          currentNavEl.scrollTo({ left: 0, behavior: "smooth" });
+          setIsNavAnimating(false);
+          break;
         }
       }
     };
@@ -346,12 +350,12 @@ export function Layout() {
           </Link>
         </div>
         <nav ref={navRef} className={`container-shell no-scrollbar flex items-center gap-1.5 md:gap-2 overflow-x-auto pb-3 pt-2.5 transition-all duration-500 ${isNavAnimating ? "ring-2 ring-red-500/50 shadow-lg shadow-red-500/10 rounded-full" : ""}`}>
-          {/* Index 0: Home */}
+          {/* Index 0: Home Button (Always Visible & Sticky on Left) */}
           <NavLink
             to="/"
             end
             className={({ isActive }) =>
-              `shrink-0 rounded-full p-1.5 md:p-2.5 text-[9px] md:text-sm font-black transition-all duration-500 border-2 relative ${
+              `sticky left-0 z-40 bg-[hsl(var(--background))] backdrop-blur-md shrink-0 rounded-full p-1.5 md:p-2.5 text-[9px] md:text-sm font-black transition-all duration-500 border-2 relative ${
                 highlightedIndex === 0
                   ? "bg-gradient-to-r from-red-600 to-amber-500 text-white border-yellow-300 ring-4 ring-red-500/80 shadow-[0_0_24px_rgba(239,68,68,0.75)] scale-110 -translate-y-0.5 z-30"
                   : isActive
