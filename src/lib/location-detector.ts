@@ -1,4 +1,5 @@
 // 🌍 Universal Location & Area Detection Engine with GPS & Autocomplete
+import { supabase } from "@/lib/supabase";
 
 export interface DetectedLocation {
   city: string;
@@ -450,22 +451,56 @@ export async function detectDetailedGPSArea(): Promise<DetailedAreaResult | null
   });
 }
 
-// 🔍 Search Area Autocomplete (Searches preloaded AP/TS database + live OpenStreetMap Places)
+// 🔍 Search Area Autocomplete (Queries Supabase DB + Preloaded AP/TS database + live OpenStreetMap Places)
 export async function searchAreaAutocomplete(query: string): Promise<string[]> {
   if (!query || query.trim().length < 2) return [];
 
   const cleanQuery = query.toLowerCase().trim();
+  let dbMatches: string[] = [];
 
-  // 1. Filter local database first
+  // 1. Query Supabase Database Tables (osm_locations & india_post_locations)
+  if (supabase) {
+    try {
+      const [osmRes, postRes] = await Promise.all([
+        supabase
+          .from("osm_locations")
+          .select("name, mandal, district, state")
+          .or(`name.ilike.%${cleanQuery}%,mandal.ilike.%${cleanQuery}%,district.ilike.%${cleanQuery}%`)
+          .limit(8),
+        supabase
+          .from("india_post_locations")
+          .select("office_name, district, state, pincode")
+          .or(`office_name.ilike.%${cleanQuery}%,district.ilike.%${cleanQuery}%`)
+          .limit(8)
+      ]);
+
+      if (osmRes.data) {
+        osmRes.data.forEach((row: any) => {
+          if (row.name) dbMatches.push(row.name);
+        });
+      }
+      if (postRes.data) {
+        postRes.data.forEach((row: any) => {
+          if (row.office_name && row.district) {
+            dbMatches.push(`${row.office_name}, ${row.district} (${row.pincode || row.state})`);
+          }
+        });
+      }
+    } catch (e) {
+      console.warn("Supabase location search error:", e);
+    }
+  }
+
+  // 2. Filter local preloaded database
   const localMatches = PRELOADED_AP_TS_LOCATIONS
     .filter((loc) => loc.name_te.toLowerCase().includes(cleanQuery) || loc.name_en.toLowerCase().includes(cleanQuery))
     .map((loc) => loc.name_te);
 
-  // 2. Fetch live OpenStreetMap Nominatim search results for Villages, Mandals, Streets, Towns, Cities
+  // 3. Fetch live OpenStreetMap Nominatim search results as fallback
   let liveMatches: string[] = [];
   try {
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&countrycodes=in&limit=8`,
+      `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&countrycodes=in&limit=6`,
       { headers: { "User-Agent": "VarthaNow-Places-Search" } }
     );
     if (response.ok) {
@@ -480,7 +515,7 @@ export async function searchAreaAutocomplete(query: string): Promise<string[]> {
   }
 
   // Combine and deduplicate
-  const combined = Array.from(new Set([...localMatches, ...liveMatches]));
+  const combined = Array.from(new Set([...dbMatches, ...localMatches, ...liveMatches]));
   return combined.slice(0, 10);
 }
 
