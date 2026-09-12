@@ -33,7 +33,6 @@ export function Layout() {
   const { lang, changeLanguage } = useLanguage();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showInstallBanner, setShowInstallBanner] = useState(false);
-  const [showCookieConsent, setShowCookieConsent] = useState(false);
   const [showGPSPrompt, setShowGPSPrompt] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -194,13 +193,6 @@ export function Layout() {
     document.documentElement.classList.remove("dark");
   }, []);
 
-  useEffect(() => {
-    const consent = localStorage.getItem("vaartanow-cookie-consent");
-    if (!consent) {
-      setShowCookieConsent(true);
-    }
-  }, []);
-
   // 📍 GPS Location Permission Prompt on opening app
   useEffect(() => {
     const gpsDismissed = localStorage.getItem("vaartanow_gps_prompt_dismissed");
@@ -248,11 +240,6 @@ export function Layout() {
   const handleDismissClick = () => {
     sessionStorage.setItem("pwa-banner-dismissed", "true");
     setShowInstallBanner(false);
-  };
-
-  const handleAcceptCookies = () => {
-    localStorage.setItem("vaartanow-cookie-consent", "true");
-    setShowCookieConsent(false);
   };
 
   const handleEnableGPS = async () => {
@@ -579,25 +566,6 @@ export function Layout() {
             >
               ✕
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* Cookie Consent Banner */}
-      {showCookieConsent && (
-        <div className="fixed bottom-4 left-4 right-4 z-[9998] max-w-md mx-auto md:left-4 md:right-auto animate-in fade-in slide-in-from-bottom duration-300">
-          <div className="relative overflow-hidden rounded-3xl border border-white/20 dark:border-white/10 bg-white/95 dark:bg-zinc-950/95 p-4 shadow-[0_20px_50px_rgba(0,0,0,0.15)] backdrop-blur-xl">
-            <p className="text-[11px] font-bold text-[hsl(var(--muted-foreground))] leading-relaxed">
-              We use cookies to personalize content, customize third-party ads (Google AdSense), and analyze web traffic. By using our site, you consent to our Privacy Policy.
-            </p>
-            <div className="flex gap-2.5 mt-3 justify-end">
-              <Link to="/privacy" className="h-8 px-3 rounded-xl text-[10px] font-black border border-[hsl(var(--border))] flex items-center text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]">
-                Read Policy
-              </Link>
-              <button onClick={handleAcceptCookies} className="h-8 px-4 rounded-xl text-[10px] font-black bg-[hsl(var(--primary))] text-white shadow-sm hover:shadow-indigo-500/10 active:scale-95 transition">
-                Accept
-              </button>
-            </div>
           </div>
         </div>
       )}
