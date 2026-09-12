@@ -6,17 +6,12 @@ import {
   Check, 
   RefreshCw, 
   Sparkles, 
-  Building2, 
   AlertTriangle, 
-  X, 
-  SlidersHorizontal
+  X
 } from "lucide-react";
 import { 
   detectDetailedGPSArea, 
   searchAreaAutocomplete, 
-  PRELOADED_AP_TS_LOCATIONS,
-  AP_TS_DISTRICTS_MANDALS,
-  DistrictMandalData,
   DetailedAreaResult
 } from "@/lib/location-detector";
 
@@ -44,25 +39,20 @@ const POPULAR_PILLS = [
 export function LocationAreaSelector({
   value,
   onChange,
-  label = "ప్రాంతం / ఏరియా (Select Area, Mandal, Village or Street)",
-  placeholder = "గ్రామం, మండలం, వీధి లేదా నగరం ఎంచుకోండి...",
+  label = "ప్రాంతం / ఏరియా / గ్రామం / మండలం (Area / Village / Mandal)",
+  placeholder = "గ్రామం, మండలం లేదా నగరం పేరులో 3 అక్షరాలు టైప్ చేయండి...",
   required = false
 }: LocationAreaSelectorProps) {
   const [query, setQuery] = useState(value || "");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isDetectingGPS, setIsDetectingGPS] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [gpsSuccessMsg, setGpsSuccessMsg] = useState("");
   
   // GPS Error Modal state
   const [showGpsModal, setShowGpsModal] = useState(false);
   const [gpsErrorMsg, setGpsErrorMsg] = useState("");
-  
-  // Structured District -> Mandal -> Village Picker state
-  const [showDistrictPicker, setShowDistrictPicker] = useState(false);
-  const [selectedDistrict, setSelectedDistrict] = useState<string>("");
-  const [selectedMandal, setSelectedMandal] = useState<string>("");
-  const [specificVillage, setSpecificVillage] = useState<string>("");
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -82,20 +72,28 @@ export function LocationAreaSelector({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Live Autocomplete as user types
+  // 🔍 Instant Autocomplete when user types 3+ letters
   const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setQuery(val);
     onChange(val);
     setGpsSuccessMsg("");
 
-    if (val.trim().length >= 2) {
+    if (val.trim().length >= 3) {
+      setIsSearching(true);
       setShowDropdown(true);
-      const results = await searchAreaAutocomplete(val);
-      setSuggestions(results);
+      try {
+        const results = await searchAreaAutocomplete(val);
+        setSuggestions(results);
+      } catch (err) {
+        console.warn("Autocomplete search error:", err);
+      } finally {
+        setIsSearching(false);
+      }
     } else {
       setSuggestions([]);
       setShowDropdown(false);
+      setIsSearching(false);
     }
   };
 
@@ -105,10 +103,9 @@ export function LocationAreaSelector({
     onChange(areaStr);
     setShowDropdown(false);
     setSuggestions([]);
-    setShowDistrictPicker(false);
   };
 
-  // 🎯 One-Tap GPS Detection with Permission Guard
+  // 🎯 One-Tap GPS Detection
   const handleDetectGPS = async () => {
     setIsDetectingGPS(true);
     setGpsSuccessMsg("");
@@ -138,40 +135,6 @@ export function LocationAreaSelector({
     }
   };
 
-  // District Selection Handler
-  const handleDistrictChange = (distName: string) => {
-    setSelectedDistrict(distName);
-    setSelectedMandal("");
-    setSpecificVillage("");
-  };
-
-  // Mandal Selection Handler
-  const handleMandalChange = (mandalName: string) => {
-    setSelectedMandal(mandalName);
-    const formatted = specificVillage 
-      ? `${specificVillage}, ${mandalName}, ${selectedDistrict.split(" ")[0]}` 
-      : `${mandalName}, ${selectedDistrict.split(" ")[0]}`;
-    setQuery(formatted);
-    onChange(formatted);
-  };
-
-  // Specific Village/Street Handler
-  const handleVillageChange = (vName: string) => {
-    setSpecificVillage(vName);
-    if (selectedMandal && selectedDistrict) {
-      const formatted = vName 
-        ? `${vName}, ${selectedMandal}, ${selectedDistrict.split(" ")[0]}` 
-        : `${selectedMandal}, ${selectedDistrict.split(" ")[0]}`;
-      setQuery(formatted);
-      onChange(formatted);
-    }
-  };
-
-  // Find mandals for current district
-  const currentDistrictObj = AP_TS_DISTRICTS_MANDALS.find(
-    (d) => d.district_te === selectedDistrict || d.district_en === selectedDistrict
-  );
-
   return (
     <div className="space-y-2 relative" ref={dropdownRef}>
       {label && (
@@ -179,19 +142,10 @@ export function LocationAreaSelector({
           <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))]">
             {label} {required && <span className="text-red-500">*</span>}
           </label>
-
-          <button
-            type="button"
-            onClick={() => setShowDistrictPicker(!showDistrictPicker)}
-            className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer"
-          >
-            <SlidersHorizontal className="size-3" />
-            <span>{showDistrictPicker ? "సెర్చ్ మోడ్" : "🏛️ జిల్లా & మండలం ఎంచుకోండి"}</span>
-          </button>
         </div>
       )}
 
-      {/* 🎯 Detect GPS Button & Search Input Bar */}
+      {/* 🎯 Detect GPS Button & Single Search Bar */}
       <div className="flex flex-col sm:flex-row gap-2">
         <button
           type="button"
@@ -223,86 +177,14 @@ export function LocationAreaSelector({
               if (suggestions.length > 0) setShowDropdown(true);
             }}
             placeholder={placeholder}
-            className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600 transition"
+            className="w-full h-11 pl-10 pr-9 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600 transition"
             required={required}
           />
+          {isSearching && (
+            <RefreshCw className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-blue-500 animate-spin" />
+          )}
         </div>
       </div>
-
-      {/* Structured District -> Mandal -> Village Accordion Selector */}
-      {showDistrictPicker && (
-        <div className="p-3 rounded-2xl border border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20 space-y-2.5 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between text-[11px] font-black uppercase text-blue-700 dark:text-blue-300">
-            <span className="flex items-center gap-1">
-              <Building2 className="size-3.5" />
-              జిల్లా, మండలం & గ్రామం ఎంచుకోండి (Structured Selector)
-            </span>
-            <button 
-              type="button" 
-              onClick={() => setShowDistrictPicker(false)}
-              className="text-slate-400 hover:text-slate-600 cursor-pointer"
-            >
-              <X className="size-3.5" />
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {/* Step 1: Select District */}
-            <div>
-              <label className="block text-[10px] font-extrabold text-slate-600 dark:text-slate-400 mb-1">
-                1. జిల్లా ఎంచుకోండి (District)
-              </label>
-              <select
-                value={selectedDistrict}
-                onChange={(e) => handleDistrictChange(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-              >
-                <option value="">-- జిల్లా ఎంచుకోండి --</option>
-                {AP_TS_DISTRICTS_MANDALS.map((d) => (
-                  <option key={d.district_en} value={d.district_te}>
-                    {d.district_te}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Step 2: Select Mandal */}
-            <div>
-              <label className="block text-[10px] font-extrabold text-slate-600 dark:text-slate-400 mb-1">
-                2. మండలం / టౌన్ ఎంచుకోండి (Mandal / Town)
-              </label>
-              <select
-                value={selectedMandal}
-                onChange={(e) => handleMandalChange(e.target.value)}
-                disabled={!selectedDistrict}
-                className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 cursor-pointer"
-              >
-                <option value="">-- మండలం ఎంచుకోండి --</option>
-                {currentDistrictObj?.mandals.map((m) => (
-                  <option key={m.name_en} value={m.name_te}>
-                    {m.name_te}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Step 3: Specific Village / Street (Optional) */}
-          <div>
-            <label className="block text-[10px] font-extrabold text-slate-600 dark:text-slate-400 mb-1">
-              3. నిర్దిష్ట గ్రామం / వీధి / కాలనీ (Village / Street / Colony - optional)
-            </label>
-            <input
-              type="text"
-              value={specificVillage}
-              onChange={(e) => handleVillageChange(e.target.value)}
-              placeholder="ఉదా: గాంధీనగర్, మెయిన్ రోడ్డు..."
-              disabled={!selectedMandal}
-              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-xs font-bold text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-            />
-          </div>
-        </div>
-      )}
 
       {/* GPS Success Notification */}
       {gpsSuccessMsg && (
@@ -312,25 +194,34 @@ export function LocationAreaSelector({
         </div>
       )}
 
-      {/* Live Suggestions Dropdown */}
-      {showDropdown && suggestions.length > 0 && (
+      {/* Live Suggestions Dropdown (Triggers on 3+ Letters) */}
+      {showDropdown && (
         <div className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 shadow-2xl space-y-1 max-h-60 overflow-y-auto animate-in fade-in duration-200">
-          <div className="px-2 py-1 text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] tracking-wider flex items-center gap-1 border-b border-[hsl(var(--border))]/50 mb-1">
-            <Sparkles className="size-3 text-blue-500" />
-            <span>సూచించిన ప్రాంతాలు (Location Suggestions)</span>
+          <div className="px-2 py-1 text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] tracking-wider flex items-center justify-between border-b border-[hsl(var(--border))]/50 mb-1">
+            <span className="flex items-center gap-1">
+              <Sparkles className="size-3 text-blue-500" />
+              <span>సూచించిన ప్రాంతాలు (Location Suggestions)</span>
+            </span>
+            <span className="text-[9px] text-blue-500 font-bold">3 అక్షరాలు టైప్ చేయండి</span>
           </div>
 
-          {suggestions.map((sug, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => handleSelectArea(sug)}
-              className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold hover:bg-blue-500/10 hover:text-blue-600 transition flex items-center gap-2 cursor-pointer"
-            >
-              <MapPin className="size-3.5 text-blue-500 shrink-0" />
-              <span className="truncate">{sug}</span>
-            </button>
-          ))}
+          {suggestions.length > 0 ? (
+            suggestions.map((sug, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleSelectArea(sug)}
+                className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold hover:bg-blue-500/10 hover:text-blue-600 transition flex items-center gap-2 cursor-pointer"
+              >
+                <MapPin className="size-3.5 text-blue-500 shrink-0" />
+                <span className="truncate">{sug}</span>
+              </button>
+            ))
+          ) : !isSearching ? (
+            <div className="px-3 py-2 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+              ప్రాంతం వివరాలు కనుగొనబడలేదు. దయచేసి గ్రామం/పట్టణం సరిగ్గా టైప్ చేయండి.
+            </div>
+          ) : null}
         </div>
       )}
 
@@ -406,17 +297,6 @@ export function LocationAreaSelector({
                 <RefreshCw className="size-4" />
                 <span>మళ్ళీ ప్రయత్నించండి (Retry GPS)</span>
               </button>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setShowGpsModal(false);
-                  setShowDistrictPicker(true);
-                }}
-                className="w-full py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-extrabold text-xs hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
-              >
-                🏛️ జిల్లా & మండలం నేరుగా ఎంచుకోండి
-              </button>
             </div>
           </div>
         </div>
@@ -424,4 +304,5 @@ export function LocationAreaSelector({
     </div>
   );
 }
+
 
