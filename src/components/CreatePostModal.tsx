@@ -117,7 +117,7 @@ const ANDHRA_LOCALITIES = [
 export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   const navigate = useNavigate();
   const { lang } = useLanguage();
-  const [selectedArea, setSelectedArea] = useState<string>("విశాఖపట్నం (Visakhapatnam)");
+  const [selectedArea, setSelectedArea] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<PostCategoryType | null>(null);
   const [isPropertyModalOpen, setIsPropertyModalOpen] = useState<boolean>(false);
 
@@ -256,16 +256,6 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
 
         {/* Scrollable Modal Content */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
-
-          {/* Area Selector (Universal GPS & Autocomplete Search) */}
-          {(!selectedCategory || (selectedCategory !== "complaint" && selectedCategory !== "news")) && (
-            <LocationAreaSelector
-              value={selectedArea}
-              onChange={setSelectedArea}
-              label="మీ ఏరియా ఎంచుకోండి (Select Area, Mandal, Village or Street)"
-              placeholder="గ్రామం, మండలం, వీధి లేదా నగరం ఎంచుకోండి..."
-            />
-          )}
 
           {/* SUCCESS MESSAGE BANNER */}
           {successMessage && (
@@ -417,33 +407,13 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
               </div>
 
               {/* 5. ఇది ఎక్కడ జరిగింది? */}
-              <div className="space-y-1.5 rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))] p-4 shadow-xs">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-extrabold text-[hsl(var(--foreground))]">
-                    ఇది ఎక్కడ జరిగింది?
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(() => {
-                          setSelectedArea("విశాఖపట్నం (GPS Location)");
-                        });
-                      }
-                    }}
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    <Navigation className="size-3" />
-                    నా లొకేషన్ ఉపయోగించండి
-                  </button>
-                </div>
-
-                <input
-                  type="text"
+              <div className="rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))] p-4 shadow-xs space-y-2">
+                <LocationAreaSelector
                   value={selectedArea}
-                  onChange={(e) => setSelectedArea(e.target.value)}
-                  placeholder="గ్రామం, పట్టణం, జిల్లా లేదా మండలం..."
-                  className="w-full rounded-xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--muted))]/40 p-3 text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={setSelectedArea}
+                  label="ఇది ఎక్కడ జరిగింది? (Location / Area)"
+                  placeholder="ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ..."
+                  required={true}
                 />
                 <p className="text-[10px] font-medium text-[hsl(var(--muted-foreground))] italic">
                   సూచన: ఒకే పేరున్న గ్రామాల కోసం జిల్లా లేదా మండలం జోడించండి.
@@ -596,6 +566,17 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                   </select>
                 </div>
               )}
+
+              {/* Location Selector */}
+              <div className="space-y-1">
+                <LocationAreaSelector
+                  value={selectedArea}
+                  onChange={setSelectedArea}
+                  label="ప్రాంతం / ఏరియా (Location / Area)"
+                  placeholder="ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ..."
+                  required={true}
+                />
+              </div>
 
               {/* Title Field */}
               <div className="space-y-1">
