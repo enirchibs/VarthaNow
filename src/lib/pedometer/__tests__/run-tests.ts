@@ -1,6 +1,5 @@
 // 🏃‍♂️ Simple Real-Time Mobile Step Counter - Synthetic Test Runner
-import { AdaptiveStepEngine } from "../adaptive-step-engine";
-import { SensorSample } from "../types";
+import { SimplePedometer, SensorSample } from "../simple-pedometer";
 
 interface TestResult {
   name: string;
@@ -103,12 +102,11 @@ export function runTestSuite(): TestResult[] {
 
   // Helper for running walking test
   const runWalkTest = (name: string, targetSteps: number, intervalMs: number, amp: number, allowedErrPct: number) => {
-    const engine = new AdaptiveStepEngine();
+    const pedometer = new SimplePedometer();
     const trace = generateWalkingTrace(targetSteps, intervalMs, amp);
     let detected = 0;
     trace.forEach((s) => {
-      const evt = engine.processSample(s);
-      if (evt) detected++;
+      if (pedometer.processSample(s)) detected++;
     });
     const errorPct = Math.abs(detected - targetSteps) / targetSteps * 100;
     const passed = errorPct <= allowedErrPct;
@@ -144,11 +142,11 @@ export function runTestSuite(): TestResult[] {
 
   // Test 8: Stationary Jitter (0 steps)
   {
-    const engine = new AdaptiveStepEngine();
+    const pedometer = new SimplePedometer();
     const trace = generateNoiseTrace("STATIONARY", 10000);
     let detected = 0;
     trace.forEach((s) => {
-      if (engine.processSample(s)) detected++;
+      if (pedometer.processSample(s)) detected++;
     });
     results.push({
       name: "8. Stationary / Pocket Jitter Rejection",
@@ -161,11 +159,11 @@ export function runTestSuite(): TestResult[] {
 
   // Test 9: Vehicle Vibration (0 steps)
   {
-    const engine = new AdaptiveStepEngine();
+    const pedometer = new SimplePedometer();
     const trace = generateNoiseTrace("VEHICLE", 10000);
     let detected = 0;
     trace.forEach((s) => {
-      if (engine.processSample(s)) detected++;
+      if (pedometer.processSample(s)) detected++;
     });
     results.push({
       name: "9. Vehicle Engine Micro-Vibration Rejection",
@@ -178,11 +176,11 @@ export function runTestSuite(): TestResult[] {
 
   // Test 10: Hand Shake / Phone Tapping (0 steps)
   {
-    const engine = new AdaptiveStepEngine();
+    const pedometer = new SimplePedometer();
     const trace = generateNoiseTrace("HAND_SHAKE", 10000);
     let detected = 0;
     trace.forEach((s) => {
-      if (engine.processSample(s)) detected++;
+      if (pedometer.processSample(s)) detected++;
     });
     results.push({
       name: "10. Hand Shake & Device Tapping Rejection",
@@ -195,11 +193,11 @@ export function runTestSuite(): TestResult[] {
 
   // Test 11: Phone Rotation / Orientation Change (0 steps)
   {
-    const engine = new AdaptiveStepEngine();
+    const pedometer = new SimplePedometer();
     const trace = generateNoiseTrace("ORIENTATION_CHANGE", 5000);
     let detected = 0;
     trace.forEach((s) => {
-      if (engine.processSample(s)) detected++;
+      if (pedometer.processSample(s)) detected++;
     });
     results.push({
       name: "11. Phone Rotation & Gravity Orientation Shift Rejection",
