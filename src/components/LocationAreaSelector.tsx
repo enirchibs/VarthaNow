@@ -60,6 +60,7 @@ export function LocationAreaSelector({
   placeholder = "గ్రామం, మండలం లేదా పట్టణం పేరు టైప్ చేయండి (కనీసం 3 అక్షరాలు)...",
   required = false
 }: LocationAreaSelectorProps) {
+  const [isGpsSelected, setIsGpsSelected] = useState(false);
   const [query, setQuery] = useState(value || "");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isDetectingGPS, setIsDetectingGPS] = useState(false);
@@ -95,6 +96,7 @@ export function LocationAreaSelector({
     setQuery(val);
     onChange(val);
     setGpsSuccessMsg("");
+    setIsGpsSelected(false);
 
     if (val.trim().length >= 3) {
       setIsSearching(true);
@@ -118,6 +120,7 @@ export function LocationAreaSelector({
   const handleSelectArea = (areaStr: string) => {
     setQuery(areaStr);
     onChange(areaStr);
+    setIsGpsSelected(false);
     setShowDropdown(false);
     setSuggestions([]);
   };
@@ -135,6 +138,7 @@ export function LocationAreaSelector({
         const areaStr = result.formatted_address;
         setQuery(areaStr);
         onChange(areaStr);
+        setIsGpsSelected(true);
         setGpsSuccessMsg(`🎯 నా ప్రస్తుత ప్రాంతం గుర్తించబడింది: ${areaStr}`);
         setShowDropdown(false);
         setShowGpsModal(false);
@@ -165,6 +169,7 @@ export function LocationAreaSelector({
               onClick={() => {
                 setQuery("");
                 onChange("");
+                setIsGpsSelected(false);
                 setSuggestions([]);
                 setShowDropdown(false);
                 setGpsSuccessMsg("");
@@ -179,7 +184,11 @@ export function LocationAreaSelector({
 
       {/* 1. 🔍 First: Search Area by Name */}
       <div className="relative">
-        <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-blue-600 pointer-events-none" />
+        {isGpsSelected ? (
+          <Navigation className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-red-500 pointer-events-none z-20 animate-pulse" />
+        ) : (
+          <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-blue-600 pointer-events-none z-20" />
+        )}
         <input
           type="text"
           value={query}
@@ -196,7 +205,11 @@ export function LocationAreaSelector({
             }
           }}
           placeholder={placeholder}
-          className="w-full h-11 pl-10 pr-10 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition relative z-10 text-slate-900 dark:text-slate-100"
+          className={`w-full h-11 pl-10 pr-10 rounded-xl text-xs font-bold outline-none transition relative z-10 text-slate-900 dark:text-slate-100 ${
+            isGpsSelected
+              ? "border-2 border-red-500 ring-4 ring-red-500/20 bg-red-50/30 dark:bg-red-950/20 shadow-sm"
+              : "border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+          }`}
           required={required}
         />
         {isSearching ? (
@@ -207,6 +220,7 @@ export function LocationAreaSelector({
             onClick={() => {
               setQuery("");
               onChange("");
+              setIsGpsSelected(false);
               setSuggestions([]);
               setShowDropdown(false);
               setGpsSuccessMsg("");
@@ -249,6 +263,19 @@ export function LocationAreaSelector({
           </div>
         )}
       </div>
+
+      {/* GPS Selected Notification Badge */}
+      {isGpsSelected && (
+        <div className="text-[11px] font-bold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40 p-2 rounded-xl border border-red-300 dark:border-red-800 flex items-center justify-between gap-1.5 animate-in fade-in duration-200">
+          <div className="flex items-center gap-1.5 truncate">
+            <Navigation className="size-3.5 text-red-600 shrink-0 animate-pulse" />
+            <span className="truncate">🎯 GPS ద్వారా ప్రాంతం నిర్ధారించబడింది</span>
+          </div>
+          <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-sm bg-red-600 text-white shrink-0">
+            GPS
+          </span>
+        </div>
+      )}
 
       {/* 2. 🎯 Option to Detect via GPS */}
       <div className="pt-0.5">
