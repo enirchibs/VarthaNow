@@ -22,9 +22,11 @@ export function HeaderFlowTicker() {
   const weatherTemp = weather?.temp ? `${weather.temp}°C` : "31°C";
   const weatherCond = weather?.condition || "⛅ పాక్షిక మేఘావృతం";
 
-  // Gold rate calculation (10 grams)
-  const gold22k = rates?.goldPerGram22k ? (rates.goldPerGram22k * 10).toLocaleString("en-IN") : "71,450";
-  const gold24k = rates?.goldPerGram24k ? (rates.goldPerGram24k * 10).toLocaleString("en-IN") : "77,950";
+  // Gold rate calculation (Hyderabad / AP & Telangana current market rates)
+  const gold24k = rates?.goldPerGram24k ? (rates.goldPerGram24k * 10).toLocaleString("en-IN") : "1,54,580";
+  const gold22k = rates?.goldPerGram22k ? (rates.goldPerGram22k * 10).toLocaleString("en-IN") : "1,41,850";
+  const gold24kGram = rates?.goldPerGram24k ? rates.goldPerGram24k.toLocaleString("en-IN") : "15,458";
+  const gold22kGram = rates?.goldPerGram22k ? rates.goldPerGram22k.toLocaleString("en-IN") : "14,170";
 
   // All ticker items requested by the user
   const tickerItems = [
@@ -49,7 +51,7 @@ export function HeaderFlowTicker() {
       badge: "బంగారం ధర",
       badgeColor: "bg-amber-500 text-black",
       icon: "🪙",
-      text: `22K ₹${gold22k}/10గ్రా | 24K ₹${gold24k}/10గ్రా`,
+      text: `24K (99.9%): ₹${gold24k}/10గ్రా (₹${gold24kGram}/గ్రా) | 22K (91.6%): ₹${gold22k}/10గ్రా (₹${gold22kGram}/గ్రా)`,
       link: "/category/business"
     },
     {

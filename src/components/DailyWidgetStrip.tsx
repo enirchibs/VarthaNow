@@ -127,9 +127,9 @@ export function DailyWidgetStrip() {
             <Coins className="size-5" />
           </div>
           <div className="text-left min-w-0 flex-1">
-            <p className="widget-label">{getLabel("gold")}</p>
+            <p className="widget-label">{getLabel("gold")} (24K / 10g)</p>
             <p className="widget-value truncate">
-              {ratesLoading ? "..." : `₹${rates?.goldPerGram22k ?? "7,110"} / 1g`}
+              {ratesLoading ? "..." : `₹${((rates?.goldPerGram24k ?? 15458) * 10).toLocaleString("en-IN")}`}
             </p>
           </div>
         </button>
@@ -304,16 +304,25 @@ export function DailyWidgetStrip() {
                 </div>
                 <div className="space-y-2.5 bg-[hsl(var(--muted))]/50 p-4 rounded-2xl border border-[hsl(var(--border))]/50 text-sm">
                   <div className="flex justify-between items-center border-b border-[hsl(var(--border))]/40 pb-2">
-                    <span className="font-extrabold text-[hsl(var(--foreground))]">22 క్యారెట్ల బంగారం (1g)</span>
-                    <span className="font-black text-amber-600 dark:text-amber-500">₹{rates?.goldPerGram22k ?? "7,110"}</span>
+                    <div>
+                      <span className="font-extrabold text-[hsl(var(--foreground))] block">24 క్యారెట్ల బంగారం (99.9% Purity)</span>
+                      <span className="text-[10px] text-[hsl(var(--muted-foreground))]">10 గ్రాములు: ₹{((rates?.goldPerGram24k ?? 15458) * 10).toLocaleString("en-IN")}</span>
+                    </div>
+                    <span className="font-black text-amber-600 dark:text-amber-500">₹{(rates?.goldPerGram24k ?? 15458).toLocaleString("en-IN")} / 1g</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-[hsl(var(--border))]/40 pb-2">
-                    <span className="font-extrabold text-[hsl(var(--foreground))]">24 క్యారెట్ల బంగారం (1g)</span>
-                    <span className="font-black text-amber-600 dark:text-amber-500">₹{rates?.goldPerGram24k ?? "7,750"}</span>
+                    <div>
+                      <span className="font-extrabold text-[hsl(var(--foreground))] block">22 క్యారెట్ల బంగారం (91.6% Purity)</span>
+                      <span className="text-[10px] text-[hsl(var(--muted-foreground))]">10 గ్రాములు: ₹{((rates?.goldPerGram22k ?? 14170) * 10).toLocaleString("en-IN")}</span>
+                    </div>
+                    <span className="font-black text-amber-600 dark:text-amber-500">₹{(rates?.goldPerGram22k ?? 14170).toLocaleString("en-IN")} / 1g</span>
                   </div>
                   <div className="flex justify-between items-center pt-1">
-                    <span className="font-extrabold text-[hsl(var(--foreground))]">వెండి (1g)</span>
-                    <span className="font-black text-[hsl(var(--foreground))]">₹{rates?.silverPerGram ?? "92"}</span>
+                    <div>
+                      <span className="font-extrabold text-[hsl(var(--foreground))] block">వెండి (Silver)</span>
+                      <span className="text-[10px] text-[hsl(var(--muted-foreground))]">1 కిలో: ₹{((rates?.silverPerGram ?? 125) * 1000).toLocaleString("en-IN")}</span>
+                    </div>
+                    <span className="font-black text-[hsl(var(--foreground))]">₹{rates?.silverPerGram ?? "125"} / 1g</span>
                   </div>
                 </div>
                 <p className="text-[9px] text-[hsl(var(--muted-foreground))] text-center leading-relaxed font-semibold">
