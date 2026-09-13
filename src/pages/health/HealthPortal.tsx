@@ -131,53 +131,65 @@ interface RemedyData {
   nameEn: string;
   image: string;
   traditionalUse: string;
+  traditionalUseEn: string;
   benefits: string[];
+  benefitsEn: string[];
   evidence: "High" | "Moderate" | "Limited";
   avoidWho: string[];
+  avoidWhoEn: string[];
   consultDoctor: string;
+  consultDoctorEn: string;
 }
 
 const REMEDIES: Record<string, RemedyData> = {
   turmeric: {
     nameTe: "పసుపు (Turmeric)",
-    nameEn: "Turmeric",
+    nameEn: "Turmeric (Haldi)",
     image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=800&q=80",
     traditionalUse: "శరీరంలో రోగ నిరోధక శక్తి పెంచడానికి, గాయాలు తగ్గించడానికి మరియు చర్మ సౌందర్యానికి సంప్రదాయబద్ధంగా పసుపును వాడుతారు.",
+    traditionalUseEn: "Widely used to boost natural immunity, accelerate tissue repair, and protect against inflammation.",
     benefits: ["యాంటీ ఇన్‌ఫ్లమేటరీ లక్షణాలు కలిగి ఉండడం", "యాంటీ ఆక్సిడెంట్లు పుష్కలంగా ఉండడం", "జీర్ణక్రియను మెరుగుపరచడం"],
+    benefitsEn: ["Potent anti-inflammatory properties", "Rich in natural antioxidants", "Enhances healthy digestion"],
     evidence: "High",
     avoidWho: ["పిత్తాశయ సమస్యలు (Gallstones) ఉన్నవారు", "రక్తం పలచబడే మందులు వాడేవారు"],
-    consultDoctor: "శస్త్రచికిత్స జరగడానికి 2 వారాల ముందు పసుపు సప్లిమెంట్లను వాడటం ఆపాలి."
+    avoidWhoEn: ["People with gallbladder issues", "Individuals taking blood thinners"],
+    consultDoctor: "శస్త్రచికిత్స జరగడానికి 2 వారాల ముందు పసుపు సప్లిమెంట్లను వాడటం ఆపాలి.",
+    consultDoctorEn: "Discontinue high-dose turmeric supplements at least 2 weeks before scheduled surgeries."
   },
   ginger: {
     nameTe: "అల్లం (Ginger)",
-    nameEn: "Ginger",
+    nameEn: "Ginger (Adrak)",
     image: "https://images.unsplash.com/photo-1582515073490-39981397c445?auto=format&fit=crop&w=800&q=80",
     traditionalUse: "వాంతులు, వికారం, జలుబు, మరియు దగ్గు నివారణకు అల్లం టీ లేదా అల్లం రసాన్ని విస్తృతంగా ఉపయోగిస్తారు.",
+    traditionalUseEn: "A trusted traditional remedy for easing nausea, soothing sore throats, and relieving digestive heaviness.",
     benefits: ["వికారం మరియు ప్రయాణ బడలిక తగ్గించడం", "కండరాల నొప్పులు ఉపశమింపచేయడం", "రక్తంలో చక్కెర స్థాయిలను క్రమబద్ధీకరించడం"],
+    benefitsEn: ["Relieves nausea & motion sickness", "Eases muscle aches & cramps", "Helps regulate blood sugar levels"],
     evidence: "High",
     avoidWho: ["తీవ్రమైన ఎసిడిటీ ఉన్నవారు", "గర్భిణీలు అధిక మోతాదులో తీసుకోకూడదు"],
-    consultDoctor: "వికారం లేదా విరేచనాలు 2 రోజులకు మించి తగ్గకపోతే వైద్యుడిని సంప్రదించండి."
+    avoidWhoEn: ["People with severe hyperacidity", "Pregnant women in high doses"],
+    consultDoctor: "వికారం లేదా విరేచనాలు 2 రోజులకు మించి తగ్గకపోతే వైద్యుడిని సంప్రదించండి.",
+    consultDoctorEn: "Seek prompt medical care if nausea, fever, or vomiting persists beyond 48 hours."
   }
 };
 
 // Main Health Categories configuration
 const MAIN_CATEGORIES = [
-  { key: "fever", nameTe: "జ్వరం (Fever)", icon: Flame, color: "bg-red-500" },
-  { key: "gas", nameTe: "గ్యాస్ & ఎసిడిటీ (Gas & Acidity)", icon: Activity, color: "bg-orange-500" },
-  { key: "diabetes", nameTe: "మధుమేహం (Diabetes)", icon: Heart, color: "bg-blue-500" }
+  { key: "fever", nameTe: "జ్వరం (Fever)", nameEn: "Fever & Infection", descTe: "జ్వరం, చలి మరియు శరీర నొప్పుల సలహాలు", descEn: "Fever, chills & safe home recovery", icon: Flame, color: "bg-red-500" },
+  { key: "gas", nameTe: "గ్యాస్ & ఎసిడిటీ (Gas & Acidity)", nameEn: "Acidity & Gas Relief", descTe: "కడుపు ఉబ్బరం మరియు ఎసిడిటీ నివారణ", descEn: "Bloating, heartburn & stomach soothing", icon: Activity, color: "bg-orange-500" },
+  { key: "diabetes", nameTe: "మధుమేహం (Diabetes)", nameEn: "Diabetes Management", descTe: "షుగర్ లెవెల్స్ మరియు జీవనశైలి మార్గదర్శి", descEn: "Blood sugar tracking & diet guidelines", icon: Heart, color: "bg-blue-500" }
 ];
 
 export function HealthPortal() {
   const { subpage } = useParams<{ subpage?: string }>();
   const navigate = useNavigate();
-  const [lang, setLang] = useState("te");
+  const [lang, setLang] = useState("en");
 
   // State management
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [aiQuery, setAiQuery] = useState("");
   const [aiChat, setAiChat] = useState<{ sender: "user" | "ai"; text: string }[]>([
-    { sender: "ai", text: "నమస్కారం! నేను మీ VaartaNow AI ఆరోగ్య సహాయకుడిని. మీకు ఎలాంటి ఆరోగ్య సమాచారం కావాలి?" }
+    { sender: "ai", text: "Hello! I am your VaartaNow AI Health Assistant. How can I help with your symptoms or wellness queries today?" }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
@@ -607,45 +619,45 @@ export function HealthPortal() {
         </button>
       </div>
 
-      {/* Hero Slider Banner */}
-      <section className={`relative min-h-[460px] bg-gradient-to-br ${slides[activeSlide].bg} flex items-center py-24 px-4 sm:px-6 lg:px-8 text-center text-white overflow-hidden transition-all duration-1000`}>
+      {/* Hero Slider Banner - Compact & Modern */}
+      <section className={`relative min-h-[170px] sm:min-h-[190px] bg-gradient-to-br ${slides[activeSlide].bg} flex items-center py-5 sm:py-6 px-4 sm:px-6 lg:px-8 text-center text-white overflow-hidden transition-all duration-700`}>
         <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
         
-        <div className="max-w-4xl mx-auto space-y-6 relative z-10">
-          <span className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-400 bg-emerald-500/10 px-3.5 py-1.5 rounded-full border border-emerald-500/20 uppercase tracking-wider animate-fadeIn">
-            <Heart className="size-3.5 text-emerald-400 animate-pulse" />
+        <div className="max-w-3xl mx-auto space-y-2 relative z-10">
+          <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 uppercase tracking-wider">
+            <Heart className="size-3 text-emerald-400 animate-pulse" />
             VaartaNow AI Health Hub
           </span>
           
-          <h1 className="text-3xl sm:text-5xl font-black leading-tight tracking-tight min-h-[80px]">
+          <h1 className="text-lg sm:text-2xl font-black leading-snug tracking-tight">
             {isTe ? slides[activeSlide].titleTe : slides[activeSlide].titleEn}
           </h1>
-          <p className="text-white/80 max-w-2xl mx-auto text-xs sm:text-base font-bold leading-relaxed">
+          <p className="text-white/85 max-w-xl mx-auto text-[11px] sm:text-xs font-medium leading-relaxed line-clamp-2">
             {isTe ? slides[activeSlide].descTe : slides[activeSlide].descEn}
           </p>
 
-          <div className="relative max-w-lg mx-auto">
+          <div className="relative max-w-md mx-auto pt-0.5">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={isTe ? "జ్వరం, జలుబు, అసిడిటీ లేదా వంటింటి చిట్కాలు వెతకండి..." : "Search Fever, Cold, Acidity, or Remedies..."}
-              className="w-full text-xs font-bold pl-11 pr-4 py-3.5 rounded-2xl border border-white/20 bg-white/10 text-white placeholder-white/60 backdrop-blur-md focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
+              className="w-full text-xs font-medium pl-9 pr-3 py-2 rounded-xl border border-white/20 bg-white/10 text-white placeholder-white/60 backdrop-blur-md focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all"
             />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60 size-4.5" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60 size-3.5" />
             
             {searchResults.length > 0 && (
-              <div className="absolute z-50 left-0 right-0 top-[calc(100%+6px)] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-2xl shadow-lg max-h-56 overflow-y-auto no-scrollbar">
+              <div className="absolute z-50 left-0 right-0 top-[calc(100%+4px)] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl shadow-lg max-h-56 overflow-y-auto no-scrollbar">
                 {searchResults.map((item, idx) => (
                   <Link
                     key={idx}
                     to={`/health/${item.key}`}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer select-none transition border-b border-[hsl(var(--border))]/40 hover:bg-emerald-500/10 text-left text-xs font-bold text-[hsl(var(--foreground))]"
+                    className="flex items-center gap-2.5 px-3 py-2 cursor-pointer select-none transition border-b border-[hsl(var(--border))]/40 hover:bg-emerald-500/10 text-left text-xs font-bold text-[hsl(var(--foreground))]"
                   >
-                    <Activity className="size-4 text-emerald-600 shrink-0" />
+                    <Activity className="size-3.5 text-emerald-600 shrink-0" />
                     <div>
-                      <p>{lang === "te" ? item.titleTe : item.titleEn}</p>
-                      <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{isTe ? "శాస్త్రీయ ఆధారాలు గల వైద్య సమాచారం" : "Science backed medicine facts"}</p>
+                      <p>{isTe ? item.titleTe : item.titleEn}</p>
+                      <p className="text-[9px] text-[hsl(var(--muted-foreground))]">{isTe ? "శాస్త్రీయ ఆధారాలు గల వైద్య సమాచారం" : "Evidence-based health facts"}</p>
                     </div>
                   </Link>
                 ))}
@@ -654,45 +666,49 @@ export function HealthPortal() {
           </div>
 
           {/* Slide Indicator bullets */}
-          <div className="flex justify-center gap-2 pt-4">
+          <div className="flex justify-center gap-1.5 pt-1">
             {slides.map((_, idx) => (
               <button 
                 key={idx} 
                 onClick={() => setActiveSlide(idx)}
-                className={`size-2.5 rounded-full transition ${idx === activeSlide ? "bg-white scale-125" : "bg-white/40"}`}
+                className={`size-1.5 rounded-full transition ${idx === activeSlide ? "bg-white scale-125" : "bg-white/40"}`}
               />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Real-Time Step Counter - Below Hero Banner (Attached Image) */}
-      <section className="pt-8 pb-2 px-4 sm:px-6 max-w-sm mx-auto">
+      {/* Real-Time Step Counter - Compact with 7-Day History */}
+      <section className="pt-3 pb-1 px-3 sm:px-4 max-w-md mx-auto">
         <SimpleStepCounter />
       </section>
 
       {/* Main Categories Section */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-black text-[hsl(var(--foreground))]">{isTe ? "ఆరోగ్య వర్గాలు" : "Main Health Categories"}</h2>
-          <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "ప్రతి రోగానికి సంబంధించిన పూర్తి సమాచారం కనుగొనండి" : "Explore evidence-based health directories"}</p>
+      <section className="py-4 sm:py-5 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-3">
+        <div className="text-center space-y-1">
+          <h2 className="text-lg sm:text-xl font-black text-[hsl(var(--foreground))]">{isTe ? "ఆరోగ్య వర్గాలు" : "Main Health Categories"}</h2>
+          <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "ప్రతి రోగానికి సంబంధించిన పూర్తి సమాచారం కనుగొనండి" : "Explore evidence-based health directories"}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           {MAIN_CATEGORIES.map((cat) => {
             const IconComp = cat.icon;
             return (
               <Link
                 to={`/health/${cat.key}`}
                 key={cat.key}
-                className="group flex gap-4 bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl shadow-sm hover:shadow-md transition active:scale-[0.99] text-left"
+                className="group flex items-center gap-3 bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 sm:p-3.5 rounded-xl shadow-xs hover:shadow-sm transition active:scale-[0.99] text-left"
               >
-                <div className={`size-12 rounded-xl flex items-center justify-center shrink-0 text-white ${cat.color}`}>
-                  <IconComp className="size-6" />
+                <div className={`size-10 rounded-lg flex items-center justify-center shrink-0 text-white ${cat.color}`}>
+                  <IconComp className="size-5" />
                 </div>
-                <div className="space-y-1 py-0.5">
-                  <h3 className="text-xs font-black text-[hsl(var(--foreground))] group-hover:text-emerald-600 transition">{cat.nameTe}</h3>
-                  <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">వీక్షించడానికి క్లిక్ చేయండి</p>
+                <div className="space-y-0.5 min-w-0">
+                  <h3 className="text-xs font-black text-[hsl(var(--foreground))] group-hover:text-emerald-600 transition truncate">
+                    {isTe ? cat.nameTe : cat.nameEn}
+                  </h3>
+                  <p className="text-[10px] font-medium text-[hsl(var(--muted-foreground))] truncate">
+                    {isTe ? cat.descTe : cat.descEn}
+                  </p>
                 </div>
               </Link>
             );
@@ -701,23 +717,23 @@ export function HealthPortal() {
       </section>
 
       {/* Dedicated Infertility Hub Section */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-black text-rose-700 flex items-center justify-center gap-2">
-            <Users className="size-6" />
+      <section className="py-4 sm:py-5 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-3">
+        <div className="text-center space-y-1">
+          <h2 className="text-lg sm:text-xl font-black text-rose-700 flex items-center justify-center gap-2">
+            <Users className="size-5" />
             {isTe ? "సంతానలేమి విభాగం (Infertility Hub)" : "Infertility Hub"}
           </h2>
-          <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "ఐవీఎఫ్ (IVF), ఐయూఐ (IUI) మరియు హార్మోన్ల సమస్యల పూర్తి సలహాలు" : "Fertility guides, sperm health, PCOS diet & treatment advice"}</p>
+          <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "ఐవీఎఫ్ (IVF), ఐయూఐ (IUI) మరియు హార్మోన్ల సమస్యల పూర్తి సలహాలు" : "Fertility guides, sperm health, PCOS diet & treatment advice"}</p>
         </div>
 
-        <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-3xl overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-4">
+        <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-2xl overflow-hidden shadow-xs grid grid-cols-1 lg:grid-cols-4">
           {/* Tabs Sidebar */}
-          <div className="bg-[hsl(var(--muted))]/30 border-r border-[hsl(var(--border))]/40 p-4 space-y-1 flex lg:flex-col overflow-x-auto lg:overflow-x-visible no-scrollbar">
+          <div className="bg-[hsl(var(--muted))]/30 border-r border-[hsl(var(--border))]/40 p-2 sm:p-3 space-y-1 flex lg:flex-col overflow-x-auto lg:overflow-x-visible no-scrollbar">
             {(["male", "female", "ivf", "iui", "pcos"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveInfertilityTab(tab)}
-                className={`w-full text-left text-xs font-black px-4 py-3 rounded-xl transition shrink-0 lg:shrink-1 ${
+                className={`w-full text-left text-xs font-black px-3 py-2 rounded-lg transition shrink-0 lg:shrink-1 ${
                   activeInfertilityTab === tab 
                     ? "bg-rose-500/10 text-rose-700" 
                     : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
@@ -729,40 +745,90 @@ export function HealthPortal() {
           </div>
 
           {/* Tab Content Panels */}
-          <div className="lg:col-span-3 p-6 sm:p-8 space-y-4 text-xs font-bold text-[hsl(var(--muted-foreground))] leading-relaxed text-left">
+          <div className="lg:col-span-3 p-4 sm:p-5 space-y-2 text-xs font-medium text-[hsl(var(--muted-foreground))] leading-relaxed text-left">
             {activeInfertilityTab === "male" && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-black text-rose-700">{isTe ? "పురుషుల సంతానోత్పత్తి (Male Fertility)" : "Male Fertility Guidelines"}</h3>
-                <p>మగవారిలో వీర్యకణాల సంఖ్య మరియు నాణ్యత సంతానోత్పత్తికి ఎంతో కీలకం. సమతుల్య ఆహారం మరియు వ్యాయామం ద్వారా వీటిని మెరుగుపరచవచ్చు.</p>
-                <p className="text-rose-600 font-extrabold">చిట్కాలు: జింక్ మరియు ఫోలిక్ యాసిడ్ ఎక్కువగా ఉండే గుడ్లు, పాలకూర, బాదం వంటివి తీసుకోండి. ధూమపానం మరియు మద్యపానానికి దూరంగా ఉండండి.</p>
+              <div className="space-y-2">
+                <h3 className="text-xs sm:text-sm font-black text-rose-700">{isTe ? "పురుషుల సంతానోత్పత్తి (Male Fertility)" : "Male Fertility Guidelines"}</h3>
+                <p>
+                  {isTe 
+                    ? "మగవారిలో వీర్యకణాల సంఖ్య మరియు నాణ్యత సంతానోత్పత్తికి ఎంతో కీలకం. సమతుల్య ఆహారం మరియు వ్యాయామం ద్వారా వీటిని మెరుగుపరచవచ్చు."
+                    : "Sperm count, motility, and overall morphology are fundamental to reproductive health. A nutrient-rich diet and healthy lifestyle have direct positive impacts."
+                  }
+                </p>
+                <p className="text-rose-600 font-bold">
+                  {isTe 
+                    ? "చిట్కాలు: జింక్ మరియు ఫోలిక్ యాసిడ్ ఎక్కువగా ఉండే గుడ్లు, పాలకూర, బాదం వంటివి తీసుకోండి. ధూమపానం మరియు మద్యపానానికి దూరంగా ఉండండి."
+                    : "Key Tips: Consume foods rich in zinc & folic acid (eggs, spinach, almonds). Avoid smoking, alcohol, and excessive heat exposure."
+                  }
+                </p>
               </div>
             )}
             {activeInfertilityTab === "female" && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-black text-rose-700">{isTe ? "స్త్రీల సంతానోత్పత్తి (Female Fertility)" : "Female Fertility Guidelines"}</h3>
-                <p>స్త్రీలలో అండాల విడుదల (Ovulation) సక్రమంగా జరగడం ముఖ్యం. మానసిక ఒత్తిడి మరియు బరువు అండాల నాణ్యతను ప్రభావితం చేస్తాయి.</p>
-                <p className="text-rose-600 font-extrabold">చిట్కాలు: రోజూ ఫోలిక్ యాసిడ్ సప్లిమెంట్లు, ఆకుకూరలు, తాజా పండ్లు తీసుకోండి. పీరియడ్స్ ట్రాక్ చేయడం ద్వారా అండం విడుదలయ్యే సారవంతమైన రోజులను కనుగొనండి.</p>
+              <div className="space-y-2">
+                <h3 className="text-xs sm:text-sm font-black text-rose-700">{isTe ? "స్త్రీల సంతానోత్పత్తి (Female Fertility)" : "Female Fertility Guidelines"}</h3>
+                <p>
+                  {isTe 
+                    ? "స్త్రీలలో అండాల విడుదల (Ovulation) సక్రమంగా జరగడం ముఖ్యం. మానసిక ఒత్తిడి మరియు బరువు అండాల నాణ్యతను ప్రభావితం చేస్తాయి."
+                    : "Regular ovulation and balanced hormonal cycles are essential. Maintaining a healthy BMI and keeping stress in check support optimal egg reserve."
+                  }
+                </p>
+                <p className="text-rose-600 font-bold">
+                  {isTe 
+                    ? "చిట్కాలు: రోజూ ఫోలిక్ యాసిడ్ సప్లిమెంట్లు, ఆకుకూరలు, తాజా పండ్లు తీసుకోండి. పీరియడ్స్ ట్రాక్ చేయడం ద్వారా అండం విడుదలయ్యే సారవంతమైన రోజులను కనుగొనండి."
+                    : "Key Tips: Take daily folic acid supplements, leafy greens, and fresh fruits. Track your cycles to identify the peak fertile window."
+                  }
+                </p>
               </div>
             )}
             {activeInfertilityTab === "ivf" && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-black text-rose-700">IVF (In Vitro Fertilization)</h3>
-                <p>టెస్ట్ ట్యూబ్ బేబీ ప్రక్రియగా పిలవబడే ఐవీఎఫ్, గర్భధారణ కష్టంగా మారిన దంపతులకు ఒక ఆధునిక శాస్త్రీయ పరిష్కారం.</p>
-                <p className="text-rose-600 font-extrabold">సమాచారం: ల్యాబ్‌లో అండం మరియు వీర్యకణాల కలయిక జరిపి, పిండాన్ని గర్భాశయంలో ప్రవేశపెడతారు. దీని సక్సెస్ రేటు వయసు మరియు ఆరోగ్య స్థితిపై ఆధారపడి ఉంటుంది.</p>
+              <div className="space-y-2">
+                <h3 className="text-xs sm:text-sm font-black text-rose-700">IVF (In Vitro Fertilization)</h3>
+                <p>
+                  {isTe 
+                    ? "టెస్ట్ ట్యూబ్ బేబీ ప్రక్రియగా పిలవబడే ఐవీఎఫ్, గర్భధారణ కష్టంగా మారిన దంపతులకు ఒక ఆధునిక శాస్త్రీయ పరిష్కారం."
+                    : "In Vitro Fertilization (IVF) is an advanced medical treatment where mature eggs are retrieved and fertilized by sperm in a specialized embryology laboratory."
+                  }
+                </p>
+                <p className="text-rose-600 font-bold">
+                  {isTe 
+                    ? "సమాచారం: ల్యాబ్‌లో అండం మరియు వీర్యకణాల కలయిక జరిపి, పిండాన్ని గర్భాశయంలో ప్రవేశపెడతారు. దీని సక్సెస్ రేటు వయసు మరియు ఆరోగ్య స్థితిపై ఆధారపడి ఉంటుంది."
+                    : "Overview: Successfully developed embryos are gently transferred to the uterus. Overall success rates depend primarily on age and ovarian reserve."
+                  }
+                </p>
               </div>
             )}
             {activeInfertilityTab === "iui" && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-black text-rose-700">IUI (Intrauterine Insemination)</h3>
-                <p>శుద్ధి చేసిన వీర్యకణాలను నేరుగా గర్భాశయంలోకి ప్రవేశపెట్టే ఒక సాధారణ సంతానోత్పత్తి చికిత్స విధానం.</p>
-                <p className="text-rose-600 font-extrabold">సమాచారం: సహజ పద్ధతుల కంటే కణాలు వేగంగా అండాన్ని చేరుకోవడానికి ఈ పద్ధతి ఉపయోగపడుతుంది. తక్కువ వీర్యకణాల చలనశీలత ఉన్నప్పుడు ఇది సిఫార్సు చేయబడుతుంది.</p>
+              <div className="space-y-2">
+                <h3 className="text-xs sm:text-sm font-black text-rose-700">IUI (Intrauterine Insemination)</h3>
+                <p>
+                  {isTe 
+                    ? "శుద్ధి చేసిన వీర్యకణాలను నేరుగా గర్భాశయంలోకి ప్రవేశపెట్టే ఒక సాధారణ సంతానోత్పత్తి చికిత్స విధానం."
+                    : "Intrauterine Insemination (IUI) is a gentle, minimally invasive procedure where specially prepared, washed sperm is placed directly inside the uterus."
+                  }
+                </p>
+                <p className="text-rose-600 font-bold">
+                  {isTe 
+                    ? "సమాచారం: సహజ పద్ధతుల కంటే కణాలు వేగంగా అండాన్ని చేరుకోవడానికి ఈ పద్ధతి ఉపయోగపడుతుంది. తక్కువ వీర్యకణాల చలనశీలత ఉన్నప్పుడు ఇది సిఫార్సు చేయబడుతుంది."
+                    : "Overview: Increases the density of healthy motile sperm reaching the fallopian tubes. Frequently recommended for unexplained delays or mild male factor issues."
+                  }
+                </p>
               </div>
             )}
             {activeInfertilityTab === "pcos" && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-black text-rose-700">PCOS (Polycystic Ovary Syndrome)</h3>
-                <p>ఈ రోజుల్లో అనేకమంది స్త్రీలు ఎదుర్కొంటున్న హార్మోన్ల సమతుల్యత లోపమే పిసిఓఎస్. దీనివల్ల పీరియడ్స్ క్రమం తప్పుతాయి.</p>
-                <p className="text-rose-600 font-extrabold">చిట్కాలు: పిండి పదార్థాలు (కార్బోహైడ్రేట్లు) తగ్గించి వ్యాయామం పెంచడం ద్వారా బరువును నియంత్రణలో ఉంచుకోండి. ఇది సహజ ప్రసవ అవకాశాలను మెరుగుపరుస్తుంది.</p>
+              <div className="space-y-2">
+                <h3 className="text-xs sm:text-sm font-black text-rose-700">PCOS (Polycystic Ovary Syndrome)</h3>
+                <p>
+                  {isTe 
+                    ? "ఈ రోజుల్లో అనేకమంది స్త్రీలు ఎదుర్కొంటున్న హార్మోన్ల సమతుల్యత లోపమే పిసిఓఎస్. దీనివల్ల పీరియడ్స్ క్రమం తప్పుతాయి."
+                    : "Polycystic Ovary Syndrome (PCOS) is a widespread endocrine condition affecting hormone balance, metabolism, and regular menstrual cycles."
+                  }
+                </p>
+                <p className="text-rose-600 font-bold">
+                  {isTe 
+                    ? "చిట్కాలు: పిండి పదార్థాలు (కార్బోహైడ్రేట్లు) తగ్గించి వ్యాయామం పెంచడం ద్వారా బరువును నియంత్రణలో ఉంచుకోండి. ఇది సహజ ప్రసవ అవకాశాలను మెరుగుపరుస్తుంది."
+                    : "Key Tips: Reduce refined sugars and carbs, engage in daily brisk walking or resistance training, and track metabolic insulin markers."
+                  }
+                </p>
               </div>
             )}
           </div>
@@ -770,30 +836,32 @@ export function HealthPortal() {
       </section>
 
       {/* Kitchen Remedies Section */}
-      <section className="py-12 bg-[hsl(var(--muted))]/10 border-t border-b border-[hsl(var(--border))]/40 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl font-black text-emerald-600 flex items-center justify-center gap-2">
-              <Utensils className="size-6 text-emerald-600" />
+      <section className="py-4 sm:py-5 bg-[hsl(var(--muted))]/10 border-t border-b border-[hsl(var(--border))]/40 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto space-y-3">
+          <div className="text-center space-y-1">
+            <h2 className="text-lg sm:text-xl font-black text-emerald-600 flex items-center justify-center gap-2">
+              <Utensils className="size-5 text-emerald-600" />
               {isTe ? "వంటింటి చిట్కాలు" : "Kitchen Remedies"}
             </h2>
-            <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "మన వంటింట్లో లభించే ఔషధ గుణాలున్న వస్తువుల ఉపయోగాలు" : "Evidence levels & traditional benefits of kitchen items"}</p>
+            <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "మన వంటింట్లో లభించే ఔషధ గుణాలున్న వస్తువుల ఉపయోగాలు" : "Evidence levels & traditional benefits of kitchen items"}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {Object.entries(REMEDIES).map(([key, r]) => (
               <Link
                 to={`/health/${key}`}
                 key={key}
-                className="flex flex-col sm:flex-row gap-4 bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-4 rounded-2xl hover:shadow-md transition active:scale-[0.99]"
+                className="flex flex-col sm:flex-row gap-3 bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 rounded-xl hover:shadow-sm transition active:scale-[0.99]"
               >
-                <img src={r.image} alt={r.nameEn} className="w-full sm:w-32 aspect-video sm:aspect-square object-cover rounded-xl" />
-                <div className="flex-1 flex flex-col justify-between py-1">
+                <img src={r.image} alt={r.nameEn} className="w-full sm:w-28 aspect-video sm:aspect-square object-cover rounded-lg" />
+                <div className="flex-1 flex flex-col justify-between py-0.5">
                   <div>
-                    <h3 className="text-sm font-black text-[hsl(var(--foreground))]">{isTe ? r.nameTe : r.nameEn}</h3>
-                    <p className="text-[10px] text-[hsl(var(--muted-foreground))] font-bold leading-relaxed line-clamp-2 mt-2">{r.traditionalUse}</p>
+                    <h3 className="text-xs font-black text-[hsl(var(--foreground))]">{isTe ? r.nameTe : r.nameEn}</h3>
+                    <p className="text-[10px] text-[hsl(var(--muted-foreground))] font-medium leading-snug line-clamp-2 mt-1">
+                      {isTe ? r.traditionalUse : r.traditionalUseEn}
+                    </p>
                   </div>
-                  <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-3 text-[10px] font-black text-emerald-600">
+                  <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-2 text-[10px] font-black text-emerald-600">
                     <span>{isTe ? "శాస్త్రీయ ఆధారం:" : "Evidence:"} {isTe ? (r.evidence === "High" ? "అత్యధికం (High)" : r.evidence === "Moderate" ? "మధ్యస్థం (Moderate)" : "పరిమితం (Limited)") : r.evidence}</span>
                     <span className="flex items-center gap-0.5">{isTe ? "పూర్తి వివరాలు" : "Read details"} <ChevronRight className="size-3" /></span>
                   </div>
@@ -805,59 +873,59 @@ export function HealthPortal() {
       </section>
 
       {/* Wellness Hub Section */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-black text-teal-700 flex items-center justify-center gap-2">
-            <Compass className="size-6" />
+      <section className="py-4 sm:py-5 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-3">
+        <div className="text-center space-y-1">
+          <h2 className="text-lg sm:text-xl font-black text-teal-700 flex items-center justify-center gap-2">
+            <Compass className="size-5" />
             {isTe ? "సహజమైన జీవన శైలి (Natural Wellness)" : "Natural Wellness"}
           </h2>
-          <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "ఆరోగ్యకరమైన అలవాట్లతో సమతుల్య జీవనం" : "Balance your body & mind with simple wellness pillars"}</p>
+          <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "ఆరోగ్యకరమైన అలవాట్లతో సమతుల్య జీవనం" : "Balance your body & mind with simple wellness pillars"}</p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl flex flex-col items-center text-center space-y-2">
-            <Droplet className="size-8 text-blue-500 animate-bounce" />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 rounded-xl flex flex-col items-center text-center space-y-1">
+            <Droplet className="size-6 text-blue-500 animate-bounce" />
             <h4 className="text-xs font-black">{isTe ? "హైడ్రేషన్ (Hydration)" : "Hydration"}</h4>
-            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "రోజూ తగినంత నీరు తాగండి" : "Keep drinking water daily"}</p>
+            <p className="text-[9px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "రోజూ తగినంత నీరు తాగండి" : "Keep drinking water daily"}</p>
           </div>
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl flex flex-col items-center text-center space-y-2">
-            <Moon className="size-8 text-indigo-500" />
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 rounded-xl flex flex-col items-center text-center space-y-1">
+            <Moon className="size-6 text-indigo-500" />
             <h4 className="text-xs font-black">{isTe ? "నిద్ర (Sleep)" : "Sleep"}</h4>
-            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "7-8 గంటల నాణ్యమైన నిద్ర" : "7-8 hours quality sleep"}</p>
+            <p className="text-[9px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "7-8 గంటల నాణ్యమైన నిద్ర" : "7-8 hours quality sleep"}</p>
           </div>
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl flex flex-col items-center text-center space-y-2">
-            <Smile className="size-8 text-amber-500" />
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 rounded-xl flex flex-col items-center text-center space-y-1">
+            <Smile className="size-6 text-amber-500" />
             <h4 className="text-xs font-black">{isTe ? "ధ్యానం (Meditation)" : "Meditation"}</h4>
-            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "మానసిక ఒత్తిడిని తగ్గించుకోండి" : "Calm down stress levels"}</p>
+            <p className="text-[9px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "మానసిక ఒత్తిడిని తగ్గించుకోండి" : "Calm down stress levels"}</p>
           </div>
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl flex flex-col items-center text-center space-y-2">
-            <Zap className="size-8 text-emerald-500" />
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 rounded-xl flex flex-col items-center text-center space-y-1">
+            <Zap className="size-6 text-emerald-500" />
             <h4 className="text-xs font-black">{isTe ? "యోగా (Yoga)" : "Yoga"}</h4>
-            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "శరీర దారుఢ్యం & వశ్యత" : "Stretching & flexibility"}</p>
+            <p className="text-[9px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "శరీర దారుఢ్యం & వశ్యత" : "Stretching & flexibility"}</p>
           </div>
         </div>
       </section>
 
       {/* Dynamic 9-Tab Health Calculators Section */}
-      <section className="py-12 bg-emerald-950/5 border-t border-b border-[hsl(var(--border))]/40 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl font-black text-emerald-700 flex items-center justify-center gap-2">
-              <Calculator className="size-6 text-emerald-600" />
+      <section className="py-4 sm:py-5 bg-emerald-950/5 border-t border-b border-[hsl(var(--border))]/40 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto space-y-3">
+          <div className="text-center space-y-1">
+            <h2 className="text-lg sm:text-xl font-black text-emerald-700 flex items-center justify-center gap-2">
+              <Calculator className="size-5 text-emerald-600" />
               {isTe ? "ఆరోగ్య కాలిక్యులేటర్లు (9 Interactive Tools)" : "9 Health Calculators"}
             </h2>
-            <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "మీ శరీర ఆరోగ్య కొలతలు నిమిషాల్లో సరిచూసుకోండి" : "Run interactive diagnostics and check risks"}</p>
+            <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "మీ శరీర ఆరోగ్య కొలతలు నిమిషాల్లో సరిచూసుకోండి" : "Run interactive diagnostics and check personal risk factors"}</p>
           </div>
 
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-3xl overflow-hidden shadow-sm grid grid-cols-1 lg:grid-cols-4">
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-2xl overflow-hidden shadow-xs grid grid-cols-1 lg:grid-cols-4">
             
             {/* Calculators Tabs list */}
-            <div className="bg-[hsl(var(--muted))]/30 border-r border-[hsl(var(--border))]/40 p-4 space-y-1 flex lg:flex-col overflow-x-auto lg:overflow-x-visible no-scrollbar">
+            <div className="bg-[hsl(var(--muted))]/30 border-r border-[hsl(var(--border))]/40 p-2 sm:p-3 space-y-1 flex lg:flex-col overflow-x-auto lg:overflow-x-visible no-scrollbar">
               {([
-                { key: "bmi", nameTe: "బి.ఎమ్.ఐ (BMI)", nameEn: "BMI" },
-                { key: "calories", nameTe: "క్యాలరీలు (Calories)", nameEn: "Calories" },
+                { key: "bmi", nameTe: "బి.ఎమ్.ఐ (BMI)", nameEn: "BMI Calculator" },
+                { key: "calories", nameTe: "క్యాలరీలు (Calories)", nameEn: "Calories (BMR)" },
                 { key: "pregnancy", nameTe: "ప్రసవ తేదీ (Due Date)", nameEn: "Pregnancy Due Date" },
-                { key: "ovulation", nameTe: "అండాల విడుదల (Ovulation)", nameEn: "Ovulation" },
+                { key: "ovulation", nameTe: "అండాల విడుదల (Ovulation)", nameEn: "Ovulation Window" },
                 { key: "water", nameTe: "నీటి వినియోగం (Water)", nameEn: "Water Intake" },
                 { key: "weight", nameTe: "ఆదర్శ బరువు (Ideal Weight)", nameEn: "Ideal Weight" },
                 { key: "sleep", nameTe: "నిద్ర (Sleep Calculator)", nameEn: "Sleep Cycles" },
@@ -869,9 +937,9 @@ export function HealthPortal() {
                   onClick={() => {
                     setActiveCalcTab(calc.key);
                   }}
-                  className={`w-full text-left text-xs font-black px-4 py-3 rounded-xl transition shrink-0 lg:shrink-1 ${
+                  className={`w-full text-left text-xs font-black px-3 py-2 rounded-lg transition shrink-0 lg:shrink-1 ${
                     activeCalcTab === calc.key 
-                      ? "bg-emerald-600 text-white shadow-sm" 
+                      ? "bg-emerald-600 text-white shadow-xs" 
                       : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
                   }`}
                 >
@@ -881,169 +949,169 @@ export function HealthPortal() {
             </div>
 
             {/* Calculator input panels */}
-            <div className="lg:col-span-3 p-6 sm:p-8 space-y-4 text-left">
+            <div className="lg:col-span-3 p-4 sm:p-5 space-y-3 text-left">
               
               {/* BMI */}
               {activeCalcTab === "bmi" && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "శరీర ద్రవ్యరాశి సూచిక (BMI Calculator)" : "Body Mass Index (BMI)"}</h3>
-                  <div className="grid grid-cols-2 gap-4 text-xs font-bold">
+                <div className="space-y-3">
+                  <h3 className="text-xs sm:text-sm font-black text-emerald-700">{isTe ? "శరీర ద్రవ్యరాశి సూచిక (BMI Calculator)" : "Body Mass Index (BMI)"}</h3>
+                  <div className="grid grid-cols-2 gap-3 text-xs font-bold max-w-sm">
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "ఎత్తు (cm)" : "Height (cm)"}</label>
-                      <input type="number" value={bmiHeight} onChange={(e) => setBmiHeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                      <input type="number" value={bmiHeight} onChange={(e) => setBmiHeight(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "బరువు (kg)" : "Weight (kg)"}</label>
-                      <input type="number" value={bmiWeight} onChange={(e) => setBmiWeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                      <input type="number" value={bmiWeight} onChange={(e) => setBmiWeight(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                     </div>
                   </div>
-                  <button onClick={runBmi} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
-                  {bmiResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{isTe ? "ఫలితం: " : "Result: "} {bmiResult}</div>}
+                  <button onClick={runBmi} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {bmiResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">{isTe ? "ఫలితం: " : "Result: "} {bmiResult}</div>}
                 </div>
               )}
 
               {/* Calories */}
               {activeCalcTab === "calories" && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "క్యాలరీల కాలిక్యులేటర్ (BMR)" : "BMR Calorie Calculator"}</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-bold">
+                <div className="space-y-3">
+                  <h3 className="text-xs sm:text-sm font-black text-emerald-700">{isTe ? "క్యాలరీల కాలిక్యులేటర్ (BMR)" : "BMR Calorie Calculator"}</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-bold">
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "వయసు" : "Age"}</label>
-                      <input type="number" value={calAge} onChange={(e) => setCalAge(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                      <input type="number" value={calAge} onChange={(e) => setCalAge(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "బరువు (kg)" : "Weight (kg)"}</label>
-                      <input type="number" value={calWeight} onChange={(e) => setCalWeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                      <input type="number" value={calWeight} onChange={(e) => setCalWeight(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "ఎత్తు (cm)" : "Height (cm)"}</label>
-                      <input type="number" value={calHeight} onChange={(e) => setCalHeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                      <input type="number" value={calHeight} onChange={(e) => setCalHeight(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "లింగం" : "Gender"}</label>
-                      <select value={calGender} onChange={(e) => setCalGender(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" >
+                      <select value={calGender} onChange={(e) => setCalGender(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" >
                         <option value="male">{isTe ? "పురుషుడు" : "Male"}</option>
                         <option value="female">{isTe ? "స్త్రీ" : "Female"}</option>
                       </select>
                     </div>
                   </div>
-                  <button onClick={runCalories} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
-                  {calResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{calResult}</div>}
+                  <button onClick={runCalories} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {calResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">{calResult}</div>}
                 </div>
               )}
 
               {/* Pregnancy Due Date */}
               {activeCalcTab === "pregnancy" && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "గర్భధారణ ప్రసవ తేదీ (Pregnancy Due Date)" : "Pregnancy Due Date Estimator"}</h3>
+                <div className="space-y-3">
+                  <h3 className="text-xs sm:text-sm font-black text-emerald-700">{isTe ? "గర్భధారణ ప్రసవ తేదీ (Pregnancy Due Date)" : "Pregnancy Due Date Estimator"}</h3>
                   <div className="space-y-1 text-xs font-bold max-w-sm">
                     <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "చివరి పీరియడ్ మొదటి రోజు" : "First Day of Last Period"}</label>
-                    <input type="date" value={pregLmp} onChange={(e) => setPregLmp(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    <input type="date" value={pregLmp} onChange={(e) => setPregLmp(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                   </div>
-                  <button onClick={runPregnancy} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
-                  {pregResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{pregResult}</div>}
+                  <button onClick={runPregnancy} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {pregResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">{pregResult}</div>}
                 </div>
               )}
 
               {/* Ovulation */}
               {activeCalcTab === "ovulation" && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "అండాల విడుదల కాలం (Ovulation Window)" : "Ovulation & Fertility Window"}</h3>
-                  <div className="grid grid-cols-2 gap-4 text-xs font-bold max-w-md">
+                <div className="space-y-3">
+                  <h3 className="text-xs sm:text-sm font-black text-emerald-700">{isTe ? "అండాల విడుదల కాలం (Ovulation Window)" : "Ovulation & Fertility Window"}</h3>
+                  <div className="grid grid-cols-2 gap-3 text-xs font-bold max-w-sm">
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "చక్రం పొడవు (రోజులు)" : "Cycle length (Days)"}</label>
-                      <input type="number" value={ovulCycle} onChange={(e) => setOvulCycle(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                      <input type="number" value={ovulCycle} onChange={(e) => setOvulCycle(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "చివరి పీరియడ్ తేదీ" : "Last Period Date"}</label>
-                      <input type="date" value={ovulLmp} onChange={(e) => setOvulLmp(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                      <input type="date" value={ovulLmp} onChange={(e) => setOvulLmp(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                     </div>
                   </div>
-                  <button onClick={runOvulation} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
-                  {ovulResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{ovulResult}</div>}
+                  <button onClick={runOvulation} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {ovulResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">{ovulResult}</div>}
                 </div>
               )}
 
               {/* Water Intake */}
               {activeCalcTab === "water" && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "రోజువారీ నీటి పరిమాణం (Water Intake)" : "Water Intake Requirement"}</h3>
+                <div className="space-y-3">
+                  <h3 className="text-xs sm:text-sm font-black text-emerald-700">{isTe ? "రోజువారీ నీటి పరిమాణం (Water Intake)" : "Water Intake Requirement"}</h3>
                   <div className="space-y-1 text-xs font-bold max-w-sm">
                     <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "బరువు (kg)" : "Weight (kg)"}</label>
-                    <input type="number" value={waterWeight} onChange={(e) => setWaterWeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    <input type="number" value={waterWeight} onChange={(e) => setWaterWeight(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                   </div>
-                  <button onClick={runWater} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
-                  {waterResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{waterResult}</div>}
+                  <button onClick={runWater} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {waterResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">{waterResult}</div>}
                 </div>
               )}
 
               {/* Ideal Weight */}
               {activeCalcTab === "weight" && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "ఆదర్శ బరువు కాలిక్యులేటర్" : "Ideal Weight Calculator (Devine Formula)"}</h3>
+                <div className="space-y-3">
+                  <h3 className="text-xs sm:text-sm font-black text-emerald-700">{isTe ? "ఆదర్శ బరువు కాలిక్యులేటర్" : "Ideal Weight Calculator (Devine Formula)"}</h3>
                   <div className="space-y-1 text-xs font-bold max-w-sm">
                     <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "ఎత్తు (cm)" : "Height (cm)"}</label>
-                    <input type="number" value={idealHeight} onChange={(e) => setIdealHeight(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    <input type="number" value={idealHeight} onChange={(e) => setIdealHeight(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                   </div>
-                  <button onClick={runIdealWeight} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
-                  {idealResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{idealResult}</div>}
+                  <button onClick={runIdealWeight} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {idealResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">{idealResult}</div>}
                 </div>
               )}
 
               {/* Sleep Cycles */}
               {activeCalcTab === "sleep" && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "నిద్ర చక్రం కాలిక్యులేటర్ (Sleep cycles)" : "Optimal Sleep Cycles Estimator"}</h3>
+                <div className="space-y-3">
+                  <h3 className="text-xs sm:text-sm font-black text-emerald-700">{isTe ? "నిద్ర చక్రం కాలిక్యులేటర్ (Sleep cycles)" : "Optimal Sleep Cycles Estimator"}</h3>
                   <div className="space-y-1 text-xs font-bold max-w-sm">
                     <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "నేను మేల్కొనే సమయం:" : "Wake up Time:"}</label>
-                    <input type="time" value={sleepWake} onChange={(e) => setSleepWake(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                    <input type="time" value={sleepWake} onChange={(e) => setSleepWake(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                   </div>
-                  <button onClick={runSleep} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
-                  {sleepResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{sleepResult}</div>}
+                  <button onClick={runSleep} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {sleepResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">{sleepResult}</div>}
                 </div>
               )}
 
               {/* Diabetes Risk */}
               {activeCalcTab === "diabetes" && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "మధుమేహ ప్రమాద సూచిక (Diabetes Risk)" : "Diabetes Risk Calculator"}</h3>
-                  <div className="grid grid-cols-2 gap-4 text-xs font-bold max-w-md">
+                <div className="space-y-3">
+                  <h3 className="text-xs sm:text-sm font-black text-emerald-700">{isTe ? "మధుమేహ ప్రమాద సూచిక (Diabetes Risk)" : "Diabetes Risk Calculator"}</h3>
+                  <div className="grid grid-cols-2 gap-3 text-xs font-bold max-w-sm">
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "కుటుంబంలో డయాబెటిస్ ఉందా?" : "Family history of diabetes?"}</label>
-                      <select value={diabFamily} onChange={(e) => setDiabFamily(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" >
+                      <select value={diabFamily} onChange={(e) => setDiabFamily(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" >
                         <option value="no">{isTe ? "లేదు" : "No"}</option>
                         <option value="yes">{isTe ? "అవును" : "Yes"}</option>
                       </select>
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "మీ బి.ఎమ్.ఐ (BMI)" : "Your BMI"}</label>
-                      <input type="number" value={diabBmi} onChange={(e) => setDiabBmi(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                      <input type="number" value={diabBmi} onChange={(e) => setDiabBmi(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                     </div>
                   </div>
-                  <button onClick={runDiabetesRisk} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
-                  {diabResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{diabResult}</div>}
+                  <button onClick={runDiabetesRisk} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {diabResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">{diabResult}</div>}
                 </div>
               )}
 
               {/* Heart Risk */}
               {activeCalcTab === "heart" && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-black text-emerald-700">{isTe ? "గుండె జబ్బుల ప్రమాద అంచనా (Heart Risk)" : "Heart & Cardiovascular Risk Assessment"}</h3>
-                  <div className="grid grid-cols-2 gap-4 text-xs font-bold max-w-md">
+                <div className="space-y-3">
+                  <h3 className="text-xs sm:text-sm font-black text-emerald-700">{isTe ? "గుండె జబ్బుల ప్రమాద అంచనా (Heart Risk)" : "Heart & Cardiovascular Risk Assessment"}</h3>
+                  <div className="grid grid-cols-2 gap-3 text-xs font-bold max-w-sm">
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "వయసు" : "Age"}</label>
-                      <input type="number" value={heartAge} onChange={(e) => setHeartAge(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" />
+                      <input type="number" value={heartAge} onChange={(e) => setHeartAge(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" />
                     </div>
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "ధూమపాన అలవాటు ఉందా?" : "Active Smoker?"}</label>
-                      <select value={heartSmoker} onChange={(e) => setHeartSmoker(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" >
+                      <select value={heartSmoker} onChange={(e) => setHeartSmoker(e.target.value)} className="w-full px-2.5 py-1.5 border border-[hsl(var(--border))] rounded-lg bg-[hsl(var(--input))] text-xs font-medium" >
                         <option value="no">{isTe ? "లేదు" : "No"}</option>
                         <option value="yes">{isTe ? "అవును" : "Yes"}</option>
                       </select>
                     </div>
                   </div>
-                  <button onClick={runHeartRisk} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
-                  {heartResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">{heartResult}</div>}
+                  <button onClick={runHeartRisk} className="text-xs font-black bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg active:scale-95 transition">{isTe ? "లెక్కించు" : "Calculate"}</button>
+                  {heartResult && <div className="text-xs font-black text-emerald-700 bg-emerald-500/10 p-2.5 rounded-lg border border-emerald-500/20">{heartResult}</div>}
                 </div>
               )}
 
@@ -1053,39 +1121,39 @@ export function HealthPortal() {
       </section>
 
       {/* Videos Section */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-black text-[hsl(var(--foreground))]">{isTe ? "వైద్యుల సలహాలు & వీడియోలు" : "Doctor Advice & Health Videos"}</h2>
-          <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "నిపుణులైన డాక్టర్ల సమాచారం వీక్షించండి" : "Watch informative wellness lessons"}</p>
+      <section className="py-4 sm:py-5 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-3">
+        <div className="text-center space-y-1">
+          <h2 className="text-lg sm:text-xl font-black text-[hsl(var(--foreground))]">{isTe ? "వైద్యుల సలహాలు & వీడియోలు" : "Doctor Advice & Health Videos"}</h2>
+          <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "నిపుణులైన డాక్టర్ల సమాచారం వీక్షించండి" : "Watch informative wellness lessons"}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-2xl overflow-hidden shadow-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-xl overflow-hidden shadow-xs">
             <div className="relative aspect-video bg-black flex items-center justify-center">
-              <Play className="size-12 text-white/80 hover:text-white transition cursor-pointer" />
+              <Play className="size-10 text-white/80 hover:text-white transition cursor-pointer" />
               <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">3:42</span>
             </div>
-            <div className="p-4 space-y-1">
+            <div className="p-3 space-y-0.5">
               <h4 className="text-xs font-black leading-snug">{isTe ? "వైరల్ జ్వరం వచ్చినప్పుడు తీసుకోవాల్సిన జాగ్రత్తలు" : "Fever & Cold Self Care Precautions"}</h4>
               <p className="text-[10px] text-[hsl(var(--muted-foreground))] font-bold">Dr. K. Srinivas (General Physician)</p>
             </div>
           </div>
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-xl overflow-hidden shadow-xs">
             <div className="relative aspect-video bg-black flex items-center justify-center">
-              <Play className="size-12 text-white/80 hover:text-white transition cursor-pointer" />
+              <Play className="size-10 text-white/80 hover:text-white transition cursor-pointer" />
               <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">5:15</span>
             </div>
-            <div className="p-4 space-y-1">
+            <div className="p-3 space-y-0.5">
               <h4 className="text-xs font-black leading-snug">{isTe ? "అల్లం మరియు పసుపుతో గ్యాస్ సమస్యలకు నివారణ" : "Curing Acid Reflux with Kitchen Remedies"}</h4>
               <p className="text-[10px] text-[hsl(var(--muted-foreground))] font-bold">Ayurveda Acharya Swamy</p>
             </div>
           </div>
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-2xl overflow-hidden shadow-sm">
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-xl overflow-hidden shadow-xs">
             <div className="relative aspect-video bg-black flex items-center justify-center">
-              <Play className="size-12 text-white/80 hover:text-white transition cursor-pointer" />
+              <Play className="size-10 text-white/80 hover:text-white transition cursor-pointer" />
               <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">6:00</span>
             </div>
-            <div className="p-4 space-y-1">
+            <div className="p-3 space-y-0.5">
               <h4 className="text-xs font-black leading-snug">{isTe ? "పీసీఓఎస్ (PCOS) మరియు సంతానోత్పత్తి సమస్యలు" : "Understanding PCOS & Fertility Cycles"}</h4>
               <p className="text-[10px] text-[hsl(var(--muted-foreground))] font-bold">Dr. Anjali Verma (Gynecologist & IVF Expert)</p>
             </div>
@@ -1094,10 +1162,10 @@ export function HealthPortal() {
       </section>
 
       {/* Global Disclaimer Banner */}
-      <section className="bg-amber-500/5 border-t border-amber-500/20 py-8 px-4 sm:px-6 lg:px-8 text-center">
-        <div className="max-w-3xl mx-auto space-y-3 font-bold">
+      <section className="bg-amber-500/5 border-t border-amber-500/20 py-4 px-4 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-3xl mx-auto space-y-1.5 font-bold">
           <h4 className="text-xs font-extrabold text-amber-700 uppercase tracking-widest">{isTe ? "ఆరోగ్య నిరాకరణ (Medical Disclaimer)" : "Important Health Disclaimer"}</h4>
-          <p className="text-[10px] sm:text-xs text-[hsl(var(--muted-foreground))] leading-relaxed">
+          <p className="text-[10px] sm:text-[11px] text-[hsl(var(--muted-foreground))] leading-relaxed">
             {isTe 
               ? "ఈ సైట్ లో ఇవ్వబడిన చిట్కాలు, వంటింటి చిట్కాలు మరియు సమాచారం కేవలం విద్యా ప్రయోజనాల కోసం మాత్రమే. ఇది వృత్తిపరమైన వైద్య సహాయానికి ప్రత్యామ్నాయం కాదు. ఏదైనా గృహ వైద్యం పాటించే ముందు లేదా తీవ్రమైన రోగ లక్షణాలు ఉన్నప్పుడు తప్పనిసరిగా డాక్టర్ ను సంప్రదించండి."
               : "All content, traditional remedies, and wellness details provided on this platform are for general informational purposes only. Never delay seeking professional medical treatment due to information read here."
