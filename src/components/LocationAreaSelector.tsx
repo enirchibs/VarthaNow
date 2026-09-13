@@ -59,7 +59,7 @@ export function LocationAreaSelector({
   value,
   onChange,
   label = "ప్రాంతం / ఏరియా / గ్రామం / మండలం (Area / Village / Mandal)",
-  placeholder = "గ్రామం, మండలం లేదా పట్టణం పేరు టైప్ చేయండి (కనీసం 3 అక్షరాలు)...",
+  placeholder = "గ్రామం, మండలం లేదా పట్టణం పేరు టైప్ చేయండి (తెలుగు లేదా English)...",
   required = false
 }: LocationAreaSelectorProps) {
   const [isGpsSelected, setIsGpsSelected] = useState(false);
@@ -92,7 +92,7 @@ export function LocationAreaSelector({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 🔍 Instant Autocomplete when user types 3+ letters
+  // 🔍 Instant Autocomplete when user types in Telugu (2+ chars) or English (3+ chars)
   const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setQuery(val);
@@ -100,7 +100,10 @@ export function LocationAreaSelector({
     setGpsSuccessMsg("");
     setIsGpsSelected(false);
 
-    if (val.trim().length >= 3) {
+    const isTelugu = /[\u0C00-\u0C7F]/.test(val);
+    const minChars = isTelugu ? 2 : 3;
+
+    if (val.trim().length >= minChars) {
       setIsSearching(true);
       setShowDropdown(true);
       try {
@@ -219,7 +222,9 @@ export function LocationAreaSelector({
           value={query}
           onChange={handleInputChange}
           onFocus={async () => {
-            if (query.trim().length >= 3) {
+            const isTelugu = /[\u0C00-\u0C7F]/.test(query);
+            const minChars = isTelugu ? 2 : 3;
+            if (query.trim().length >= minChars) {
               setShowDropdown(true);
               if (suggestions.length === 0) {
                 setIsSearching(true);
@@ -257,7 +262,7 @@ export function LocationAreaSelector({
           </button>
         ) : null}
 
-        {/* Live Suggestions Dropdown (Triggers on 3+ Letters) - Always rendered BELOW the input box */}
+        {/* Live Suggestions Dropdown (Triggers on 2+ Telugu / 3+ English chars) */}
         {showDropdown && (
           <div className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl border border-[hsl(var(--border))] bg-white dark:bg-slate-900 p-2 shadow-2xl space-y-1 max-h-60 overflow-y-auto animate-in fade-in duration-150">
             <div className="px-2 py-1 text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] tracking-wider flex items-center justify-between border-b border-[hsl(var(--border))]/50 mb-1">
@@ -265,7 +270,7 @@ export function LocationAreaSelector({
                 <Sparkles className="size-3 text-blue-500" />
                 <span>సూచించిన ప్రాంతాలు (Location Suggestions)</span>
               </span>
-              <span className="text-[9px] text-blue-500 font-bold">ఎంచుకోవడానికి క్లిక్ చేయండి</span>
+              <span className="text-[9px] text-blue-500 font-bold">తెలుగు / English</span>
             </div>
 
             {suggestions.length > 0 ? (

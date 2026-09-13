@@ -539,32 +539,98 @@ export async function detectDetailedGPSArea(): Promise<DetailedAreaResult | null
   });
 }
 
-// // 🔍 Search Area Autocomplete (Prioritizes AP & TS, queries Supabase DB + Preloaded AP/TS + OSM Places)
+// 🌐 Convert Telugu text to English for cross-database querying
+export async function convertTeluguToEnglish(teluguText: string): Promise<string> {
+  if (!teluguText || !teluguText.trim()) return "";
+  if (!/[\u0C00-\u0C7F]/.test(teluguText)) return teluguText;
+
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=te&tl=en&dt=t&q=${encodeURIComponent(teluguText.trim())}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data[0] && Array.isArray(data[0])) {
+        const enStr = data[0].map((item: any) => item[0]).filter(Boolean).join("").trim();
+        if (enStr) return enStr;
+      }
+    }
+  } catch (err) {
+    console.warn("Telugu to English conversion error:", err);
+  }
+
+  return teluguText;
+}
+
+// 🔍 Search Area Autocomplete (Supports both Telugu and English input, detects name and full address)
 export async function searchAreaAutocomplete(query: string): Promise<string[]> {
   if (!query || query.trim().length < 2) return [];
 
   const cleanQuery = query.toLowerCase().trim();
+  const isTeluguQuery = /[\u0C00-\u0C7F]/.test(cleanQuery);
+  let englishQuery = cleanQuery;
+
+  if (isTeluguQuery) {
+    try {
+      englishQuery = (await convertTeluguToEnglish(cleanQuery)).toLowerCase().trim();
+    } catch {}
+  }
+
   const apTsDbMatches: string[] = [];
   const otherDbMatches: string[] = [];
+  const localMatches = new Set<string>();
 
-  // 1. Filter local preloaded AP/TS database (highest relevance for Telugu users)
-  const localMatches = PRELOADED_AP_TS_LOCATIONS
-    .filter((loc) => loc.name_te.toLowerCase().includes(cleanQuery) || loc.name_en.toLowerCase().includes(cleanQuery))
-    .map((loc) => loc.name_te);
+  // 1. Match against Preloaded AP/TS database & All Mandals / Districts
+  PRELOADED_AP_TS_LOCATIONS.forEach((loc) => {
+    if (
+      loc.name_te.toLowerCase().includes(cleanQuery) ||
+      loc.name_en.toLowerCase().includes(cleanQuery) ||
+      (isTeluguQuery && englishQuery && loc.name_en.toLowerCase().includes(englishQuery))
+    ) {
+      localMatches.add(loc.name_te);
+    }
+  });
+
+  AP_TS_DISTRICTS_MANDALS.forEach((dist) => {
+    if (
+      dist.district_te.toLowerCase().includes(cleanQuery) ||
+      dist.district_en.toLowerCase().includes(cleanQuery) ||
+      (isTeluguQuery && englishQuery && dist.district_en.toLowerCase().includes(englishQuery))
+    ) {
+      localMatches.add(dist.district_te);
+    }
+    dist.mandals.forEach((mandal) => {
+      if (
+        mandal.name_te.toLowerCase().includes(cleanQuery) ||
+        mandal.name_en.toLowerCase().includes(cleanQuery) ||
+        (isTeluguQuery && englishQuery && mandal.name_en.toLowerCase().includes(englishQuery))
+      ) {
+        localMatches.add(`${mandal.name_te}, ${dist.district_te.split(" ")[0]}`);
+      }
+    });
+  });
 
   // 2. Query Supabase Database Tables (osm_locations & india_post_locations)
   if (supabase) {
     try {
+      const searchTerms = isTeluguQuery && englishQuery !== cleanQuery ? [cleanQuery, englishQuery] : [cleanQuery];
+      const searchFilters = searchTerms
+        .map((t) => `office_name.ilike.%${t}%,district.ilike.%${t}%`)
+        .join(",");
+
+      const osmFilters = searchTerms
+        .map((t) => `name.ilike.%${t}%,mandal.ilike.%${t}%,district.ilike.%${t}%`)
+        .join(",");
+
       const [osmRes, postRes] = await Promise.all([
         supabase
           .from("osm_locations")
           .select("name, mandal, district, state")
-          .or(`name.ilike.%${cleanQuery}%,mandal.ilike.%${cleanQuery}%,district.ilike.%${cleanQuery}%`)
+          .or(osmFilters)
           .limit(10),
         supabase
           .from("india_post_locations")
           .select("office_name, district, state, pincode")
-          .or(`office_name.ilike.%${cleanQuery}%,district.ilike.%${cleanQuery}%`)
+          .or(searchFilters)
           .limit(15)
       ]);
 
@@ -592,12 +658,13 @@ export async function searchAreaAutocomplete(query: string): Promise<string[]> {
     }
   }
 
-  // 3. Fetch live OpenStreetMap Nominatim search results as fallback if needed
+  // 3. Fetch live OpenStreetMap Nominatim search results as fallback
   let liveMatches: string[] = [];
-  if (localMatches.length + apTsDbMatches.length < 5) {
+  if (localMatches.size + apTsDbMatches.length < 5) {
     try {
+      const q = isTeluguQuery ? query : (englishQuery || query);
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&countrycodes=in&limit=6`,
+        `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(q)}&countrycodes=in&limit=6&accept-language=te,en`,
         { headers: { "User-Agent": "VarthaNow-Places-Search" } }
       );
       if (response.ok) {
@@ -612,21 +679,22 @@ export async function searchAreaAutocomplete(query: string): Promise<string[]> {
     }
   }
 
-  // Combine and sort with priority:
-  // 1. AP & TS matches
-  // 2. Prefix matches (starting with the search query)
-  const apTsCombined = Array.from(new Set([...localMatches, ...apTsDbMatches]));
-  const otherCombined = Array.from(new Set([...liveMatches, ...otherDbMatches]));
+  // Convert any pure English matches to Telugu so users always get clean Telugu location and address
+  const localList = Array.from(localMatches);
+  const apTsConverted = await Promise.all(
+    apTsDbMatches.map(async (m) => (!/[\u0C00-\u0C7F]/.test(m) ? await convertAreaToTelugu(m) : m))
+  );
+  const otherConverted = await Promise.all(
+    [...liveMatches, ...otherDbMatches].map(async (m) => (!/[\u0C00-\u0C7F]/.test(m) ? await convertAreaToTelugu(m) : m))
+  );
 
+  const apTsCombined = Array.from(new Set([...localList, ...apTsConverted]));
+  const otherCombined = Array.from(new Set(otherConverted));
+
+  // Sort by prefix match against query (in Telugu or English)
   apTsCombined.sort((a, b) => {
-    const aStarts = a.toLowerCase().startsWith(cleanQuery) ? 0 : 1;
-    const bStarts = b.toLowerCase().startsWith(cleanQuery) ? 0 : 1;
-    return aStarts - bStarts;
-  });
-
-  otherCombined.sort((a, b) => {
-    const aStarts = a.toLowerCase().startsWith(cleanQuery) ? 0 : 1;
-    const bStarts = b.toLowerCase().startsWith(cleanQuery) ? 0 : 1;
+    const aStarts = a.toLowerCase().startsWith(cleanQuery) || (englishQuery && a.toLowerCase().startsWith(englishQuery)) ? 0 : 1;
+    const bStarts = b.toLowerCase().startsWith(cleanQuery) || (englishQuery && b.toLowerCase().startsWith(englishQuery)) ? 0 : 1;
     return aStarts - bStarts;
   });
 
