@@ -603,11 +603,6 @@ export function HealthPortal() {
         </button>
       </div>
 
-      {/* Real-Time Step Counter - Top of Health Category Page */}
-      <section className="px-4 sm:px-6 max-w-xl mx-auto py-2">
-        <SimpleStepCounter />
-      </section>
-
       {/* Hero Slider Banner */}
       <section className={`relative min-h-[460px] bg-gradient-to-br ${slides[activeSlide].bg} flex items-center py-24 px-4 sm:px-6 lg:px-8 text-center text-white overflow-hidden transition-all duration-1000`}>
         <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
@@ -665,6 +660,11 @@ export function HealthPortal() {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Real-Time Step Counter - Below Hero Banner (Attached Image) */}
+      <section className="pt-8 pb-2 px-4 sm:px-6 max-w-sm mx-auto">
+        <SimpleStepCounter />
       </section>
 
       {/* Main Categories Section */}

@@ -246,22 +246,22 @@ export function SimpleStepCounter() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-4 sm:p-6 my-4">
-      <div className="bg-[hsl(var(--card))] border-2 border-emerald-500/30 dark:border-emerald-500/40 rounded-3xl p-6 sm:p-8 shadow-xl text-center space-y-6 transition-all">
+    <div className="w-full max-w-xs sm:max-w-sm mx-auto p-1">
+      <div className="bg-[hsl(var(--card))] border border-emerald-500/30 dark:border-emerald-500/40 rounded-2xl p-4 shadow-md text-center space-y-3 transition-all">
         {/* Title Header */}
-        <div className="flex items-center justify-center gap-2">
-          <Footprints className="size-5 text-emerald-600 dark:text-emerald-400 animate-bounce" />
-          <h2 className="text-sm sm:text-base font-black tracking-widest text-[hsl(var(--foreground))] uppercase">
+        <div className="flex items-center justify-center gap-1.5">
+          <Footprints className="size-4 text-emerald-600 dark:text-emerald-400" />
+          <h2 className="text-xs font-black tracking-widest text-[hsl(var(--foreground))] uppercase">
             Step Counter
           </h2>
         </div>
 
-        {/* Large Step Display */}
-        <div className="py-4 space-y-1">
-          <div className="text-6xl sm:text-7xl font-black tracking-tight text-[hsl(var(--foreground))] font-mono">
+        {/* Compact Step Display */}
+        <div className="py-1 space-y-0.5">
+          <div className="text-4xl sm:text-5xl font-black tracking-tight text-[hsl(var(--foreground))] font-mono">
             {steps.toLocaleString()}
           </div>
-          <div className="text-xs sm:text-sm font-black tracking-widest text-[hsl(var(--muted-foreground))] uppercase">
+          <div className="text-[10px] sm:text-xs font-bold tracking-widest text-[hsl(var(--muted-foreground))] uppercase">
             Steps
           </div>
         </div>
@@ -269,13 +269,13 @@ export function SimpleStepCounter() {
         {/* Live Walking Status Indicator */}
         <div className="flex items-center justify-center">
           {isRunning && isWalking ? (
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-black tracking-wider">
-              <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[10px] sm:text-xs font-bold tracking-wider">
+              <span className="size-1.5 rounded-full bg-emerald-500 animate-ping" />
               ● WALKING
             </span>
           ) : (
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] text-xs font-black tracking-wider">
-              <span className="size-2 rounded-full border border-zinc-400 dark:border-zinc-500" />
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] text-[10px] sm:text-xs font-bold tracking-wider">
+              <span className="size-1.5 rounded-full border border-zinc-400 dark:border-zinc-500" />
               ○ NOT WALKING
             </span>
           )}
@@ -283,17 +283,17 @@ export function SimpleStepCounter() {
 
         {/* Error message */}
         {errorMessage && (
-          <div className="flex items-center justify-center gap-2 text-xs font-bold text-rose-600 bg-rose-500/10 p-3 rounded-2xl border border-rose-500/20">
-            <AlertCircle className="size-4 shrink-0" />
+          <div className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-rose-600 bg-rose-500/10 p-2 rounded-xl border border-rose-500/20">
+            <AlertCircle className="size-3.5 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {/* Action Buttons: START / STOP and RESET */}
-        <div className="grid grid-cols-2 gap-3 pt-2">
+        <div className="grid grid-cols-2 gap-2 pt-1">
           <button
             onClick={handleToggleStart}
-            className={`flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl font-black text-sm tracking-wider uppercase transition active:scale-95 shadow-md ${
+            className={`flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-3 rounded-xl font-bold text-xs tracking-wider uppercase transition active:scale-95 shadow-sm ${
               isRunning
                 ? "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20"
                 : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20"
@@ -301,12 +301,12 @@ export function SimpleStepCounter() {
           >
             {isRunning ? (
               <>
-                <Square className="size-4 fill-current" />
+                <Square className="size-3.5 fill-current" />
                 STOP
               </>
             ) : (
               <>
-                <Play className="size-4 fill-current" />
+                <Play className="size-3.5 fill-current" />
                 START
               </>
             )}
@@ -314,9 +314,9 @@ export function SimpleStepCounter() {
 
           <button
             onClick={handleReset}
-            className="flex items-center justify-center gap-2 py-3.5 px-4 rounded-2xl font-black text-sm tracking-wider uppercase transition active:scale-95 bg-[hsl(var(--muted))] hover:bg-[hsl(var(--muted))]/80 text-[hsl(var(--foreground))] border border-[hsl(var(--border))]"
+            className="flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-3 rounded-xl font-bold text-xs tracking-wider uppercase transition active:scale-95 bg-[hsl(var(--muted))] hover:bg-[hsl(var(--muted))]/80 text-[hsl(var(--foreground))] border border-[hsl(var(--border))]"
           >
-            <RotateCcw className="size-4" />
+            <RotateCcw className="size-3.5" />
             RESET
           </button>
         </div>
@@ -324,12 +324,12 @@ export function SimpleStepCounter() {
         {/* Desktop / Dev testing simulator fallback (unobtrusive) */}
         {isRunning && !hasSensorEvent && (
           <div className="pt-2 border-t border-[hsl(var(--border))]/50">
-            <p className="text-[11px] text-[hsl(var(--muted-foreground))] font-bold mb-2">
-              Waiting for phone motion sensor... (On desktop? Test manually below)
+            <p className="text-[10px] text-[hsl(var(--muted-foreground))] font-medium mb-1.5">
+              Waiting for phone sensor... (Desktop test below)
             </p>
             <button
               onClick={() => registerStep("web")}
-              className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 hover:bg-emerald-500/20 transition"
+              className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 hover:bg-emerald-500/20 transition"
             >
               + 1 Step (Test)
             </button>
