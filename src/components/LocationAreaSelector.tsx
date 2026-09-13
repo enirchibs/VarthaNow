@@ -23,6 +23,36 @@ interface LocationAreaSelectorProps {
   required?: boolean;
 }
 
+function renderHighlightedText(text: string, highlight: string) {
+  if (!highlight || !highlight.trim()) return <span>{text}</span>;
+  const q = highlight.trim();
+  const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  try {
+    const regex = new RegExp(`(${escaped})`, "gi");
+    const parts = text.split(regex);
+    if (parts.length === 1) return <span>{text}</span>;
+
+    return (
+      <span>
+        {parts.map((part, i) =>
+          part.toLowerCase() === q.toLowerCase() ? (
+            <span
+              key={i}
+              className="text-blue-600 dark:text-blue-400 font-black bg-blue-100 dark:bg-blue-900/60 px-1 py-0.5 rounded shadow-xs"
+            >
+              {part}
+            </span>
+          ) : (
+            <span key={i}>{part}</span>
+          )
+        )}
+      </span>
+    );
+  } catch {
+    return <span>{text}</span>;
+  }
+}
+
 export function LocationAreaSelector({
   value,
   onChange,
@@ -166,11 +196,11 @@ export function LocationAreaSelector({
             }
           }}
           placeholder={placeholder}
-          className="w-full h-11 pl-10 pr-10 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition"
+          className="w-full h-11 pl-10 pr-10 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition relative z-10 text-slate-900 dark:text-slate-100"
           required={required}
         />
         {isSearching ? (
-          <RefreshCw className="absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-blue-500 animate-spin" />
+          <RefreshCw className="absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-blue-500 animate-spin z-20" />
         ) : query ? (
           <button
             type="button"
@@ -181,12 +211,43 @@ export function LocationAreaSelector({
               setShowDropdown(false);
               setGpsSuccessMsg("");
             }}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5 z-20"
             title="Clear text"
           >
             <X className="size-3.5" />
           </button>
         ) : null}
+
+        {/* Live Suggestions Dropdown (Triggers on 3+ Letters) - Always rendered BELOW the input box */}
+        {showDropdown && (
+          <div className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl border border-[hsl(var(--border))] bg-white dark:bg-slate-900 p-2 shadow-2xl space-y-1 max-h-60 overflow-y-auto animate-in fade-in duration-150">
+            <div className="px-2 py-1 text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] tracking-wider flex items-center justify-between border-b border-[hsl(var(--border))]/50 mb-1">
+              <span className="flex items-center gap-1">
+                <Sparkles className="size-3 text-blue-500" />
+                <span>సూచించిన ప్రాంతాలు (Location Suggestions)</span>
+              </span>
+              <span className="text-[9px] text-blue-500 font-bold">ఎంచుకోవడానికి క్లిక్ చేయండి</span>
+            </div>
+
+            {suggestions.length > 0 ? (
+              suggestions.map((sug, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSelectArea(sug)}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold hover:bg-blue-500/10 hover:text-blue-600 transition flex items-center gap-2 cursor-pointer"
+                >
+                  <MapPin className="size-3.5 text-blue-500 shrink-0" />
+                  <span className="truncate">{renderHighlightedText(sug, query)}</span>
+                </button>
+              ))
+            ) : !isSearching ? (
+              <div className="px-3 py-2 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+                ప్రాంతం వివరాలు కనుగొనబడలేదు. దయచేసి గ్రామం/పట్టణం సరిగ్గా టైప్ చేయండి లేదా GPS ఉపయోగించండి.
+              </div>
+            ) : null}
+          </div>
+        )}
       </div>
 
       {/* 2. 🎯 Option to Detect via GPS */}
@@ -217,37 +278,6 @@ export function LocationAreaSelector({
         <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 animate-in fade-in duration-200">
           <Check className="size-4 text-emerald-600 shrink-0" />
           <span className="truncate">{gpsSuccessMsg}</span>
-        </div>
-      )}
-
-      {/* Live Suggestions Dropdown (Triggers on 3+ Letters) */}
-      {showDropdown && (
-        <div className="absolute left-0 right-0 top-[48px] z-50 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 shadow-2xl space-y-1 max-h-60 overflow-y-auto animate-in fade-in duration-200">
-          <div className="px-2 py-1 text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] tracking-wider flex items-center justify-between border-b border-[hsl(var(--border))]/50 mb-1">
-            <span className="flex items-center gap-1">
-              <Sparkles className="size-3 text-blue-500" />
-              <span>సూచించిన ప్రాంతాలు (Location Suggestions)</span>
-            </span>
-            <span className="text-[9px] text-blue-500 font-bold">ఎంచుకోవడానికి క్లిక్ చేయండి</span>
-          </div>
-
-          {suggestions.length > 0 ? (
-            suggestions.map((sug, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleSelectArea(sug)}
-                className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold hover:bg-blue-500/10 hover:text-blue-600 transition flex items-center gap-2 cursor-pointer"
-              >
-                <MapPin className="size-3.5 text-blue-500 shrink-0" />
-                <span className="truncate">{sug}</span>
-              </button>
-            ))
-          ) : !isSearching ? (
-            <div className="px-3 py-2 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
-              ప్రాంతం వివరాలు కనుగొనబడలేదు. దయచేసి గ్రామం/పట్టణం సరిగ్గా టైప్ చేయండి లేదా GPS ఉపయోగించండి.
-            </div>
-          ) : null}
         </div>
       )}
 

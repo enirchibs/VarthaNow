@@ -451,14 +451,20 @@ export async function detectDetailedGPSArea(): Promise<DetailedAreaResult | null
   });
 }
 
-// 🔍 Search Area Autocomplete (Queries Supabase DB + Preloaded AP/TS database + live OpenStreetMap Places)
+// // 🔍 Search Area Autocomplete (Prioritizes AP & TS, queries Supabase DB + Preloaded AP/TS + OSM Places)
 export async function searchAreaAutocomplete(query: string): Promise<string[]> {
   if (!query || query.trim().length < 2) return [];
 
   const cleanQuery = query.toLowerCase().trim();
-  let dbMatches: string[] = [];
+  const apTsDbMatches: string[] = [];
+  const otherDbMatches: string[] = [];
 
-  // 1. Query Supabase Database Tables (osm_locations & india_post_locations)
+  // 1. Filter local preloaded AP/TS database (highest relevance for Telugu users)
+  const localMatches = PRELOADED_AP_TS_LOCATIONS
+    .filter((loc) => loc.name_te.toLowerCase().includes(cleanQuery) || loc.name_en.toLowerCase().includes(cleanQuery))
+    .map((loc) => loc.name_te);
+
+  // 2. Query Supabase Database Tables (osm_locations & india_post_locations)
   if (supabase) {
     try {
       const [osmRes, postRes] = await Promise.all([
@@ -466,23 +472,30 @@ export async function searchAreaAutocomplete(query: string): Promise<string[]> {
           .from("osm_locations")
           .select("name, mandal, district, state")
           .or(`name.ilike.%${cleanQuery}%,mandal.ilike.%${cleanQuery}%,district.ilike.%${cleanQuery}%`)
-          .limit(8),
+          .limit(10),
         supabase
           .from("india_post_locations")
           .select("office_name, district, state, pincode")
           .or(`office_name.ilike.%${cleanQuery}%,district.ilike.%${cleanQuery}%`)
-          .limit(8)
+          .limit(15)
       ]);
 
       if (osmRes.data) {
         osmRes.data.forEach((row: any) => {
-          if (row.name) dbMatches.push(row.name);
+          if (row.name) {
+            const isApTs = /andhra|telangana|ap|ts/i.test(row.state || "");
+            if (isApTs) apTsDbMatches.push(row.name);
+            else otherDbMatches.push(row.name);
+          }
         });
       }
       if (postRes.data) {
         postRes.data.forEach((row: any) => {
           if (row.office_name && row.district) {
-            dbMatches.push(`${row.office_name}, ${row.district} (${row.pincode || row.state})`);
+            const entry = `${row.office_name}, ${row.district} (${row.pincode || row.state})`;
+            const isApTs = /andhra|telangana|ap|ts/i.test(row.state || "");
+            if (isApTs) apTsDbMatches.push(entry);
+            else otherDbMatches.push(entry);
           }
         });
       }
@@ -491,31 +504,45 @@ export async function searchAreaAutocomplete(query: string): Promise<string[]> {
     }
   }
 
-  // 2. Filter local preloaded database
-  const localMatches = PRELOADED_AP_TS_LOCATIONS
-    .filter((loc) => loc.name_te.toLowerCase().includes(cleanQuery) || loc.name_en.toLowerCase().includes(cleanQuery))
-    .map((loc) => loc.name_te);
-
-  // 3. Fetch live OpenStreetMap Nominatim search results as fallback
+  // 3. Fetch live OpenStreetMap Nominatim search results as fallback if needed
   let liveMatches: string[] = [];
-  try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&countrycodes=in&limit=6`,
-      { headers: { "User-Agent": "VarthaNow-Places-Search" } }
-    );
-    if (response.ok) {
-      const data = await response.json();
-      liveMatches = data.map((item: any) => {
-        const parts = item.display_name.split(",");
-        return parts.slice(0, 3).map((p: string) => p.trim()).join(", ");
-      });
+  if (localMatches.length + apTsDbMatches.length < 5) {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&countrycodes=in&limit=6`,
+        { headers: { "User-Agent": "VarthaNow-Places-Search" } }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        liveMatches = data.map((item: any) => {
+          const parts = item.display_name.split(",");
+          return parts.slice(0, 3).map((p: string) => p.trim()).join(", ");
+        });
+      }
+    } catch (err) {
+      console.warn("Live OSM search fallback:", err);
     }
-  } catch (err) {
-    console.warn("Live OSM search fallback:", err);
   }
 
-  // Combine and deduplicate
-  const combined = Array.from(new Set([...dbMatches, ...localMatches, ...liveMatches]));
+  // Combine and sort with priority:
+  // 1. AP & TS matches
+  // 2. Prefix matches (starting with the search query)
+  const apTsCombined = Array.from(new Set([...localMatches, ...apTsDbMatches]));
+  const otherCombined = Array.from(new Set([...liveMatches, ...otherDbMatches]));
+
+  apTsCombined.sort((a, b) => {
+    const aStarts = a.toLowerCase().startsWith(cleanQuery) ? 0 : 1;
+    const bStarts = b.toLowerCase().startsWith(cleanQuery) ? 0 : 1;
+    return aStarts - bStarts;
+  });
+
+  otherCombined.sort((a, b) => {
+    const aStarts = a.toLowerCase().startsWith(cleanQuery) ? 0 : 1;
+    const bStarts = b.toLowerCase().startsWith(cleanQuery) ? 0 : 1;
+    return aStarts - bStarts;
+  });
+
+  const combined = Array.from(new Set([...apTsCombined, ...otherCombined]));
   return combined.slice(0, 10);
 }
 
