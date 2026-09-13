@@ -505,7 +505,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                     onChange={(e) => setItemType(e.target.value)}
                     className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer"
                   >
-                    <optgroup label="👷 పనివాళ్లు (Skilled Workers)">
+                    <optgroup label="👷 సేవా నిపుణులు (Service Professionals)">
                       <option value="🚰 Plumber — ప్లంబర్">🚰 Plumber — ప్లంబర్</option>
                       <option value="⚡ Electrician — ఎలక్ట్రీషియన్">⚡ Electrician — ఎలక్ట్రీషియన్</option>
                       <option value="🧱 Mason — మేస్త్రీ">🧱 Mason — మేస్త్రీ</option>

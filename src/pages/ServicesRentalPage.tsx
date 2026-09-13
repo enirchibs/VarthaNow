@@ -45,7 +45,7 @@ export interface ServiceRentalItem {
 const SERVICE_GROUPS = [
   {
     id: "workers",
-    title: "👷 పనివాళ్లు (Skilled Workers)",
+    title: "👷 సేవా నిపుణులు (Service Professionals)",
     icon: HardHat,
     items: [
       "🚰 Plumber — ప్లంబర్",
@@ -714,7 +714,7 @@ export function ServicesRentalPage() {
                       }}
                       className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
                     >
-                      <option value="workers">👷 పనివాళ్లు (Skilled Workers)</option>
+                      <option value="workers">👷 సేవా నిపుణులు (Service Professionals)</option>
                       <option value="farm_machines">🚜 వ్యవసాయ యంత్రాలు (Agricultural Machinery)</option>
                       <option value="construction">🏗️ నిర్మాణ సేవలు (Construction Services)</option>
                       <option value="events">🎪 కార్యక్రమాల సేవలు (Event & Function Services)</option>
