@@ -61,7 +61,7 @@ export function LocationAreaSelector({
   placeholder = "ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ... (Anandapuram, Kukatpally, Vijayawada...)",
   required = false
 }: LocationAreaSelectorProps) {
-  const [isGpsSelected, setIsGpsSelected] = useState(false);
+  const [isAreaConfirmed, setIsAreaConfirmed] = useState(false);
   const [query, setQuery] = useState(value || "");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isDetectingGPS, setIsDetectingGPS] = useState(false);
@@ -97,7 +97,7 @@ export function LocationAreaSelector({
     setQuery(val);
     onChange(val);
     setGpsSuccessMsg("");
-    setIsGpsSelected(false);
+    setIsAreaConfirmed(false);
 
     const isTelugu = /[\u0C00-\u0C7F]/.test(val);
     const minChars = isTelugu ? 2 : 3;
@@ -120,15 +120,15 @@ export function LocationAreaSelector({
     }
   };
 
-  // Select suggestion
+  // Select suggestion (shows complete address, sets red border and confirmation remark)
   const handleSelectArea = async (areaStr: string) => {
     let teluguArea = areaStr;
-    if (!/[\u0C00-\u0C7F]/.test(teluguArea)) {
+    if (/[a-zA-Z]/.test(teluguArea)) {
       teluguArea = await convertAreaToTelugu(teluguArea);
     }
     setQuery(teluguArea);
     onChange(teluguArea);
-    setIsGpsSelected(false);
+    setIsAreaConfirmed(true);
     setShowDropdown(false);
     setSuggestions([]);
   };
@@ -150,7 +150,7 @@ export function LocationAreaSelector({
         }
         setQuery(areaStr);
         onChange(areaStr);
-        setIsGpsSelected(true);
+        setIsAreaConfirmed(true);
         setGpsSuccessMsg(`🎯 నా ప్రస్తుత ప్రాంతం గుర్తించబడింది: ${areaStr}`);
         setShowDropdown(false);
         setShowGpsModal(false);
@@ -182,7 +182,7 @@ export function LocationAreaSelector({
                 onClick={() => {
                   setQuery("");
                   onChange("");
-                  setIsGpsSelected(false);
+                  setIsAreaConfirmed(false);
                   setSuggestions([]);
                   setShowDropdown(false);
                   setGpsSuccessMsg("");
@@ -198,8 +198,8 @@ export function LocationAreaSelector({
 
       {/* 1. 🔍 First: Search Area by Name */}
       <div className="relative">
-        {isGpsSelected ? (
-          <Navigation className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-red-500 pointer-events-none z-20 animate-pulse" />
+        {isAreaConfirmed ? (
+          <MapPin className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-red-500 pointer-events-none z-20 animate-pulse" />
         ) : (
           <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-blue-600 pointer-events-none z-20" />
         )}
@@ -231,7 +231,7 @@ export function LocationAreaSelector({
           }}
           placeholder={placeholder}
           className={`w-full h-11 pl-10 pr-10 rounded-xl text-xs font-bold outline-none transition relative z-10 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-normal ${
-            isGpsSelected
+            isAreaConfirmed
               ? "border-2 border-red-500 ring-4 ring-red-500/20 bg-red-50/30 dark:bg-red-950/20 shadow-sm"
               : "border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
           }`}
@@ -245,7 +245,7 @@ export function LocationAreaSelector({
             onClick={() => {
               setQuery("");
               onChange("");
-              setIsGpsSelected(false);
+              setIsAreaConfirmed(false);
               setSuggestions([]);
               setShowDropdown(false);
               setGpsSuccessMsg("");
@@ -289,15 +289,15 @@ export function LocationAreaSelector({
         )}
       </div>
 
-      {/* GPS Selected Notification Badge */}
-      {isGpsSelected && (
-        <div className="text-[11px] font-bold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40 p-2 rounded-xl border border-red-300 dark:border-red-800 flex items-center justify-between gap-1.5 animate-in fade-in duration-200">
+      {/* Remark Banner: Place Identified, Proceed Further */}
+      {isAreaConfirmed && (
+        <div className="text-[11px] font-bold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40 p-2.5 rounded-xl border border-red-300 dark:border-red-800 flex items-center justify-between gap-1.5 animate-in fade-in duration-200">
           <div className="flex items-center gap-1.5 truncate">
-            <Navigation className="size-3.5 text-red-600 shrink-0 animate-pulse" />
-            <span className="truncate">🎯 GPS ద్వారా ప్రాంతం నిర్ధారించబడింది</span>
+            <Check className="size-4 text-red-600 shrink-0" />
+            <span className="truncate">🎯 ప్రాంతం గుర్తించబడింది, దయచేసి ముందుకు కొనసాగండి</span>
           </div>
-          <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-sm bg-red-600 text-white shrink-0">
-            GPS
+          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-red-600 text-white shrink-0">
+            గుర్తించబడింది
           </span>
         </div>
       )}
