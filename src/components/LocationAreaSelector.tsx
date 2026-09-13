@@ -7,11 +7,13 @@ import {
   RefreshCw, 
   Sparkles, 
   AlertTriangle, 
-  X
+  X,
+  Languages
 } from "lucide-react";
 import { 
   detectDetailedGPSArea, 
   searchAreaAutocomplete, 
+  convertAreaToTelugu,
   DetailedAreaResult
 } from "@/lib/location-detector";
 
@@ -135,7 +137,11 @@ export function LocationAreaSelector({
       const result: DetailedAreaResult | null = await detectDetailedGPSArea();
       
       if (result && result.formatted_address) {
-        const areaStr = result.formatted_address;
+        let areaStr = result.formatted_address;
+        // 🌐 Ensure conversion into Telugu if English text remains
+        if (!/[\u0C00-\u0C7F]/.test(areaStr)) {
+          areaStr = await convertAreaToTelugu(areaStr);
+        }
         setQuery(areaStr);
         onChange(areaStr);
         setIsGpsSelected(true);
@@ -159,26 +165,45 @@ export function LocationAreaSelector({
   return (
     <div className="space-y-2 relative" ref={dropdownRef}>
       {label && (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))]">
             {label} {required && <span className="text-red-500">*</span>}
           </label>
-          {query && (
-            <button
-              type="button"
-              onClick={() => {
-                setQuery("");
-                onChange("");
-                setIsGpsSelected(false);
-                setSuggestions([]);
-                setShowDropdown(false);
-                setGpsSuccessMsg("");
-              }}
-              className="text-[11px] font-bold text-rose-500 hover:underline cursor-pointer"
-            >
-              క్లియర్ (Clear)
-            </button>
-          )}
+          <div className="flex items-center gap-2 shrink-0">
+            {query && /[a-zA-Z]/.test(query) && (
+              <button
+                type="button"
+                onClick={async () => {
+                  const te = await convertAreaToTelugu(query);
+                  if (te && te !== query) {
+                    setQuery(te);
+                    onChange(te);
+                  }
+                }}
+                className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800"
+                title="Convert location name to Telugu"
+              >
+                <Languages className="size-3" />
+                <span>తెలుగులోకి మార్చు</span>
+              </button>
+            )}
+            {query && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  onChange("");
+                  setIsGpsSelected(false);
+                  setSuggestions([]);
+                  setShowDropdown(false);
+                  setGpsSuccessMsg("");
+                }}
+                className="text-[11px] font-bold text-rose-500 hover:underline cursor-pointer"
+              >
+                క్లియర్ (Clear)
+              </button>
+            )}
+          </div>
         </div>
       )}
 

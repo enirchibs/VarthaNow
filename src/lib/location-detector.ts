@@ -359,6 +359,86 @@ export const AP_TS_DISTRICTS_MANDALS: DistrictMandalData[] = [
   }
 ];
 
+// 🌐 Convert English Area / Locality names into standard Telugu
+export async function convertAreaToTelugu(englishText: string): Promise<string> {
+  if (!englishText || !englishText.trim()) return "";
+  
+  // If already predominantly Telugu, return as is
+  if (/[\u0C00-\u0C7F]/.test(englishText)) {
+    return englishText;
+  }
+
+  // 1. Google Translate API (en -> te)
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=te&dt=t&q=${encodeURIComponent(englishText.trim())}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data[0] && Array.isArray(data[0])) {
+        const teluguStr = data[0].map((item: any) => item[0]).filter(Boolean).join("").trim();
+        if (teluguStr && /[\u0C00-\u0C7F]/.test(teluguStr)) {
+          return teluguStr;
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Google translate to Telugu error:", err);
+  }
+
+  // 2. MyMemory Translation API fallback
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(englishText.trim())}&langpair=en|te`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data?.responseData?.translatedText && /[\u0C00-\u0C7F]/.test(data.responseData.translatedText)) {
+        return data.responseData.translatedText.trim();
+      }
+    }
+  } catch (err) {
+    console.warn("MyMemory translation fallback error:", err);
+  }
+
+  // 3. Fallback dictionary replacements for common words & localities
+  let translated = englishText;
+  const dict: Record<string, string> = {
+    "Ward": "వార్డ్",
+    "East": "ఈస్ట్ (తూర్పు)",
+    "West": "వెస్ట్ (పశ్చిమ)",
+    "North": "నార్త్ (ఉత్తర)",
+    "South": "సౌత్ (దక్షిణ)",
+    "Hyderabad": "హైదరాబాద్",
+    "Visakhapatnam": "విశాఖపట్నం",
+    "Vijayawada": "విజయవాడ",
+    "Guntur": "గుంటూరు",
+    "Tirupati": "తిరుపతి",
+    "Rajahmundry": "రాజమండ్రి",
+    "Kakinada": "కాకినాడ",
+    "Kurnool": "కర్నూలు",
+    "Nellore": "నెల్లూరు",
+    "Kadapa": "కడప",
+    "Anantapur": "అనంతపురం",
+    "Vizianagaram": "విజయనగరం",
+    "Srikakulam": "శ్రీకాకుళం",
+    "Warangal": "వరంగల్",
+    "Secunderabad": "సికింద్రాబాద్",
+    "Bagh": "బాగ్",
+    "Nagar": "నగర్",
+    "Colony": "కాలనీ",
+    "Road": "రోడ్డు",
+    "Street": "వీధి",
+    "Village": "గ్రామం",
+    "Mandal": "మండలం"
+  };
+
+  for (const [en, te] of Object.entries(dict)) {
+    const re = new RegExp(`\\b${en}\\b`, "gi");
+    translated = translated.replace(re, te);
+  }
+
+  return translated;
+}
+
 // 🎯 Detect Detailed GPS Area (Street, Village, Mandal, City, District) with precise Error Types
 export async function detectDetailedGPSArea(): Promise<DetailedAreaResult | null> {
   if (!navigator.geolocation) {
@@ -377,7 +457,7 @@ export async function detectDetailedGPSArea(): Promise<DetailedAreaResult | null
         const { latitude, longitude } = position.coords;
         try {
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=te,en`,
             { headers: { "User-Agent": "VarthaNow-Location-Detector" } }
           );
 
@@ -400,8 +480,16 @@ export async function detectDetailedGPSArea(): Promise<DetailedAreaResult | null
             formatted = data.display_name.split(",").slice(0, 3).join(",");
           }
 
+          // 🌐 Convert English place names to Telugu
+          let teluguAddress = formatted;
+          try {
+            teluguAddress = await convertAreaToTelugu(formatted);
+          } catch (e) {
+            console.warn("Telugu conversion error:", e);
+          }
+
           const result: DetailedAreaResult = {
-            formatted_address: formatted,
+            formatted_address: teluguAddress || formatted,
             suburb_village: suburbOrVillage,
             city_town: cityOrTown || "Visakhapatnam",
             district_mandal: mandalOrDist,
