@@ -319,24 +319,24 @@ export function SimpleStepCounter() {
 
   return (
     <div className="w-full max-w-sm sm:max-w-md mx-auto">
-      <div className="bg-[hsl(var(--card))] border border-emerald-500/30 dark:border-emerald-500/40 rounded-2xl p-3 sm:p-3.5 shadow-sm text-center space-y-2.5 transition-all">
+      <div className="bg-[hsl(var(--card))] border border-emerald-500/30 dark:border-emerald-500/40 rounded-2xl p-2.5 sm:p-3 shadow-xs text-center space-y-2 transition-all">
         {/* Title Header */}
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-1.5">
             <Footprints className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-            <h2 className="text-[11px] font-black tracking-wider text-[hsl(var(--foreground))] uppercase">
+            <h2 className="text-[10px] sm:text-[11px] font-black tracking-wider text-[hsl(var(--foreground))] uppercase">
               Step Counter
             </h2>
           </div>
 
           {/* Live Walking Status Indicator */}
           {isRunning && isWalking ? (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[9px] font-bold tracking-wider">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[8.5px] font-bold tracking-wider">
               <span className="size-1.5 rounded-full bg-emerald-500 animate-ping" />
               ● WALKING
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] text-[9px] font-bold tracking-wider">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] text-[8.5px] font-bold tracking-wider">
               <span className="size-1 rounded-full bg-zinc-400 dark:bg-zinc-500" />
               ○ NOT WALKING
             </span>
@@ -344,28 +344,28 @@ export function SimpleStepCounter() {
         </div>
 
         {/* Compact Step Display */}
-        <div className="py-0.5 flex items-baseline justify-center gap-2">
-          <div className="text-3xl sm:text-4xl font-black tracking-tight text-[hsl(var(--foreground))] font-mono">
+        <div className="py-0 flex items-baseline justify-center gap-1.5">
+          <div className="text-2xl sm:text-3xl font-black tracking-tight text-[hsl(var(--foreground))] font-mono">
             {steps.toLocaleString()}
           </div>
-          <div className="text-[10px] font-bold tracking-widest text-[hsl(var(--muted-foreground))] uppercase">
+          <div className="text-[9.5px] font-bold tracking-wider text-[hsl(var(--muted-foreground))] uppercase">
             Steps Today
           </div>
         </div>
 
         {/* Error message */}
         {errorMessage && (
-          <div className="flex items-center justify-center gap-1.5 text-[10px] font-bold text-rose-600 bg-rose-500/10 p-1.5 rounded-lg border border-rose-500/20">
+          <div className="flex items-center justify-center gap-1 text-[9.5px] font-bold text-rose-600 bg-rose-500/10 p-1.5 rounded-lg border border-rose-500/20">
             <AlertCircle className="size-3 shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
 
         {/* Action Buttons: START / STOP and RESET */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-1.5">
           <button
             onClick={handleToggleStart}
-            className={`flex items-center justify-center gap-1.5 py-1.5 sm:py-2 px-3 rounded-xl font-bold text-xs tracking-wider uppercase transition active:scale-95 shadow-xs ${
+            className={`flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl font-bold text-xs tracking-wider uppercase transition active:scale-95 shadow-xs ${
               isRunning
                 ? "bg-rose-600 hover:bg-rose-700 text-white shadow-rose-600/20"
                 : "bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20"
@@ -386,7 +386,7 @@ export function SimpleStepCounter() {
 
           <button
             onClick={handleReset}
-            className="flex items-center justify-center gap-1.5 py-1.5 sm:py-2 px-3 rounded-xl font-bold text-xs tracking-wider uppercase transition active:scale-95 bg-[hsl(var(--muted))] hover:bg-[hsl(var(--muted))]/80 text-[hsl(var(--foreground))] border border-[hsl(var(--border))]"
+            className="flex items-center justify-center gap-1.5 py-1.5 px-2.5 rounded-xl font-bold text-xs tracking-wider uppercase transition active:scale-95 bg-[hsl(var(--muted))] hover:bg-[hsl(var(--muted))]/80 text-[hsl(var(--foreground))] border border-[hsl(var(--border))]"
           >
             <RotateCcw className="size-3" />
             RESET
@@ -395,11 +395,11 @@ export function SimpleStepCounter() {
 
         {/* Desktop / Dev testing simulator fallback (unobtrusive) */}
         {isRunning && !hasSensorEvent && (
-          <div className="pt-1.5 border-t border-[hsl(var(--border))]/50 flex items-center justify-between text-[10px]">
+          <div className="pt-1 border-t border-[hsl(var(--border))]/50 flex items-center justify-between text-[9px]">
             <span className="text-[hsl(var(--muted-foreground))]">Sensor listening...</span>
             <button
               onClick={() => registerStep("web")}
-              className="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 hover:bg-emerald-500/20 transition"
+              className="font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 hover:bg-emerald-500/20 transition"
             >
               +1 Step (Test)
             </button>
@@ -407,27 +407,27 @@ export function SimpleStepCounter() {
         )}
 
         {/* 📅 Last 1 Week (7 Days) Step History */}
-        <div className="pt-2 border-t border-[hsl(var(--border))]/60 space-y-1.5 text-left">
-          <div className="flex items-center justify-between text-[11px] font-black">
+        <div className="pt-1.5 border-t border-[hsl(var(--border))]/60 space-y-1 text-left">
+          <div className="flex items-center justify-between text-[10px] font-black">
             <div className="flex items-center gap-1 text-[hsl(var(--foreground))] uppercase tracking-wider">
               <Calendar className="size-3 text-emerald-600 dark:text-emerald-400" />
               <span>Last 7 Days History</span>
             </div>
-            <span className="text-[9px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-bold">
+            <span className="text-[8.5px] text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded-full border border-emerald-500/20 font-bold">
               Avg: {avgSteps.toLocaleString()} / day
             </span>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 pt-1 items-end bg-[hsl(var(--muted))]/40 p-2 rounded-xl border border-[hsl(var(--border))]/40">
+          <div className="grid grid-cols-7 gap-1 pt-0.5 items-end bg-[hsl(var(--muted))]/40 p-1.5 rounded-xl border border-[hsl(var(--border))]/40">
             {past7Days.map((item) => {
-              const heightPercent = Math.min(100, Math.max(14, Math.round((item.steps / maxStepsInHistory) * 100)));
+              const heightPercent = Math.min(100, Math.max(16, Math.round((item.steps / maxStepsInHistory) * 100)));
               const targetReached = item.steps >= 7000;
               return (
-                <div key={item.dateKey} className="flex flex-col items-center gap-1">
-                  <span className="text-[8px] font-bold text-[hsl(var(--muted-foreground))] leading-none">
+                <div key={item.dateKey} className="flex flex-col items-center gap-0.5">
+                  <span className="text-[7.5px] font-bold text-[hsl(var(--muted-foreground))] leading-none">
                     {item.steps >= 1000 ? `${(item.steps / 1000).toFixed(1)}k` : item.steps}
                   </span>
-                  <div className="w-full bg-[hsl(var(--muted))] rounded-full h-11 flex items-end justify-center p-0.5">
+                  <div className="w-full bg-[hsl(var(--muted))] rounded-full h-8 sm:h-9 flex items-end justify-center p-0.5">
                     <div
                       style={{ height: `${heightPercent}%` }}
                       className={`w-full rounded-full transition-all duration-300 ${
@@ -441,7 +441,7 @@ export function SimpleStepCounter() {
                     />
                   </div>
                   <span
-                    className={`text-[9px] font-black tracking-tight leading-none ${
+                    className={`text-[8.5px] font-black tracking-tight leading-none ${
                       item.isToday
                         ? "text-emerald-600 dark:text-emerald-400 underline underline-offset-2"
                         : "text-[hsl(var(--muted-foreground))]"
@@ -456,21 +456,21 @@ export function SimpleStepCounter() {
         </div>
 
         {/* 💡 Daily Step Tip */}
-        <div className="pt-2 border-t border-[hsl(var(--border))]/60 text-left space-y-1.5 bg-[hsl(var(--muted))]/40 p-2.5 rounded-xl border border-amber-500/25">
-          <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-black text-[11px] uppercase tracking-wider">
+        <div className="pt-1.5 border-t border-[hsl(var(--border))]/60 text-left space-y-1 bg-[hsl(var(--muted))]/40 p-2 rounded-xl border border-amber-500/25">
+          <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-black text-[10px] uppercase tracking-wider">
             <span className="text-xs">💡</span>
             <span>Daily Step Tip</span>
           </div>
 
-          <p className="text-[10px] sm:text-[11px] leading-snug text-[hsl(var(--foreground))] font-medium">
+          <p className="text-[9.5px] sm:text-[10.5px] leading-snug text-[hsl(var(--foreground))] font-medium">
             Aim for <strong className="text-emerald-600 dark:text-emerald-400 font-bold">7,000–8,000 steps a day</strong> — a good target for many adults.
           </p>
 
-          <p className="text-[10px] sm:text-[11px] leading-snug text-[hsl(var(--foreground))] font-medium">
+          <p className="text-[9.5px] sm:text-[10.5px] leading-snug text-[hsl(var(--foreground))] font-medium">
             🚶 <strong className="text-blue-600 dark:text-blue-400 font-bold">8,000–10,000 steps</strong> is very good activity, supporting heart health and <strong className="text-rose-600 dark:text-rose-400 font-bold">lowering the risk of heart disease and heart attack</strong>.
           </p>
 
-          <p className="text-[10px] sm:text-[11px] leading-snug text-[hsl(var(--foreground))] font-bold pt-0.5">
+          <p className="text-[9.5px] sm:text-[10.5px] leading-snug text-[hsl(var(--foreground))] font-bold pt-0.5">
             ❤️ Every step counts. Start walking today, keep moving, and take a step toward a healthier heart! 👟💪
           </p>
         </div>

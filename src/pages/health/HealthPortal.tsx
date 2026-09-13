@@ -145,7 +145,7 @@ const REMEDIES: Record<string, RemedyData> = {
   turmeric: {
     nameTe: "పసుపు (Turmeric)",
     nameEn: "Turmeric (Haldi)",
-    image: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1615485500704-8e990f9900f7?auto=format&fit=crop&w=600&q=80",
     traditionalUse: "శరీరంలో రోగ నిరోధక శక్తి పెంచడానికి, గాయాలు తగ్గించడానికి మరియు చర్మ సౌందర్యానికి సంప్రదాయబద్ధంగా పసుపును వాడుతారు.",
     traditionalUseEn: "Widely used to boost natural immunity, accelerate tissue repair, and protect against inflammation.",
     benefits: ["యాంటీ ఇన్‌ఫ్లమేటరీ లక్షణాలు కలిగి ఉండడం", "యాంటీ ఆక్సిడెంట్లు పుష్కలంగా ఉండడం", "జీర్ణక్రియను మెరుగుపరచడం"],
@@ -619,32 +619,32 @@ export function HealthPortal() {
         </button>
       </div>
 
-      {/* Hero Slider Banner - Compact & Modern */}
-      <section className={`relative min-h-[170px] sm:min-h-[190px] bg-gradient-to-br ${slides[activeSlide].bg} flex items-center py-5 sm:py-6 px-4 sm:px-6 lg:px-8 text-center text-white overflow-hidden transition-all duration-700`}>
+      {/* Hero Slider Banner - Ultra Compact & Modern */}
+      <section className={`relative min-h-[130px] sm:min-h-[160px] bg-gradient-to-br ${slides[activeSlide].bg} flex items-center py-3 sm:py-4 px-3 sm:px-6 text-center text-white overflow-hidden transition-all duration-700`}>
         <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
         
-        <div className="max-w-3xl mx-auto space-y-2 relative z-10">
-          <span className="inline-flex items-center gap-1.5 text-[10px] sm:text-xs font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 uppercase tracking-wider">
-            <Heart className="size-3 text-emerald-400 animate-pulse" />
+        <div className="max-w-3xl mx-auto space-y-1 sm:space-y-1.5 relative z-10">
+          <span className="inline-flex items-center gap-1 text-[9px] sm:text-[11px] font-black text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 uppercase tracking-wider">
+            <Heart className="size-2.5 sm:size-3 text-emerald-400 animate-pulse" />
             VaartaNow AI Health Hub
           </span>
           
-          <h1 className="text-lg sm:text-2xl font-black leading-snug tracking-tight">
+          <h1 className="text-sm sm:text-xl font-black leading-tight tracking-tight">
             {isTe ? slides[activeSlide].titleTe : slides[activeSlide].titleEn}
           </h1>
-          <p className="text-white/85 max-w-xl mx-auto text-[11px] sm:text-xs font-medium leading-relaxed line-clamp-2">
+          <p className="text-white/85 max-w-xl mx-auto text-[10px] sm:text-xs font-medium leading-tight line-clamp-1">
             {isTe ? slides[activeSlide].descTe : slides[activeSlide].descEn}
           </p>
 
-          <div className="relative max-w-md mx-auto pt-0.5">
+          <div className="relative max-w-sm mx-auto pt-0.5">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={isTe ? "జ్వరం, జలుబు, అసిడిటీ లేదా వంటింటి చిట్కాలు వెతకండి..." : "Search Fever, Cold, Acidity, or Remedies..."}
-              className="w-full text-xs font-medium pl-9 pr-3 py-2 rounded-xl border border-white/20 bg-white/10 text-white placeholder-white/60 backdrop-blur-md focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all"
+              className="w-full text-xs font-medium pl-8 pr-3 py-1.5 rounded-xl border border-white/20 bg-white/10 text-white placeholder-white/60 backdrop-blur-md focus:ring-1 focus:ring-emerald-500 focus:outline-none transition-all"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/60 size-3.5" />
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/60 size-3" />
             
             {searchResults.length > 0 && (
               <div className="absolute z-50 left-0 right-0 top-[calc(100%+4px)] bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-xl shadow-lg max-h-56 overflow-y-auto no-scrollbar">
@@ -690,26 +690,24 @@ export function HealthPortal() {
           <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "ప్రతి రోగానికి సంబంధించిన పూర్తి సమాచారం కనుగొనండి" : "Explore evidence-based health directories"}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {MAIN_CATEGORIES.map((cat) => {
             const IconComp = cat.icon;
             return (
               <Link
                 to={`/health/${cat.key}`}
                 key={cat.key}
-                className="group flex items-center gap-3 bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 sm:p-3.5 rounded-xl shadow-xs hover:shadow-sm transition active:scale-[0.99] text-left"
+                className="group flex flex-col items-center text-center bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-2 sm:p-3 rounded-xl shadow-xs hover:shadow-sm transition active:scale-[0.99]"
               >
-                <div className={`size-10 rounded-lg flex items-center justify-center shrink-0 text-white ${cat.color}`}>
-                  <IconComp className="size-5" />
+                <div className={`size-8 sm:size-10 rounded-lg flex items-center justify-center text-white ${cat.color} mb-1 sm:mb-1.5`}>
+                  <IconComp className="size-4 sm:size-5" />
                 </div>
-                <div className="space-y-0.5 min-w-0">
-                  <h3 className="text-xs font-black text-[hsl(var(--foreground))] group-hover:text-emerald-600 transition truncate">
-                    {isTe ? cat.nameTe : cat.nameEn}
-                  </h3>
-                  <p className="text-[10px] font-medium text-[hsl(var(--muted-foreground))] truncate">
-                    {isTe ? cat.descTe : cat.descEn}
-                  </p>
-                </div>
+                <h3 className="text-[10px] sm:text-xs font-black text-[hsl(var(--foreground))] group-hover:text-emerald-600 transition line-clamp-1">
+                  {isTe ? cat.nameTe : cat.nameEn}
+                </h3>
+                <p className="text-[8px] sm:text-[10px] font-medium text-[hsl(var(--muted-foreground))] line-clamp-1 hidden sm:block">
+                  {isTe ? cat.descTe : cat.descEn}
+                </p>
               </Link>
             );
           })}
@@ -728,14 +726,14 @@ export function HealthPortal() {
 
         <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-2xl overflow-hidden shadow-xs grid grid-cols-1 lg:grid-cols-4">
           {/* Tabs Sidebar */}
-          <div className="bg-[hsl(var(--muted))]/30 border-r border-[hsl(var(--border))]/40 p-2 sm:p-3 space-y-1 flex lg:flex-col overflow-x-auto lg:overflow-x-visible no-scrollbar">
+          <div className="bg-[hsl(var(--muted))]/30 border-b lg:border-b-0 lg:border-r border-[hsl(var(--border))]/40 p-1.5 sm:p-2.5 flex flex-row lg:flex-col gap-1 overflow-x-auto no-scrollbar">
             {(["male", "female", "ivf", "iui", "pcos"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveInfertilityTab(tab)}
-                className={`w-full text-left text-xs font-black px-3 py-2 rounded-lg transition shrink-0 lg:shrink-1 ${
+                className={`whitespace-nowrap text-left text-[11px] sm:text-xs font-black px-2.5 py-1.5 rounded-lg transition shrink-0 lg:w-full ${
                   activeInfertilityTab === tab 
-                    ? "bg-rose-500/10 text-rose-700" 
+                    ? "bg-rose-600 text-white shadow-xs" 
                     : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
                 }`}
               >
@@ -846,22 +844,22 @@ export function HealthPortal() {
             <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "మన వంటింట్లో లభించే ఔషధ గుణాలున్న వస్తువుల ఉపయోగాలు" : "Evidence levels & traditional benefits of kitchen items"}</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
             {Object.entries(REMEDIES).map(([key, r]) => (
               <Link
                 to={`/health/${key}`}
                 key={key}
-                className="flex flex-col sm:flex-row gap-3 bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 rounded-xl hover:shadow-sm transition active:scale-[0.99]"
+                className="flex flex-row items-center gap-2.5 bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-2 sm:p-2.5 rounded-xl hover:shadow-xs transition active:scale-[0.99]"
               >
-                <img src={r.image} alt={r.nameEn} className="w-full sm:w-28 aspect-video sm:aspect-square object-cover rounded-lg" />
-                <div className="flex-1 flex flex-col justify-between py-0.5">
+                <img src={r.image} alt={r.nameEn} className="size-16 sm:size-20 rounded-lg object-cover shrink-0" />
+                <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                   <div>
-                    <h3 className="text-xs font-black text-[hsl(var(--foreground))]">{isTe ? r.nameTe : r.nameEn}</h3>
-                    <p className="text-[10px] text-[hsl(var(--muted-foreground))] font-medium leading-snug line-clamp-2 mt-1">
+                    <h3 className="text-xs font-black text-[hsl(var(--foreground))] truncate">{isTe ? r.nameTe : r.nameEn}</h3>
+                    <p className="text-[10px] text-[hsl(var(--muted-foreground))] font-medium leading-tight line-clamp-2 mt-0.5">
                       {isTe ? r.traditionalUse : r.traditionalUseEn}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-2 text-[10px] font-black text-emerald-600">
+                  <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-1 mt-1 text-[9px] sm:text-[10px] font-black text-emerald-600">
                     <span>{isTe ? "శాస్త్రీయ ఆధారం:" : "Evidence:"} {isTe ? (r.evidence === "High" ? "అత్యధికం (High)" : r.evidence === "Moderate" ? "మధ్యస్థం (Moderate)" : "పరిమితం (Limited)") : r.evidence}</span>
                     <span className="flex items-center gap-0.5">{isTe ? "పూర్తి వివరాలు" : "Read details"} <ChevronRight className="size-3" /></span>
                   </div>
@@ -882,26 +880,26 @@ export function HealthPortal() {
           <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "ఆరోగ్యకరమైన అలవాట్లతో సమతుల్య జీవనం" : "Balance your body & mind with simple wellness pillars"}</p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 rounded-xl flex flex-col items-center text-center space-y-1">
-            <Droplet className="size-6 text-blue-500 animate-bounce" />
-            <h4 className="text-xs font-black">{isTe ? "హైడ్రేషన్ (Hydration)" : "Hydration"}</h4>
-            <p className="text-[9px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "రోజూ తగినంత నీరు తాగండి" : "Keep drinking water daily"}</p>
+        <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-2 sm:p-3 rounded-xl flex flex-col items-center text-center space-y-1">
+            <Droplet className="size-5 sm:size-6 text-blue-500 animate-bounce" />
+            <h4 className="text-[10px] sm:text-xs font-black">{isTe ? "హైడ్రేషన్" : "Hydration"}</h4>
+            <p className="text-[8px] sm:text-[9px] font-medium text-[hsl(var(--muted-foreground))] hidden sm:block">{isTe ? "రోజూ తగినంత నీరు తాగండి" : "Drink water daily"}</p>
           </div>
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 rounded-xl flex flex-col items-center text-center space-y-1">
-            <Moon className="size-6 text-indigo-500" />
-            <h4 className="text-xs font-black">{isTe ? "నిద్ర (Sleep)" : "Sleep"}</h4>
-            <p className="text-[9px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "7-8 గంటల నాణ్యమైన నిద్ర" : "7-8 hours quality sleep"}</p>
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-2 sm:p-3 rounded-xl flex flex-col items-center text-center space-y-1">
+            <Moon className="size-5 sm:size-6 text-indigo-500" />
+            <h4 className="text-[10px] sm:text-xs font-black">{isTe ? "నిద్ర" : "Sleep"}</h4>
+            <p className="text-[8px] sm:text-[9px] font-medium text-[hsl(var(--muted-foreground))] hidden sm:block">{isTe ? "7-8 గంటల నిద్ర" : "7-8 hours sleep"}</p>
           </div>
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 rounded-xl flex flex-col items-center text-center space-y-1">
-            <Smile className="size-6 text-amber-500" />
-            <h4 className="text-xs font-black">{isTe ? "ధ్యానం (Meditation)" : "Meditation"}</h4>
-            <p className="text-[9px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "మానసిక ఒత్తిడిని తగ్గించుకోండి" : "Calm down stress levels"}</p>
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-2 sm:p-3 rounded-xl flex flex-col items-center text-center space-y-1">
+            <Smile className="size-5 sm:size-6 text-amber-500" />
+            <h4 className="text-[10px] sm:text-xs font-black">{isTe ? "ధ్యానం" : "Meditation"}</h4>
+            <p className="text-[8px] sm:text-[9px] font-medium text-[hsl(var(--muted-foreground))] hidden sm:block">{isTe ? "ఒత్తిడి తగ్గించుకోండి" : "Calm stress"}</p>
           </div>
-          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-3 rounded-xl flex flex-col items-center text-center space-y-1">
-            <Zap className="size-6 text-emerald-500" />
-            <h4 className="text-xs font-black">{isTe ? "యోగా (Yoga)" : "Yoga"}</h4>
-            <p className="text-[9px] font-medium text-[hsl(var(--muted-foreground))]">{isTe ? "శరీర దారుఢ్యం & వశ్యత" : "Stretching & flexibility"}</p>
+          <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-2 sm:p-3 rounded-xl flex flex-col items-center text-center space-y-1">
+            <Zap className="size-5 sm:size-6 text-emerald-500" />
+            <h4 className="text-[10px] sm:text-xs font-black">{isTe ? "యోగా" : "Yoga"}</h4>
+            <p className="text-[8px] sm:text-[9px] font-medium text-[hsl(var(--muted-foreground))] hidden sm:block">{isTe ? "శరీర దారుఢ్యం" : "Stretching"}</p>
           </div>
         </div>
       </section>
@@ -920,7 +918,7 @@ export function HealthPortal() {
           <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-2xl overflow-hidden shadow-xs grid grid-cols-1 lg:grid-cols-4">
             
             {/* Calculators Tabs list */}
-            <div className="bg-[hsl(var(--muted))]/30 border-r border-[hsl(var(--border))]/40 p-2 sm:p-3 space-y-1 flex lg:flex-col overflow-x-auto lg:overflow-x-visible no-scrollbar">
+            <div className="bg-[hsl(var(--muted))]/30 border-b lg:border-b-0 lg:border-r border-[hsl(var(--border))]/40 p-1.5 sm:p-2.5 flex flex-row lg:flex-col gap-1 overflow-x-auto no-scrollbar">
               {([
                 { key: "bmi", nameTe: "బి.ఎమ్.ఐ (BMI)", nameEn: "BMI Calculator" },
                 { key: "calories", nameTe: "క్యాలరీలు (Calories)", nameEn: "Calories (BMR)" },
@@ -937,7 +935,7 @@ export function HealthPortal() {
                   onClick={() => {
                     setActiveCalcTab(calc.key);
                   }}
-                  className={`w-full text-left text-xs font-black px-3 py-2 rounded-lg transition shrink-0 lg:shrink-1 ${
+                  className={`whitespace-nowrap text-left text-[11px] sm:text-xs font-black px-2.5 py-1.5 rounded-lg transition shrink-0 lg:w-full ${
                     activeCalcTab === calc.key 
                       ? "bg-emerald-600 text-white shadow-xs" 
                       : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
