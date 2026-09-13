@@ -40,7 +40,7 @@ export function HeaderFlowTicker() {
     },
     {
       id: "weather",
-      badge: "వాతావరణం (GPS)",
+      badge: "వాతావరణ సూచన",
       badgeColor: "bg-sky-600 text-white",
       icon: "⛅",
       text: `${weatherCity}: ${weatherTemp} · ${weatherCond}`,
