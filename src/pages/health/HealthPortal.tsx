@@ -668,6 +668,11 @@ export function HealthPortal() {
             )}
           </div>
 
+          {/* Real-Time Step Counter App (Positioned directly below Search Option) */}
+          <div className="pt-6 max-w-xl mx-auto text-left">
+            <StepTrackerWidget />
+          </div>
+
           {/* Slide Indicator bullets */}
           <div className="flex justify-center gap-2 pt-4">
             {slides.map((_, idx) => (
@@ -848,11 +853,6 @@ export function HealthPortal() {
             <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">Stretching & flexibility</p>
           </div>
         </div>
-      </section>
-
-      {/* Real-Time Physical Step Pedometer Engine Section */}
-      <section className="py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-        <StepTrackerWidget />
       </section>
 
       {/* Dynamic 9-Tab Health Calculators Section */}

@@ -59,6 +59,41 @@ export class SimplePedometer {
   private isListening = false;
   private motionListenerRef: ((e: DeviceMotionEvent) => void) | null = null;
 
+  constructor() {
+    this.loadPersistedDailySteps();
+  }
+
+  private getTodayDateKey(): string {
+    return new Date().toISOString().split("T")[0];
+  }
+
+  private loadPersistedDailySteps(): void {
+    if (typeof window === "undefined" || !window.localStorage) return;
+    try {
+      const raw = localStorage.getItem("varthanow_pedometer_daily_steps");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.date === this.getTodayDateKey() && typeof parsed.steps === "number") {
+          this.steps = parsed.steps;
+        }
+      }
+    } catch (err) {
+      console.error("Error loading daily steps:", err);
+    }
+  }
+
+  private savePersistedDailySteps(): void {
+    if (typeof window === "undefined" || !window.localStorage) return;
+    try {
+      localStorage.setItem("varthanow_pedometer_daily_steps", JSON.stringify({
+        date: this.getTodayDateKey(),
+        steps: this.steps
+      }));
+    } catch (err) {
+      console.error("Error saving daily steps:", err);
+    }
+  }
+
   /**
    * Process a single accelerometer sample
    */
@@ -167,7 +202,7 @@ export class SimplePedometer {
                 this.candidatePeakCount++;
                 this.lastPeakTimestamp = peakTime;
 
-                // Enter WALKING state after 3 valid candidate peaks
+                // Enter WALKING state after 2 valid candidate peaks
                 if (this.candidatePeakCount >= this.config.walkingStartPeaks) {
                   this.walkingState = "WALKING";
                 }
@@ -175,6 +210,7 @@ export class SimplePedometer {
                 // Confirm step if WALKING state is active or candidate count reached
                 if (this.walkingState === "WALKING" || this.candidatePeakCount >= 2) {
                   this.steps++;
+                  this.savePersistedDailySteps();
                   this.lastStepTimestamp = peakTime;
 
                   // Track step interval history for cadence calculation
@@ -285,6 +321,7 @@ export class SimplePedometer {
    */
   public reset(): void {
     this.steps = 0;
+    this.savePersistedDailySteps();
     this.lastStepTimestamp = 0;
     this.recentStepIntervals = [];
     this.candidatePeakCount = 0;
