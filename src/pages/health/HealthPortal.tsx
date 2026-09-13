@@ -26,7 +26,8 @@ import {
   Info,
   Calendar,
   Layers,
-  ChevronLeft
+  ChevronLeft,
+  Footprints
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { StepTrackerWidget } from "@/components/StepTrackerWidget";
@@ -160,7 +161,8 @@ const REMEDIES: Record<string, RemedyData> = {
 const MAIN_CATEGORIES = [
   { key: "fever", nameTe: "జ్వరం (Fever)", icon: Flame, color: "bg-red-500" },
   { key: "gas", nameTe: "గ్యాస్ & ఎసిడిటీ (Gas & Acidity)", icon: Activity, color: "bg-orange-500" },
-  { key: "diabetes", nameTe: "మధుమేహం (Diabetes)", icon: Heart, color: "bg-blue-500" }
+  { key: "diabetes", nameTe: "మధుమేహం (Diabetes)", icon: Heart, color: "bg-blue-500" },
+  { key: "pedometer", nameTe: "నడక అడుగుల కౌంటర్ (Daily Step Counter)", icon: Footprints, color: "bg-indigo-600" }
 ];
 
 export function HealthPortal() {
@@ -364,6 +366,24 @@ export function HealthPortal() {
   };
 
   const isTe = lang === "te";
+
+  // RENDER PEDOMETER FEATURE PAGE
+  if (subpage === "pedometer") {
+    return (
+      <div className="min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))] py-8 px-4 sm:px-6 lg:px-8 font-sans">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <button 
+            onClick={() => navigate("/health")}
+            className="flex items-center gap-2 text-xs font-bold text-indigo-600 bg-indigo-500/10 px-3.5 py-2 rounded-xl border border-indigo-500/20 active:scale-95 transition"
+          >
+            <ArrowLeft className="size-4" />
+            {isTe ? "ఆరోగ్య కేంద్రానికి తిరిగి వెళ్ళండి" : "Back to Health Hub"}
+          </button>
+          <StepTrackerWidget />
+        </div>
+      </div>
+    );
+  }
 
   // RENDER DYNAMIC DISEASE PAGE
   if (subpage && DISEASES[subpage]) {
@@ -670,7 +690,7 @@ export function HealthPortal() {
           <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "ప్రతి రోగానికి సంబంధించిన పూర్తి సమాచారం కనుగొనండి" : "Explore evidence-based health directories"}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {MAIN_CATEGORIES.map((cat) => {
             const IconComp = cat.icon;
             return (
