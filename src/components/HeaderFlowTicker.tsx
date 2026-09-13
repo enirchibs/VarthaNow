@@ -60,6 +60,14 @@ export function HeaderFlowTicker() {
       link: "/jobs"
     },
     {
+      id: "devotional_jathakam",
+      badge: "భక్తి & జాతకము",
+      badgeColor: "bg-purple-600 text-white",
+      icon: "🛕",
+      text: `భక్తి & జాతకము: నేడు ${panchangam.tithi.te} · ${panchangam.nakshatra.te} · నేటి రాశిఫలాలు & ఆధ్యాత్మిక విశేషాలు`,
+      link: "/category/devotional"
+    },
+    {
       id: "shorts",
       badge: "వైరల్ షార్ట్స్",
       badgeColor: "bg-orange-600 text-white",
@@ -74,14 +82,6 @@ export function HeaderFlowTicker() {
       icon: "✨",
       text: "వాట్సాప్ స్టేటస్ ఫోటో: డైలీ సుప్రభాతం, భక్తి & స్ఫూర్తిదాయక ఫొటోలు డౌన్‌లోడ్ చేసుకోండి",
       link: "/daily-share"
-    },
-    {
-      id: "jathakam",
-      badge: "రియల్ టైమ్ జాతకము",
-      badgeColor: "bg-purple-600 text-white",
-      icon: "🔮",
-      text: `రియల్ టైమ్ జాతకము: నేడు ${panchangam.tithi.te} · ${panchangam.nakshatra.te} · నేటి రాశిఫలాలు`,
-      link: "/category/jathakam"
     },
     {
       id: "health",

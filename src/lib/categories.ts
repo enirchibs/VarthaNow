@@ -3,6 +3,18 @@ import { getActiveLanguage, type Language } from "@/hooks/useLanguage";
 
 export const categories: { slug: NewsCategory; label: Record<Language, string>; short: string; rssQuery: string }[] = [
   {
+    slug: "devotional",
+    label: {
+      te: "భక్తి & జాతకము",
+      en: "Bhakti & Jathakam",
+      hi: "भक्ति व राशिफल",
+      ta: "பக்தி & ஜாதகம்",
+      kn: "ಭಕ್ತಿ ಮತ್ತು ಜಾತಕ"
+    },
+    short: "భక్తి & జాతకము",
+    rssQuery: "panchangam rasi phalalu vastu bhakti temple astrology horoscopes jathakam"
+  },
+  {
     slug: "viralshorts",
     label: {
       te: "వైరల్ షార్ట్స్",
@@ -37,30 +49,6 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     },
     short: "ఆరోగ్యం",
     rssQuery: "health wellness seasonal tips BP diabetes stress"
-  },
-  {
-    slug: "jathakam" as any,
-    label: {
-      te: "జాతకము",
-      en: "Horoscope & Jathakam",
-      hi: "राशिफल",
-      ta: "ஜாதகம்",
-      kn: "ಜಾತಕ"
-    },
-    short: "జాతకము",
-    rssQuery: "panchangam rasi phalalu vastu astrology horoscopes jathakam"
-  },
-  {
-    slug: "devotional",
-    label: {
-      te: "భక్తి",
-      en: "Bhakti",
-      hi: "भक्ति व पूजा",
-      ta: "பக்தி",
-      kn: "ಭಕ್ತಿ"
-    },
-    short: "భక్తి",
-    rssQuery: "panchangam rasi phalalu vastu bhakti temple astrology horoscopes jathakam"
   },
   {
     slug: "andhra-pradesh",
@@ -205,8 +193,8 @@ export const TELUGU_CATEGORY_MAP: Record<string, string> = {
   technology:      "టెక్నాలజీ",
   business:        "వ్యాపారం",
   health:          "ఆరోగ్యం",
-  jathakam:        "జాతకము",
-  devotional:      "భక్తి",
+  jathakam:        "భక్తి & జాతకము",
+  devotional:      "భక్తి & జాతకము",
   viralshorts:     "వైరల్ షార్ట్స్",
   "daily-share":   "వాట్సాప్ స్టేటస్ ఫోటో",
   vizag:           "విశాఖ",
@@ -227,20 +215,12 @@ export function categoryLabel(category: string, lang?: Language): string {
     if (activeLang === "kn") return "ವಾಟ್ಸಾಪ್ ಸ್ಥಿತಿ ಫೋಟೋ";
   }
 
-  if (lowerCat === "jathakam") {
-    if (activeLang === "te") return "జాతకము";
-    if (activeLang === "en") return "Jathakam & Horoscope";
-    if (activeLang === "hi") return "राशिफल";
-    if (activeLang === "ta") return "ஜாதகம்";
-    if (activeLang === "kn") return "ಜಾತಕ";
-  }
-
-  if (lowerCat === "devotional") {
-    if (activeLang === "te") return "భక్తి";
-    if (activeLang === "en") return "Devotional";
-    if (activeLang === "hi") return "भक्ति";
-    if (activeLang === "ta") return "பக்தி";
-    if (activeLang === "kn") return "ಭಕ್ತಿ";
+  if (lowerCat === "jathakam" || lowerCat === "devotional") {
+    if (activeLang === "te") return "భక్తి & జాతకము";
+    if (activeLang === "en") return "Bhakti & Jathakam";
+    if (activeLang === "hi") return "भक्ति व राशिफल";
+    if (activeLang === "ta") return "பக்தி & ஜாதகம்";
+    if (activeLang === "kn") return "ಭಕ್ತಿ ಮತ್ತು ಜಾತಕ";
   }
 
   const catObj = categories.find((item) => item.slug === lowerCat || item.slug === category);
