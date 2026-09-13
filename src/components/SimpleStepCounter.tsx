@@ -1,6 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Play, Square, RotateCcw, Footprints, AlertCircle } from "lucide-react";
 
+// Walking detection constants (rejects noise, hand tremors, and phone tilt):
+const MIN_PEAK_THRESHOLD = 0.70; // m/s²: human foot strike minimum (resting sensor noise is 0.05-0.25)
+const MIN_PROMINENCE = 0.40;     // m/s²: peak-to-valley prominence to reject flat sensor drift/jitter
+const MIN_STEP_INTERVAL = 300;   // ms: maximum ~3.3 steps/sec (double-count protection)
+const WALKING_TIMEOUT_MS = 1500; // ms: inactivity window to transition to ○ NOT WALKING and stop counting
+
 export function SimpleStepCounter() {
   const [isRunning, setIsRunning] = useState(false);
   const [steps, setSteps] = useState(0);
@@ -13,7 +19,7 @@ export function SimpleStepCounter() {
   const initializedRef = useRef(false);
   const prevFilteredRef = useRef(0);
   const bufferRef = useRef<number[]>([0, 0]); // [previous, candidatePeak]
-  const noiseFloorRef = useRef(0.20);
+  const valleyRef = useRef(0.5); // Minimum value between peaks for prominence check
   const lastStepTimeRef = useRef(0);
   const walkingTimeoutRef = useRef<number | null>(null);
 
@@ -63,10 +69,10 @@ export function SimpleStepCounter() {
       const filtered = beta * magnitude + (1 - beta) * prevFilteredRef.current;
       prevFilteredRef.current = filtered;
 
-      // Track recent noise floor adaptively
-      noiseFloorRef.current = 0.95 * noiseFloorRef.current + 0.05 * filtered;
-      // Step 12: Adaptive Sensitivity (minimum 0.20 m/s²)
-      const threshold = Math.max(0.20, noiseFloorRef.current * 1.25);
+      // Track running valley (lowest acceleration between consecutive peaks)
+      if (filtered < valleyRef.current) {
+        valleyRef.current = filtered;
+      }
 
       // Step 10: 3-Point Peak Detection (s0 < s1 && s1 > s2)
       const s0 = bufferRef.current[0];
@@ -76,21 +82,35 @@ export function SimpleStepCounter() {
       // Slide buffer: [s1, s2]
       bufferRef.current = [s1, s2];
 
-      if (s1 > s0 && s1 > s2 && s1 >= threshold) {
-        const now = performance.now();
+      const prominence = s1 - valleyRef.current;
+      const now = performance.now();
+
+      // Check if walking timeout exceeded while sensor events are arriving
+      if (isWalking && now - lastStepTimeRef.current > WALKING_TIMEOUT_MS) {
+        setIsWalking(false);
+      }
+
+      // A valid human step requires:
+      // 1. Local maximum: s1 > s0 && s1 > s2
+      // 2. Real walking acceleration impact: s1 >= MIN_PEAK_THRESHOLD (0.70 m/s², rejecting resting noise < 0.25)
+      // 3. Clear wave prominence: prominence >= MIN_PROMINENCE (0.40 m/s², rejecting flat drift/tremor)
+      if (s1 > s0 && s1 > s2 && s1 >= MIN_PEAK_THRESHOLD && prominence >= MIN_PROMINENCE) {
         // Step 11: Minimum step interval (300ms) double-count protection
-        if (now - lastStepTimeRef.current >= 300) {
+        if (now - lastStepTimeRef.current >= MIN_STEP_INTERVAL) {
           lastStepTimeRef.current = now;
+          valleyRef.current = s2; // Reset valley after confirmed peak
 
           // Step 13: Instant step count update
           setSteps((prev) => prev + 1);
 
-          // Indicate walking status
+          // Indicate walking status: ● WALKING
           setIsWalking(true);
+
+          // Walking timeout: if no valid walking step occurs for 1500ms, change to ○ NOT WALKING
           if (walkingTimeoutRef.current) window.clearTimeout(walkingTimeoutRef.current);
           walkingTimeoutRef.current = window.setTimeout(() => {
             setIsWalking(false);
-          }, 1800);
+          }, WALKING_TIMEOUT_MS);
         }
       }
     };
@@ -143,6 +163,7 @@ export function SimpleStepCounter() {
     initializedRef.current = false;
     prevFilteredRef.current = 0;
     bufferRef.current = [0, 0];
+    valleyRef.current = 0.5;
     lastStepTimeRef.current = 0;
     if (walkingTimeoutRef.current) window.clearTimeout(walkingTimeoutRef.current);
   };
@@ -170,22 +191,15 @@ export function SimpleStepCounter() {
 
         {/* Live Walking Status Indicator */}
         <div className="flex items-center justify-center">
-          {isRunning ? (
-            isWalking ? (
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-black tracking-wider">
-                <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
-                ● WALKING
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-black tracking-wider">
-                <span className="size-2 rounded-full bg-amber-500" />
-                ● ACTIVE
-              </span>
-            )
+          {isRunning && isWalking ? (
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-black tracking-wider">
+              <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
+              ● WALKING
+            </span>
           ) : (
-            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] text-xs font-black tracking-wider">
-              <span className="size-2 rounded-full bg-zinc-400" />
-              ● IDLE
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[hsl(var(--muted))] border border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] text-xs font-black tracking-wider">
+              <span className="size-2 rounded-full border border-zinc-400 dark:border-zinc-500" />
+              ○ NOT WALKING
             </span>
           )}
         </div>
@@ -241,7 +255,7 @@ export function SimpleStepCounter() {
                 setSteps((prev) => prev + 1);
                 setIsWalking(true);
                 if (walkingTimeoutRef.current) window.clearTimeout(walkingTimeoutRef.current);
-                walkingTimeoutRef.current = window.setTimeout(() => setIsWalking(false), 1200);
+                walkingTimeoutRef.current = window.setTimeout(() => setIsWalking(false), WALKING_TIMEOUT_MS);
               }}
               className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 hover:bg-emerald-500/20 transition"
             >
