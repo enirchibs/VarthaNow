@@ -1,11 +1,21 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Play, Square, RotateCcw, Footprints, AlertCircle } from "lucide-react";
 
-// Walking detection constants (rejects noise, hand tremors, and phone tilt):
-const MIN_PEAK_THRESHOLD = 0.70; // m/s²: human foot strike minimum (resting sensor noise is 0.05-0.25)
-const MIN_PROMINENCE = 0.40;     // m/s²: peak-to-valley prominence to reject flat sensor drift/jitter
-const MIN_STEP_INTERVAL = 300;   // ms: maximum ~3.3 steps/sec (double-count protection)
-const WALKING_TIMEOUT_MS = 1500; // ms: inactivity window to transition to ○ NOT WALKING and stop counting
+// ============================================================================
+// STEP DETECTION CALIBRATION (Gait Cycle with Hysteresis & Minimum Cadence)
+// ============================================================================
+// In normal human walking, a physical step has a stance phase (impact) followed by
+// a swing phase (trough). The hysteresis model guarantees:
+// 1. A step is counted when acceleration crosses above THRESHOLD_HIGH.
+// 2. The detector then enters WAITING_FOR_SWING state.
+// 3. Rebounds, knee flex, and vibrations CANNOT count additional steps.
+// 4. A new step can ONLY be counted after the leg swings and acceleration drops
+//    below THRESHOLD_LOW, AND at least 420 ms have elapsed since the last step.
+// ============================================================================
+const THRESHOLD_HIGH = 1.20;      // m/s²: Human heel strike impact threshold
+const THRESHOLD_LOW = 0.40;       // m/s²: Swing phase reset trough threshold
+const MIN_STEP_INTERVAL = 420;    // ms: Minimum step interval (~142 steps/min max cadence)
+const WALKING_TIMEOUT_MS = 1500;  // ms: Inactivity timeout to switch to ○ NOT WALKING
 
 export function SimpleStepCounter() {
   const [isRunning, setIsRunning] = useState(false);
@@ -14,16 +24,95 @@ export function SimpleStepCounter() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [hasSensorEvent, setHasSensorEvent] = useState(false);
 
+  // Single authoritative source tracking
+  const activeSourceRef = useRef<"native" | "web">("web");
+
   // Sensor processing refs
   const gravityRef = useRef<{ x: number; y: number; z: number }>({ x: 0, y: 0, z: 0 });
   const initializedRef = useRef(false);
   const prevFilteredRef = useRef(0);
-  const bufferRef = useRef<number[]>([0, 0]); // [previous, candidatePeak]
-  const valleyRef = useRef(0.5); // Minimum value between peaks for prominence check
+  const stepStateRef = useRef<"ARMED" | "ABOVE_HIGH" | "WAITING_FOR_SWING">("ARMED");
+  const peakCandidateRef = useRef(0);
   const lastStepTimeRef = useRef(0);
   const walkingTimeoutRef = useRef<number | null>(null);
 
-  // Start / Stop sensor listener
+  // ==========================================================================
+  // SINGLE AUTHORITATIVE STEP REGISTRATION FUNCTION
+  // All step sources (Native Android Step Detector / Counter, Web Accelerometer)
+  // MUST route through this exact function. No other code can increment steps.
+  // ==========================================================================
+  const registerStep = useCallback((source: "native" | "web") => {
+    // If native sensor is available, ignore web accelerometer to prevent double counting
+    if (activeSourceRef.current === "native" && source === "web") {
+      return;
+    }
+
+    setSteps((prev) => {
+      const updated = prev + 1;
+      console.log(`[StepCounter] Step counted via [${source}] -> Total: ${updated}`);
+      return updated;
+    });
+
+    setIsWalking(true);
+
+    if (walkingTimeoutRef.current) window.clearTimeout(walkingTimeoutRef.current);
+    walkingTimeoutRef.current = window.setTimeout(() => {
+      setIsWalking(false);
+    }, WALKING_TIMEOUT_MS);
+  }, []);
+
+  // ==========================================================================
+  // 1. PRIMARY: Native Android Step Detector / Counter Event Listeners
+  // If running inside Android native / WebView / TWA / Cordova / Capacitor:
+  // Android TYPE_STEP_DETECTOR or TYPE_STEP_COUNTER sends events.
+  // ==========================================================================
+  useEffect(() => {
+    if (!isRunning) return;
+
+    const win = window as any;
+    const hasAndroidBridge = Boolean(win.Android?.registerStepListener || win.AndroidStepDetector || win.Android);
+
+    const handleNativeStepEvent = () => {
+      activeSourceRef.current = "native";
+      setHasSensorEvent(true);
+      registerStep("native");
+    };
+
+    win.onNativeStep = handleNativeStepEvent;
+    window.addEventListener("nativeStep", handleNativeStepEvent);
+    window.addEventListener("androidStep", handleNativeStepEvent);
+    window.addEventListener("step", handleNativeStepEvent);
+
+    if (hasAndroidBridge) {
+      try {
+        if (typeof win.Android?.startStepDetector === "function") {
+          win.Android.startStepDetector();
+          activeSourceRef.current = "native";
+        }
+      } catch (err) {
+        console.warn("Android startStepDetector call error", err);
+      }
+    }
+
+    return () => {
+      delete win.onNativeStep;
+      window.removeEventListener("nativeStep", handleNativeStepEvent);
+      window.removeEventListener("androidStep", handleNativeStepEvent);
+      window.removeEventListener("step", handleNativeStepEvent);
+      if (hasAndroidBridge && typeof win.Android?.stopStepDetector === "function") {
+        try {
+          win.Android.stopStepDetector();
+        } catch (err) {
+          console.warn("Android stopStepDetector error", err);
+        }
+      }
+    };
+  }, [isRunning, registerStep]);
+
+  // ==========================================================================
+  // 2. FALLBACK: Web Accelerometer (Gait Cycle with Hysteresis & 420ms Cadence)
+  // Used when Native Android Step Detector is not present.
+  // ==========================================================================
   useEffect(() => {
     if (!isRunning) {
       setIsWalking(false);
@@ -31,7 +120,9 @@ export function SimpleStepCounter() {
     }
 
     const handleMotion = (event: DeviceMotionEvent) => {
-      // Prioritize accelerationIncludingGravity for universal mobile support
+      // If native Android step detector is already handling steps, DO NOT run accelerometer
+      if (activeSourceRef.current === "native") return;
+
       const acc = event.accelerationIncludingGravity || event.acceleration;
       if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
 
@@ -40,14 +131,14 @@ export function SimpleStepCounter() {
       const ay = acc.y;
       const az = acc.z;
 
-      // Initialize dynamic gravity to instantaneous acceleration on first frame
+      // Initialize dynamic gravity on first frame
       if (!initializedRef.current) {
         gravityRef.current = { x: ax, y: ay, z: az };
         initializedRef.current = true;
         return;
       }
 
-      // Step 7: Dynamic Gravity Removal (alpha = 0.97)
+      // Dynamic Gravity Removal (alpha = 0.97)
       const gravityAlpha = 0.97;
       gravityRef.current.x = gravityAlpha * gravityRef.current.x + (1 - gravityAlpha) * ax;
       gravityRef.current.y = gravityAlpha * gravityRef.current.y + (1 - gravityAlpha) * ay;
@@ -57,60 +148,47 @@ export function SimpleStepCounter() {
       const linearY = ay - gravityRef.current.y;
       const linearZ = az - gravityRef.current.z;
 
-      // Step 8: Movement Magnitude
+      // Movement Magnitude
       const magnitude = Math.sqrt(
         linearX * linearX +
         linearY * linearY +
         linearZ * linearZ
       );
 
-      // Step 9: Light Smoothing (beta = 0.65)
-      const beta = 0.65;
+      // Light EMA Smoothing (beta = 0.60)
+      const beta = 0.60;
       const filtered = beta * magnitude + (1 - beta) * prevFilteredRef.current;
       prevFilteredRef.current = filtered;
 
-      // Track running valley (lowest acceleration between consecutive peaks)
-      if (filtered < valleyRef.current) {
-        valleyRef.current = filtered;
-      }
-
-      // Step 10: 3-Point Peak Detection (s0 < s1 && s1 > s2)
-      const s0 = bufferRef.current[0];
-      const s1 = bufferRef.current[1];
-      const s2 = filtered;
-
-      // Slide buffer: [s1, s2]
-      bufferRef.current = [s1, s2];
-
-      const prominence = s1 - valleyRef.current;
       const now = performance.now();
 
-      // Check if walking timeout exceeded while sensor events are arriving
-      if (isWalking && now - lastStepTimeRef.current > WALKING_TIMEOUT_MS) {
-        setIsWalking(false);
+      // GAIT CYCLE HYSTERESIS STATE MACHINE:
+      // State 1: ARMED (waiting for foot strike)
+      if (stepStateRef.current === "ARMED") {
+        if (filtered >= THRESHOLD_HIGH) {
+          stepStateRef.current = "ABOVE_HIGH";
+          peakCandidateRef.current = filtered;
+        }
       }
-
-      // A valid human step requires:
-      // 1. Local maximum: s1 > s0 && s1 > s2
-      // 2. Real walking acceleration impact: s1 >= MIN_PEAK_THRESHOLD (0.70 m/s², rejecting resting noise < 0.25)
-      // 3. Clear wave prominence: prominence >= MIN_PROMINENCE (0.40 m/s², rejecting flat drift/tremor)
-      if (s1 > s0 && s1 > s2 && s1 >= MIN_PEAK_THRESHOLD && prominence >= MIN_PROMINENCE) {
-        // Step 11: Minimum step interval (300ms) double-count protection
-        if (now - lastStepTimeRef.current >= MIN_STEP_INTERVAL) {
-          lastStepTimeRef.current = now;
-          valleyRef.current = s2; // Reset valley after confirmed peak
-
-          // Step 13: Instant step count update
-          setSteps((prev) => prev + 1);
-
-          // Indicate walking status: ● WALKING
-          setIsWalking(true);
-
-          // Walking timeout: if no valid walking step occurs for 1500ms, change to ○ NOT WALKING
-          if (walkingTimeoutRef.current) window.clearTimeout(walkingTimeoutRef.current);
-          walkingTimeoutRef.current = window.setTimeout(() => {
-            setIsWalking(false);
-          }, WALKING_TIMEOUT_MS);
+      // State 2: ABOVE_HIGH (tracking the peak of the heel strike)
+      else if (stepStateRef.current === "ABOVE_HIGH") {
+        if (filtered > peakCandidateRef.current) {
+          peakCandidateRef.current = filtered;
+        } else if (filtered < peakCandidateRef.current - 0.15) {
+          // Peak confirmed! Check minimum interval since last step (420 ms)
+          const timeSinceLastStep = now - lastStepTimeRef.current;
+          if (timeSinceLastStep >= MIN_STEP_INTERVAL) {
+            lastStepTimeRef.current = now;
+            registerStep("web");
+          }
+          // Move to WAITING_FOR_SWING to block all secondary rebounds of the same step
+          stepStateRef.current = "WAITING_FOR_SWING";
+        }
+      }
+      // State 3: WAITING_FOR_SWING (cannot count again until leg swings and signal drops < THRESHOLD_LOW)
+      else if (stepStateRef.current === "WAITING_FOR_SWING") {
+        if (filtered < THRESHOLD_LOW) {
+          stepStateRef.current = "ARMED";
         }
       }
     };
@@ -121,7 +199,7 @@ export function SimpleStepCounter() {
       window.removeEventListener("devicemotion", handleMotion);
       if (walkingTimeoutRef.current) window.clearTimeout(walkingTimeoutRef.current);
     };
-  }, [isRunning]);
+  }, [isRunning, registerStep]);
 
   const handleToggleStart = async () => {
     setErrorMessage(null);
@@ -151,7 +229,7 @@ export function SimpleStepCounter() {
     // Reset sensor state on fresh start
     initializedRef.current = false;
     prevFilteredRef.current = 0;
-    bufferRef.current = [0, 0];
+    stepStateRef.current = "ARMED";
     lastStepTimeRef.current = 0;
     setIsRunning(true);
   };
@@ -162,8 +240,7 @@ export function SimpleStepCounter() {
     setIsWalking(false);
     initializedRef.current = false;
     prevFilteredRef.current = 0;
-    bufferRef.current = [0, 0];
-    valleyRef.current = 0.5;
+    stepStateRef.current = "ARMED";
     lastStepTimeRef.current = 0;
     if (walkingTimeoutRef.current) window.clearTimeout(walkingTimeoutRef.current);
   };
@@ -251,12 +328,7 @@ export function SimpleStepCounter() {
               Waiting for phone motion sensor... (On desktop? Test manually below)
             </p>
             <button
-              onClick={() => {
-                setSteps((prev) => prev + 1);
-                setIsWalking(true);
-                if (walkingTimeoutRef.current) window.clearTimeout(walkingTimeoutRef.current);
-                walkingTimeoutRef.current = window.setTimeout(() => setIsWalking(false), WALKING_TIMEOUT_MS);
-              }}
+              onClick={() => registerStep("web")}
               className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-xl border border-emerald-500/20 hover:bg-emerald-500/20 transition"
             >
               + 1 Step (Test)
