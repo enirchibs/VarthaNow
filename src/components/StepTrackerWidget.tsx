@@ -14,8 +14,8 @@ import {
   BarChart3, 
   Zap, 
   Activity,
-  Gauge,
-  Sliders
+  Edit3,
+  Check
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -31,7 +31,7 @@ export function StepTrackerWidget() {
   const [steps, setSteps] = useState<number>(() => {
     try {
       const saved = localStorage.getItem(todayKey);
-      return saved ? parseInt(saved, 10) : 4250; // Fresh demo start
+      return saved ? parseInt(saved, 10) : 4250;
     } catch {
       return 4250;
     }
@@ -46,7 +46,7 @@ export function StepTrackerWidget() {
     }
   });
 
-  // Walking mode: 'normal' (Walk), 'brisk' (Brisk Walk), 'run' (Jog/Run)
+  // Walking mode: 'normal' (Slow Walk), 'brisk' (Brisk Walk), 'run' (Jog/Run)
   const [walkMode, setWalkMode] = useState<"normal" | "brisk" | "run">(() => {
     try {
       const saved = localStorage.getItem(modeKey);
@@ -57,6 +57,7 @@ export function StepTrackerWidget() {
   });
 
   const [isLiveTracking, setIsLiveTracking] = useState<boolean>(false);
+  const [manualInput, setManualInput] = useState<string>("");
   const [customGoalInput, setCustomGoalInput] = useState<string>("");
   const [showGoalModal, setShowGoalModal] = useState<boolean>(false);
   const [history, setHistory] = useState<{ date: string; dayName: string; steps: number }[]>([]);
@@ -122,16 +123,15 @@ export function StepTrackerWidget() {
   useEffect(() => {
     if (!isLiveTracking) return;
 
-    // Interval rate based on walking mode
     const intervalMs = walkMode === "run" ? 380 : walkMode === "brisk" ? 480 : 580;
     const stepsPerPulse = walkMode === "run" ? 2 : 1;
 
-    // 1. Live Step Pulse Timer (Guarantees immediate live step accumulation on desktop & mobile)
+    // 1. Live Step Pulse Timer
     const pulseTimer = setInterval(() => {
       setSteps((prev) => prev + stepsPerPulse);
     }, intervalMs);
 
-    // 2. Hardware Accelerometer DeviceMotion Listener (For physical phone walking)
+    // 2. Hardware Accelerometer DeviceMotion Listener
     const handleMotion = (event: DeviceMotionEvent) => {
       const acc = event.accelerationIncludingGravity || event.acceleration;
       if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
@@ -139,11 +139,9 @@ export function StepTrackerWidget() {
       const now = Date.now();
       if (now - lastStepTimeRef.current < 280) return;
 
-      // Magnitude calculation: sqrt(x^2 + y^2 + z^2)
       const magnitude = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
-      const deltaMag = Math.abs(magnitude - 9.8); // Delta from 1g gravity
+      const deltaMag = Math.abs(magnitude - 9.8);
 
-      // Step threshold peak detection
       if (deltaMag > 2.8) {
         lastStepTimeRef.current = now;
         setSteps((prev) => prev + 1);
@@ -170,14 +168,10 @@ export function StepTrackerWidget() {
     };
   }, [isLiveTracking, walkMode]);
 
-  // 📐 Accurate Fitness Metrics Formulas (Standard Medical & Pedometer Benchmarks)
+  // Accurate Fitness Metrics Formulas
   const calFactor = walkMode === "run" ? 0.062 : walkMode === "brisk" ? 0.048 : 0.040;
   const caloriesBurned = Math.round(steps * calFactor);
-  
-  // Stride length = 0.762 meters (0.000762 km per step)
   const distanceKm = (steps * 0.000762).toFixed(2);
-  
-  // Pace steps/min: Normal=105, Brisk=130, Run=160
   const stepsPerMin = walkMode === "run" ? 160 : walkMode === "brisk" ? 130 : 105;
   const activeMinutes = Math.round(steps / stepsPerMin);
 
@@ -185,6 +179,24 @@ export function StepTrackerWidget() {
 
   const addSteps = (num: number) => {
     setSteps((prev) => prev + num);
+  };
+
+  // Direct Manual Pedometer Input Set
+  const handleSetDirectSteps = () => {
+    const parsed = parseInt(manualInput, 10);
+    if (!isNaN(parsed) && parsed >= 0) {
+      setSteps(parsed);
+      setManualInput("");
+    }
+  };
+
+  // Direct Manual Pedometer Input Add
+  const handleAddDirectSteps = () => {
+    const parsed = parseInt(manualInput, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      setSteps((prev) => prev + parsed);
+      setManualInput("");
+    }
   };
 
   const handleReset = () => {
@@ -240,6 +252,46 @@ export function StepTrackerWidget() {
         </button>
       </div>
 
+      {/* Direct Pedometer Step Count Input Bar */}
+      <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-emerald-500/30 space-y-2 relative z-10">
+        <div className="flex items-center justify-between text-[11px] font-black text-emerald-300 uppercase tracking-wider">
+          <span className="flex items-center gap-1.5">
+            <Edit3 className="size-3.5 text-yellow-400" />
+            {isTe ? "పెడోమీటర్ లేదా స్మార్ట్‌వాచ్ అడుగుల సంఖ్య టైప్ చేయండి:" : "Type Pedometer / Smartwatch Step Count:"}
+          </span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            type="number"
+            value={manualInput}
+            onChange={(e) => setManualInput(e.target.value)}
+            placeholder={isTe ? "ఉదా: 7500 అడుగులు నమోదు చేయండి..." : "Ex: Type 7500 steps..."}
+            className="flex-1 h-11 px-3.5 rounded-xl border border-white/20 bg-slate-900 text-xs font-bold text-white outline-none focus:border-emerald-500 placeholder:text-slate-400"
+          />
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleSetDirectSteps}
+              className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs shadow-md hover:brightness-110 flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95"
+            >
+              <Check className="size-4" />
+              <span>{isTe ? "సమర్పించు (Set)" : "Set Steps"}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleAddDirectSteps}
+              className="h-11 px-4 rounded-xl bg-white/10 hover:bg-emerald-500/20 border border-white/20 text-white font-extrabold text-xs flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95"
+            >
+              <Plus className="size-4 text-emerald-400" />
+              <span>{isTe ? "+ కలుపు (Add)" : "+ Add"}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Mode Selector (Walk 🚶‍♂️ / Brisk Walk 🏃‍♂️ / Run ⚡) */}
       <div className="p-1.5 rounded-2xl bg-slate-950/60 border border-white/10 grid grid-cols-3 gap-1 relative z-10">
         <button
@@ -286,7 +338,7 @@ export function StepTrackerWidget() {
         <div className="space-y-3 order-2 md:order-1">
           <div className="text-[11px] font-black text-emerald-300 uppercase tracking-wider flex items-center gap-1">
             <Zap className="size-3.5 text-yellow-400" />
-            <span>{isTe ? "నడక అడుగులు యాడ్ చేయండి" : "Log Walking Session"}</span>
+            <span>{isTe ? "త్వరిత అడుగుల బటన్లు" : "Quick Add Shortcuts"}</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
