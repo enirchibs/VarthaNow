@@ -11,9 +11,13 @@ import {
   Play, 
   Pause, 
   BarChart3, 
-  Zap
+  Zap,
+  Cpu
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { AdaptiveStepEngine } from "@/lib/pedometer/adaptive-step-engine";
+import { StepEngineDiagnostics } from "./StepEngineDiagnostics";
+import { WalkingState } from "@/lib/pedometer/types";
 
 export function StepTrackerWidget() {
   const { lang } = useLanguage();
@@ -22,6 +26,12 @@ export function StepTrackerWidget() {
   const todayKey = `varthanow_steps_${new Date().toISOString().split("T")[0]}`;
   const goalKey = "varthanow_step_goal";
   const modeKey = "varthanow_step_mode";
+
+  // Persistent Adaptive Step Engine Ref
+  const engineRef = useRef<AdaptiveStepEngine | null>(null);
+  if (!engineRef.current) {
+    engineRef.current = new AdaptiveStepEngine();
+  }
 
   // State initialization
   const [steps, setSteps] = useState<number>(() => {
@@ -53,22 +63,20 @@ export function StepTrackerWidget() {
   });
 
   const [isLiveTracking, setIsLiveTracking] = useState<boolean>(false);
-  const [sensorStatus, setSensorStatus] = useState<"off" | "listening" | "step_detected" | "unsupported">("off");
-  const [customGoalInput, setCustomGoalInput] = useState<string>("");
+  const [walkingState, setWalkingState] = useState<WalkingState>("STATIONARY");
+  const [cadenceSPM, setCadenceSPM] = useState<number>(0);
   const [showGoalModal, setShowGoalModal] = useState<boolean>(false);
+  const [customGoalInput, setCustomGoalInput] = useState<string>("");
+  const [showDeveloperDebug, setShowDeveloperDebug] = useState<boolean>(false);
   const [history, setHistory] = useState<{ date: string; dayName: string; steps: number }[]>([]);
 
-  // 🏃‍♂️ PRODUCTION PEDOMETER REFS (Dynamic Gravity Filter + Exponential Low Pass + Peak-Valley Detection)
-  const gravityEstRef = useRef<number>(9.81);
-  const smoothedAccelRef = useRef<number>(0);
-  const lastPeakValRef = useRef<number>(0);
-  const isRisingRef = useRef<boolean>(false);
-  const lastStepTimestampRef = useRef<number>(0);
-
-  // Sync steps to localStorage
+  // Sync steps to localStorage and engine
   useEffect(() => {
     try {
       localStorage.setItem(todayKey, steps.toString());
+      if (engineRef.current) {
+        engineRef.current.setSteps(steps);
+      }
     } catch (e) {
       console.warn("LocalStorage error:", e);
     }
@@ -117,108 +125,64 @@ export function StepTrackerWidget() {
     }
   }, [steps, isTe]);
 
-  // ⚡ HARDWARE PEDOMETER ENGINE (High-Precision Peak-Valley Detection for Slow Walk & Fast Motion)
+  // ⚡ ADAPTIVE PEDOMETER ENGINE SENSOR BINDING
   useEffect(() => {
-    if (!isLiveTracking) {
-      setSensorStatus("off");
-      gravityEstRef.current = 9.81;
-      smoothedAccelRef.current = 0;
-      isRisingRef.current = false;
-      return;
-    }
+    const engine = engineRef.current;
+    if (!engine) return;
 
-    if (typeof window === "undefined" || !("DeviceMotionEvent" in window)) {
-      setSensorStatus("unsupported");
-      return;
-    }
+    if (isLiveTracking) {
+      engine.start();
 
-    setSensorStatus("listening");
+      // Subscribe to confirmed step events
+      const unsubscribeStep = engine.onStep((evt) => {
+        setSteps((prev) => prev + 1);
+        setCadenceSPM(evt.cadenceSPM);
+      });
 
-    // Dynamic peak sensitivity tuned for:
-    // Slow Walk ('normal'): 0.50 m/s² (Captures gentle slow walking steps accurately)
-    // Brisk Walk ('brisk'): 1.10 m/s²
-    // Jogging ('run'): 2.20 m/s²
-    const minPeakDelta = walkMode === "run" ? 2.20 : walkMode === "brisk" ? 1.10 : 0.50;
-    const minStepIntervalMs = walkMode === "run" ? 220 : walkMode === "brisk" ? 270 : 310;
+      // Subscribe to walking state changes
+      const unsubscribeState = engine.onStateChange((state) => {
+        setWalkingState(state);
+      });
 
-    const handleMotion = (event: DeviceMotionEvent) => {
-      const acc = event.accelerationIncludingGravity || event.acceleration;
-      if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
+      // Bind raw browser DeviceMotionEvent to step engine pipeline
+      const handleMotionEvent = (evt: DeviceMotionEvent) => {
+        engine.processDeviceMotionEvent(evt);
+      };
 
-      const rawMag = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
-
-      // 1. Dynamic Gravity Estimation Filter (Alpha = 0.90)
-      // Works seamlessly regardless of whether gravity (~9.81) is included or excluded (~0.0)
-      gravityEstRef.current = 0.90 * gravityEstRef.current + 0.10 * rawMag;
-      const linearAccel = Math.abs(rawMag - gravityEstRef.current);
-
-      // 2. Exponential Moving Average Noise Filter (Beta = 0.65)
-      // Smooths out high-frequency jitter while capturing slow walking foot strikes
-      smoothedAccelRef.current = 0.65 * smoothedAccelRef.current + 0.35 * linearAccel;
-      const currVal = smoothedAccelRef.current;
-
-      const now = Date.now();
-
-      // 3. Peak-Valley Gait Detector Engine
-      if (currVal > lastPeakValRef.current) {
-        lastPeakValRef.current = currVal;
-        isRisingRef.current = true;
-      } else if (currVal < lastPeakValRef.current - 0.12 && isRisingRef.current) {
-        // Peak inflection reached! Verify peak amplitude above noise floor
-        const peakAmplitude = lastPeakValRef.current;
-
-        if (peakAmplitude >= minPeakDelta) {
-          const timeSinceLastStep = now - lastStepTimestampRef.current;
-
-          if (timeSinceLastStep >= minStepIntervalMs) {
-            // Valid Step Counted!
-            lastStepTimestampRef.current = now;
-            setSteps((prev) => prev + 1);
-            setSensorStatus("step_detected");
-            setTimeout(() => setSensorStatus("listening"), 350);
-          }
+      if (typeof window !== "undefined" && "DeviceMotionEvent" in window) {
+        if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
+          (DeviceMotionEvent as any).requestPermission()
+            .then((res: string) => {
+              if (res === "granted") {
+                window.addEventListener("devicemotion", handleMotionEvent);
+              }
+            })
+            .catch(() => {});
+        } else {
+          window.addEventListener("devicemotion", handleMotionEvent);
         }
-
-        // Reset peak detector for next step cycle
-        isRisingRef.current = false;
-        lastPeakValRef.current = currVal;
       }
 
-      // Smooth peak decay to trace waveform continuously
-      lastPeakValRef.current *= 0.95;
-    };
-
-    const attachListener = () => {
-      window.addEventListener("devicemotion", handleMotion);
-    };
-
-    if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
-      (DeviceMotionEvent as any).requestPermission()
-        .then((state: string) => {
-          if (state === "granted") {
-            attachListener();
-          } else {
-            setSensorStatus("unsupported");
-          }
-        })
-        .catch(() => setSensorStatus("unsupported"));
+      return () => {
+        unsubscribeStep();
+        unsubscribeState();
+        if (typeof window !== "undefined") {
+          window.removeEventListener("devicemotion", handleMotionEvent);
+        }
+        engine.stop();
+      };
     } else {
-      attachListener();
+      engine.stop();
+      setWalkingState("STATIONARY");
     }
+  }, [isLiveTracking]);
 
-    return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("devicemotion", handleMotion);
-      }
-    };
-  }, [isLiveTracking, walkMode]);
-
-  // Fitness Metrics Calculations
+  // Metrics Calculations
   const calFactor = walkMode === "run" ? 0.062 : walkMode === "brisk" ? 0.048 : 0.040;
   const caloriesBurned = Math.round(steps * calFactor);
   const distanceKm = (steps * 0.000762).toFixed(2);
-  const stepsPerMin = walkMode === "run" ? 160 : walkMode === "brisk" ? 130 : 105;
-  const activeMinutes = Math.round(steps / stepsPerMin);
+  const stepsPerMin = cadenceSPM > 0 ? cadenceSPM : (walkMode === "run" ? 160 : walkMode === "brisk" ? 130 : 105);
+  const activeMinutes = Math.round(steps / Math.max(60, stepsPerMin));
 
   const progressPercent = Math.min(100, Math.round((steps / goal) * 100));
 
@@ -229,6 +193,9 @@ export function StepTrackerWidget() {
   const handleReset = () => {
     if (window.confirm(isTe ? "ఈరోజు నడక కౌంటర్ ను సున్నాకి (0) రీసెట్ చేయమంటారా?" : "Reset today's step counter to zero?")) {
       setSteps(0);
+      if (engineRef.current) {
+        engineRef.current.setSteps(0);
+      }
     }
   };
 
@@ -257,13 +224,13 @@ export function StepTrackerWidget() {
           </div>
           <div>
             <h2 className="text-base sm:text-xl font-black tracking-tight flex items-center gap-2">
-              <span>{isTe ? "లైవ్ పెడోమీటర్ స్టెప్ ట్రాకర్" : "Live Motion Step Pedometer"}</span>
+              <span>{isTe ? "అడాప్టివ్ మానవ నడక స్టెప్ ట్రాకర్" : "Adaptive Human-Walk Step Pedometer"}</span>
               {isLiveTracking && (
                 <span className="flex size-2.5 rounded-full bg-emerald-400 animate-ping" />
               )}
             </h2>
             <p className="text-xs font-bold text-emerald-200/80 mt-0.5">
-              {isTe ? "ఖచ్చితమైన ఇన్-బిల్ట్ మొబైల్ మోషన్ సెన్సార్ ట్రాకర్" : "High-precision native motion sensor gait tracker"}
+              {isTe ? "మల్టీ-ఫ్యాక్టర్ సిగ్నల్ ప్రాసెసింగ్ గైట్ ఇంజిన్" : "Multi-factor Signal Processing Gait Engine"}
             </p>
           </div>
         </div>
@@ -279,7 +246,7 @@ export function StepTrackerWidget() {
         </button>
       </div>
 
-      {/* Walking Pace Mode Selector */}
+      {/* Pace Mode Selector */}
       <div className="p-1.5 rounded-2xl bg-slate-950/60 border border-white/10 grid grid-cols-3 gap-1 relative z-10">
         <button
           type="button"
@@ -318,14 +285,14 @@ export function StepTrackerWidget() {
         </button>
       </div>
 
-      {/* Center Gauge & Metrics */}
+      {/* Center Gauge & Quick Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center relative z-10">
         
-        {/* Left Column: Motion Sensor Toggle & Quick Shortcuts */}
+        {/* Left Column: Live Motion Sensor Controls */}
         <div className="space-y-3 order-2 md:order-1">
           <div className="text-[11px] font-black text-emerald-300 uppercase tracking-wider flex items-center gap-1">
             <Zap className="size-3.5 text-yellow-400" />
-            <span>{isTe ? "త్వరిత అడుగుల మార్పు" : "Quick Step Adjustment"}</span>
+            <span>{isTe ? "త్వరిత అడుగుల మార్పు" : "Quick Step Shortcuts"}</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
@@ -363,7 +330,7 @@ export function StepTrackerWidget() {
             </button>
           </div>
 
-          {/* Live Mobile Motion Sensor Button */}
+          {/* Live Mobile Motion Sensor Toggle */}
           <div className="space-y-1.5">
             <button
               type="button"
@@ -382,27 +349,20 @@ export function StepTrackerWidget() {
               ) : (
                 <>
                   <Play className="size-4 fill-current" />
-                  <span>{isTe ? "⚡ మోషన్ సెన్సార్ స్టార్ట్ చేయండి" : "Start Live Step Sensor"}</span>
+                  <span>{isTe ? "⚡ అడాప్టివ్ మోషన్ సెన్సార్ ఆన్ చేయండి" : "Start Live Motion Sensor"}</span>
                 </>
               )}
             </button>
 
             {isLiveTracking && (
               <div className="text-center">
-                {sensorStatus === "step_detected" ? (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-400 animate-bounce">
-                    <Footprints className="size-3" /> {isTe ? "అడుగు గుర్తించబడింది! (+1)" : "Step Detected! (+1)"}
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-300">
+                  <span className="size-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span>
+                    State: <strong className="text-white uppercase">{walkingState}</strong>
+                    {cadenceSPM > 0 && ` (${cadenceSPM} SPM)`}
                   </span>
-                ) : sensorStatus === "listening" ? (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-300">
-                    <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
-                    {isTe ? "సెన్సార్ యాక్టివ్ - నడుస్తున్నప్పుడు మాత్రమే కౌంట్ అవుతుంది" : "Sensor Active - Counts strictly when walking"}
-                  </span>
-                ) : sensorStatus === "unsupported" ? (
-                  <span className="text-[10px] font-bold text-amber-300">
-                    {isTe ? "ఈ ఫోన్ డివైజ్‌లో మోషన్ సెన్సార్ అందుబాటులో లేదు" : "Motion sensor not available on this device"}
-                  </span>
-                ) : null}
+                </span>
               </div>
             )}
           </div>
@@ -545,10 +505,28 @@ export function StepTrackerWidget() {
         </div>
       </div>
 
+      {/* Developer Debug Toggle Button & Diagnostics Screen */}
+      <div className="pt-2">
+        <button
+          type="button"
+          onClick={() => setShowDeveloperDebug(!showDeveloperDebug)}
+          className="text-xs font-bold text-emerald-400/80 hover:text-emerald-300 flex items-center gap-1.5 transition cursor-pointer"
+        >
+          <Cpu className="size-3.5" />
+          <span>{showDeveloperDebug ? "Hide Developer Diagnostics" : "🛠️ Developer / Signal Processing Diagnostics"}</span>
+        </button>
+
+        {showDeveloperDebug && (
+          <div className="mt-3">
+            <StepEngineDiagnostics engine={engineRef.current} isExpanded={true} />
+          </div>
+        )}
+      </div>
+
       {/* Target Goal Customization Modal */}
       {showGoalModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-emerald-500/30 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl text-white relative">
+          <div className="bg-slate-900 border border-emerald-500/30 rounded-3xl p-6 max-w-sm w-full space-y-4 shadow-2xl text-white relative font-sans">
             <div className="flex items-center justify-between">
               <h3 className="font-black text-sm text-white flex items-center gap-1.5">
                 <Target className="size-4 text-yellow-400" />
