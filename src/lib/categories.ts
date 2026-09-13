@@ -15,6 +15,18 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     rssQuery: "viral news shorts trending video clips"
   },
   {
+    slug: "daily-share" as any,
+    label: {
+      te: "వాట్సాప్ స్టేటస్ ఫోటో",
+      en: "WhatsApp Status Photo",
+      hi: "व्हाट्सएप स्टेटस फोटो",
+      ta: "வாட்ஸ்அப் நிலை புகைப்படம்",
+      kn: "ವಾಟ್ಸಾಪ್ ಸ್ಥಿತಿ ಫೋಟೋ"
+    },
+    short: "వాట్సాప్ స్టేటస్ ఫోటో",
+    rssQuery: "daily status quotes photos devotional thoughts"
+  },
+  {
     slug: "health",
     label: {
       te: "ఆరోగ్యం",
@@ -196,6 +208,7 @@ export const TELUGU_CATEGORY_MAP: Record<string, string> = {
   jathakam:        "జాతకము",
   devotional:      "భక్తి",
   viralshorts:     "వైరల్ షార్ట్స్",
+  "daily-share":   "వాట్సాప్ స్టేటస్ ఫోటో",
   vizag:           "విశాఖ",
   jobs:            "స్థానిక ఉద్యోగాలు",
   national:        "జాతీయ వార్తలు",
@@ -206,6 +219,14 @@ export function categoryLabel(category: string, lang?: Language): string {
   const activeLang = lang ?? getActiveLanguage();
   const lowerCat = (category || "").toLowerCase().trim();
   
+  if (lowerCat === "daily-share") {
+    if (activeLang === "te") return "వాట్సాప్ స్టేటస్ ఫోటో";
+    if (activeLang === "en") return "WhatsApp Status Photo";
+    if (activeLang === "hi") return "व्हाट्सएप स्टेटस फोटो";
+    if (activeLang === "ta") return "வாட்ஸ்அப் நிலை புகைப்படம்";
+    if (activeLang === "kn") return "ವಾಟ್ಸಾಪ್ ಸ್ಥಿತಿ ಫೋಟೋ";
+  }
+
   if (lowerCat === "jathakam") {
     if (activeLang === "te") return "జాతకము";
     if (activeLang === "en") return "Jathakam & Horoscope";

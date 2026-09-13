@@ -316,7 +316,7 @@ export function MahilaMarketPage() {
   };
 
   return (
-    <div className="bg-slate-50 text-slate-900 min-h-screen pb-16">
+    <div className="bg-[hsl(var(--background))] text-[hsl(var(--foreground))] min-h-screen pb-16 transition-colors">
       <main className="container-shell py-6 space-y-6 animate-in fade-in duration-300">
 
         {/* Hero Section Banner */}
@@ -356,7 +356,7 @@ export function MahilaMarketPage() {
                   className={`rounded-full px-4 py-2.5 text-xs font-black whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 min-h-[44px] touch-manipulation active:scale-95 ${
                     isSel
                       ? "bg-rose-600 text-white shadow-md"
-                      : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-sm"
+                      : "bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] shadow-sm"
                   }`}
                 >
                   <span>{cat.label}</span>
@@ -373,13 +373,13 @@ export function MahilaMarketPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="వెతకండి (పచ్చళ్ళు, కారం పొడి, చీరలు, టైలరింగ్, ట్యూషన్స్)..."
-              className="w-full rounded-full border border-slate-300 bg-white py-3 pl-11 pr-4 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm min-h-[46px]"
+              className="w-full rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] py-3 pl-11 pr-4 text-xs font-bold text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-rose-500 shadow-sm min-h-[46px]"
             />
           </div>
         </div>
 
         {/* 7 BROAD CATEGORIES VISUAL SHOWCASE */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 space-y-4 shadow-sm">
+        <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))] rounded-3xl p-4 sm:p-6 space-y-4 shadow-sm">
           <h3 className="text-sm font-black text-rose-600 uppercase tracking-wider flex items-center gap-2">
             <span>🌸 మహిళా మార్కెట్ — 7 ముఖ్యమైన విభాగాలు (7 Broad Categories)</span>
           </h3>
@@ -433,7 +433,7 @@ export function MahilaMarketPage() {
             return (
               <div
                 key={item.id}
-                className="rounded-[1.8rem] border border-slate-200 bg-white text-slate-900 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                className="rounded-[1.8rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Image */}
                 <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">

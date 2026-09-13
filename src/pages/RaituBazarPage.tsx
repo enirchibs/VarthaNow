@@ -315,7 +315,7 @@ export function RaituBazarPage() {
   };
 
   return (
-    <div className="bg-slate-50 text-slate-900 min-h-screen pb-16">
+    <div className="bg-[hsl(var(--background))] text-[hsl(var(--foreground))] min-h-screen pb-16 transition-colors">
       <main className="container-shell py-6 space-y-6 animate-in fade-in duration-300">
 
         {/* Hero Section Banner */}
@@ -382,7 +382,7 @@ export function RaituBazarPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="వెతకండి (వరి, టమోటా, ట్రాక్టర్, పశువులు, విత్తనాలు, కోల్డ్ స్టోరేజ్, ఆనందపురం)..."
-            className="w-full rounded-full border border-slate-300 bg-white py-3 pl-11 pr-4 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm min-h-[46px]"
+            className="w-full rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] py-3 pl-11 pr-4 text-xs font-bold text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm min-h-[46px]"
           />
         </div>
 
@@ -396,7 +396,7 @@ export function RaituBazarPage() {
             return (
               <div
                 key={item.id}
-                className="rounded-[1.8rem] border border-slate-200 bg-white text-slate-900 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                className="rounded-[1.8rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--foreground))] overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
               >
                 {/* Cover Image */}
                 <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">

@@ -254,3 +254,25 @@ select {
 .animate-pulse-glow {
   animation: pulseGlow 2.4s ease-in-out infinite;
 }
+
+/* ── Smooth Horizontal Ticker Flow Animation ───────────────────────────── */
+@keyframes tickerFlow {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-ticker-flow {
+  display: flex;
+  width: max-content;
+  animation: tickerFlow 50s linear infinite;
+  will-change: transform;
+}
+
+.animate-ticker-flow:hover {
+  animation-play-state: paused;
+}
+

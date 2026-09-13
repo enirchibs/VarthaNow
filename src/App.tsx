@@ -48,6 +48,8 @@ const router = createBrowserRouter([
       { path: "/prakatanalu", element: <PrakatanaluPage /> },
       { path: "/maatlaadu-ai", element: <MaatlaaduAIPage /> },
       { path: "/category/health", element: <Navigate to="/health" replace /> },
+      { path: "/category/daily-share", element: <Navigate to="/daily-share" replace /> },
+      { path: "/category/whatsapp-status", element: <Navigate to="/daily-share" replace /> },
       { path: "/health", element: <HealthPortal /> },
       { path: "/health/:subpage", element: <HealthPortal /> },
       { path: "/bookmarks", element: <BookmarksPage /> },

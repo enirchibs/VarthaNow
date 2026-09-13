@@ -8,9 +8,11 @@ import { supabase } from "@/lib/supabase";
 import { detectGPSLocation } from "@/lib/location-detector";
 import { CreatePostModal } from "@/components/CreatePostModal";
 import { SmartChatbotWidget } from "@/components/SmartChatbotWidget";
+import { HeaderFlowTicker } from "@/components/HeaderFlowTicker";
 
 const categoryEmojis: Record<string, string> = {
   viralshorts: "🔥",
+  "daily-share": "📸",
   "andhra-pradesh": "🏛️",
   telangana: "🏛️",
   devotional: "🙏",
@@ -58,7 +60,7 @@ export function Layout() {
     setIsNavAnimating(false);
   }, []);
 
-  // 🌓 Background Theme (White / Dark) with Persistent Preference
+  // 🌓 Background Theme (White / Dark) with Persistent Preference across ALL pages
   const [theme, setTheme] = useState<"white" | "dark">(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("vaartanow_theme");
@@ -70,9 +72,28 @@ export function Layout() {
 
   useEffect(() => {
     const isDark = theme === "dark";
-    document.documentElement.classList.toggle("dark", isDark);
-    localStorage.setItem("vaartanow_theme", theme);
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    try {
+      localStorage.setItem("vaartanow_theme", theme);
+    } catch (e) {
+      console.warn("Theme storage error:", e);
+    }
   }, [theme]);
+
+  // Sync theme changes across tabs or windows
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === "vaartanow_theme" && (e.newValue === "dark" || e.newValue === "white")) {
+        setTheme(e.newValue);
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
 
   // 📱 Mobile Pre-Sleep Idle Haptic Buzz & Category Wake-Up Effect
   useEffect(() => {
@@ -237,9 +258,6 @@ export function Layout() {
     await supabase.auth.signOut();
   };
 
-  useEffect(() => {
-    document.documentElement.classList.remove("dark");
-  }, []);
 
   // 📍 GPS Location Permission Prompt on opening app
   useEffect(() => {
@@ -398,6 +416,8 @@ export function Layout() {
                           ? "/health" 
                           : category.slug === "jobs" 
                           ? "/jobs" 
+                          : (category.slug as string) === "daily-share"
+                          ? "/daily-share"
                           : `/category/${category.slug}`;
 
                         return (
@@ -438,6 +458,10 @@ export function Layout() {
             <Search className="size-4" />
           </Link>
         </div>
+
+        {/* 🚀 Flowing Small Letters Ticker in Between Title and Categories */}
+        <HeaderFlowTicker />
+
         <nav
           ref={navRef}
           onMouseEnter={stopCategoryTour}
@@ -537,7 +561,7 @@ export function Layout() {
             return (
               <NavLink
                 key={category.slug}
-                to={category.slug === "health" ? "/health" : category.slug === "jobs" ? "/jobs" : `/category/${category.slug}`}
+                to={category.slug === "health" ? "/health" : category.slug === "jobs" ? "/jobs" : (category.slug as string) === "daily-share" ? "/daily-share" : `/category/${category.slug}`}
                 className={({ isActive }) =>
                   `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
                     isHighlighted
