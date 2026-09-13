@@ -43,6 +43,22 @@ export function Layout() {
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
   const [showIdleAlertBanner, setShowIdleAlertBanner] = useState(false);
 
+  // 🌓 Background Theme (White / Dark) with Persistent Preference
+  const [theme, setTheme] = useState<"white" | "dark">(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("vaartanow_theme");
+      if (saved === "dark" || saved === "white") return saved;
+      if (document.documentElement.classList.contains("dark")) return "dark";
+    }
+    return "white";
+  });
+
+  useEffect(() => {
+    const isDark = theme === "dark";
+    document.documentElement.classList.toggle("dark", isDark);
+    localStorage.setItem("vaartanow_theme", theme);
+  }, [theme]);
+
   // 📱 Mobile Pre-Sleep Idle Haptic Buzz & Category Wake-Up Effect
   useEffect(() => {
     let idleTimer: any = null;
@@ -269,20 +285,57 @@ export function Layout() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] pb-16 md:pb-0">
       <header className="sticky top-0 z-50 border-b border-[hsl(var(--border))] bg-[hsl(var(--background))] backdrop-blur-xl">
-        <div className="container-shell flex h-16 items-center gap-3">
-          <Link to="/" className="flex min-w-0 flex-1 items-center gap-3">
-            <img src="/vaartanow-logo.png" alt="VaartaNow" className="h-10 w-auto rounded-xl object-contain dark:brightness-110" />
-            <span className="min-w-0">
-              <span className="block truncate text-lg font-black">VaartaNow</span>
-              <span className="block truncate text-xs font-semibold text-[hsl(var(--muted-foreground))]">
-                {lang === "te" && "తాజా వార్తలు, తక్షణం"}
-                {lang === "en" && "Multilingual Live News"}
-                {lang === "hi" && "बहुभाषी ताज़ा समाचार"}
-                {lang === "ta" && "பல்மொழி செய்திகள்"}
-                {lang === "kn" && "ಬಹುಭಾಷಾ ಸುದ್ದಿ"}
+        <div className="container-shell flex h-16 items-center gap-2 sm:gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+            <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-3 shrink-0">
+              <img src="/vaartanow-logo.png" alt="VaartaNow" className="h-9 sm:h-10 w-auto rounded-xl object-contain dark:brightness-110" />
+              <span className="min-w-0">
+                <span className="block truncate text-sm sm:text-lg font-black">VaartaNow</span>
+                <span className="hidden xs:block truncate text-[10px] sm:text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+                  {lang === "te" && "తాజా వార్తలు, తక్షణం"}
+                  {lang === "en" && "Multilingual Live News"}
+                  {lang === "hi" && "बहुभाषी ताज़ा समाचार"}
+                  {lang === "ta" && "பல்மொழி செய்திகள்"}
+                  {lang === "kn" && "ಬಹುಭಾಷಾ ಸುದ್ದಿ"}
+                </span>
               </span>
-            </span>
-          </Link>
+            </Link>
+
+            {/* 🎨 Background Color Selector (White / Dark) - Marked with Color in this place */}
+            <div 
+              className="flex items-center p-0.5 sm:p-1 rounded-2xl border-2 border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm shrink-0 ml-1"
+              role="group"
+              aria-label="Background Color Selector"
+            >
+              <button
+                type="button"
+                onClick={() => setTheme("white")}
+                title="తెలుపు నేపథ్యం / White Background"
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl text-[10px] sm:text-xs font-black transition-all ${
+                  theme === "white"
+                    ? "bg-amber-400 text-amber-950 shadow-md shadow-amber-400/40 ring-2 ring-amber-500 scale-105"
+                    : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+                }`}
+              >
+                <Sun className={`size-3 sm:size-3.5 ${theme === "white" ? "text-amber-950 fill-amber-500" : "text-amber-500"}`} />
+                <span>White</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setTheme("dark")}
+                title="చీకటి నేపథ్యం / Dark Background"
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl text-[10px] sm:text-xs font-black transition-all ${
+                  theme === "dark"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/40 ring-2 ring-indigo-400 scale-105"
+                    : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+                }`}
+              >
+                <Moon className={`size-3 sm:size-3.5 ${theme === "dark" ? "text-white fill-indigo-200" : "text-indigo-400"}`} />
+                <span>Dark</span>
+              </button>
+            </div>
+          </div>
           <div className="flex items-center gap-3">
             {/* 🌟 Bouncing Yellow Remaining Categories dropdown for mobile */}
             <div className="relative md:hidden z-50">

@@ -17,6 +17,18 @@
     <meta name="twitter:image" content="/og-image.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>VaartaNow - తెలుగు వార్తలు | Telugu AI News | Breaking News AP & Telangana</title>
+    <script>
+      (function() {
+        try {
+          var t = localStorage.getItem('vaartanow_theme');
+          if (t === 'dark') {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
