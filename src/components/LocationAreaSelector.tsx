@@ -7,8 +7,7 @@ import {
   RefreshCw, 
   Sparkles, 
   AlertTriangle, 
-  X,
-  Languages
+  X
 } from "lucide-react";
 import { 
   detectDetailedGPSArea, 
@@ -122,9 +121,13 @@ export function LocationAreaSelector({
   };
 
   // Select suggestion
-  const handleSelectArea = (areaStr: string) => {
-    setQuery(areaStr);
-    onChange(areaStr);
+  const handleSelectArea = async (areaStr: string) => {
+    let teluguArea = areaStr;
+    if (!/[\u0C00-\u0C7F]/.test(teluguArea)) {
+      teluguArea = await convertAreaToTelugu(teluguArea);
+    }
+    setQuery(teluguArea);
+    onChange(teluguArea);
     setIsGpsSelected(false);
     setShowDropdown(false);
     setSuggestions([]);
@@ -173,23 +176,6 @@ export function LocationAreaSelector({
             {label} {required && <span className="text-red-500">*</span>}
           </label>
           <div className="flex items-center gap-2 shrink-0">
-            {query && /[a-zA-Z]/.test(query) && (
-              <button
-                type="button"
-                onClick={async () => {
-                  const te = await convertAreaToTelugu(query);
-                  if (te && te !== query) {
-                    setQuery(te);
-                    onChange(te);
-                  }
-                }}
-                className="text-[11px] font-bold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1 cursor-pointer bg-blue-50 dark:bg-blue-950/50 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800"
-                title="Convert location name to Telugu"
-              >
-                <Languages className="size-3" />
-                <span>తెలుగులోకి మార్చు</span>
-              </button>
-            )}
             {query && (
               <button
                 type="button"
@@ -221,6 +207,15 @@ export function LocationAreaSelector({
           type="text"
           value={query}
           onChange={handleInputChange}
+          onBlur={async () => {
+            if (query && !/[\u0C00-\u0C7F]/.test(query) && query.trim().length >= 3) {
+              const te = await convertAreaToTelugu(query);
+              if (te && te !== query) {
+                setQuery(te);
+                onChange(te);
+              }
+            }
+          }}
           onFocus={async () => {
             const isTelugu = /[\u0C00-\u0C7F]/.test(query);
             const minChars = isTelugu ? 2 : 3;
