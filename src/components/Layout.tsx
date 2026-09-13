@@ -301,38 +301,38 @@ export function Layout() {
               </span>
             </Link>
 
-            {/* 🎨 Background Color Selector (White / Dark) - Marked with Color in this place */}
+            {/* 🎨 Background Color Selector (తెలుపు / నలుపు) - Compact & Telugu */}
             <div 
-              className="flex items-center p-0.5 sm:p-1 rounded-2xl border-2 border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-sm shrink-0 ml-1"
+              className="flex items-center p-0.5 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-xs shrink-0 ml-1"
               role="group"
-              aria-label="Background Color Selector"
+              aria-label="నేపథ్యం రంగు ఎంపిక"
             >
               <button
                 type="button"
                 onClick={() => setTheme("white")}
-                title="తెలుపు నేపథ్యం / White Background"
-                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl text-[10px] sm:text-xs font-black transition-all ${
+                title="తెలుపు నేపథ్యం (White Background)"
+                className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold leading-none transition-all ${
                   theme === "white"
-                    ? "bg-amber-400 text-amber-950 shadow-md shadow-amber-400/40 ring-2 ring-amber-500 scale-105"
-                    : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+                    ? "bg-amber-400 text-amber-950 shadow-xs ring-1 ring-amber-500 scale-105"
+                    : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
                 }`}
               >
-                <Sun className={`size-3 sm:size-3.5 ${theme === "white" ? "text-amber-950 fill-amber-500" : "text-amber-500"}`} />
-                <span>White</span>
+                <Sun className={`size-2.5 sm:size-3 ${theme === "white" ? "text-amber-950 fill-amber-500" : "text-amber-500"}`} />
+                <span>తెలుపు</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setTheme("dark")}
-                title="చీకటి నేపథ్యం / Dark Background"
-                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-xl text-[10px] sm:text-xs font-black transition-all ${
+                title="నలుపు నేపథ్యం (Dark Background)"
+                className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold leading-none transition-all ${
                   theme === "dark"
-                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/40 ring-2 ring-indigo-400 scale-105"
-                    : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+                    ? "bg-indigo-600 text-white shadow-xs ring-1 ring-indigo-400 scale-105"
+                    : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
                 }`}
               >
-                <Moon className={`size-3 sm:size-3.5 ${theme === "dark" ? "text-white fill-indigo-200" : "text-indigo-400"}`} />
-                <span>Dark</span>
+                <Moon className={`size-2.5 sm:size-3 ${theme === "dark" ? "text-white fill-indigo-200" : "text-indigo-400"}`} />
+                <span>నలుపు</span>
               </button>
             </div>
           </div>
