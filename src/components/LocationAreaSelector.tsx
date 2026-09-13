@@ -351,10 +351,10 @@ export function LocationAreaSelector({
               </div>
               <div>
                 <h3 className="font-extrabold text-sm text-slate-900 dark:text-slate-100">
-                  GPS Location సేవలు అవసరం!
+                  {gpsErrorMsg.includes("పర్మిషన్") ? "లొకేషన్ పర్మిషన్ అవసరం!" : "GPS Location సేవలు అవసరం!"}
                 </h3>
                 <p className="text-[11px] text-amber-600 dark:text-amber-400 font-bold">
-                  Enable GPS Location Services
+                  {gpsErrorMsg.includes("పర్మిషన్") ? "Location Permission Needed" : "Enable GPS Location Services"}
                 </p>
               </div>
             </div>
@@ -365,12 +365,22 @@ export function LocationAreaSelector({
 
             <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800/80 space-y-2 text-[11px]">
               <div className="font-bold text-slate-800 dark:text-slate-200">
-                📍 GPS ని ఆన్ చేయడానికి సూచనలు:
+                📍 {gpsErrorMsg.includes("పర్మిషన్") ? "పర్మిషన్ అనుమతించడానికి సూచనలు:" : "GPS ఆన్ చేయడానికి సూచనలు:"}
               </div>
-              <ol className="list-decimal list-inside space-y-1 text-slate-600 dark:text-slate-300">
-                <li>మీ ఫోన్ పైన Quick Settings ను క్రిందికి స్వైప్ చేయండి.</li>
-                <li><b>Location / GPS</b> ఐకాన్ పైన టాప్ చేసి <b>ON</b> చేయండి.</li>
-                <li>మీ బ్రౌజర్‌లో <b>Allow Location Access</b> ని ఎంచుకోండి.</li>
+              <ol className="list-decimal list-inside space-y-1.5 text-slate-600 dark:text-slate-300">
+                {gpsErrorMsg.includes("పర్మిషన్") ? (
+                  <>
+                    <li>బ్రౌజర్ అడ్రస్ బార్‌లోని <b>🔒 లాక్ (Lock) / Tune</b> ఐకాన్‌పై క్లిక్ చేయండి.</li>
+                    <li><b>Permissions</b> విభాగంలో <b>Location</b> ని <b>Allow</b> చేయండి.</li>
+                    <li>క్రింది 'మళ్ళీ ప్రయత్నించండి' బటన్ నొక్కండి.</li>
+                  </>
+                ) : (
+                  <>
+                    <li>మీ ఫోన్/కంప్యూటర్‌లో Quick Settings లేదా Settings తెరవండి.</li>
+                    <li><b>Location / GPS Services</b> ని <b>ON</b> చేయండి.</li>
+                    <li>బ్రౌజర్‌లో <b>Allow Location</b> అడిగినప్పుడు అనుమతించండి.</li>
+                  </>
+                )}
               </ol>
             </div>
 

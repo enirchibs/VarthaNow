@@ -17,6 +17,8 @@ export interface DetailedAreaResult {
   pincode?: string;
   lat?: number;
   lon?: number;
+  error_type?: "PERMISSION_DENIED" | "POSITION_UNAVAILABLE" | "TIMEOUT" | "NOT_SUPPORTED" | "UNKNOWN";
+  error_message?: string;
 }
 
 // 🏢 Preloaded High-Priority Andhra Pradesh & Telangana Localities Database
@@ -440,9 +442,213 @@ export async function convertAreaToTelugu(englishText: string): Promise<string> 
   return translated;
 }
 
+// 🏢 Reference Coordinates for AP & TS Regional Centers (Instant Offline / API Fallback)
+const AP_TS_REFERENCE_COORDINATES: { name_te: string; name_en: string; lat: number; lon: number; state: string }[] = [
+  // Visakhapatnam region
+  { name_te: "విశాఖపట్నం (Visakhapatnam)", name_en: "Visakhapatnam", lat: 17.6868, lon: 83.2185, state: "Andhra Pradesh" },
+  { name_te: "ఆనందపురం (Anandapuram)", name_en: "Anandapuram", lat: 17.9095, lon: 83.3916, state: "Andhra Pradesh" },
+  { name_te: "మధురవాడ (Madhurawada)", name_en: "Madhurawada", lat: 17.8184, lon: 83.3551, state: "Andhra Pradesh" },
+  { name_te: "గాజువాక (Gajuwaka)", name_en: "Gajuwaka", lat: 17.6908, lon: 83.2185, state: "Andhra Pradesh" },
+  { name_te: "పెందుర్తి (Pendurthi)", name_en: "Pendurthi", lat: 17.8347, lon: 83.2014, state: "Andhra Pradesh" },
+  { name_te: "భీమిలి (Bheemili)", name_en: "Bheemunipatnam", lat: 17.8906, lon: 83.4542, state: "Andhra Pradesh" },
+  // Krishna / NTR / Guntur
+  { name_te: "విజయవాడ (Vijayawada)", name_en: "Vijayawada", lat: 16.5062, lon: 80.6480, state: "Andhra Pradesh" },
+  { name_te: "గుంటూరు (Guntur)", name_en: "Guntur", lat: 16.3067, lon: 80.4365, state: "Andhra Pradesh" },
+  { name_te: "మంగళగిరి (Mangalagiri)", name_en: "Mangalagiri", lat: 16.4325, lon: 80.5684, state: "Andhra Pradesh" },
+  { name_te: "తెనాలి (Tenali)", name_en: "Tenali", lat: 16.2435, lon: 80.6401, state: "Andhra Pradesh" },
+  // Godavari
+  { name_te: "రాజమండ్రి (Rajahmundry)", name_en: "Rajahmundry", lat: 17.0005, lon: 81.8040, state: "Andhra Pradesh" },
+  { name_te: "కాకినాడ (Kakinada)", name_en: "Kakinada", lat: 16.9891, lon: 82.2475, state: "Andhra Pradesh" },
+  { name_te: "ఏలూరు (Eluru)", name_en: "Eluru", lat: 16.7107, lon: 81.0952, state: "Andhra Pradesh" },
+  { name_te: "భీమవరం (Bhimavaram)", name_en: "Bhimavaram", lat: 16.5449, lon: 81.5212, state: "Andhra Pradesh" },
+  // Rayalaseema & South AP
+  { name_te: "తిరుపతి (Tirupati)", name_en: "Tirupati", lat: 13.6288, lon: 79.4192, state: "Andhra Pradesh" },
+  { name_te: "కర్నూలు (Kurnool)", name_en: "Kurnool", lat: 15.8281, lon: 78.0373, state: "Andhra Pradesh" },
+  { name_te: "నెల్లూరు (Nellore)", name_en: "Nellore", lat: 14.4426, lon: 79.9865, state: "Andhra Pradesh" },
+  { name_te: "కడప (Kadapa)", name_en: "Kadapa", lat: 14.4673, lon: 78.8242, state: "Andhra Pradesh" },
+  { name_te: "అనంతపురం (Anantapur)", name_en: "Anantapur", lat: 14.6819, lon: 77.6006, state: "Andhra Pradesh" },
+  { name_te: "ఒంగోలు (Ongole)", name_en: "Ongole", lat: 15.5057, lon: 80.0499, state: "Andhra Pradesh" },
+  // North Andhra
+  { name_te: "విజయనగరం (Vizianagaram)", name_en: "Vizianagaram", lat: 18.1067, lon: 83.3956, state: "Andhra Pradesh" },
+  { name_te: "శ్రీకాకుళం (Srikakulam)", name_en: "Srikakulam", lat: 18.2969, lon: 83.8968, state: "Andhra Pradesh" },
+  // Hyderabad & Telangana
+  { name_te: "హైదరాబాద్ (Hyderabad)", name_en: "Hyderabad", lat: 17.3850, lon: 78.4867, state: "Telangana" },
+  { name_te: "కూకట్‌పల్లి (Kukatpally)", name_en: "Kukatpally", lat: 17.4933, lon: 78.4011, state: "Telangana" },
+  { name_te: "సికింద్రాబాద్ (Secunderabad)", name_en: "Secunderabad", lat: 17.4399, lon: 78.4983, state: "Telangana" },
+  { name_te: "వరంగల్ (Warangal)", name_en: "Warangal", lat: 17.9689, lon: 79.5941, state: "Telangana" },
+  { name_te: "కరీంనగర్ (Karimnagar)", name_en: "Karimnagar", lat: 18.4386, lon: 79.1288, state: "Telangana" },
+  { name_te: "ఖమ్మం (Khammam)", name_en: "Khammam", lat: 17.2473, lon: 80.1514, state: "Telangana" },
+  { name_te: "నిజామాబాద్ (Nizamabad)", name_en: "Nizamabad", lat: 18.6725, lon: 78.0941, state: "Telangana" }
+];
+
+// Helper to retrieve device coordinates with fallback from High-Accuracy to Network/IP geolocation
+async function getDeviceCoordinates(): Promise<{ latitude: number; longitude: number }> {
+  return new Promise((resolve, reject) => {
+    let resolved = false;
+
+    const onPosSuccess = (pos: GeolocationPosition) => {
+      if (!resolved) {
+        resolved = true;
+        resolve({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude
+        });
+      }
+    };
+
+    // First attempt: High accuracy
+    navigator.geolocation.getCurrentPosition(
+      onPosSuccess,
+      (err) => {
+        // If user denied permission explicitly, reject immediately so we don't delay
+        if (err.code === err.PERMISSION_DENIED) {
+          if (!resolved) {
+            resolved = true;
+            reject(err);
+          }
+          return;
+        }
+
+        // On desktop browsers (Windows/Mac) or mobile without GPS lock,
+        // High accuracy often times out or yields POSITION_UNAVAILABLE.
+        // Fallback immediately to standard/network accuracy.
+        navigator.geolocation.getCurrentPosition(
+          onPosSuccess,
+          (fallbackErr) => {
+            if (!resolved) {
+              resolved = true;
+              reject(fallbackErr);
+            }
+          },
+          { enableHighAccuracy: false, timeout: 8000, maximumAge: 120000 }
+        );
+      },
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+    );
+  });
+}
+
+// Multi-tier reverse geocode: BigDataCloud -> Nominatim -> Known Coordinates Distance Match
+async function reverseGeocodeWithFallbacks(latitude: number, longitude: number): Promise<{
+  formatted_address: string;
+  suburb_village?: string;
+  city_town: string;
+  district_mandal?: string;
+  state: string;
+  pincode?: string;
+}> {
+  // Strategy 1: BigDataCloud Reverse Geocode Client API (Reliable, fast, no 429 rate limit issues on client browsers)
+  try {
+    const bdcRes = await fetch(
+      `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+    );
+    if (bdcRes.ok) {
+      const bdcData = await bdcRes.json();
+      const locality = bdcData.locality || "";
+      const city = bdcData.city || bdcData.principalSubdivision || "";
+      const state = bdcData.principalSubdivision || "Andhra Pradesh";
+      const postcode = bdcData.postcode || "";
+
+      let formatted = "";
+      if (locality && city && locality.toLowerCase() !== city.toLowerCase()) {
+        formatted = `${locality}, ${city}`;
+      } else if (city) {
+        formatted = `${city}, ${state}`;
+      } else if (locality) {
+        formatted = `${locality}, ${state}`;
+      }
+
+      if (formatted) {
+        let teluguAddress = formatted;
+        try {
+          teluguAddress = await convertAreaToTelugu(formatted);
+        } catch (e) {
+          console.warn("Telugu conversion error:", e);
+        }
+
+        return {
+          formatted_address: teluguAddress || formatted,
+          suburb_village: locality,
+          city_town: city || "Visakhapatnam",
+          district_mandal: locality || city,
+          state,
+          pincode: postcode
+        };
+      }
+    }
+  } catch (err) {
+    console.warn("BigDataCloud reverse geocode error:", err);
+  }
+
+  // Strategy 2: OpenStreetMap Nominatim Reverse Geocode
+  try {
+    const osmRes = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=te,en`,
+      { headers: { "User-Agent": "VarthaNow-Location-Detector" } }
+    );
+    if (osmRes.ok) {
+      const data = await osmRes.json();
+      const address = data.address || {};
+      const suburbOrVillage = address.suburb || address.village || address.neighbourhood || address.residential || address.road;
+      const cityOrTown = address.city || address.town || address.municipality || address.county;
+      const mandalOrDist = address.county || address.state_district || address.district;
+      const state = address.state || "Andhra Pradesh";
+      const pincode = address.postcode;
+
+      let formatted = "";
+      if (suburbOrVillage && cityOrTown) {
+        formatted = `${suburbOrVillage}, ${cityOrTown}`;
+      } else if (cityOrTown) {
+        formatted = `${cityOrTown}, ${state}`;
+      } else {
+        formatted = data.display_name ? data.display_name.split(",").slice(0, 3).join(",") : "";
+      }
+
+      if (formatted) {
+        let teluguAddress = formatted;
+        try {
+          teluguAddress = await convertAreaToTelugu(formatted);
+        } catch (e) {
+          console.warn("Telugu conversion error:", e);
+        }
+
+        return {
+          formatted_address: teluguAddress || formatted,
+          suburb_village: suburbOrVillage,
+          city_town: cityOrTown || "Visakhapatnam",
+          district_mandal: mandalOrDist,
+          state,
+          pincode
+        };
+      }
+    }
+  } catch (err) {
+    console.warn("Nominatim reverse geocode error:", err);
+  }
+
+  // Strategy 3: Nearest AP/TS Coordinates match fallback (Always works offline/when APIs fail)
+  let closest = AP_TS_REFERENCE_COORDINATES[0];
+  let minDistance = Infinity;
+  for (const ref of AP_TS_REFERENCE_COORDINATES) {
+    const d = Math.hypot(latitude - ref.lat, longitude - ref.lon);
+    if (d < minDistance) {
+      minDistance = d;
+      closest = ref;
+    }
+  }
+
+  return {
+    formatted_address: closest.name_te,
+    suburb_village: closest.name_en,
+    city_town: closest.name_en,
+    district_mandal: closest.name_en,
+    state: closest.state
+  };
+}
+
 // 🎯 Detect Detailed GPS Area (Street, Village, Mandal, City, District) with precise Error Types
 export async function detectDetailedGPSArea(): Promise<DetailedAreaResult | null> {
-  if (!navigator.geolocation) {
+  if (typeof window === "undefined" || !navigator.geolocation) {
     return {
       formatted_address: "",
       city_town: "",
@@ -452,92 +658,37 @@ export async function detectDetailedGPSArea(): Promise<DetailedAreaResult | null
     };
   }
 
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=te,en`,
-            { headers: { "User-Agent": "VarthaNow-Location-Detector" } }
-          );
+  try {
+    const coords = await getDeviceCoordinates();
+    const geo = await reverseGeocodeWithFallbacks(coords.latitude, coords.longitude);
+    return {
+      ...geo,
+      lat: coords.latitude,
+      lon: coords.longitude
+    };
+  } catch (err: any) {
+    let errType: "PERMISSION_DENIED" | "POSITION_UNAVAILABLE" | "TIMEOUT" | "UNKNOWN" = "UNKNOWN";
+    let errMsg = "GPS గుర్తించడంలో ఆటంకం ఏర్పడింది.";
 
-          if (!response.ok) throw new Error("GPS reverse error");
-          const data = await response.json();
-          const address = data.address || {};
+    if (err?.code === 1 /* PERMISSION_DENIED */) {
+      errType = "PERMISSION_DENIED";
+      errMsg = "GPS/Location పర్మిషన్ తిరస్కరించబడింది. దయచేసి బ్రౌజర్ సెట్టింగ్స్ లేదా అడ్రస్ బార్‌లోని లాక్ (Lock) ఐకాన్‌పై క్లిక్ చేసి Location అనుమతించండి.";
+    } else if (err?.code === 2 /* POSITION_UNAVAILABLE */) {
+      errType = "POSITION_UNAVAILABLE";
+      errMsg = "పరికరంలో Location / GPS ఆఫ్‌లో ఉంది. దయచేసి Quick Settings లేదా Settings లో Location ఆన్ చేయండి.";
+    } else if (err?.code === 3 /* TIMEOUT */) {
+      errType = "TIMEOUT";
+      errMsg = "GPS రెస్పాన్స్ సమయం మించిపోయింది (Timeout). దయచేసి మళ్ళీ ప్రయత్నించండి.";
+    }
 
-          const suburbOrVillage = address.suburb || address.village || address.neighbourhood || address.residential || address.road;
-          const cityOrTown = address.city || address.town || address.municipality || address.county;
-          const mandalOrDist = address.county || address.state_district || address.district;
-          const state = address.state || "Andhra Pradesh";
-          const pincode = address.postcode;
-
-          let formatted = "";
-          if (suburbOrVillage && cityOrTown) {
-            formatted = `${suburbOrVillage}, ${cityOrTown}`;
-          } else if (cityOrTown) {
-            formatted = `${cityOrTown}, ${state}`;
-          } else {
-            formatted = data.display_name.split(",").slice(0, 3).join(",");
-          }
-
-          // 🌐 Convert English place names to Telugu
-          let teluguAddress = formatted;
-          try {
-            teluguAddress = await convertAreaToTelugu(formatted);
-          } catch (e) {
-            console.warn("Telugu conversion error:", e);
-          }
-
-          const result: DetailedAreaResult = {
-            formatted_address: teluguAddress || formatted,
-            suburb_village: suburbOrVillage,
-            city_town: cityOrTown || "Visakhapatnam",
-            district_mandal: mandalOrDist,
-            state: state,
-            pincode,
-            lat: latitude,
-            lon: longitude
-          };
-
-          resolve(result);
-        } catch (err) {
-          console.warn("Failed reverse geocode:", err);
-          resolve({
-            formatted_address: "",
-            city_town: "",
-            state: "",
-            error_type: "POSITION_UNAVAILABLE",
-            error_message: "GPS నెట్‌వర్క్ పొందుపరచడంలో విఫలమైంది."
-          });
-        }
-      },
-      (error) => {
-        let errType: "PERMISSION_DENIED" | "POSITION_UNAVAILABLE" | "TIMEOUT" | "UNKNOWN" = "UNKNOWN";
-        let errMsg = "GPS గుర్తించడంలో ఆటంకం ఏర్పడింది.";
-
-        if (error.code === error.PERMISSION_DENIED) {
-          errType = "PERMISSION_DENIED";
-          errMsg = "GPS/Location పర్మిషన్ తిరస్కరించబడింది. దయచేసి బ్రౌజర్ settings లో అనుమతించండి.";
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          errType = "POSITION_UNAVAILABLE";
-          errMsg = "పరికరంలో Location / GPS ఆఫ్‌లో ఉంది. దయచేసి ఆన్ చేయండి.";
-        } else if (error.code === error.TIMEOUT) {
-          errType = "TIMEOUT";
-          errMsg = "GPS రెస్పాన్స్ సమయం మించిపోయింది (Timeout).";
-        }
-
-        resolve({
-          formatted_address: "",
-          city_town: "",
-          state: "",
-          error_type: errType,
-          error_message: errMsg
-        });
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  });
+    return {
+      formatted_address: "",
+      city_town: "",
+      state: "",
+      error_type: errType,
+      error_message: errMsg
+    };
+  }
 }
 
 // 🌐 Convert Telugu text to English for cross-database querying
