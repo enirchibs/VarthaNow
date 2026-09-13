@@ -15,7 +15,6 @@ import {
   Plus
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
-import { StepTrackerWidget } from "./StepTrackerWidget";
 import { 
   analyzeSymptoms, 
   sendChatMessage, 
@@ -129,10 +128,7 @@ export function HealthAssistant() {
         {activeTab === "emergency" && <EmergencyPanel lang={lang} />}
       </div>
 
-      {/* Daily Walking Step Tracker Widget */}
-      <div className="p-5 border-t border-[hsl(var(--border))]/70">
-        <StepTrackerWidget />
-      </div>
+
 
       {/* Daily Tips / News summary widget on health home page */}
       <div className="border-t border-[hsl(var(--border))]/70 p-5 bg-[hsl(var(--muted))]/20">

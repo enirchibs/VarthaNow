@@ -29,7 +29,6 @@ import {
   ChevronLeft
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { StepTrackerWidget } from "@/components/StepTrackerWidget";
 
 // =========================================================
 // MOCK DATA & SCHEMAS
@@ -661,10 +660,7 @@ export function HealthPortal() {
         </div>
       </section>
 
-      {/* 🏃‍♂️ Daily Walking Step Tracker Section */}
-      <section className="pt-8 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
-        <StepTrackerWidget />
-      </section>
+
 
       {/* Main Categories Section */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto space-y-8">
