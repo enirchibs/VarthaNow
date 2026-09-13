@@ -67,7 +67,6 @@ export function LocationAreaSelector({
   const [isDetectingGPS, setIsDetectingGPS] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [gpsSuccessMsg, setGpsSuccessMsg] = useState("");
   
   // GPS Error Modal state
   const [showGpsModal, setShowGpsModal] = useState(false);
@@ -96,7 +95,6 @@ export function LocationAreaSelector({
     const val = e.target.value;
     setQuery(val);
     onChange(val);
-    setGpsSuccessMsg("");
     setIsAreaConfirmed(false);
 
     const isTelugu = /[\u0C00-\u0C7F]/.test(val);
@@ -136,7 +134,6 @@ export function LocationAreaSelector({
   // 🎯 One-Tap GPS Detection
   const handleDetectGPS = async () => {
     setIsDetectingGPS(true);
-    setGpsSuccessMsg("");
     setGpsErrorMsg("");
 
     try {
@@ -151,7 +148,6 @@ export function LocationAreaSelector({
         setQuery(areaStr);
         onChange(areaStr);
         setIsAreaConfirmed(true);
-        setGpsSuccessMsg(`🎯 నా ప్రస్తుత ప్రాంతం గుర్తించబడింది: ${areaStr}`);
         setShowDropdown(false);
         setShowGpsModal(false);
       } else {
@@ -185,7 +181,6 @@ export function LocationAreaSelector({
                   setIsAreaConfirmed(false);
                   setSuggestions([]);
                   setShowDropdown(false);
-                  setGpsSuccessMsg("");
                 }}
                 className="text-[11px] font-bold text-rose-500 hover:underline cursor-pointer"
               >
@@ -248,7 +243,6 @@ export function LocationAreaSelector({
               setIsAreaConfirmed(false);
               setSuggestions([]);
               setShowDropdown(false);
-              setGpsSuccessMsg("");
             }}
             className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5 z-20"
             title="Clear text"
@@ -324,14 +318,6 @@ export function LocationAreaSelector({
           )}
         </button>
       </div>
-
-      {/* GPS Success Notification */}
-      {gpsSuccessMsg && (
-        <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 animate-in fade-in duration-200">
-          <Check className="size-4 text-emerald-600 shrink-0" />
-          <span className="truncate">{gpsSuccessMsg}</span>
-        </div>
-      )}
 
       {/* ⚠️ GPS ENABLE GUIDANCE MODAL */}
       {showGpsModal && (
