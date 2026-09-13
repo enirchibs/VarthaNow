@@ -144,8 +144,8 @@ export function LocationAreaSelector({
       
       if (result && result.formatted_address) {
         let areaStr = result.formatted_address;
-        // 🌐 Ensure conversion into Telugu if English text remains
-        if (!/[\u0C00-\u0C7F]/.test(areaStr)) {
+        // 🌐 Ensure conversion into Telugu if any English text remains
+        if (/[a-zA-Z]/.test(areaStr)) {
           areaStr = await convertAreaToTelugu(areaStr);
         }
         setQuery(areaStr);

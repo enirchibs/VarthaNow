@@ -363,8 +363,8 @@ export const AP_TS_DISTRICTS_MANDALS: DistrictMandalData[] = [
 export async function convertAreaToTelugu(englishText: string): Promise<string> {
   if (!englishText || !englishText.trim()) return "";
   
-  // If already predominantly Telugu, return as is
-  if (/[\u0C00-\u0C7F]/.test(englishText)) {
+  // If already 100% Telugu with NO English letters, return as is
+  if (!/[a-zA-Z]/.test(englishText)) {
     return englishText;
   }
 
@@ -403,10 +403,12 @@ export async function convertAreaToTelugu(englishText: string): Promise<string> 
   let translated = englishText;
   const dict: Record<string, string> = {
     "Ward": "వార్డ్",
-    "East": "ఈస్ట్ (తూర్పు)",
-    "West": "వెస్ట్ (పశ్చిమ)",
-    "North": "నార్త్ (ఉత్తర)",
-    "South": "సౌత్ (దక్షిణ)",
+    "East": "ఈస్ట్",
+    "West": "వెస్ట్",
+    "North": "నార్త్",
+    "South": "సౌత్",
+    "Anand": "ఆనంద్",
+    "Bagh": "బాగ్",
     "Hyderabad": "హైదరాబాద్",
     "Visakhapatnam": "విశాఖపట్నం",
     "Vijayawada": "విజయవాడ",
@@ -422,7 +424,6 @@ export async function convertAreaToTelugu(englishText: string): Promise<string> 
     "Srikakulam": "శ్రీకాకుళం",
     "Warangal": "వరంగల్",
     "Secunderabad": "సికింద్రాబాద్",
-    "Bagh": "బాగ్",
     "Nagar": "నగర్",
     "Colony": "కాలనీ",
     "Road": "రోడ్డు",
