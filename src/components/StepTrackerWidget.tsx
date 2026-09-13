@@ -15,9 +15,12 @@ import {
   Zap, 
   Activity,
   Edit3,
-  Check
+  Check,
+  RefreshCw,
+  Smartphone
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { syncGoogleFitData, getStoredGoogleFitData, GoogleFitDailyData } from "@/lib/google-fit";
 
 export function StepTrackerWidget() {
   const { lang } = useLanguage();
@@ -57,6 +60,8 @@ export function StepTrackerWidget() {
   });
 
   const [isLiveTracking, setIsLiveTracking] = useState<boolean>(false);
+  const [isGoogleFitSyncing, setIsGoogleFitSyncing] = useState<boolean>(false);
+  const [googleFitStatus, setGoogleFitStatus] = useState<GoogleFitDailyData | null>(() => getStoredGoogleFitData());
   const [manualInput, setManualInput] = useState<string>("");
   const [customGoalInput, setCustomGoalInput] = useState<string>("");
   const [showGoalModal, setShowGoalModal] = useState<boolean>(false);
@@ -168,6 +173,20 @@ export function StepTrackerWidget() {
     };
   }, [isLiveTracking, walkMode]);
 
+  // 🏃‍♂️ Handle Syncing with Google Fit Activity API
+  const handleGoogleFitSync = async () => {
+    setIsGoogleFitSyncing(true);
+    try {
+      const fitData = await syncGoogleFitData();
+      setSteps(fitData.steps);
+      setGoogleFitStatus(fitData);
+    } catch (err) {
+      console.warn("Google Fit sync error:", err);
+    } finally {
+      setIsGoogleFitSyncing(false);
+    }
+  };
+
   // Accurate Fitness Metrics Formulas
   const calFactor = walkMode === "run" ? 0.062 : walkMode === "brisk" ? 0.048 : 0.040;
   const caloriesBurned = Math.round(steps * calFactor);
@@ -230,26 +249,54 @@ export function StepTrackerWidget() {
           </div>
           <div>
             <h2 className="text-base sm:text-xl font-black tracking-tight flex items-center gap-2">
-              <span>{isTe ? "ఈరోజు నడక & అడుగుల కౌంటర్" : "Daily Step & Fitness Tracker"}</span>
+              <span>{isTe ? "ఈరోజు నడక & గూగుల్ ఫిట్ ట్రాకర్" : "Daily Step & Google Fit Tracker"}</span>
               {isLiveTracking && (
                 <span className="flex size-2.5 rounded-full bg-emerald-400 animate-ping" />
               )}
             </h2>
-            <p className="text-xs font-bold text-emerald-200/80">
-              {isTe ? "ఖచ్చితమైన స్టెప్ కౌంట్, కాలరీలు & దూరం లెక్కలు" : "High-precision step counter, calories & distance calculations"}
+            <p className="text-xs font-bold text-emerald-200/80 flex items-center gap-1.5 mt-0.5">
+              <span>{isTe ? "స్టెప్ కౌంట్, కాలరీలు & Google Fit సింక్" : "Step counter & Google Fit Activity Sync"}</span>
+              {googleFitStatus?.connected && (
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/40 uppercase flex items-center gap-1">
+                  <span className="size-1.5 rounded-full bg-blue-400 animate-pulse" />
+                  Google Fit Connected
+                </span>
+              )}
             </p>
           </div>
         </div>
 
-        {/* Goal Setting Button */}
-        <button
-          type="button"
-          onClick={() => setShowGoalModal(true)}
-          className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-black text-emerald-200 transition flex items-center gap-1.5 cursor-pointer shrink-0 self-start sm:self-auto"
-        >
-          <Target className="size-4 text-yellow-400" />
-          <span>{goal.toLocaleString()} {isTe ? "లక్ష్యం (Goal)" : "Steps Goal"}</span>
-        </button>
+        {/* Action Buttons: Google Fit Sync & Goal */}
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            type="button"
+            onClick={handleGoogleFitSync}
+            disabled={isGoogleFitSyncing}
+            className="px-3.5 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-400/40 text-xs font-black text-blue-200 transition flex items-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-70"
+            title="Sync steps directly with Google Fit App"
+          >
+            {isGoogleFitSyncing ? (
+              <>
+                <RefreshCw className="size-3.5 animate-spin" />
+                <span>సింక్ అవుతోంది...</span>
+              </>
+            ) : (
+              <>
+                <Smartphone className="size-3.5 text-blue-400" />
+                <span>{isTe ? "🔴 Google Fit సింక్" : "Google Fit Sync"}</span>
+              </>
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowGoalModal(true)}
+            className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-black text-emerald-200 transition flex items-center gap-1.5 cursor-pointer shrink-0"
+          >
+            <Target className="size-4 text-yellow-400" />
+            <span>{goal.toLocaleString()} {isTe ? "లక్ష్యం" : "Goal"}</span>
+          </button>
+        </div>
       </div>
 
       {/* Direct Pedometer Step Count Input Bar */}
@@ -259,6 +306,11 @@ export function StepTrackerWidget() {
             <Edit3 className="size-3.5 text-yellow-400" />
             {isTe ? "పెడోమీటర్ లేదా స్మార్ట్‌వాచ్ అడుగుల సంఖ్య టైప్ చేయండి:" : "Type Pedometer / Smartwatch Step Count:"}
           </span>
+          {googleFitStatus?.lastSynced && (
+            <span className="text-[10px] text-blue-300 font-bold">
+              Google Fit Sync: {googleFitStatus.lastSynced}
+            </span>
+          )}
         </div>
 
         <div className="flex flex-col sm:flex-row gap-2">
