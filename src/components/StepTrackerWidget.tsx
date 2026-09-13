@@ -126,11 +126,13 @@ export function StepTrackerWidget() {
 
   const [sensorStatus, setSensorStatus] = useState<"off" | "listening" | "step_detected" | "unsupported">("off");
   const isAboveThresholdRef = useRef<boolean>(false);
+  const prevAccelRef = useRef<{ x: number; y: number; z: number } | null>(null);
 
-  // ⚡ HARDWARE PEDOMETER ENGINE (Peak Motion Detection only - NO fake timers!)
+  // ⚡ HARDWARE PEDOMETER ENGINE (Differential Motion Acceleration - NO false steps when still!)
   useEffect(() => {
     if (!isLiveTracking) {
       setSensorStatus("off");
+      prevAccelRef.current = null;
       return;
     }
 
@@ -142,19 +144,35 @@ export function StepTrackerWidget() {
     setSensorStatus("listening");
 
     // Dynamic motion threshold depending on selected walk mode
-    const threshold = walkMode === "run" ? 3.8 : walkMode === "brisk" ? 3.0 : 2.5;
+    const stepThreshold = walkMode === "run" ? 4.2 : walkMode === "brisk" ? 3.2 : 2.6;
     const minStepIntervalMs = walkMode === "run" ? 240 : walkMode === "brisk" ? 280 : 320;
 
     const handleMotion = (event: DeviceMotionEvent) => {
       const acc = event.accelerationIncludingGravity || event.acceleration;
       if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
 
-      const now = Date.now();
-      const magnitude = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
-      const deltaMag = Math.abs(magnitude - 9.81);
+      const currentX = acc.x;
+      const currentY = acc.y;
+      const currentZ = acc.z;
 
-      // Peak Detection Filter: Count step on RISING EDGE above threshold with time debounce
-      if (deltaMag >= threshold) {
+      if (!prevAccelRef.current) {
+        prevAccelRef.current = { x: currentX, y: currentY, z: currentZ };
+        return;
+      }
+
+      // Calculate differential acceleration delta between consecutive sensor ticks
+      const dx = currentX - prevAccelRef.current.x;
+      const dy = currentY - prevAccelRef.current.y;
+      const dz = currentZ - prevAccelRef.current.z;
+
+      // When standing or sitting still, diffMagnitude is ~0.05 to 0.4 m/s^2 (strictly 0 steps)
+      const diffMagnitude = Math.sqrt(dx * dx + dy * dy + dz * dz);
+      prevAccelRef.current = { x: currentX, y: currentY, z: currentZ };
+
+      const now = Date.now();
+
+      // Peak Motion Filter: Step counted ONLY on physical walking impact spike
+      if (diffMagnitude >= stepThreshold) {
         if (!isAboveThresholdRef.current && (now - lastStepTimeRef.current >= minStepIntervalMs)) {
           lastStepTimeRef.current = now;
           isAboveThresholdRef.current = true;
@@ -162,7 +180,7 @@ export function StepTrackerWidget() {
           setSensorStatus("step_detected");
           setTimeout(() => setSensorStatus("listening"), 400);
         }
-      } else if (deltaMag < threshold * 0.7) {
+      } else if (diffMagnitude < stepThreshold * 0.4) {
         isAboveThresholdRef.current = false;
       }
     };
