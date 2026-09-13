@@ -327,7 +327,7 @@ export function ServicesRentalPage() {
   const [providerName, setProviderName] = useState<string>("");
   const [category, setCategory] = useState<"workers" | "farm_machines" | "construction" | "events" | "hotel_food" | "other_services">("farm_machines");
   const [serviceType, setServiceType] = useState<string>("🚜 Tractor — ట్రాక్టర్");
-  const [village, setVillage] = useState<string>("Anandapuram, Vizag");
+  const [village, setVillage] = useState<string>("");
   const [priceRate, setPriceRate] = useState<string>("");
   const [machineDetails, setMachineDetails] = useState<string>("");
   const [availableDays, setAvailableDays] = useState<string>("ప్రతిరోజూ (All Days)");
@@ -727,7 +727,7 @@ export function ServicesRentalPage() {
                     value={village}
                     onChange={setVillage}
                     label="ప్రాంతం / ఏరియా / గ్రామం / పట్టణం (Locality / Area)"
-                    placeholder="గ్రామం, వీధి, మండలం, పట్టణం టైప్ చేయండి లేదా ఎంచుకోండి..."
+                    placeholder="ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ... (Anandapuram, Kukatpally, Vijayawada...)"
                     required
                   />
                 </div>

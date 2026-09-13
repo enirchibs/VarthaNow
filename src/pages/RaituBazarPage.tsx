@@ -198,7 +198,7 @@ export function RaituBazarPage() {
   const [subCategory, setSubCategory] = useState<string>("ధాన్యాలు (వరి/గోధుమ)");
   const [title, setTitle] = useState<string>("");
   const [priceRate, setPriceRate] = useState<string>("");
-  const [village, setVillage] = useState<string>("ఆనందపురం (Anandapuram)");
+  const [village, setVillage] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
@@ -549,7 +549,7 @@ export function RaituBazarPage() {
                     value={village}
                     onChange={setVillage}
                     label="గ్రామం / మండలం / ప్రాంతం (Locality / Village)"
-                    placeholder="గ్రామం, వీధి, మండలం, పట్టణం టైప్ చేయండి లేదా ఎంచుకోండి..."
+                    placeholder="ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ... (Anandapuram, Kukatpally, Vijayawada...)"
                     required
                   />
                 </div>

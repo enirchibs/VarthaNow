@@ -58,7 +58,7 @@ export function LocationAreaSelector({
   value,
   onChange,
   label = "ప్రాంతం / ఏరియా / గ్రామం / మండలం (Area / Village / Mandal)",
-  placeholder = "గ్రామం, మండలం లేదా పట్టణం పేరు టైప్ చేయండి (తెలుగు లేదా English)...",
+  placeholder = "ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ... (Anandapuram, Kukatpally, Vijayawada...)",
   required = false
 }: LocationAreaSelectorProps) {
   const [isGpsSelected, setIsGpsSelected] = useState(false);
@@ -230,7 +230,7 @@ export function LocationAreaSelector({
             }
           }}
           placeholder={placeholder}
-          className={`w-full h-11 pl-10 pr-10 rounded-xl text-xs font-bold outline-none transition relative z-10 text-slate-900 dark:text-slate-100 ${
+          className={`w-full h-11 pl-10 pr-10 rounded-xl text-xs font-bold outline-none transition relative z-10 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:font-normal ${
             isGpsSelected
               ? "border-2 border-red-500 ring-4 ring-red-500/20 bg-red-50/30 dark:bg-red-950/20 shadow-sm"
               : "border border-[hsl(var(--border))] bg-[hsl(var(--background))] focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
