@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 import { addLocalJob } from "@/lib/jobs-api";
+import { LocationAreaSelector } from "@/components/LocationAreaSelector";
 import type { WorkMode, ContractType, ExperienceLevel } from "@/types/jobs";
 
 interface JobPostModalProps {
@@ -30,7 +31,7 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
   const [companyName, setCompanyName] = useState<string>("");
   const [jobTitle, setJobTitle] = useState<string>("");
   const [category, setCategory] = useState<string>("IT & Software");
-  const [locality, setLocality] = useState<string>("Visakhapatnam");
+  const [locality, setLocality] = useState<string>("");
   const [workMode, setWorkMode] = useState<WorkMode>("On-site");
   const [contractType, setContractType] = useState<ContractType>("Full-time");
   const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>("Fresher");
@@ -79,6 +80,10 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
     }
     if (!salaryRange.trim()) {
       setErrorMsg("దయచేసి జీతం వివరాలు నమోదు చేయండి (Please enter salary details)");
+      return;
+    }
+    if (!locality.trim()) {
+      setErrorMsg("దయచేసి ఉద్యోగ ప్రాంతం/లొకేషన్ నమోదు చేయండి (Please select job location)");
       return;
     }
     const cleanPhone = phone.replace(/\D/g, "");
@@ -247,57 +252,39 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
               />
             </div>
 
-            {/* Category & Locality */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <label className="font-extrabold text-slate-800">
-                  ఉద్యోగ విభాగం (Category Dropdown) <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition"
-                >
-                  <option value="IT & Software">💻 ఐటీ & సాఫ్ట్‌వేర్ (IT & Software)</option>
-                  <option value="Apprenticeship">🛠️ అప్రెంటిస్‌షిప్ (Apprenticeship Jobs)</option>
-                  <option value="Office & Admin">🏢 ఆఫీస్ అడ్మిన్ & అకౌంట్స్ (Office/Admin)</option>
-                  <option value="Sales & Marketing">📈 సేల్స్ & మార్కెటింగ్ (Sales & Marketing)</option>
-                  <option value="Drivers & Delivery">🚚 డ్రైవర్లు & డెలివరీ (Drivers & Delivery)</option>
-                  <option value="Retail & Store">🏬 రిటైల్ & స్టోర్ సిబ్బంది (Retail/Store Staff)</option>
-                  <option value="Teaching & Education">📚 టీచింగ్ & ఎడ్యుకేషన్ (Teaching)</option>
-                  <option value="Hotel & Restaurant">🍽️ హోటల్ & రెస్టారెంట్ (Hotel Staff)</option>
-                  <option value="Healthcare & Nursing">🏥 హెల్త్‌కేర్ & నర్సింగ్ (Healthcare)</option>
-                  <option value="Construction & Tech">🔧 కన్‌స్ట్రక్షన్ & టెక్నీషియన్ (Technical)</option>
-                  <option value="Other">🎁 ఇతర ఉద్యోగాలు (Other Jobs)</option>
-                </select>
-              </div>
+            {/* Category Field */}
+            <div className="space-y-1">
+              <label className="font-extrabold text-slate-800">
+                ఉద్యోగ విభాగం (Category Dropdown) <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition"
+              >
+                <option value="IT & Software">💻 ఐటీ & సాఫ్ట్‌వేర్ (IT & Software)</option>
+                <option value="Apprenticeship">🛠️ అప్రెంటిస్‌షిప్ (Apprenticeship Jobs)</option>
+                <option value="Office & Admin">🏢 ఆఫీస్ అడ్మిన్ & అకౌంట్స్ (Office/Admin)</option>
+                <option value="Sales & Marketing">📈 సేల్స్ & మార్కెటింగ్ (Sales & Marketing)</option>
+                <option value="Drivers & Delivery">🚚 డ్రైవర్లు & డెలివరీ (Drivers & Delivery)</option>
+                <option value="Retail & Store">🏬 రిటైల్ & స్టోర్ సిబ్బంది (Retail/Store Staff)</option>
+                <option value="Teaching & Education">📚 టీచింగ్ & ఎడ్యుకేషన్ (Teaching)</option>
+                <option value="Hotel & Restaurant">🍽️ హోటల్ & రెస్టారెంట్ (Hotel Staff)</option>
+                <option value="Healthcare & Nursing">🏥 హెల్త్‌కేర్ & నర్సింగ్ (Healthcare)</option>
+                <option value="Construction & Tech">🔧 కన్‌స్ట్రక్షన్ & టెక్నీషియన్ (Technical)</option>
+                <option value="Other">🎁 ఇతర ఉద్యోగాలు (Other Jobs)</option>
+              </select>
+            </div>
 
-              <div className="space-y-1">
-                <label className="font-extrabold text-slate-800">
-                  ప్రాంతం (Locality Dropdown) <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={locality}
-                  onChange={(e) => setLocality(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer transition"
-                >
-                  <option value="Visakhapatnam">🌊 విశాఖపట్నం (Vizag) — North Coastal AP</option>
-                  <option value="Vijayawada">🏙️ విజయవాడ (Vijayawada) — Central AP</option>
-                  <option value="Tirupati">🕉️ తిరుపతి (Tirupati) — South AP</option>
-                  <option value="Rajahmundry">🌊 రాజమండ్రి (Rajamahendravaram) — East/Central Godavari</option>
-                  <option value="Nellore">🦐 నెల్లూరు (Nellore) — South Coastal AP</option>
-                  <option value="Guntur">🌶️ గుంటూరు (Guntur)</option>
-                  <option value="Kurnool">⛰️ కర్నూలు (Kurnool) — Rayalaseema</option>
-                  <option value="Amaravati">🏛️ అమరావతి (Amaravati)</option>
-                  <option value="Hyderabad">🏢 హైదరాబాద్ (Hyderabad)</option>
-                  <option value="Warangal">🏰 వరంగల్ (Warangal)</option>
-                  <option value="Nizamabad">🏭 నిజామాబాద్ (Nizamabad)</option>
-                  <option value="Karimnagar">🌾 కరీంనగర్ (Karimnagar)</option>
-                  <option value="Khammam">🌳 ఖమ్మం (Khammam)</option>
-                  <option value="Mahbubnagar">🏞️ మహబూబ్‌నగర్ (Mahbubnagar)</option>
-                  <option value="Remote">💻 రిమోట్ / వర్క్ ఫ్రమ్ హోమ్ (Remote WFH)</option>
-                </select>
-              </div>
+            {/* Smart Location & Area Selector */}
+            <div className="space-y-1">
+              <LocationAreaSelector
+                value={locality}
+                onChange={setLocality}
+                label="ఉద్యోగ ప్రాంతం / లొకేషన్ (Job Location / Area)"
+                placeholder="ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ..."
+                required={true}
+              />
             </div>
 
             {/* Work Mode & Experience Level */}
