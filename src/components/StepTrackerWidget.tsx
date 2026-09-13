@@ -124,49 +124,68 @@ export function StepTrackerWidget() {
     }
   }, [steps, isTe]);
 
-  // ⚡ INSTANT LIVE PEDOMETER ENGINE (Hardware Sensors + Auto-Walk Pulse)
+  const [sensorStatus, setSensorStatus] = useState<"off" | "listening" | "step_detected" | "unsupported">("off");
+  const isAboveThresholdRef = useRef<boolean>(false);
+
+  // ⚡ HARDWARE PEDOMETER ENGINE (Peak Motion Detection only - NO fake timers!)
   useEffect(() => {
-    if (!isLiveTracking) return;
+    if (!isLiveTracking) {
+      setSensorStatus("off");
+      return;
+    }
 
-    const intervalMs = walkMode === "run" ? 380 : walkMode === "brisk" ? 480 : 580;
-    const stepsPerPulse = walkMode === "run" ? 2 : 1;
+    if (typeof window === "undefined" || !("DeviceMotionEvent" in window)) {
+      setSensorStatus("unsupported");
+      return;
+    }
 
-    // 1. Live Step Pulse Timer
-    const pulseTimer = setInterval(() => {
-      setSteps((prev) => prev + stepsPerPulse);
-    }, intervalMs);
+    setSensorStatus("listening");
 
-    // 2. Hardware Accelerometer DeviceMotion Listener
+    // Dynamic motion threshold depending on selected walk mode
+    const threshold = walkMode === "run" ? 3.8 : walkMode === "brisk" ? 3.0 : 2.5;
+    const minStepIntervalMs = walkMode === "run" ? 240 : walkMode === "brisk" ? 280 : 320;
+
     const handleMotion = (event: DeviceMotionEvent) => {
       const acc = event.accelerationIncludingGravity || event.acceleration;
       if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
 
       const now = Date.now();
-      if (now - lastStepTimeRef.current < 280) return;
-
       const magnitude = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
-      const deltaMag = Math.abs(magnitude - 9.8);
+      const deltaMag = Math.abs(magnitude - 9.81);
 
-      if (deltaMag > 2.8) {
-        lastStepTimeRef.current = now;
-        setSteps((prev) => prev + 1);
+      // Peak Detection Filter: Count step on RISING EDGE above threshold with time debounce
+      if (deltaMag >= threshold) {
+        if (!isAboveThresholdRef.current && (now - lastStepTimeRef.current >= minStepIntervalMs)) {
+          lastStepTimeRef.current = now;
+          isAboveThresholdRef.current = true;
+          setSteps((prev) => prev + 1);
+          setSensorStatus("step_detected");
+          setTimeout(() => setSensorStatus("listening"), 400);
+        }
+      } else if (deltaMag < threshold * 0.7) {
+        isAboveThresholdRef.current = false;
       }
     };
 
-    if (typeof window !== "undefined" && "DeviceMotionEvent" in window) {
-      if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
-        (DeviceMotionEvent as any).requestPermission().then((state: string) => {
+    const attachListener = () => {
+      window.addEventListener("devicemotion", handleMotion);
+    };
+
+    if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
+      (DeviceMotionEvent as any).requestPermission()
+        .then((state: string) => {
           if (state === "granted") {
-            window.addEventListener("devicemotion", handleMotion);
+            attachListener();
+          } else {
+            setSensorStatus("unsupported");
           }
-        });
-      } else {
-        window.addEventListener("devicemotion", handleMotion);
-      }
+        })
+        .catch(() => setSensorStatus("unsupported"));
+    } else {
+      attachListener();
     }
 
     return () => {
-      clearInterval(pulseTimer);
       if (typeof window !== "undefined") {
         window.removeEventListener("devicemotion", handleMotion);
       }
@@ -428,28 +447,49 @@ export function StepTrackerWidget() {
             </button>
           </div>
 
-          {/* Live Mobile Pedometer Sensor & Auto-Walker Button */}
-          <button
-            type="button"
-            onClick={() => setIsLiveTracking(!isLiveTracking)}
-            className={`w-full py-3.5 px-4 rounded-2xl font-black text-xs shadow-xl transition flex items-center justify-center gap-2 cursor-pointer ${
-              isLiveTracking
-                ? "bg-gradient-to-r from-amber-500 to-red-500 text-white animate-pulse"
-                : "bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 hover:brightness-110"
-            }`}
-          >
-            {isLiveTracking ? (
-              <>
-                <Pause className="size-4 fill-current" />
-                <span>{isTe ? "రన్నింగ్ ట్రాకర్ ఆపండి (Pause)" : "Stop Live Step Counter"}</span>
-              </>
-            ) : (
-              <>
-                <Play className="size-4 fill-current" />
-                <span>{isTe ? "⚡ లైవ్ నడక కౌంట్ స్టార్ట్ చేయండి" : "Start Live Step Counter"}</span>
-              </>
+          {/* Live Mobile Pedometer Sensor Button */}
+          <div className="space-y-1.5">
+            <button
+              type="button"
+              onClick={() => setIsLiveTracking(!isLiveTracking)}
+              className={`w-full py-3.5 px-4 rounded-2xl font-black text-xs shadow-xl transition flex items-center justify-center gap-2 cursor-pointer ${
+                isLiveTracking
+                  ? "bg-gradient-to-r from-amber-500 to-red-500 text-white"
+                  : "bg-gradient-to-r from-emerald-400 to-teal-400 text-slate-950 hover:brightness-110"
+              }`}
+            >
+              {isLiveTracking ? (
+                <>
+                  <Pause className="size-4 fill-current" />
+                  <span>{isTe ? "మోషన్ సెన్సార్ ఆపండి (Pause)" : "Pause Step Motion Sensor"}</span>
+                </>
+              ) : (
+                <>
+                  <Play className="size-4 fill-current" />
+                  <span>{isTe ? "⚡ లైవ్ మోషన్ సెన్సార్ ఆన్ చేయండి" : "Start Live Step Sensor"}</span>
+                </>
+              )}
+            </button>
+
+            {isLiveTracking && (
+              <div className="text-center">
+                {sensorStatus === "step_detected" ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-black text-emerald-400 animate-bounce">
+                    <Footprints className="size-3" /> {isTe ? "అడుగు గుర్తించబడింది! (+1)" : "Step Detected! (+1)"}
+                  </span>
+                ) : sensorStatus === "listening" ? (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-300">
+                    <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    {isTe ? "సెన్సార్ సిద్ధంగా ఉంది - నడుస్తున్నప్పుడు మాత్రమే పెరుగుతాయి" : "Sensor Active - Increments strictly when walking"}
+                  </span>
+                ) : sensorStatus === "unsupported" ? (
+                  <span className="text-[10px] font-bold text-amber-300">
+                    {isTe ? "ఈ డివైజ్‌లో మోషన్ సెన్సార్ లేదు - టైప్ లేదా Google Fit వాడండి" : "No motion sensor found - use Manual Input or Google Fit"}
+                  </span>
+                ) : null}
+              </div>
             )}
-          </button>
+          </div>
         </div>
 
         {/* Center Circular Progress Ring */}
