@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useWeather } from "@/hooks/useWeather";
-import { useExchangeRate } from "@/hooks/useExchangeRate";
+import { useGoldRate } from "@/hooks/useGoldRate";
 import { calculatePanchangam } from "@/lib/panchangam";
 import { getCachedGPSLocation } from "@/lib/location-detector";
 
 export function HeaderFlowTicker() {
   const { lang } = useLanguage();
   const { weather } = useWeather(lang);
-  const { rates } = useExchangeRate();
+  const goldRate = useGoldRate();
   const [isPaused, setIsPaused] = useState(false);
 
   // Live Panchangam calculation
@@ -22,13 +22,10 @@ export function HeaderFlowTicker() {
   const weatherTemp = weather?.temp ? `${weather.temp}°C` : "31°C";
   const weatherCond = weather?.condition || "⛅ పాక్షిక మేఘావృతం";
 
-  // Gold rate calculation (Hyderabad / AP & Telangana current market rates)
-  const gold24k = rates?.goldPerGram24k ? (rates.goldPerGram24k * 10).toLocaleString("en-IN") : "1,54,580";
-  const gold22k = rates?.goldPerGram22k ? (rates.goldPerGram22k * 10).toLocaleString("en-IN") : "1,41,850";
-  const gold24kGram = rates?.goldPerGram24k ? rates.goldPerGram24k.toLocaleString("en-IN") : "15,458";
-  const gold22kGram = rates?.goldPerGram22k ? rates.goldPerGram22k.toLocaleString("en-IN") : "14,170";
+  // Production Gold Rate formatted strings (OroPocket live BUY prices converted to 10g 24K & 22K)
+  const goldText = `🪙 GOLD 24K: ₹${goldRate.formatted24k}/10g | 22K: ₹${goldRate.formatted22k}/10g · ${goldRate.timeAgo}`;
 
-  // All ticker items requested by the user
+  // All ticker items requested by the user (GOLD ONLY - SENSEX COMPLETELY REMOVED)
   const tickerItems = [
     {
       id: "breaking",
@@ -48,18 +45,10 @@ export function HeaderFlowTicker() {
     },
     {
       id: "gold",
-      badge: "బంగారం ధర",
-      badgeColor: "bg-amber-500 text-black",
+      badge: "GOLD RATE",
+      badgeColor: "bg-amber-500 text-black font-extrabold",
       icon: "🪙",
-      text: `24K (99.9%): ₹${gold24k}/10గ్రా (₹${gold24kGram}/గ్రా) | 22K (91.6%): ₹${gold22k}/10గ్రా (₹${gold22kGram}/గ్రా)`,
-      link: "/category/business"
-    },
-    {
-      id: "sensex",
-      badge: "సెన్సెక్స్ & నిఫ్టీ",
-      badgeColor: "bg-emerald-600 text-white",
-      icon: "📈",
-      text: "సెన్సెక్స్: 81,420.50 (+312.40) ▲ | నిఫ్టీ: 24,845.20 (+92.15) ▲",
+      text: goldText,
       link: "/category/business"
     },
     {
