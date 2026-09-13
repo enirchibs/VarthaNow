@@ -23,24 +23,11 @@ interface LocationAreaSelectorProps {
   required?: boolean;
 }
 
-const POPULAR_PILLS = [
-  "విశాఖపట్నం (Visakhapatnam)",
-  "మధురవాడ (Madhurawada)",
-  "గాజువాక (Gajuwaka)",
-  "ఎంవీపీ కాలనీ (MVP Colony)",
-  "విజయవాడ (Vijayawada)",
-  "హైదరాబాద్ (Hyderabad)",
-  "తిరుపతి (Tirupati)",
-  "గుంటూరు (Guntur)",
-  "రాజమండ్రి (Rajahmundry)",
-  "కాకినాడ (Kakinada)"
-];
-
 export function LocationAreaSelector({
   value,
   onChange,
   label = "ప్రాంతం / ఏరియా / గ్రామం / మండలం (Area / Village / Mandal)",
-  placeholder = "గ్రామం, మండలం లేదా నగరం పేరులో 3 అక్షరాలు టైప్ చేయండి...",
+  placeholder = "గ్రామం, మండలం లేదా పట్టణం పేరు టైప్ చేయండి (కనీసం 3 అక్షరాలు)...",
   required = false
 }: LocationAreaSelectorProps) {
   const [query, setQuery] = useState(value || "");
@@ -118,7 +105,7 @@ export function LocationAreaSelector({
         const areaStr = result.formatted_address;
         setQuery(areaStr);
         onChange(areaStr);
-        setGpsSuccessMsg("🎯 నా ప్రస్తుత ప్రాంతం విజయవంతంగా గుర్తించబడింది!");
+        setGpsSuccessMsg(`🎯 నా ప్రస్తుత ప్రాంతం గుర్తించబడింది: ${areaStr}`);
         setShowDropdown(false);
         setShowGpsModal(false);
       } else {
@@ -142,67 +129,106 @@ export function LocationAreaSelector({
           <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))]">
             {label} {required && <span className="text-red-500">*</span>}
           </label>
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                onChange("");
+                setSuggestions([]);
+                setShowDropdown(false);
+                setGpsSuccessMsg("");
+              }}
+              className="text-[11px] font-bold text-rose-500 hover:underline cursor-pointer"
+            >
+              క్లియర్ (Clear)
+            </button>
+          )}
         </div>
       )}
 
-      {/* 🎯 Detect GPS Button & Single Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-2">
+      {/* 1. 🔍 First: Search Area by Name */}
+      <div className="relative">
+        <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-blue-600 pointer-events-none" />
+        <input
+          type="text"
+          value={query}
+          onChange={handleInputChange}
+          onFocus={async () => {
+            if (query.trim().length >= 3) {
+              setShowDropdown(true);
+              if (suggestions.length === 0) {
+                setIsSearching(true);
+                const results = await searchAreaAutocomplete(query);
+                setSuggestions(results);
+                setIsSearching(false);
+              }
+            }
+          }}
+          placeholder={placeholder}
+          className="w-full h-11 pl-10 pr-10 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition"
+          required={required}
+        />
+        {isSearching ? (
+          <RefreshCw className="absolute right-3.5 top-1/2 size-4 -translate-y-1/2 text-blue-500 animate-spin" />
+        ) : query ? (
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              onChange("");
+              setSuggestions([]);
+              setShowDropdown(false);
+              setGpsSuccessMsg("");
+            }}
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-0.5"
+            title="Clear text"
+          >
+            <X className="size-3.5" />
+          </button>
+        ) : null}
+      </div>
+
+      {/* 2. 🎯 Option to Detect via GPS */}
+      <div className="pt-0.5">
         <button
           type="button"
           onClick={handleDetectGPS}
           disabled={isDetectingGPS}
-          className="h-11 px-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-1.5 shrink-0 active:scale-95 disabled:opacity-70 cursor-pointer"
+          className="w-full h-10 px-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs shadow-sm transition flex items-center justify-center gap-2 active:scale-98 disabled:opacity-70 cursor-pointer"
           title="Detect my current location using GPS"
         >
           {isDetectingGPS ? (
             <>
               <RefreshCw className="size-4 animate-spin" />
-              <span>గుర్తిస్తోంది...</span>
+              <span>GPS ద్వారా గుర్తిస్తోంది...</span>
             </>
           ) : (
             <>
               <Navigation className="size-4 text-yellow-300" />
-              <span>🎯 ప్రస్తుత ప్రాంతం (Detect GPS)</span>
+              <span>🎯 నా ప్రస్తుత ప్రాంతం గుర్తించండి (Detect GPS)</span>
             </>
           )}
         </button>
-
-        <div className="relative flex-1">
-          <MapPin className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-blue-600 pointer-events-none" />
-          <input
-            type="text"
-            value={query}
-            onChange={handleInputChange}
-            onFocus={() => {
-              if (suggestions.length > 0) setShowDropdown(true);
-            }}
-            placeholder={placeholder}
-            className="w-full h-11 pl-10 pr-9 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600 transition"
-            required={required}
-          />
-          {isSearching && (
-            <RefreshCw className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-blue-500 animate-spin" />
-          )}
-        </div>
       </div>
 
       {/* GPS Success Notification */}
       {gpsSuccessMsg && (
-        <div className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-          <Check className="size-3.5" />
-          <span>{gpsSuccessMsg}</span>
+        <div className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-800 flex items-center gap-1.5 animate-in fade-in duration-200">
+          <Check className="size-4 text-emerald-600 shrink-0" />
+          <span className="truncate">{gpsSuccessMsg}</span>
         </div>
       )}
 
       {/* Live Suggestions Dropdown (Triggers on 3+ Letters) */}
       {showDropdown && (
-        <div className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 shadow-2xl space-y-1 max-h-60 overflow-y-auto animate-in fade-in duration-200">
+        <div className="absolute left-0 right-0 top-[48px] z-50 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-2 shadow-2xl space-y-1 max-h-60 overflow-y-auto animate-in fade-in duration-200">
           <div className="px-2 py-1 text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] tracking-wider flex items-center justify-between border-b border-[hsl(var(--border))]/50 mb-1">
             <span className="flex items-center gap-1">
               <Sparkles className="size-3 text-blue-500" />
               <span>సూచించిన ప్రాంతాలు (Location Suggestions)</span>
             </span>
-            <span className="text-[9px] text-blue-500 font-bold">3 అక్షరాలు టైప్ చేయండి</span>
+            <span className="text-[9px] text-blue-500 font-bold">ఎంచుకోవడానికి క్లిక్ చేయండి</span>
           </div>
 
           {suggestions.length > 0 ? (
@@ -219,30 +245,11 @@ export function LocationAreaSelector({
             ))
           ) : !isSearching ? (
             <div className="px-3 py-2 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
-              ప్రాంతం వివరాలు కనుగొనబడలేదు. దయచేసి గ్రామం/పట్టణం సరిగ్గా టైప్ చేయండి.
+              ప్రాంతం వివరాలు కనుగొనబడలేదు. దయచేసి గ్రామం/పట్టణం సరిగ్గా టైప్ చేయండి లేదా GPS ఉపయోగించండి.
             </div>
           ) : null}
         </div>
       )}
-
-      {/* Popular Quick Select Pills */}
-      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 pb-0.5">
-        <span className="text-[10px] font-black text-[hsl(var(--muted-foreground))] uppercase shrink-0">ముఖ్య ప్రాంతాలు:</span>
-        {POPULAR_PILLS.map((pill) => (
-          <button
-            key={pill}
-            type="button"
-            onClick={() => handleSelectArea(pill)}
-            className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold border shrink-0 transition cursor-pointer ${
-              query === pill
-                ? "bg-blue-600 text-white border-blue-600 shadow-xs"
-                : "bg-[hsl(var(--muted))]/40 border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-blue-500"
-            }`}
-          >
-            {pill.split(" ")[0]}
-          </button>
-        ))}
-      </div>
 
       {/* ⚠️ GPS ENABLE GUIDANCE MODAL */}
       {showGpsModal && (
