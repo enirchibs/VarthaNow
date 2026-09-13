@@ -380,30 +380,47 @@ export function Layout() {
               </button>
               
               {showMoreCategories && (
-                <div className="absolute right-0 mt-2.5 w-56 rounded-3xl border-2 border-yellow-300 dark:border-yellow-600 bg-yellow-50 dark:bg-zinc-950 p-2.5 shadow-[0_20px_45px_rgba(0,0,0,0.15)] z-50 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <div className="text-[9px] font-black text-yellow-800 dark:text-yellow-400 border-b border-yellow-300/40 pb-1.5 mb-1.5 uppercase tracking-widest flex items-center justify-between">
-                    <span>Explore More</span>
-                    <span className="size-1.5 rounded-full bg-yellow-400 animate-ping" />
+                <>
+                  {/* Backdrop to close dropdown when clicking outside on mobile */}
+                  <div
+                    className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[1px]"
+                    onClick={() => setShowMoreCategories(false)}
+                  />
+                  <div className="absolute right-0 mt-2.5 w-64 sm:w-72 max-h-[82vh] overflow-y-auto no-scrollbar rounded-3xl border-2 border-yellow-300 dark:border-yellow-600 bg-yellow-50/95 dark:bg-zinc-950/95 backdrop-blur-md p-2.5 shadow-[0_20px_45px_rgba(0,0,0,0.25)] z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="text-[10px] sm:text-[11px] font-black text-yellow-900 dark:text-yellow-400 border-b border-yellow-300/40 pb-1.5 mb-2 tracking-wide flex items-center justify-between">
+                      <span>{lang === "te" ? "మరిన్ని విభాగాలు" : "Explore More"}</span>
+                      <span className="size-2 rounded-full bg-yellow-400 animate-ping" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {categories.map((category) => {
+                        const label = (lang === "te" ? (category.short || category.label.te) : category.label[lang]) || category.short;
+                        const linkTarget = category.slug === "health" 
+                          ? "/health" 
+                          : category.slug === "jobs" 
+                          ? "/jobs" 
+                          : `/category/${category.slug}`;
+
+                        return (
+                          <NavLink
+                            key={category.slug}
+                            to={linkTarget}
+                            onClick={() => setShowMoreCategories(false)}
+                            className={({ isActive }) =>
+                              `flex items-center justify-start gap-1.5 rounded-2xl py-2 px-2 text-[10.5px] font-black border transition ${
+                                isActive 
+                                  ? "bg-yellow-400 text-black border-yellow-500 shadow-sm" 
+                                  : "bg-white/95 dark:bg-zinc-900/95 text-zinc-950 dark:text-yellow-100 border-yellow-200/60 dark:border-zinc-800 hover:bg-yellow-400 hover:text-black hover:border-yellow-400"
+                              }`
+                            }
+                          >
+                            <span className="shrink-0 text-sm">{categoryEmojis[category.slug] || "📌"}</span>
+                            <span className="truncate">{label}</span>
+                          </NavLink>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-1.5">
-                    {categories.slice(3).map((category) => (
-                      <NavLink
-                        key={category.slug}
-                        to={`/category/${category.slug}`}
-                        onClick={() => setShowMoreCategories(false)}
-                        className={({ isActive }) =>
-                          `block text-center rounded-2xl py-1.5 px-0.5 text-[9px] font-extrabold border transition ${
-                            isActive 
-                              ? "bg-yellow-400 text-black border-yellow-400 shadow-sm" 
-                              : "bg-white/80 dark:bg-zinc-900/80 text-yellow-950 dark:text-yellow-100 border-yellow-200/50 dark:border-zinc-800 hover:bg-yellow-400 hover:text-black hover:border-yellow-400"
-                          }`
-                        }
-                      >
-                        {categoryEmojis[category.slug] ? `${categoryEmojis[category.slug]} ` : ""}{category.short}
-                      </NavLink>
-                    ))}
-                  </div>
-                </div>
+                </>
               )}
             </div>
 
@@ -520,7 +537,7 @@ export function Layout() {
             return (
               <NavLink
                 key={category.slug}
-                to={category.slug === "health" ? "/health" : `/category/${category.slug}`}
+                to={category.slug === "health" ? "/health" : category.slug === "jobs" ? "/jobs" : `/category/${category.slug}`}
                 className={({ isActive }) =>
                   `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
                     isHighlighted
@@ -531,7 +548,7 @@ export function Layout() {
                   }`
                 }
               >
-                <span>{categoryEmojis[category.slug] ? `${categoryEmojis[category.slug]} ` : ""}{category.label[lang]}</span>
+                <span>{categoryEmojis[category.slug] ? `${categoryEmojis[category.slug]} ` : ""}{category.label[lang] || category.short || category.label.te}</span>
                 {isHighlighted && (
                   <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-yellow-400 text-black text-[7px] sm:text-[8px] font-black uppercase px-2 py-0.5 rounded-full shadow-lg animate-bounce border border-yellow-200 shrink-0 z-40 whitespace-nowrap">
                     👉 నొక్కండి

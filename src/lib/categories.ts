@@ -11,20 +11,8 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "வைரல் ஷார்ட்ஸ்",
       kn: "ವೈರಲ್ ಶಾರ್ಟ್ಸ್"
     },
-    short: "Shorts",
+    short: "వైరల్ షార్ట్స్",
     rssQuery: "viral news shorts trending video clips"
-  },
-  {
-    slug: "devotional",
-    label: {
-      te: "భక్తి & జాతకము",
-      en: "Bhakti & Jathakam",
-      hi: "भक्ति व राशिफल",
-      ta: "பக்தி & ஜாதகம்",
-      kn: "ಭಕ್ತಿ ಮತ್ತು ಜಾತಕ"
-    },
-    short: "భక్తి & జాతకము",
-    rssQuery: "panchangam rasi phalalu vastu bhakti temple astrology horoscopes jathakam"
   },
   {
     slug: "health",
@@ -35,8 +23,32 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "சுகாதாரம்",
       kn: "ಆರೋಗ್ಯ"
     },
-    short: "Health",
+    short: "ఆరోగ్యం",
     rssQuery: "health wellness seasonal tips BP diabetes stress"
+  },
+  {
+    slug: "jathakam" as any,
+    label: {
+      te: "జాతకము",
+      en: "Horoscope & Jathakam",
+      hi: "राशिफल",
+      ta: "ஜாதகம்",
+      kn: "ಜಾತಕ"
+    },
+    short: "జాతకము",
+    rssQuery: "panchangam rasi phalalu vastu astrology horoscopes jathakam"
+  },
+  {
+    slug: "devotional",
+    label: {
+      te: "భక్తి",
+      en: "Bhakti",
+      hi: "भक्ति व पूजा",
+      ta: "பக்தி",
+      kn: "ಭಕ್ತಿ"
+    },
+    short: "భక్తి",
+    rssQuery: "panchangam rasi phalalu vastu bhakti temple astrology horoscopes jathakam"
   },
   {
     slug: "andhra-pradesh",
@@ -47,7 +59,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "ஆந்திரப் பிரதேசம்",
       kn: "ಆಂಧ್ರಪ್ರದೇಶ್"
     },
-    short: "AP",
+    short: "ఆంధ్రప్రదేశ్",
     rssQuery: "andhra pradesh"
   },
   {
@@ -59,7 +71,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "தெலுங்கானா",
       kn: "ತೆಲಂಗಾಣ"
     },
-    short: "TG",
+    short: "తెలంగాణ",
     rssQuery: "telangana"
   },
   {
@@ -71,7 +83,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "கிரிக்கெட்",
       kn: "ಕ್ರಿಕೆಟ್"
     },
-    short: "Cricket",
+    short: "క్రికెట్",
     rssQuery: "cricket"
   },
   {
@@ -83,7 +95,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "அரசியல்",
       kn: "ರಾಜಕೀಯ"
     },
-    short: "Politics",
+    short: "రాజకీయాలు",
     rssQuery: "politics"
   },
   {
@@ -95,7 +107,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "சினிமா",
       kn: "ಸಿನಿಮಾ"
     },
-    short: "Cinema",
+    short: "సినిమా",
     rssQuery: "cinema"
   },
   {
@@ -107,7 +119,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "தொழில்நுட்பம்",
       kn: "ತಂತ್ರಜ್ಞಾನ"
     },
-    short: "Tech",
+    short: "టెక్నాలజీ",
     rssQuery: "technology"
   },
   {
@@ -119,7 +131,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "வணிகம்",
       kn: "ವ್ಯಾಪಾರ"
     },
-    short: "Business",
+    short: "వ్యాపారం",
     rssQuery: "stock market sensex gold silver investment"
   },
   {
@@ -131,7 +143,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "தேசிய செய்திகள்",
       kn: "ರಾಷ್ಟ್ರೀಯ ಸುದ್ದಿ"
     },
-    short: "National",
+    short: "జాతీయ వార్తలు",
     rssQuery: "national news india"
   },
   {
@@ -143,7 +155,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "விசாக்கபட்டினம்",
       kn: "ವಿಶಾಖಪಟ್ಟಣ"
     },
-    short: "Vizag",
+    short: "విశాఖ",
     rssQuery: "visakhapatnam vizag"
   },
   {
@@ -155,7 +167,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "உள்ளூர் வேலைகள்",
       kn: "ಸ್ಥಳೀಯ ಉದ್ಯೋಗಗಳು"
     },
-    short: "Local Jobs",
+    short: "స్థానిక ఉద్యోగాలు",
     rssQuery: "jobs recruitment notification"
   },
   {
@@ -167,7 +179,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
       ta: "கல்வி",
       kn: "ಶಿಕ್ಷಣ"
     },
-    short: "Education",
+    short: "విద్య",
     rssQuery: "education exam results"
   }
 ];
@@ -181,11 +193,11 @@ export const TELUGU_CATEGORY_MAP: Record<string, string> = {
   technology:      "టెక్నాలజీ",
   business:        "వ్యాపారం",
   health:          "ఆరోగ్యం",
-  devotional:      "భక్తి & జాతకము",
+  jathakam:        "జాతకము",
+  devotional:      "భక్తి",
   viralshorts:     "వైరల్ షార్ట్స్",
   vizag:           "విశాఖ",
   jobs:            "స్థానిక ఉద్యోగాలు",
-  jathakam:        "భక్తి & జాతకము",
   national:        "జాతీయ వార్తలు",
   education:       "విద్య",
 };
@@ -194,12 +206,20 @@ export function categoryLabel(category: string, lang?: Language): string {
   const activeLang = lang ?? getActiveLanguage();
   const lowerCat = (category || "").toLowerCase().trim();
   
-  if (lowerCat === "devotional" || lowerCat === "jathakam") {
-    if (activeLang === "te") return "భక్తి & జాతకము";
-    if (activeLang === "en") return "Bhakti & Jathakam";
-    if (activeLang === "hi") return "भक्ति व राशिफल";
-    if (activeLang === "ta") return "பக்தி & ஜாதகம்";
-    if (activeLang === "kn") return "ಭಕ್ತಿ ಮತ್ತು ಜಾತಕ";
+  if (lowerCat === "jathakam") {
+    if (activeLang === "te") return "జాతకము";
+    if (activeLang === "en") return "Jathakam & Horoscope";
+    if (activeLang === "hi") return "राशिफल";
+    if (activeLang === "ta") return "ஜாதகம்";
+    if (activeLang === "kn") return "ಜಾತಕ";
+  }
+
+  if (lowerCat === "devotional") {
+    if (activeLang === "te") return "భక్తి";
+    if (activeLang === "en") return "Devotional";
+    if (activeLang === "hi") return "भक्ति";
+    if (activeLang === "ta") return "பக்தி";
+    if (activeLang === "kn") return "ಭಕ್ತಿ";
   }
 
   const catObj = categories.find((item) => item.slug === lowerCat || item.slug === category);
