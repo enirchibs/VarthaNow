@@ -29,6 +29,7 @@ import {
   ChevronLeft
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { StepTrackerWidget } from "@/components/StepTrackerWidget";
 
 // =========================================================
 // MOCK DATA & SCHEMAS
@@ -827,6 +828,11 @@ export function HealthPortal() {
             <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">Stretching & flexibility</p>
           </div>
         </div>
+      </section>
+
+      {/* Real-Time Physical Step Pedometer Engine Section */}
+      <section className="py-10 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
+        <StepTrackerWidget />
       </section>
 
       {/* Dynamic 9-Tab Health Calculators Section */}

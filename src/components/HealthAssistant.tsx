@@ -12,9 +12,11 @@ import {
   Sparkles,
   ChevronRight,
   RefreshCw,
-  Plus
+  Plus,
+  Footprints
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { StepTrackerWidget } from "./StepTrackerWidget";
 import { 
   analyzeSymptoms, 
   sendChatMessage, 
@@ -29,7 +31,7 @@ import {
 export function HealthAssistant() {
   const { lang: rawLang } = useLanguage();
   const lang = rawLang === "te" ? "te" : "en";
-  const [activeTab, setActiveTab] = useState<"symptom" | "medicine" | "chat" | "emergency">("symptom");
+  const [activeTab, setActiveTab] = useState<"symptom" | "medicine" | "chat" | "emergency" | "pedometer">("symptom");
 
   // 🏥 Translations
   const t = {
@@ -118,6 +120,18 @@ export function HealthAssistant() {
           <ShieldAlert className="size-4 text-red-500" />
           {lang === "te" ? t.tabEmergency.te : t.tabEmergency.en}
         </button>
+
+        <button
+          onClick={() => setActiveTab("pedometer")}
+          className={`flex-1 py-3.5 px-4 font-black text-xs text-center border-b-2 transition flex items-center justify-center gap-2 whitespace-nowrap ${
+            activeTab === "pedometer"
+              ? "border-indigo-600 text-indigo-600 bg-indigo-500/[0.02]"
+              : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-indigo-500"
+          }`}
+        >
+          <Footprints className="size-4 text-indigo-500" />
+          {lang === "te" ? "నడక అడుగులు 🏃‍♂️" : "Step Counter 🏃‍♂️"}
+        </button>
       </div>
 
       {/* Main Tab Render Panels */}
@@ -126,6 +140,7 @@ export function HealthAssistant() {
         {activeTab === "medicine" && <MedicinePanel lang={lang} />}
         {activeTab === "chat" && <ChatPanel lang={lang} />}
         {activeTab === "emergency" && <EmergencyPanel lang={lang} />}
+        {activeTab === "pedometer" && <StepTrackerWidget />}
       </div>
 
 
