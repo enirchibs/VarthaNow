@@ -29,6 +29,7 @@ import {
   ChevronLeft
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { SimpleStepCounter } from "@/components/SimpleStepCounter";
 
 // =========================================================
 // MOCK DATA & SCHEMAS
@@ -582,7 +583,8 @@ export function HealthPortal() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] text-[hsl(var(--foreground))] font-sans relative overflow-hidden">
       
-      <div className="absolute top-4 right-4 z-50 flex gap-2">
+      {/* Top Header Controls: Language switcher */}
+      <div className="max-w-4xl mx-auto px-4 pt-3 flex justify-end gap-2">
         <button 
           onClick={() => setLang("te")}
           className={`text-[10px] font-black px-2.5 py-1.5 rounded-full border transition ${
@@ -600,6 +602,11 @@ export function HealthPortal() {
           English
         </button>
       </div>
+
+      {/* Real-Time Step Counter - Top of Health Category Page */}
+      <section className="px-4 sm:px-6 max-w-xl mx-auto py-2">
+        <SimpleStepCounter />
+      </section>
 
       {/* Hero Slider Banner */}
       <section className={`relative min-h-[460px] bg-gradient-to-br ${slides[activeSlide].bg} flex items-center py-24 px-4 sm:px-6 lg:px-8 text-center text-white overflow-hidden transition-all duration-1000`}>
