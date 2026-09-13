@@ -335,6 +335,26 @@ export function SimpleStepCounter() {
             </button>
           </div>
         )}
+
+        {/* 💡 Daily Step Tip */}
+        <div className="pt-3 border-t border-[hsl(var(--border))]/60 text-left space-y-2.5 bg-[hsl(var(--muted))]/50 p-3.5 rounded-xl border border-amber-500/25 shadow-xs">
+          <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-black text-xs uppercase tracking-wider">
+            <span className="text-sm">💡</span>
+            <span>Daily Step Tip</span>
+          </div>
+
+          <p className="text-[11px] sm:text-xs leading-relaxed text-[hsl(var(--foreground))] font-medium">
+            Aim for <strong className="text-emerald-600 dark:text-emerald-400 font-bold">7,000–8,000 steps a day</strong> — a good target for many adults.
+          </p>
+
+          <p className="text-[11px] sm:text-xs leading-relaxed text-[hsl(var(--foreground))] font-medium">
+            🚶 <strong className="text-blue-600 dark:text-blue-400 font-bold">8,000–10,000 steps</strong> is a very good activity level and regular walking can help support heart health and <strong className="text-rose-600 dark:text-rose-400 font-bold">lower the risk of heart disease and heart attack</strong>.
+          </p>
+
+          <p className="text-[11px] sm:text-xs leading-relaxed text-[hsl(var(--foreground))] font-bold pt-0.5">
+            ❤️ Every step counts. Start walking today, keep moving, and take a step toward a healthier heart! 👟💪
+          </p>
+        </div>
       </div>
     </div>
   );
