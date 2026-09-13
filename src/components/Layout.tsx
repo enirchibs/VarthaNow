@@ -1,6 +1,6 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles, Sprout, Wrench, UtensilsCrossed } from "lucide-react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -42,6 +42,21 @@ export function Layout() {
   const [isNavAnimating, setIsNavAnimating] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
   const [showIdleAlertBanner, setShowIdleAlertBanner] = useState(false);
+  const userInteractedNavRef = useRef(false);
+  const cancelTourDelayRef = useRef<(() => void) | null>(null);
+  const isNavTourActiveRef = useRef(false);
+
+  // 🛑 Immediately and completely stop category tour loop
+  const stopCategoryTour = useCallback(() => {
+    userInteractedNavRef.current = true;
+    isNavTourActiveRef.current = false;
+    if (cancelTourDelayRef.current) {
+      cancelTourDelayRef.current();
+      cancelTourDelayRef.current = null;
+    }
+    setHighlightedIndex(null);
+    setIsNavAnimating(false);
+  }, []);
 
   // 🌓 Background Theme (White / Dark) with Persistent Preference
   const [theme, setTheme] = useState<"white" | "dark">(() => {
@@ -93,43 +108,45 @@ export function Layout() {
   }, []);
 
   // 🎡 Serial 1-round category tour: stays 5s on each category, moves rightwards, completes ONLY 1 ROUND and stops without continuous looping
+  // 🛑 Stops IMMEDIATELY if user moves mouse over categories, touches, scrolls, or clicks to select.
   useEffect(() => {
-    let isCancelled = false;
-    let timeoutId: any = null;
-    let isPaused = false;
-
     const navEl = navRef.current;
     if (!navEl) return;
 
-    const handleMouseEnter = () => { isPaused = true; };
-    const handleMouseLeave = () => { isPaused = false; };
-    const handleTouchStart = () => { isPaused = true; };
-    const handleTouchEnd = () => {
-      setTimeout(() => { isPaused = false; }, 4500);
+    const handleUserInteraction = () => {
+      stopCategoryTour();
     };
 
-    navEl.addEventListener("mouseenter", handleMouseEnter);
-    navEl.addEventListener("mouseleave", handleMouseLeave);
-    navEl.addEventListener("touchstart", handleTouchStart, { passive: true });
-    navEl.addEventListener("touchend", handleTouchEnd, { passive: true });
+    const interactionEvents = [
+      "mouseenter",
+      "mouseover",
+      "pointerenter",
+      "pointerdown",
+      "touchstart",
+      "click",
+      "wheel"
+    ];
+
+    interactionEvents.forEach((evt) => {
+      navEl.addEventListener(evt, handleUserInteraction, { passive: true });
+    });
 
     const startNavTour = async () => {
+      // If user already interacted or tried to select, do NOT run tour
+      if (userInteractedNavRef.current) return;
+      if (isNavTourActiveRef.current) return;
       if (!navRef.current) return;
+
       const currentNavEl = navRef.current;
       const children = Array.from(currentNavEl.children) as HTMLElement[];
       if (!children || children.length <= 1) return;
 
+      isNavTourActiveRef.current = true;
       setIsNavAnimating(true);
-      // Start with Mee Vaartulu (index 1), followed by Local Jobs (index 2), then categories...
       let currentIndex = 1;
 
-      while (!isCancelled) {
-        // Pause movement while user is touching or hovering over the category bar
-        while (isPaused && !isCancelled) {
-          await new Promise((r) => { timeoutId = setTimeout(r, 400); });
-        }
-
-        if (isCancelled) break;
+      while (isNavTourActiveRef.current && !userInteractedNavRef.current) {
+        if (!isNavTourActiveRef.current || userInteractedNavRef.current) break;
 
         // When starting or returning to 'Mee Vaartulu' (index 1), reset scroll position cleanly
         if (currentIndex === 1) {
@@ -149,12 +166,23 @@ export function Layout() {
           }
         }
 
-        // 3. Human decision buffer period (5000ms / 5 seconds) for user to catch, read, think and click
-        await new Promise((resolve) => {
-          timeoutId = setTimeout(resolve, 5000);
+        // 3. Human decision buffer period (5000ms / 5 seconds) interruptible immediately upon user interaction
+        await new Promise<void>((resolve) => {
+          let timer: any = null;
+          const finish = () => {
+            if (timer) clearTimeout(timer);
+            resolve();
+          };
+          cancelTourDelayRef.current = finish;
+          timer = setTimeout(finish, 5000);
         });
+        cancelTourDelayRef.current = null;
 
-        if (isCancelled) break;
+        if (!isNavTourActiveRef.current || userInteractedNavRef.current) {
+          setHighlightedIndex(null);
+          setIsNavAnimating(false);
+          break;
+        }
 
         // Move serial way rightwards: 1 (Mee Vaartalu) -> 2 (Local Jobs) -> 3 -> 4 ... -> End
         currentIndex++;
@@ -163,29 +191,33 @@ export function Layout() {
           setHighlightedIndex(null);
           currentNavEl.scrollTo({ left: 0, behavior: "smooth" });
           setIsNavAnimating(false);
+          isNavTourActiveRef.current = false;
           break;
         }
       }
+
+      setHighlightedIndex(null);
+      setIsNavAnimating(false);
+      isNavTourActiveRef.current = false;
     };
 
     window.addEventListener("gallery_first_round_complete", startNavTour);
     return () => {
-      isCancelled = true;
-      if (timeoutId) clearTimeout(timeoutId);
+      stopCategoryTour();
       window.removeEventListener("gallery_first_round_complete", startNavTour);
       if (navEl) {
-        navEl.removeEventListener("mouseenter", handleMouseEnter);
-        navEl.removeEventListener("mouseleave", handleMouseLeave);
-        navEl.removeEventListener("touchstart", handleTouchStart);
-        navEl.removeEventListener("touchend", handleTouchEnd);
+        interactionEvents.forEach((evt) => {
+          navEl.removeEventListener(evt, handleUserInteraction);
+        });
       }
     };
-  }, []);
+  }, [stopCategoryTour]);
 
-  // 📜 Scroll to top of window automatically on route change
+  // 📜 Scroll to top of window automatically on route change & cancel any category tour
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [pathname]);
+    stopCategoryTour();
+  }, [pathname, stopCategoryTour]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -389,7 +421,17 @@ export function Layout() {
             <Search className="size-4" />
           </Link>
         </div>
-        <nav ref={navRef} className={`container-shell no-scrollbar flex items-center gap-1.5 md:gap-2 overflow-x-auto pb-3 pt-2.5 transition-all duration-500 ${isNavAnimating ? "ring-2 ring-red-500/50 shadow-lg shadow-red-500/10 rounded-full" : ""}`}>
+        <nav
+          ref={navRef}
+          onMouseEnter={stopCategoryTour}
+          onMouseOver={stopCategoryTour}
+          onPointerEnter={stopCategoryTour}
+          onTouchStart={stopCategoryTour}
+          onPointerDown={stopCategoryTour}
+          onClick={stopCategoryTour}
+          onWheel={stopCategoryTour}
+          className={`container-shell no-scrollbar flex items-center gap-1.5 md:gap-2 overflow-x-auto pb-3 pt-2.5 transition-all duration-500 ${isNavAnimating ? "ring-2 ring-red-500/50 shadow-lg shadow-red-500/10 rounded-full" : ""}`}
+        >
           {/* Index 0: Home Button (Always Visible & Sticky on Left) */}
           <NavLink
             to="/"
