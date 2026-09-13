@@ -421,7 +421,7 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., Spacious 2BHK Apartment in Madhurawada / 200 Sq Yds Plot in Gajuwaka"
+                placeholder="ఉదా: విశాలమైన 2BHK ఫ్లాట్ అమ్మకానికి / 200 గజాల ప్లాట్ (e.g. Spacious 2BHK Flat / 200 Sq Yds Plot)"
                 className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
                 required
               />
@@ -436,7 +436,7 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                placeholder="Describe your property details, facing, landmarks, nearby schools/hospitals..."
+                placeholder="ఉదా: తూర్పు ముఖం, మెయిన్ రోడ్డు దగ్గర, కార్ పార్కింగ్, 24 గంటల నీటి వసతి (e.g., East facing, near main road, car parking, 24/7 water, 2nd floor)..."
                 className="w-full p-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600 resize-none"
               />
             </div>
@@ -445,26 +445,26 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
-                  Price (₹) *
+                  Price (₹) * (ధర)
                 </label>
                 <input
                   type="text"
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  placeholder="e.g., 5000000 or 15000 / month"
+                  placeholder="ఉదా: 50,00,000 లేదా 15,000 / నెల (e.g., 5000000 or 15000 / month)"
                   className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
-                  Area (Sq Ft / Sq Yds)
+                  Area (Sq Ft / Sq Yds) (విస్తీర్ణం)
                 </label>
                 <input
                   type="text"
                   value={areaSqft}
                   onChange={(e) => setAreaSqft(e.target.value)}
-                  placeholder="e.g., 1200 sqft or 200 sq yds"
+                  placeholder="ఉదా: 1200 sqft లేదా 200 గజాలు (e.g., 1200 sqft or 200 sq yds)"
                   className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
                 />
               </div>
@@ -511,7 +511,7 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
                     type="text"
                     value={floorNumber}
                     onChange={(e) => setFloorNumber(e.target.value)}
-                    placeholder="e.g., 3rd Floor"
+                    placeholder="ఉదా: 3వ అంతస్తు (e.g., 3rd Floor)"
                     className="w-full h-9 px-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold"
                   />
                 </div>
@@ -524,7 +524,7 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
                     type="text"
                     value={totalFloors}
                     onChange={(e) => setTotalFloors(e.target.value)}
-                    placeholder="e.g., 5"
+                    placeholder="ఉదా: 5 అంతస్తులు (e.g., 5)"
                     className="w-full h-9 px-2.5 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold"
                   />
                 </div>
