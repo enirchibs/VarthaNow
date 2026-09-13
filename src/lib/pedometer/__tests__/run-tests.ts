@@ -1,4 +1,4 @@
-// 🏃‍♂️ Real-Time Physical Step-Synchronized Pedometer Engine Synthetic Test Suite
+// 🏃‍♂️ Simple Real-Time Mobile Step Counter - Synthetic Test Runner
 import { AdaptiveStepEngine } from "../adaptive-step-engine";
 import { SensorSample } from "../types";
 
@@ -11,7 +11,7 @@ interface TestResult {
 }
 
 /**
- * Generates synthetic sinusoidal walking acceleration waveform with realistic biomechanical harmonics
+ * Generates synthetic sinusoidal walking acceleration trace
  */
 function generateWalkingTrace(
   numPhysicalSteps: number,
@@ -28,9 +28,8 @@ function generateWalkingTrace(
     const cycleTimeMs = tMs % stepIntervalMs;
     const phase = (cycleTimeMs / stepIntervalMs) * 2 * Math.PI;
 
-    // Biomechanical vertical acceleration model: fundamental gait wave + 2nd harmonic
     const gaitAccel = Math.sin(phase) * peakAmplitude + Math.sin(2 * phase) * (peakAmplitude * 0.35);
-    const zAccel = 9.81 + Math.max(0, gaitAccel); // Gravity + dynamic gait thrust
+    const zAccel = 9.81 + Math.max(0, gaitAccel);
     const xAccel = Math.cos(phase * 0.5) * 0.4;
     const yAccel = Math.sin(phase * 0.5) * 0.3;
 
@@ -64,24 +63,20 @@ function generateNoiseTrace(
     let ax = 0, ay = 0, az = 9.81;
 
     if (type === "STATIONARY") {
-      // Minor sensor thermal noise
       ax = (Math.random() - 0.5) * 0.05;
       ay = (Math.random() - 0.5) * 0.05;
       az = 9.81 + (Math.random() - 0.5) * 0.05;
     } else if (type === "VEHICLE") {
-      // High-frequency engine vibration (25Hz micro oscillations, jerk > 25 m/s³)
       const vibe = Math.sin((tMs / 1000) * 25 * 2 * Math.PI) * 0.8;
       ax = (Math.random() - 0.5) * 0.2;
       ay = (Math.random() - 0.5) * 0.2;
       az = 9.81 + vibe;
     } else if (type === "HAND_SHAKE") {
-      // Irregular rapid hand gestures
       const burst = Math.sin((tMs / 1000) * 12 * 2 * Math.PI) * 1.5;
       ax = burst * 0.8;
       ay = (Math.random() - 0.5) * 1.2;
       az = 9.81 + (Math.random() - 0.5) * 0.8;
     } else if (type === "ORIENTATION_CHANGE") {
-      // Smooth 90 degree device rotation over 2 seconds
       const progress = Math.min(1.0, tMs / 2000);
       const angle = progress * (Math.PI / 2);
       ax = Math.sin(angle) * 9.81;
@@ -106,138 +101,111 @@ function generateNoiseTrace(
 export function runTestSuite(): TestResult[] {
   const results: TestResult[] = [];
 
-  // Test 1: Normal Walking Gait (100 physical steps)
-  {
+  // Helper for running walking test
+  const runWalkTest = (name: string, targetSteps: number, intervalMs: number, amp: number, allowedErrPct: number) => {
     const engine = new AdaptiveStepEngine();
-    const trace = generateWalkingTrace(100, 550, 2.2); // ~110 SPM
+    const trace = generateWalkingTrace(targetSteps, intervalMs, amp);
     let detected = 0;
     trace.forEach((s) => {
       const evt = engine.processSample(s);
       if (evt) detected++;
     });
-    const errorPct = Math.abs(detected - 100) / 100 * 100;
-    const passed = errorPct <= 8; // Allow 92 - 108 steps
+    const errorPct = Math.abs(detected - targetSteps) / targetSteps * 100;
+    const passed = errorPct <= allowedErrPct;
     results.push({
-      name: "1. Normal Walking Gait (100 Physical Steps @ 110 SPM)",
-      expectedSteps: 100,
+      name,
+      expectedSteps: targetSteps,
       detectedSteps: detected,
       passed,
-      notes: `Detected ${detected}/100 steps (Error: ${errorPct.toFixed(1)}%)`
+      notes: `Detected ${detected}/${targetSteps} steps (Error: ${errorPct.toFixed(1)}%)`
     });
-  }
+  };
 
-  // Test 2: Slow Walking Gait (100 physical steps @ ~70 SPM)
-  {
-    const engine = new AdaptiveStepEngine();
-    const trace = generateWalkingTrace(100, 850, 1.4); // ~70 SPM, lower amplitude
-    let detected = 0;
-    trace.forEach((s) => {
-      const evt = engine.processSample(s);
-      if (evt) detected++;
-    });
-    const errorPct = Math.abs(detected - 100) / 100 * 100;
-    const passed = errorPct <= 10; // Allow 90 - 110 steps
-    results.push({
-      name: "2. Slow Walking Gait (100 Physical Steps @ 70 SPM)",
-      expectedSteps: 100,
-      detectedSteps: detected,
-      passed,
-      notes: `Detected ${detected}/100 steps (Error: ${errorPct.toFixed(1)}%)`
-    });
-  }
+  // Test 1: 10 Physical Steps
+  runWalkTest("1. Physical Walk Benchmark (10 Steps @ 110 SPM)", 10, 550, 2.2, 10);
 
-  // Test 3: Fast Walking / Jogging Gait (100 physical steps @ ~158 SPM)
-  {
-    const engine = new AdaptiveStepEngine();
-    const trace = generateWalkingTrace(100, 380, 3.5); // ~158 SPM
-    let detected = 0;
-    trace.forEach((s) => {
-      const evt = engine.processSample(s);
-      if (evt) detected++;
-    });
-    const errorPct = Math.abs(detected - 100) / 100 * 100;
-    const passed = errorPct <= 8;
-    results.push({
-      name: "3. Fast Walking / Jogging Gait (100 Physical Steps @ 158 SPM)",
-      expectedSteps: 100,
-      detectedSteps: detected,
-      passed,
-      notes: `Detected ${detected}/100 steps (Error: ${errorPct.toFixed(1)}%)`
-    });
-  }
+  // Test 2: 50 Physical Steps
+  runWalkTest("2. Physical Walk Benchmark (50 Steps @ 110 SPM)", 50, 550, 2.2, 6);
 
-  // Test 4: Stationary Pocket Jitter (0 physical steps)
+  // Test 3: 100 Physical Steps
+  runWalkTest("3. Physical Walk Benchmark (100 Steps @ 110 SPM)", 100, 550, 2.2, 5);
+
+  // Test 4: 500 Physical Steps
+  runWalkTest("4. Physical Walk Benchmark (500 Steps @ 110 SPM)", 500, 550, 2.2, 4);
+
+  // Test 5: 1000 Physical Steps
+  runWalkTest("5. Physical Walk Benchmark (1000 Steps @ 110 SPM)", 1000, 550, 2.2, 3);
+
+  // Test 6: Slow Walk (100 steps @ 70 SPM)
+  runWalkTest("6. Slow Walking Gait (100 Steps @ 70 SPM)", 100, 850, 1.4, 10);
+
+  // Test 7: Fast Walk (100 steps @ 158 SPM)
+  runWalkTest("7. Fast Walking Gait (100 Steps @ 158 SPM)", 100, 380, 3.5, 8);
+
+  // Test 8: Stationary Jitter (0 steps)
   {
     const engine = new AdaptiveStepEngine();
     const trace = generateNoiseTrace("STATIONARY", 10000);
     let detected = 0;
     trace.forEach((s) => {
-      const evt = engine.processSample(s);
-      if (evt) detected++;
+      if (engine.processSample(s)) detected++;
     });
-    const passed = detected === 0;
     results.push({
-      name: "4. Stationary / Pocket Jitter Rejection",
+      name: "8. Stationary / Pocket Jitter Rejection",
       expectedSteps: 0,
       detectedSteps: detected,
-      passed,
+      passed: detected === 0,
       notes: `Detected ${detected} false steps (Target: 0)`
     });
   }
 
-  // Test 5: Vehicle Engine Vibration Rejection (0 physical steps)
+  // Test 9: Vehicle Vibration (0 steps)
   {
     const engine = new AdaptiveStepEngine();
     const trace = generateNoiseTrace("VEHICLE", 10000);
     let detected = 0;
     trace.forEach((s) => {
-      const evt = engine.processSample(s);
-      if (evt) detected++;
+      if (engine.processSample(s)) detected++;
     });
-    const passed = detected === 0;
     results.push({
-      name: "5. Vehicle Micro-Vibration Rejection",
+      name: "9. Vehicle Engine Micro-Vibration Rejection",
       expectedSteps: 0,
       detectedSteps: detected,
-      passed,
+      passed: detected === 0,
       notes: `Detected ${detected} false steps (Target: 0)`
     });
   }
 
-  // Test 6: Hand Shake / Tapping Rejection (0 physical steps)
+  // Test 10: Hand Shake / Phone Tapping (0 steps)
   {
     const engine = new AdaptiveStepEngine();
     const trace = generateNoiseTrace("HAND_SHAKE", 10000);
     let detected = 0;
     trace.forEach((s) => {
-      const evt = engine.processSample(s);
-      if (evt) detected++;
+      if (engine.processSample(s)) detected++;
     });
-    const passed = detected === 0;
     results.push({
-      name: "6. Hand Shake & Device Tapping Rejection",
+      name: "10. Hand Shake & Device Tapping Rejection",
       expectedSteps: 0,
       detectedSteps: detected,
-      passed,
+      passed: detected === 0,
       notes: `Detected ${detected} false steps (Target: 0)`
     });
   }
 
-  // Test 7: Phone Orientation Shift Rejection (0 physical steps)
+  // Test 11: Phone Rotation / Orientation Change (0 steps)
   {
     const engine = new AdaptiveStepEngine();
     const trace = generateNoiseTrace("ORIENTATION_CHANGE", 5000);
     let detected = 0;
     trace.forEach((s) => {
-      const evt = engine.processSample(s);
-      if (evt) detected++;
+      if (engine.processSample(s)) detected++;
     });
-    const passed = detected === 0;
     results.push({
-      name: "7. Phone Orientation Shift & Gravity Rotation Rejection",
+      name: "11. Phone Rotation & Gravity Orientation Shift Rejection",
       expectedSteps: 0,
       detectedSteps: detected,
-      passed,
+      passed: detected === 0,
       notes: `Detected ${detected} false steps (Target: 0)`
     });
   }
@@ -247,8 +215,8 @@ export function runTestSuite(): TestResult[] {
 
 // Execution block for CLI runner
 console.log("================================================================================");
-console.log("🏃‍♂️ STEP DETECTION ENGINE SYNTHETIC & GAIT VERIFICATION SUITE");
-console.log("================================================================ shower \n");
+console.log("🏃‍♂️ SIMPLE REAL-TIME MOBILE STEP COUNTER - PHYSICAL BENCHMARK SUITE");
+console.log("================================================================================\n");
 
 const testResults = runTestSuite();
 let totalPassed = 0;
