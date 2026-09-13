@@ -10,17 +10,10 @@ import {
   RotateCcw, 
   Play, 
   Pause, 
-  Sparkles, 
   BarChart3, 
-  Zap, 
-  Activity,
-  Edit3,
-  Check,
-  RefreshCw,
-  Smartphone
+  Zap
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
-import { syncGoogleFitData, getStoredGoogleFitData, GoogleFitDailyData } from "@/lib/google-fit";
 
 export function StepTrackerWidget() {
   const { lang } = useLanguage();
@@ -34,9 +27,9 @@ export function StepTrackerWidget() {
   const [steps, setSteps] = useState<number>(() => {
     try {
       const saved = localStorage.getItem(todayKey);
-      return saved ? parseInt(saved, 10) : 4250;
+      return saved ? parseInt(saved, 10) : 0;
     } catch {
-      return 4250;
+      return 0;
     }
   });
 
@@ -60,16 +53,17 @@ export function StepTrackerWidget() {
   });
 
   const [isLiveTracking, setIsLiveTracking] = useState<boolean>(false);
-  const [isGoogleFitSyncing, setIsGoogleFitSyncing] = useState<boolean>(false);
-  const [googleFitStatus, setGoogleFitStatus] = useState<GoogleFitDailyData | null>(() => getStoredGoogleFitData());
-  const [manualInput, setManualInput] = useState<string>("");
+  const [sensorStatus, setSensorStatus] = useState<"off" | "listening" | "step_detected" | "unsupported">("off");
   const [customGoalInput, setCustomGoalInput] = useState<string>("");
   const [showGoalModal, setShowGoalModal] = useState<boolean>(false);
   const [history, setHistory] = useState<{ date: string; dayName: string; steps: number }[]>([]);
 
-  // Sensor & timer refs
-  const lastAccelRef = useRef<{ x: number; y: number; z: number }>({ x: 0, y: 0, z: 0 });
-  const lastStepTimeRef = useRef<number>(0);
+  // 🏃‍♂️ PRODUCTION PEDOMETER REFS (Dynamic Gravity Filter + Exponential Low Pass + Peak-Valley Detection)
+  const gravityEstRef = useRef<number>(9.81);
+  const smoothedAccelRef = useRef<number>(0);
+  const lastPeakValRef = useRef<number>(0);
+  const isRisingRef = useRef<boolean>(false);
+  const lastStepTimestampRef = useRef<number>(0);
 
   // Sync steps to localStorage
   useEffect(() => {
@@ -114,8 +108,7 @@ export function StepTrackerWidget() {
         const key = `varthanow_steps_${dateStr}`;
         const savedSteps = localStorage.getItem(key);
         
-        const defaultMock = i === 0 ? steps : Math.floor(4800 + ((i * 1430) % 5500));
-        const val = savedSteps ? parseInt(savedSteps, 10) : defaultMock;
+        const val = savedSteps ? parseInt(savedSteps, 10) : (i === 0 ? steps : 0);
         pastDays.push({ date: dateStr, dayName, steps: val });
       }
       setHistory(pastDays);
@@ -124,15 +117,13 @@ export function StepTrackerWidget() {
     }
   }, [steps, isTe]);
 
-  const [sensorStatus, setSensorStatus] = useState<"off" | "listening" | "step_detected" | "unsupported">("off");
-  const isAboveThresholdRef = useRef<boolean>(false);
-  const prevAccelRef = useRef<{ x: number; y: number; z: number } | null>(null);
-
-  // ⚡ HARDWARE PEDOMETER ENGINE (Differential Motion Acceleration - NO false steps when still!)
+  // ⚡ HARDWARE PEDOMETER ENGINE (High-Precision Peak-Valley Detection for Slow Walk & Fast Motion)
   useEffect(() => {
     if (!isLiveTracking) {
       setSensorStatus("off");
-      prevAccelRef.current = null;
+      gravityEstRef.current = 9.81;
+      smoothedAccelRef.current = 0;
+      isRisingRef.current = false;
       return;
     }
 
@@ -143,46 +134,58 @@ export function StepTrackerWidget() {
 
     setSensorStatus("listening");
 
-    // Dynamic motion threshold depending on selected walk mode
-    const stepThreshold = walkMode === "run" ? 4.2 : walkMode === "brisk" ? 3.2 : 2.6;
-    const minStepIntervalMs = walkMode === "run" ? 240 : walkMode === "brisk" ? 280 : 320;
+    // Dynamic peak sensitivity tuned for:
+    // Slow Walk ('normal'): 0.50 m/s² (Captures gentle slow walking steps accurately)
+    // Brisk Walk ('brisk'): 1.10 m/s²
+    // Jogging ('run'): 2.20 m/s²
+    const minPeakDelta = walkMode === "run" ? 2.20 : walkMode === "brisk" ? 1.10 : 0.50;
+    const minStepIntervalMs = walkMode === "run" ? 220 : walkMode === "brisk" ? 270 : 310;
 
     const handleMotion = (event: DeviceMotionEvent) => {
       const acc = event.accelerationIncludingGravity || event.acceleration;
       if (!acc || acc.x === null || acc.y === null || acc.z === null) return;
 
-      const currentX = acc.x;
-      const currentY = acc.y;
-      const currentZ = acc.z;
+      const rawMag = Math.sqrt(acc.x * acc.x + acc.y * acc.y + acc.z * acc.z);
 
-      if (!prevAccelRef.current) {
-        prevAccelRef.current = { x: currentX, y: currentY, z: currentZ };
-        return;
-      }
+      // 1. Dynamic Gravity Estimation Filter (Alpha = 0.90)
+      // Works seamlessly regardless of whether gravity (~9.81) is included or excluded (~0.0)
+      gravityEstRef.current = 0.90 * gravityEstRef.current + 0.10 * rawMag;
+      const linearAccel = Math.abs(rawMag - gravityEstRef.current);
 
-      // Calculate differential acceleration delta between consecutive sensor ticks
-      const dx = currentX - prevAccelRef.current.x;
-      const dy = currentY - prevAccelRef.current.y;
-      const dz = currentZ - prevAccelRef.current.z;
-
-      // When standing or sitting still, diffMagnitude is ~0.05 to 0.4 m/s^2 (strictly 0 steps)
-      const diffMagnitude = Math.sqrt(dx * dx + dy * dy + dz * dz);
-      prevAccelRef.current = { x: currentX, y: currentY, z: currentZ };
+      // 2. Exponential Moving Average Noise Filter (Beta = 0.65)
+      // Smooths out high-frequency jitter while capturing slow walking foot strikes
+      smoothedAccelRef.current = 0.65 * smoothedAccelRef.current + 0.35 * linearAccel;
+      const currVal = smoothedAccelRef.current;
 
       const now = Date.now();
 
-      // Peak Motion Filter: Step counted ONLY on physical walking impact spike
-      if (diffMagnitude >= stepThreshold) {
-        if (!isAboveThresholdRef.current && (now - lastStepTimeRef.current >= minStepIntervalMs)) {
-          lastStepTimeRef.current = now;
-          isAboveThresholdRef.current = true;
-          setSteps((prev) => prev + 1);
-          setSensorStatus("step_detected");
-          setTimeout(() => setSensorStatus("listening"), 400);
+      // 3. Peak-Valley Gait Detector Engine
+      if (currVal > lastPeakValRef.current) {
+        lastPeakValRef.current = currVal;
+        isRisingRef.current = true;
+      } else if (currVal < lastPeakValRef.current - 0.12 && isRisingRef.current) {
+        // Peak inflection reached! Verify peak amplitude above noise floor
+        const peakAmplitude = lastPeakValRef.current;
+
+        if (peakAmplitude >= minPeakDelta) {
+          const timeSinceLastStep = now - lastStepTimestampRef.current;
+
+          if (timeSinceLastStep >= minStepIntervalMs) {
+            // Valid Step Counted!
+            lastStepTimestampRef.current = now;
+            setSteps((prev) => prev + 1);
+            setSensorStatus("step_detected");
+            setTimeout(() => setSensorStatus("listening"), 350);
+          }
         }
-      } else if (diffMagnitude < stepThreshold * 0.4) {
-        isAboveThresholdRef.current = false;
+
+        // Reset peak detector for next step cycle
+        isRisingRef.current = false;
+        lastPeakValRef.current = currVal;
       }
+
+      // Smooth peak decay to trace waveform continuously
+      lastPeakValRef.current *= 0.95;
     };
 
     const attachListener = () => {
@@ -210,21 +213,7 @@ export function StepTrackerWidget() {
     };
   }, [isLiveTracking, walkMode]);
 
-  // 🏃‍♂️ Handle Syncing with Google Fit Activity API
-  const handleGoogleFitSync = async () => {
-    setIsGoogleFitSyncing(true);
-    try {
-      const fitData = await syncGoogleFitData();
-      setSteps(fitData.steps);
-      setGoogleFitStatus(fitData);
-    } catch (err) {
-      console.warn("Google Fit sync error:", err);
-    } finally {
-      setIsGoogleFitSyncing(false);
-    }
-  };
-
-  // Accurate Fitness Metrics Formulas
+  // Fitness Metrics Calculations
   const calFactor = walkMode === "run" ? 0.062 : walkMode === "brisk" ? 0.048 : 0.040;
   const caloriesBurned = Math.round(steps * calFactor);
   const distanceKm = (steps * 0.000762).toFixed(2);
@@ -235,24 +224,6 @@ export function StepTrackerWidget() {
 
   const addSteps = (num: number) => {
     setSteps((prev) => prev + num);
-  };
-
-  // Direct Manual Pedometer Input Set
-  const handleSetDirectSteps = () => {
-    const parsed = parseInt(manualInput, 10);
-    if (!isNaN(parsed) && parsed >= 0) {
-      setSteps(parsed);
-      setManualInput("");
-    }
-  };
-
-  // Direct Manual Pedometer Input Add
-  const handleAddDirectSteps = () => {
-    const parsed = parseInt(manualInput, 10);
-    if (!isNaN(parsed) && parsed > 0) {
-      setSteps((prev) => prev + parsed);
-      setManualInput("");
-    }
   };
 
   const handleReset = () => {
@@ -277,7 +248,7 @@ export function StepTrackerWidget() {
       <div className="absolute -left-16 -bottom-16 size-48 rounded-full bg-teal-500/15 blur-3xl pointer-events-none" />
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-10">
+      <div className="flex items-center justify-between gap-3 relative z-10">
         <div className="flex items-center gap-3">
           <div className="size-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-0.5 shadow-lg shadow-emerald-500/20 shrink-0">
             <div className="size-full bg-slate-950 rounded-[14px] flex items-center justify-center text-emerald-400">
@@ -286,102 +257,29 @@ export function StepTrackerWidget() {
           </div>
           <div>
             <h2 className="text-base sm:text-xl font-black tracking-tight flex items-center gap-2">
-              <span>{isTe ? "ఈరోజు నడక & గూగుల్ ఫిట్ ట్రాకర్" : "Daily Step & Google Fit Tracker"}</span>
+              <span>{isTe ? "లైవ్ పెడోమీటర్ స్టెప్ ట్రాకర్" : "Live Motion Step Pedometer"}</span>
               {isLiveTracking && (
                 <span className="flex size-2.5 rounded-full bg-emerald-400 animate-ping" />
               )}
             </h2>
-            <p className="text-xs font-bold text-emerald-200/80 flex items-center gap-1.5 mt-0.5">
-              <span>{isTe ? "స్టెప్ కౌంట్, కాలరీలు & Google Fit సింక్" : "Step counter & Google Fit Activity Sync"}</span>
-              {googleFitStatus?.connected && (
-                <span className="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/40 uppercase flex items-center gap-1">
-                  <span className="size-1.5 rounded-full bg-blue-400 animate-pulse" />
-                  Google Fit Connected
-                </span>
-              )}
+            <p className="text-xs font-bold text-emerald-200/80 mt-0.5">
+              {isTe ? "ఖచ్చితమైన ఇన్-బిల్ట్ మొబైల్ మోషన్ సెన్సార్ ట్రాకర్" : "High-precision native motion sensor gait tracker"}
             </p>
           </div>
         </div>
 
-        {/* Action Buttons: Google Fit Sync & Goal */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={handleGoogleFitSync}
-            disabled={isGoogleFitSyncing}
-            className="px-3.5 py-2 rounded-xl bg-blue-600/30 hover:bg-blue-600/50 border border-blue-400/40 text-xs font-black text-blue-200 transition flex items-center gap-1.5 cursor-pointer active:scale-95 disabled:opacity-70"
-            title="Sync steps directly with Google Fit App"
-          >
-            {isGoogleFitSyncing ? (
-              <>
-                <RefreshCw className="size-3.5 animate-spin" />
-                <span>సింక్ అవుతోంది...</span>
-              </>
-            ) : (
-              <>
-                <Smartphone className="size-3.5 text-blue-400" />
-                <span>{isTe ? "🔴 Google Fit సింక్" : "Google Fit Sync"}</span>
-              </>
-            )}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowGoalModal(true)}
-            className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-black text-emerald-200 transition flex items-center gap-1.5 cursor-pointer shrink-0"
-          >
-            <Target className="size-4 text-yellow-400" />
-            <span>{goal.toLocaleString()} {isTe ? "లక్ష్యం" : "Goal"}</span>
-          </button>
-        </div>
+        {/* Set Goal Button */}
+        <button
+          type="button"
+          onClick={() => setShowGoalModal(true)}
+          className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-xs font-black text-emerald-200 transition flex items-center gap-1.5 cursor-pointer shrink-0"
+        >
+          <Target className="size-4 text-yellow-400" />
+          <span>{goal.toLocaleString()} {isTe ? "లక్ష్యం" : "Goal"}</span>
+        </button>
       </div>
 
-      {/* Direct Pedometer Step Count Input Bar */}
-      <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-emerald-500/30 space-y-2 relative z-10">
-        <div className="flex items-center justify-between text-[11px] font-black text-emerald-300 uppercase tracking-wider">
-          <span className="flex items-center gap-1.5">
-            <Edit3 className="size-3.5 text-yellow-400" />
-            {isTe ? "పెడోమీటర్ లేదా స్మార్ట్‌వాచ్ అడుగుల సంఖ్య టైప్ చేయండి:" : "Type Pedometer / Smartwatch Step Count:"}
-          </span>
-          {googleFitStatus?.lastSynced && (
-            <span className="text-[10px] text-blue-300 font-bold">
-              Google Fit Sync: {googleFitStatus.lastSynced}
-            </span>
-          )}
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-2">
-          <input
-            type="number"
-            value={manualInput}
-            onChange={(e) => setManualInput(e.target.value)}
-            placeholder={isTe ? "ఉదా: 7500 అడుగులు నమోదు చేయండి..." : "Ex: Type 7500 steps..."}
-            className="flex-1 h-11 px-3.5 rounded-xl border border-white/20 bg-slate-900 text-xs font-bold text-white outline-none focus:border-emerald-500 placeholder:text-slate-400"
-          />
-
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleSetDirectSteps}
-              className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs shadow-md hover:brightness-110 flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95"
-            >
-              <Check className="size-4" />
-              <span>{isTe ? "సమర్పించు (Set)" : "Set Steps"}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleAddDirectSteps}
-              className="h-11 px-4 rounded-xl bg-white/10 hover:bg-emerald-500/20 border border-white/20 text-white font-extrabold text-xs flex items-center justify-center gap-1 cursor-pointer shrink-0 active:scale-95"
-            >
-              <Plus className="size-4 text-emerald-400" />
-              <span>{isTe ? "+ కలుపు (Add)" : "+ Add"}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mode Selector (Walk 🚶‍♂️ / Brisk Walk 🏃‍♂️ / Run ⚡) */}
+      {/* Walking Pace Mode Selector */}
       <div className="p-1.5 rounded-2xl bg-slate-950/60 border border-white/10 grid grid-cols-3 gap-1 relative z-10">
         <button
           type="button"
@@ -392,7 +290,7 @@ export function StepTrackerWidget() {
               : "text-slate-300 hover:text-white hover:bg-white/5"
           }`}
         >
-          <span>🚶‍♂️ {isTe ? "సాధారణ నడక" : "Slow Walk"}</span>
+          <span>🚶‍♂️ {isTe ? "సాధారణ / నెమ్మది నడక" : "Slow Walk"}</span>
         </button>
 
         <button
@@ -420,14 +318,14 @@ export function StepTrackerWidget() {
         </button>
       </div>
 
-      {/* Center Gauge & Quick Metrics */}
+      {/* Center Gauge & Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center relative z-10">
         
-        {/* Left Column: Live Pedometer Sensor & Quick Add Buttons */}
+        {/* Left Column: Motion Sensor Toggle & Quick Shortcuts */}
         <div className="space-y-3 order-2 md:order-1">
           <div className="text-[11px] font-black text-emerald-300 uppercase tracking-wider flex items-center gap-1">
             <Zap className="size-3.5 text-yellow-400" />
-            <span>{isTe ? "త్వరిత అడుగుల బటన్లు" : "Quick Add Shortcuts"}</span>
+            <span>{isTe ? "త్వరిత అడుగుల మార్పు" : "Quick Step Adjustment"}</span>
           </div>
 
           <div className="grid grid-cols-2 gap-2">
@@ -465,7 +363,7 @@ export function StepTrackerWidget() {
             </button>
           </div>
 
-          {/* Live Mobile Pedometer Sensor Button */}
+          {/* Live Mobile Motion Sensor Button */}
           <div className="space-y-1.5">
             <button
               type="button"
@@ -484,7 +382,7 @@ export function StepTrackerWidget() {
               ) : (
                 <>
                   <Play className="size-4 fill-current" />
-                  <span>{isTe ? "⚡ లైవ్ మోషన్ సెన్సార్ ఆన్ చేయండి" : "Start Live Step Sensor"}</span>
+                  <span>{isTe ? "⚡ మోషన్ సెన్సార్ స్టార్ట్ చేయండి" : "Start Live Step Sensor"}</span>
                 </>
               )}
             </button>
@@ -498,11 +396,11 @@ export function StepTrackerWidget() {
                 ) : sensorStatus === "listening" ? (
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-300">
                     <span className="size-1.5 rounded-full bg-emerald-400 animate-ping" />
-                    {isTe ? "సెన్సార్ సిద్ధంగా ఉంది - నడుస్తున్నప్పుడు మాత్రమే పెరుగుతాయి" : "Sensor Active - Increments strictly when walking"}
+                    {isTe ? "సెన్సార్ యాక్టివ్ - నడుస్తున్నప్పుడు మాత్రమే కౌంట్ అవుతుంది" : "Sensor Active - Counts strictly when walking"}
                   </span>
                 ) : sensorStatus === "unsupported" ? (
                   <span className="text-[10px] font-bold text-amber-300">
-                    {isTe ? "ఈ డివైజ్‌లో మోషన్ సెన్సార్ లేదు - టైప్ లేదా Google Fit వాడండి" : "No motion sensor found - use Manual Input or Google Fit"}
+                    {isTe ? "ఈ ఫోన్ డివైజ్‌లో మోషన్ సెన్సార్ అందుబాటులో లేదు" : "Motion sensor not available on this device"}
                   </span>
                 ) : null}
               </div>
@@ -559,7 +457,7 @@ export function StepTrackerWidget() {
           )}
         </div>
 
-        {/* Right Column: Calories, Distance & Time Cards */}
+        {/* Right Column: Calories, Distance & Active Time */}
         <div className="grid grid-cols-3 md:grid-cols-1 gap-2.5 order-3">
           
           {/* Calories */}
