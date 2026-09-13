@@ -203,7 +203,7 @@ export function MahilaMarketPage() {
   const [category, setCategory] = useState<string>("food_catering");
   const [title, setTitle] = useState<string>("");
   const [price, setPrice] = useState<string>("");
-  const [locality, setLocality] = useState<string>("మధురవాడ (Madhurawada)");
+  const [locality, setLocality] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
@@ -581,7 +581,7 @@ export function MahilaMarketPage() {
                     value={locality}
                     onChange={setLocality}
                     label="ప్రాంతం / ఏరియా / గ్రామం / పట్టణం (Locality / Area)"
-                    placeholder="గ్రామం, వీధి, మండలం, పట్టణం టైప్ చేయండి లేదా ఎంచుకోండి..."
+                    placeholder="ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ..."
                     required
                   />
                 </div>

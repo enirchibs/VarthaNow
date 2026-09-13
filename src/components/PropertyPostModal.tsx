@@ -94,7 +94,7 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
   const [bathrooms, setBathrooms] = useState("2");
   const [floorNumber, setFloorNumber] = useState("");
   const [totalFloors, setTotalFloors] = useState("");
-  const [locality, setLocality] = useState("మధురవాడ (Madhurawada)");
+  const [locality, setLocality] = useState("");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>(["Parking", "Security"]);
   const [agentName, setAgentName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
@@ -208,6 +208,10 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
     e.preventDefault();
     if (!title.trim()) {
       setErrorMsg("దయచేసి ప్రాపర్టీ శీర్షిక ఎంటర్ చేయండి (Please enter property title)");
+      return;
+    }
+    if (!locality.trim()) {
+      setErrorMsg("దయచేసి ప్రాపర్టీ ప్రాంతం / లొకేషన్ ఎంచుకోండి (Please select property locality)");
       return;
     }
     if (!contactPhone.trim()) {
@@ -531,9 +535,9 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
             <LocationAreaSelector
               value={locality}
               onChange={setLocality}
-              label="Property Locality / Area * (ప్రాంతం / గ్రామం / మండలం / వీధి)"
-              placeholder="గ్రామం, మండలం, వీధి, పట్నం లేదా నగరం టైప్ చేయండి..."
-              required
+              label="ప్రాపర్టీ ప్రాంతం / లొకేషన్ (Property Locality / Area)"
+              placeholder="ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ..."
+              required={true}
             />
 
             {/* Amenities Toggle */}
