@@ -59,7 +59,8 @@ interface DiseaseData {
   dietAvoid: string[];
   lifestyle: string[];
   traditional: string[];
-  scientific: string;
+  scientificTe: string;
+  scientificEn: string;
   emergency: string[];
   faqs: FAQ[];
 }
@@ -77,7 +78,8 @@ const DISEASES: Record<string, DiseaseData> = {
     dietAvoid: ["మసాలా ఆహారాలు", "నూనెలో వేయించిన పదార్థాలు", "చల్లటి పానీయాలు", "జీర్ణం కావడానికి కష్టమయ్యే బరువైన ఆహారం"],
     lifestyle: ["కనీసం 8 గంటల నిద్ర", "చల్లని గదిలో విశ్రాంతి", "శరీరాన్ని శుభ్రంగా ఉంచుకోవడం"],
     traditional: ["తులసి ఆకుల కషాయం తాగడం", "నుదిటిపై తడి గుడ్డ వేయడం", "అల్లం టీ తాగడం"],
-    scientific: "Fever (pyrexia) is a temporary increase in body temperature, often due to an illness. It is a sign that your body's immune system is fighting off an infection.",
+    scientificTe: "జ్వరం (పైరెక్సియా) అనేది శరీర ఉష్ణోగ్రత తాత్కాలికంగా పెరగడం. శరీరంలోకి ఏదైనా ఇన్ఫెక్షన్ లేదా వైరస్ ప్రవేశించినప్పుడు, దానితో పోరాడటానికి రోగనిరోధక వ్యవస్థ సహజంగా ఉష్ణోగ్రతను పెంచుతుంది.",
+    scientificEn: "Fever (pyrexia) is a temporary increase in body temperature, often due to an illness. It is a sign that your body's immune system is fighting off an infection.",
     emergency: ["శ్వాస తీసుకోవడంలో ఇబ్బంది", "తీవ్రమైన తలనొప్పి మరియు మెడ పట్టేయడం", "మూర్ఛ రావడం", "103°F కన్నా ఎక్కువ జ్వరం"],
     faqs: [
       { q: "జ్వరం ఉన్నప్పుడు స్నానం చేయవచ్చా?", a: "అవును, గోరువెచ్చని నీటితో స్నానం చేయవచ్చు. ఇది శరీర ఉష్ణోగ్రతను తగ్గించడంలో సహాయపడుతుంది." },
@@ -96,7 +98,8 @@ const DISEASES: Record<string, DiseaseData> = {
     dietAvoid: ["మసాలా వంటకాలు", "ఫాస్ట్ ఫుడ్", "క్యాబేజీ, బఠానీలు వంటి గ్యాస్ కలిగించే కూరగాయలు", "కాఫీ, టీలు"],
     lifestyle: ["ఆహారాన్ని నమిలి తినడం", "భోజనం చేసిన వెంటనే పడుకోకపోవడం", "రోజూ వ్యాయామం చేయడం"],
     traditional: ["భోజనం తర్వాత సోంపు నమలడం", "గోరువెచ్చని నీటిలో కొద్దిగా వాము వేసుకుని తాగడం"],
-    scientific: "Intestinal gas is a natural byproduct of digestion. Excessive accumulation of gas is usually related to dietary habits, swallowed air, or fermentation of food by gut bacteria.",
+    scientificTe: "జీర్ణక్రియ ప్రక్రియలో శరీరంలో గ్యాస్ ఏర్పడటం సహజమైన ప్రక్రియ. అయితే వేగంగా ఆహారం తినడం, ఆహారంతో పాటు గాలిని మింగడం, లేదా ప్రేగులలోని బ్యాక్టీరియా సరిగ్గా జీర్ణంకాని ఆహారాన్ని పులియబెట్టడం వల్ల అధికంగా గ్యాస్, ఎసిడిటీ మరియు కడుపు ఉబ్బరం ఏర్పడతాయి.",
+    scientificEn: "Intestinal gas is a natural byproduct of digestion. Excessive accumulation of gas is usually related to dietary habits, swallowed air, or fermentation of food by gut bacteria.",
     emergency: ["తీవ్రమైన మరియు నిరంతర కడుపు నొప్పి", "రక్త వాంతులు లేదా నల్లటి మలం", "కారణం లేని బరువు తగ్గడం"],
     faqs: [
       { q: "గ్యాస్ గుండె నొప్పా ఎలా గుర్తించాలి?", a: "గుండె నొప్పి ఛాతీ మధ్యలో ఒత్తిడితో పాటు ఎడమ చేతికి వ్యాపిస్తుంది. గ్యాస్ నొప్పి సాధారణంగా పొట్ట పైభాగంలో ఉండి తేన్పులతో తగ్గుతుంది. అనుమానంగా ఉంటే వెంటనే ఈసీజీ చేయించుకోవాలి." }
@@ -114,7 +117,8 @@ const DISEASES: Record<string, DiseaseData> = {
     dietAvoid: ["స్వీట్లు, చక్కెర పానీయాలు", "మైదా, తెల్లటి బియ్యం", "అధిక కార్బోహైడ్రేట్లు ఉన్న కూరగాయలు (బంగాళాదుంప)"],
     lifestyle: ["రోజుకు కనీసం 30-45 నిమిషాల వేగవంతమైన నడక", "ఒత్తిడి తగ్గించుకోవడం"],
     traditional: ["పరిగడుపున కాకరకాయ రసం తాగడం", "రాత్రి నానబెట్టిన మెంతుల నీరు తాగడం"],
-    scientific: "Diabetes mellitus is a chronic metabolic condition where the body cannot properly regulate blood glucose levels either due to insufficient insulin production or ineffective insulin usage.",
+    scientificTe: "మధుమేహం (డయాబెటిస్ మెల్లిటస్) అనేది శరీరంలో చక్కెర జీవక్రియకు సంబంధించిన దీర్ఘకాలిక సమస్య. క్లోమం (పాంక్రియాస్) నుండి తగినంత ఇన్సులిన్ హార్మోన్ ఉత్పత్తి కాకపోవడం వల్ల లేదా ఉత్పత్తి అయిన ఇన్సులిన్‌ను శరీర కణాలు సమర్థవంతంగా వినియోగించుకోలేకపోవడం వల్ల రక్తంలో గ్లూకోజ్ (చక్కెర) స్థాయిలు అదుపు తప్పుతాయి.",
+    scientificEn: "Diabetes mellitus is a chronic metabolic condition where the body cannot properly regulate blood glucose levels either due to insufficient insulin production or ineffective insulin usage.",
     emergency: ["స్పృహ కోల్పోవడం (Diabetic Coma)", "కళ్ళు తిరగడం మరియు విపరీతమైన చెమటలు (Hypoglycemia)"],
     faqs: [
       { q: "HbA1c సాధారణ విలువ ఎంత ఉండాలి?", a: "సాధారణంగా HbA1c 5.7% కంటే తక్కువ ఉండాలి. 6.5% అంతకంటే ఎక్కువ ఉంటే డయాబెటిస్ ఉన్నట్లు నిర్ధారిస్తారు." }
@@ -399,7 +403,7 @@ export function HealthPortal() {
                   <Info className="size-5" />
                   {isTe ? "శాస్త్రీయ సమాచారం" : "Scientific Information"}
                 </h2>
-                <p className="text-xs sm:text-sm font-bold text-[hsl(var(--muted-foreground))] leading-relaxed">{d.scientific}</p>
+                <p className="text-xs sm:text-sm font-bold text-[hsl(var(--muted-foreground))] leading-relaxed">{isTe ? d.scientificTe : d.scientificEn}</p>
               </div>
 
               <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-6 rounded-2xl shadow-sm space-y-3">
@@ -477,7 +481,7 @@ export function HealthPortal() {
                   ))}
                   {isAiLoading && (
                     <div className="flex justify-start">
-                      <span className="text-[10px] text-emerald-600 font-bold animate-pulse">Typing info...</span>
+                      <span className="text-[10px] text-emerald-600 font-bold animate-pulse">{isTe ? "సమాచారం టైప్ చేస్తోంది..." : "Typing info..."}</span>
                     </div>
                   )}
                 </div>
@@ -641,7 +645,7 @@ export function HealthPortal() {
                     <Activity className="size-4 text-emerald-600 shrink-0" />
                     <div>
                       <p>{lang === "te" ? item.titleTe : item.titleEn}</p>
-                      <p className="text-[10px] text-[hsl(var(--muted-foreground))]">Science backed medicine facts</p>
+                      <p className="text-[10px] text-[hsl(var(--muted-foreground))]">{isTe ? "శాస్త్రీయ ఆధారాలు గల వైద్య సమాచారం" : "Science backed medicine facts"}</p>
                     </div>
                   </Link>
                 ))}
@@ -790,8 +794,8 @@ export function HealthPortal() {
                     <p className="text-[10px] text-[hsl(var(--muted-foreground))] font-bold leading-relaxed line-clamp-2 mt-2">{r.traditionalUse}</p>
                   </div>
                   <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-3 text-[10px] font-black text-emerald-600">
-                    <span>Evidence: {r.evidence}</span>
-                    <span className="flex items-center gap-0.5">Read details <ChevronRight className="size-3" /></span>
+                    <span>{isTe ? "శాస్త్రీయ ఆధారం:" : "Evidence:"} {isTe ? (r.evidence === "High" ? "అత్యధికం (High)" : r.evidence === "Moderate" ? "మధ్యస్థం (Moderate)" : "పరిమితం (Limited)") : r.evidence}</span>
+                    <span className="flex items-center gap-0.5">{isTe ? "పూర్తి వివరాలు" : "Read details"} <ChevronRight className="size-3" /></span>
                   </div>
                 </div>
               </Link>
@@ -814,22 +818,22 @@ export function HealthPortal() {
           <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl flex flex-col items-center text-center space-y-2">
             <Droplet className="size-8 text-blue-500 animate-bounce" />
             <h4 className="text-xs font-black">{isTe ? "హైడ్రేషన్ (Hydration)" : "Hydration"}</h4>
-            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">Keep drinking water daily</p>
+            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "రోజూ తగినంత నీరు తాగండి" : "Keep drinking water daily"}</p>
           </div>
           <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl flex flex-col items-center text-center space-y-2">
             <Moon className="size-8 text-indigo-500" />
             <h4 className="text-xs font-black">{isTe ? "నిద్ర (Sleep)" : "Sleep"}</h4>
-            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">7-8 hours quality sleep</p>
+            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "7-8 గంటల నాణ్యమైన నిద్ర" : "7-8 hours quality sleep"}</p>
           </div>
           <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl flex flex-col items-center text-center space-y-2">
             <Smile className="size-8 text-amber-500" />
             <h4 className="text-xs font-black">{isTe ? "ధ్యానం (Meditation)" : "Meditation"}</h4>
-            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">Calm down stress levels</p>
+            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "మానసిక ఒత్తిడిని తగ్గించుకోండి" : "Calm down stress levels"}</p>
           </div>
           <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 p-5 rounded-2xl flex flex-col items-center text-center space-y-2">
             <Zap className="size-8 text-emerald-500" />
             <h4 className="text-xs font-black">{isTe ? "యోగా (Yoga)" : "Yoga"}</h4>
-            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">Stretching & flexibility</p>
+            <p className="text-[10px] font-bold text-[hsl(var(--muted-foreground))]">{isTe ? "శరీర దారుఢ్యం & వశ్యత" : "Stretching & flexibility"}</p>
           </div>
         </div>
       </section>
@@ -918,8 +922,8 @@ export function HealthPortal() {
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "లింగం" : "Gender"}</label>
                       <select value={calGender} onChange={(e) => setCalGender(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" >
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
+                        <option value="male">{isTe ? "పురుషుడు" : "Male"}</option>
+                        <option value="female">{isTe ? "స్త్రీ" : "Female"}</option>
                       </select>
                     </div>
                   </div>
@@ -1007,8 +1011,8 @@ export function HealthPortal() {
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "కుటుంబంలో డయాబెటిస్ ఉందా?" : "Family history of diabetes?"}</label>
                       <select value={diabFamily} onChange={(e) => setDiabFamily(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" >
-                        <option value="no">No</option>
-                        <option value="yes">Yes</option>
+                        <option value="no">{isTe ? "లేదు" : "No"}</option>
+                        <option value="yes">{isTe ? "అవును" : "Yes"}</option>
                       </select>
                     </div>
                     <div className="space-y-1">
@@ -1033,8 +1037,8 @@ export function HealthPortal() {
                     <div className="space-y-1">
                       <label className="text-[10px] text-[hsl(var(--muted-foreground))] block">{isTe ? "ధూమపాన అలవాటు ఉందా?" : "Active Smoker?"}</label>
                       <select value={heartSmoker} onChange={(e) => setHeartSmoker(e.target.value)} className="w-full px-3 py-2 border border-[hsl(var(--border))] rounded-xl bg-[hsl(var(--input))]" >
-                        <option value="no">No</option>
-                        <option value="yes">Yes</option>
+                        <option value="no">{isTe ? "లేదు" : "No"}</option>
+                        <option value="yes">{isTe ? "అవును" : "Yes"}</option>
                       </select>
                     </div>
                   </div>
