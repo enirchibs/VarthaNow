@@ -588,8 +588,8 @@ export function ServicesRentalPage() {
     }
   }, [location.search]);
 
-  // 7-Step Mandatory Sequence: 1: Mobile | 2: OTP | 3: Mandatory Full Name | 4: Service Details | 5: Optional Email | 6: Terms & Declarations | 7: Published
-  type ListingStep = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+  // 3-Step Sequence: 1: Details & Declarations Form (Send OTP) | 2: SMS OTP Verification | 3: Published & Immutable Audit Record
+  type ListingStep = 1 | 2 | 3;
   const [step, setStep] = useState<ListingStep>(1);
   const [mobileVerified, setMobileVerified] = useState<boolean>(false);
   const [mobileVerifiedAt, setMobileVerifiedAt] = useState<string>("");
@@ -608,12 +608,12 @@ export function ServicesRentalPage() {
   const [freeBonusItems, setFreeBonusItems] = useState<string>("");
   const [isFreeVisit, setIsFreeVisit] = useState<boolean>(false);
 
-  // Mandatory Legal Declarations (Step 6)
-  const [declarationIndependent, setDeclarationIndependent] = useState<boolean>(false);
-  const [declarationResponsibility, setDeclarationResponsibility] = useState<boolean>(false);
-  const [declarationTerms, setDeclarationTerms] = useState<boolean>(false);
+  // Mandatory Legal Declarations (Default with click mark = true)
+  const [declarationIndependent, setDeclarationIndependent] = useState<boolean>(true);
+  const [declarationResponsibility, setDeclarationResponsibility] = useState<boolean>(true);
+  const [declarationTerms, setDeclarationTerms] = useState<boolean>(true);
 
-  // Immutable Published Confirmation (Step 7)
+  // Immutable Published Confirmation (Step 3)
   const [publishedRecord, setPublishedRecord] = useState<{
     id: string;
     termsHash: string;
@@ -657,21 +657,58 @@ export function ServicesRentalPage() {
     });
   }, [items, selectedGroup, searchQuery]);
 
-  // Step 1: Send Live SMS OTP
+  // Step 1: Validate Service Form & Legal Declarations, then Send Live SMS OTP
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 1. Mandatory Full Name Validation
+    const nameResult = validateAndSanitizeFullName(providerName);
+    if (!nameResult.isValid) {
+      setErrorMsg(nameResult.error || "దయచేసి మీ నిజమైన పూర్తి పేరును నమోదు చేయండి (* Legal Full Name Required)");
+      return;
+    }
+
+    // 2. Locality Validation
+    if (!village.trim()) {
+      setErrorMsg("దయచేసి మీ ప్రాంతం / గ్రామం / పట్టణాన్ని ఎంచుకోండి (* Locality Required)");
+      return;
+    }
+
+    // 3. Price Rate Validation
+    if (!isFreeVisit && !priceRate.trim()) {
+      setErrorMsg("దయచేసి చార్జీలు / అద్దె వివరాలను నమోదు చేయండి (* Rate Required)");
+      return;
+    }
+
+    // 4. Mobile Phone Validation
     const cleanPhone = phone.replace(/\D/g, "");
     if (cleanPhone.length !== 10 || !/^[6-9]/.test(cleanPhone)) {
       setErrorMsg("దయచేసి సరైన 10-అంకెల భారతీయ మొబైల్ నంబర్‌ను ఇవ్వండి (6, 7, 8, లేదా 9 తో ప్రారంభం కావాలి)");
       return;
     }
 
+    // 5. Optional Email Validation
+    if (userEmail.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(userEmail.trim())) {
+        setErrorMsg("దయచేసి సరైన ఇమెయిల్ ఫార్మాట్‌ను ఇవ్వండి (ఉదా: name@example.com) లేదా ఖాళీగా ఉంచండి.");
+        return;
+      }
+    }
+
+    // 6. Mandatory Legal Terms & Disclaimers Check (Must be accepted)
+    if (!declarationIndependent || !declarationResponsibility || !declarationTerms) {
+      setErrorMsg("దయచేసి ఫారమ్ చివర ఉన్న చట్టపరమైన డిక్లరేషన్లను అంగీకరించండి (Check all declaration boxes to proceed)");
+      return;
+    }
+
+    setProviderName(nameResult.sanitized);
     setLoading(true);
     setErrorMsg("");
 
     recordAuditEvent({
       event_type: "mobile_submitted",
-      metadata: { mobile: cleanPhone }
+      metadata: { mobile: cleanPhone, provider_name: nameResult.sanitized }
     });
 
     const res = await sendSMSOTP(cleanPhone);
@@ -683,41 +720,10 @@ export function ServicesRentalPage() {
         event_type: "otp_sent",
         metadata: { mobile: cleanPhone }
       });
-      setStep(2);
+      setStep(2); // Advance to Step 2: OTP Verification
     } else {
       setErrorMsg("SMS OTP పంపడంలో విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.");
     }
-  };
-
-  // Step 2: Verify OTP
-  const handleVerifyOTP = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!otp.trim() || otp.trim().length < 6) {
-      setErrorMsg("దయచేసి 6-అంకెల OTP కోడ్‌ను నమోదు చేయండి");
-      return;
-    }
-
-    setLoading(true);
-    setErrorMsg("");
-
-    const verifyRes = await verifySellerOTP(phone, otp, "Prospective Service Provider");
-
-    if (!verifyRes.success) {
-      setLoading(false);
-      setErrorMsg(verifyRes.error || "OTP తప్పుగా ఉంది. దయచేసి సరైన కోడ్‌ను నమోదు చేయండి.");
-      return;
-    }
-
-    const verifiedTimestamp = new Date().toISOString();
-    setMobileVerified(true);
-    setMobileVerifiedAt(verifiedTimestamp);
-    recordAuditEvent({
-      event_type: "otp_verified",
-      metadata: { mobile: phone.replace(/\D/g, ""), verified_at: verifiedTimestamp }
-    });
-
-    setLoading(false);
-    setStep(3); // Proceed immediately to Mandatory Full Name
   };
 
   // Step 2: Resend OTP
@@ -736,74 +742,24 @@ export function ServicesRentalPage() {
     }
   };
 
-  // Step 3: Validate Mandatory Full Name
-  const handleValidateFullName = (e: React.FormEvent) => {
+  // Step 2: Verify OTP, Record Immutable Terms Acceptance & Publish Service
+  const handleVerifyOTPAndPublish = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = validateAndSanitizeFullName(providerName);
-    if (!result.isValid) {
-      setErrorMsg(result.error || "దయచేసి మీ నిజమైన పూర్తి పేరును నమోదు చేయండి");
-      return;
-    }
-
-    setProviderName(result.sanitized);
-    setErrorMsg("");
-    recordAuditEvent({
-      event_type: "full_name_added",
-      metadata: { full_name: result.sanitized }
-    });
-    setStep(4); // Proceed to Service Details
-  };
-
-  // Step 4: Validate Service Details & Continue to Email
-  const handleProceedToEmail = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!village.trim()) {
-      setErrorMsg("దయచేసి మీ ప్రాంతం / గ్రామం / పట్టణాన్ని ఎంచుకోండి (* Locality Required)");
-      return;
-    }
-    if (!isFreeVisit && !priceRate.trim()) {
-      setErrorMsg("దయచేసి చార్జీలు / అద్దె వివరాలను నమోదు చేయండి (* Rate Required)");
-      return;
-    }
-    setErrorMsg("");
-    setStep(5); // Proceed to Optional Email
-  };
-
-  // Step 5: Handle Email submission
-  const handleContinueWithEmail = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (userEmail.trim()) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(userEmail.trim())) {
-        setErrorMsg("దయచేసి సరైన ఇమెయిల్ ఫార్మాట్‌ను ఇవ్వండి (ఉదా: name@example.com) లేదా దాటవేయండి.");
-        return;
-      }
-      recordAuditEvent({
-        event_type: "email_added",
-        metadata: { email: userEmail.trim() }
-      });
-    }
-    setErrorMsg("");
-    setStep(6); // Proceed to Terms & Declarations
-  };
-
-  // Step 5: Skip Email
-  const handleSkipEmail = () => {
-    setUserEmail("");
-    setErrorMsg("");
-    setStep(6); // Proceed directly to Terms & Declarations
-  };
-
-  // Step 6: Accept Terms, Save Audit, & Publish Listing (Step 7)
-  const handleAcceptTermsAndPublish = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!declarationIndependent || !declarationResponsibility || !declarationTerms) {
-      setErrorMsg("దయచేసి అన్ని చట్టపరమైన డిక్లరేషన్లను చదివి అంగీకరించండి (Check all declaration boxes to proceed)");
+    if (!otp.trim() || otp.trim().length < 6) {
+      setErrorMsg("దయచేసి 6-అంకెల OTP కోడ్‌ను నమోదు చేయండి");
       return;
     }
 
     setLoading(true);
     setErrorMsg("");
+
+    const verifyRes = await verifySellerOTP(phone, otp, providerName);
+
+    if (!verifyRes.success) {
+      setLoading(false);
+      setErrorMsg(verifyRes.error || "OTP తప్పుగా ఉంది. దయచేసి సరైన కోడ్‌ను నమోదు చేయండి.");
+      return;
+    }
 
     const cleanPhone = phone.replace(/\D/g, "");
     const now = new Date().toISOString();
@@ -819,7 +775,7 @@ export function ServicesRentalPage() {
       terms_hash: termsHash,
       accepted_at: now,
       mobile_number: cleanPhone,
-      mobile_verified_at: mobileVerifiedAt || now,
+      mobile_verified_at: now,
       email: userEmail.trim() || null,
       email_verified_at: null,
       user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "Web Browser",
@@ -836,7 +792,7 @@ export function ServicesRentalPage() {
       terms_hash: "SHA256:COC_V1_" + Date.now().toString(36).toUpperCase(),
       accepted_at: now,
       mobile_number: cleanPhone,
-      mobile_verified_at: mobileVerifiedAt || now,
+      mobile_verified_at: now,
       email: userEmail.trim() || null,
       email_verified_at: null,
       user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "Web Browser",
@@ -849,7 +805,7 @@ export function ServicesRentalPage() {
       id: `usr_${cleanPhone}`,
       mobile_number: cleanPhone,
       mobile_verified: true,
-      mobile_verified_at: mobileVerifiedAt || now,
+      mobile_verified_at: now,
       full_name: providerName.trim(),
       full_name_added_at: now,
       email: userEmail.trim() || null,
@@ -876,7 +832,8 @@ export function ServicesRentalPage() {
         service_type: serviceType,
         village: village.trim(),
         has_email: Boolean(userEmail.trim()),
-        terms_accepted: true
+        terms_accepted: true,
+        mobile: cleanPhone
       }
     });
 
@@ -918,12 +875,12 @@ export function ServicesRentalPage() {
       acceptedAt: now
     });
     setLoading(false);
-    setStep(7); // Proceed to Step 7 (Success & Audit Confirmation Screen)
+    setStep(3); // Proceed to Step 3 (Success & Immutable Audit Confirmation)
   };
 
   const handleCloseModal = () => {
     setIsPostModalOpen(false);
-    if (step === 7) {
+    if (step === 3) {
       setStep(1);
       setProviderName("");
       setPriceRate("");
@@ -931,9 +888,11 @@ export function ServicesRentalPage() {
       setMachineDetails("");
       setUserEmail("");
       setImageUrl("");
-      setDeclarationIndependent(false);
-      setDeclarationResponsibility(false);
-      setDeclarationTerms(false);
+      setPhone("");
+      setOtp("");
+      setDeclarationIndependent(true);
+      setDeclarationResponsibility(true);
+      setDeclarationTerms(true);
       setPublishedRecord(null);
     }
   };
@@ -1153,7 +1112,7 @@ export function ServicesRentalPage() {
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5 flex-wrap">
                 <h3 className="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-1.5">
-                  {step === 7 ? (
+                  {step === 3 ? (
                     <span className="text-emerald-700 flex items-center gap-1.5">
                       <CheckCircle2 className="size-5 text-emerald-600" />
                       సేవ ప్రచురించబడింది!
@@ -1161,16 +1120,18 @@ export function ServicesRentalPage() {
                   ) : (
                     <span>+ సర్వీస్ ప్రకటన పోస్ట్ చేయండి</span>
                   )}
-                  {step !== 7 && (
+                  {step !== 3 && (
                     <span className="text-xs text-slate-500 font-normal hidden sm:inline">(Post Service Listing)</span>
                   )}
                 </h3>
                 <span className={`px-3 py-1 rounded-full text-[11px] font-bold border shadow-sm ${
-                  step === 7 
+                  step === 3 
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
-                    : "bg-teal-50 text-teal-700 border-teal-200"
+                    : step === 1
+                    ? "bg-teal-50 text-teal-700 border-teal-200"
+                    : "bg-indigo-50 text-indigo-700 border-indigo-200"
                 }`}>
-                  {step === 7 ? "పూర్తయింది (Complete)" : `దశ ${step}/6 (Step ${step} of 6)`}
+                  {step === 3 ? "పూర్తయింది (Complete)" : step === 1 ? "దశ 1/2: వివరాలు & నిబంధనలు (Step 1 of 2)" : "దశ 2/2: SMS OTP ధృవీకరణ (Step 2 of 2)"}
                 </span>
               </div>
 
@@ -1189,48 +1150,281 @@ export function ServicesRentalPage() {
               </div>
             )}
 
-            {/* STEP 1: MOBILE NUMBER INPUT & OTP TRIGGER */}
+            {/* STEP 1: SERVICE LISTING FORM WITH DISCLAIMER & TERMS AT BOTTOM */}
             {step === 1 && (
-              <form onSubmit={handleSendOTP} className="space-y-4 text-xs">
-                <div className="p-4 rounded-2xl bg-teal-50/80 border border-teal-200 text-teal-900 space-y-1.5">
-                  <div className="flex items-center gap-2 font-black text-teal-800 text-sm">
-                    <Phone className="size-4 text-teal-600" />
-                    <span>దశ 1/6: మొబైల్ నంబర్ ధృవీకరణ (Mobile Verification)</span>
-                  </div>
-                  <p className="text-[11px] text-teal-700 leading-relaxed font-semibold">
-                    భారతీయ నిబంధనలు మరియు ప్లాట్‌ఫారమ్ భద్రత ప్రకారం, ప్రకటనలు ఇచ్చే ముందు మీ మొబైల్ నంబర్‌ను SMS OTP ద్వారా ధృవీకరించడం తప్పనిసరి.
+              <form onSubmit={handleSendOTP} className="space-y-3.5 text-xs">
+                
+                {/* 1. Provider Full Name */}
+                <div className="space-y-1">
+                  <label className="font-extrabold text-slate-800 flex items-center gap-1">
+                    <User className="size-3.5 text-teal-600" />
+                    <span>మీ నిజమైన పూర్తి పేరు (Full Legal Name) <span className="text-red-500">*</span></span>
+                  </label>
+                  <input
+                    type="text"
+                    value={providerName}
+                    onChange={(e) => setProviderName(e.target.value)}
+                    placeholder="ఉదా: రమేష్ బాబు గారపాటి (Ramesh Babu Garapati)"
+                    required
+                    className="w-full rounded-xl border border-slate-300 bg-slate-50 p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                  />
+                  <p className="text-[10px] text-slate-500 font-semibold">
+                    కస్టమర్ భద్రత & విశ్వసనీయత కోసం మీ అసలు పేరు నమోదు చేయండి.
                   </p>
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="font-extrabold text-slate-800 flex items-center justify-between">
-                    <span>మీ 10-అంకెల మొబైల్ నంబర్ (Mobile Number) <span className="text-red-500">*</span></span>
-                    <span className="text-[10px] text-slate-500 font-bold">భారతదేశం (+91)</span>
+                {/* 2. Category & Locality */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="font-extrabold text-slate-800">
+                      విభాగం (Category) <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={category}
+                      onChange={(e) => {
+                        const newCat = e.target.value as ServiceCategory;
+                        setCategory(newCat);
+                        const group = SERVICE_GROUPS.find((g) => g.id === newCat);
+                        if (group && group.items.length > 0) {
+                          setServiceType(group.items[0]);
+                        }
+                      }}
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
+                    >
+                      {SERVICE_GROUPS.map((grp) => (
+                        <option key={grp.id} value={grp.id}>
+                          {grp.title}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <LocationAreaSelector
+                    value={village}
+                    onChange={setVillage}
+                    label="ప్రాంతం / ఏరియా / గ్రామం / పట్టణం (Locality)"
+                    placeholder="ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ..."
+                    required
+                  />
+                </div>
+
+                {/* 3. Specific Service Dropdown */}
+                <div className="space-y-1">
+                  <label className="font-extrabold text-slate-800">
+                    నిర్దిష్ట సేవ / యంత్రం (Specific Service / Machine) <span className="text-red-500">*</span>
                   </label>
-                  <div className="relative flex items-center">
-                    <span className="absolute left-3.5 text-xs font-black text-slate-500 select-none">
-                      +91
-                    </span>
+                  <select
+                    value={serviceType}
+                    onChange={(e) => setServiceType(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
+                  >
+                    {(SERVICE_GROUPS.find((g) => g.id === category)?.items || []).map((item) => (
+                      <option key={item} value={item}>
+                        {item}
+                      </option>
+                    ))}
+                    <option value="ఇతర సేవ / పరికరం (Other Custom Service)">🔧 ఇతర సేవ / పరికరం (Other Custom Service)</option>
+                  </select>
+                </div>
+
+                {/* 4. Price & Free Visit */}
+                <div className="p-3 rounded-2xl border border-slate-200 bg-slate-50 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="font-extrabold text-slate-800 flex items-center justify-between">
+                      <span>చార్జీలు / అద్దె (Rate in ₹) <span className="text-red-500">*</span></span>
+                      <label className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isFreeVisit}
+                          onChange={(e) => setIsFreeVisit(e.target.checked)}
+                          className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                        />
+                        ఉచిత విజిట్ (Free Visit)
+                      </label>
+                    </label>
                     <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      placeholder="9876543210"
-                      maxLength={10}
-                      autoFocus
-                      required
-                      className="w-full pl-12 rounded-xl border border-slate-300 bg-slate-50 p-3.5 text-sm font-black text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                      type="text"
+                      value={priceRate}
+                      onChange={(e) => setPriceRate(e.target.value)}
+                      disabled={isFreeVisit}
+                      placeholder={isFreeVisit ? "ఉచిత విజిట్ (Free Visit)" : "ఉదా: ₹1,500/day లేదా ₹500/hour"}
+                      required={!isFreeVisit}
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50 transition"
                     />
                   </div>
-                  <p className="text-[11px] text-slate-500 font-semibold">
-                    ఈ నంబర్‌కు 6-అంకెల OTP SMS పంపబడుతుంది. కస్టమర్లు మిమ్మల్ని సంప్రదించడానికి కూడా ఈ నంబర్ ఉపయోగపడుతుంది.
-                  </p>
+
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-extrabold text-amber-700 flex items-center gap-1">
+                      <Tag className="size-3 text-amber-600" />
+                      యంత్ర మోడల్ / ఆఫర్ Tag <span className="text-slate-500 font-normal">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={machineDetails}
+                      onChange={(e) => setMachineDetails(e.target.value)}
+                      placeholder="ఉదా: Mahindra 575 DI లేదా 15% OFF"
+                      className="w-full rounded-xl border border-slate-200 bg-white p-2 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
                 </div>
 
+                {/* 5. Description */}
+                <div className="space-y-1">
+                  <label className="font-extrabold text-slate-800">
+                    వివరణ (Description - Optional)
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={2}
+                    placeholder="మీ సేవలు, అనుభవం, పని వేళలు మరియు పని సమయాల పూర్తి వివరాలు..."
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                  />
+                </div>
+
+                {/* 6. Photo Upload */}
+                <div className="space-y-1.5">
+                  <label className="font-extrabold text-slate-800">
+                    ఫోటో (Photo Upload - Optional)
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <label className="relative flex flex-col items-center justify-center p-2.5 rounded-2xl border-2 border-dashed border-teal-300 bg-teal-50/60 hover:bg-teal-100/70 transition cursor-pointer group shadow-sm">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                      <Camera className="size-4 text-teal-600 group-hover:scale-110 transition mb-0.5" />
+                      <span className="text-[10px] font-black text-teal-700">కెమెరా (Camera)</span>
+                    </label>
+
+                    <label className="relative flex flex-col items-center justify-center p-2.5 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/60 hover:bg-emerald-100/70 transition cursor-pointer group shadow-sm">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                      <ImageIcon className="size-4 text-emerald-600 group-hover:scale-110 transition mb-0.5" />
+                      <span className="text-[10px] font-black text-emerald-700">గ్యాలరీ (Gallery)</span>
+                    </label>
+                  </div>
+
+                  {imageUrl && (
+                    <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-200 mt-1 shadow-sm">
+                      <img src={imageUrl} alt="preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl("")}
+                        className="absolute top-2 right-2 rounded-full bg-slate-900/80 p-1 text-white hover:bg-black transition cursor-pointer"
+                      >
+                        <X className="size-3.5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {/* 7. Contact Mobile & Optional Email */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="font-extrabold text-slate-800 flex items-center justify-between">
+                      <span>మొబైల్ నంబర్ (WhatsApp / Phone) <span className="text-red-500">*</span></span>
+                      <span className="text-[10px] text-slate-500 font-bold">+91</span>
+                    </label>
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3 text-xs font-black text-slate-500 select-none">
+                        +91
+                      </span>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        placeholder="9876543210"
+                        maxLength={10}
+                        required
+                        className="w-full pl-10 rounded-xl border border-slate-300 bg-slate-50 p-2 text-xs font-black text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="font-extrabold text-slate-800 flex items-center justify-between">
+                      <span>ఇమెయిల్ (Email - Optional)</span>
+                      <span className="text-emerald-700 text-[10px] font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">ఐచ్ఛికం</span>
+                    </label>
+                    <input
+                      type="email"
+                      value={userEmail}
+                      onChange={(e) => setUserEmail(e.target.value)}
+                      placeholder="yourname@gmail.com"
+                      className="w-full rounded-xl border border-slate-300 bg-slate-50 p-2 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                    />
+                  </div>
+                </div>
+
+                {/* 8. AT LAST OF THE FORM: DISCLAIMER & TERMS AND CONDITIONS ACCEPTANCE (DEFAULT CHECKED) */}
+                <div className="space-y-2.5 p-3.5 rounded-2xl border border-indigo-200 bg-indigo-50/50">
+                  <div className="flex items-center gap-1.5 font-black text-indigo-950 text-xs">
+                    <FileCheck className="size-4 text-indigo-600" />
+                    <span>చట్టపరమైన డిక్లరేషన్లు & నిబంధనల అంగీకారం (Legal Terms & Disclaimer)</span>
+                  </div>
+
+                  {/* Declaration 1: Independent Service Provider */}
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={declarationIndependent}
+                      onChange={(e) => setDeclarationIndependent(e.target.checked)}
+                      className="mt-0.5 size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer shrink-0"
+                    />
+                    <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
+                      <span className="text-teal-950 font-black">1. స్వతంత్ర సర్వీస్ ప్రొవైడర్ డిక్లరేషన్:</span> నేను స్వతంత్ర సేవా ప్రదాతనని/విక్రేతనని, VaartaNow ఉద్యోగిని లేదా ఏజెంట్‌ను కాదని ధృవీకరిస్తున్నాను. (Independent Provider declaration)
+                    </div>
+                  </label>
+
+                  {/* Declaration 2: Quality & Safety Responsibility */}
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={declarationResponsibility}
+                      onChange={(e) => setDeclarationResponsibility(e.target.checked)}
+                      className="mt-0.5 size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer shrink-0"
+                    />
+                    <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
+                      <span className="text-teal-950 font-black">2. నాణ్యత & భద్రతా బాధ్యత:</span> నేను అందించే సేవల నాణ్యత, పనితనం, ధర మరియు కస్టమర్ భద్రతకు నేనే స్వయంగా బాధ్యుడను. (Sole responsibility for service quality, pricing & safety)
+                    </div>
+                  </label>
+
+                  {/* Declaration 3: Terms & Code of Conduct */}
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={declarationTerms}
+                      onChange={(e) => setDeclarationTerms(e.target.checked)}
+                      className="mt-0.5 size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer shrink-0"
+                    />
+                    <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
+                      <span className="text-teal-950 font-black">3. నిబంధనలు & ప్రవర్తనా నియమావళి:</span> నేను VaartaNow{" "}
+                      <Link to="/provider-terms" target="_blank" className="text-teal-700 underline font-black">
+                        సేవా ప్రదాత నిబంధనలు (Provider Terms)
+                      </Link>
+                      {" "}మరియు{" "}
+                      <Link to="/provider-code-of-conduct" target="_blank" className="text-teal-700 underline font-black">
+                        ప్రవర్తనా నియమావళి (Code of Conduct)
+                      </Link>
+                      {" "}ని చదివి, పూర్తిగా అంగీకరిస్తున్నాను.
+                    </div>
+                  </label>
+                </div>
+
+                {/* SUBMIT BUTTON ➔ SEND OTP */}
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-600 via-emerald-600 to-indigo-600 hover:from-teal-700 hover:via-emerald-700 hover:to-indigo-700 text-white font-black text-sm shadow-xl shadow-teal-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98] disabled:opacity-50"
+                  disabled={loading || !declarationIndependent || !declarationResponsibility || !declarationTerms}
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-600 via-emerald-600 to-indigo-600 hover:from-teal-700 hover:via-emerald-700 hover:to-indigo-700 text-white font-black text-sm shadow-xl shadow-teal-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "SMS OTP పంపుతున్నాము..." : "Live SMS OTP పొందండి ➔ (Send OTP)"}
                 </button>
@@ -1239,7 +1433,7 @@ export function ServicesRentalPage() {
 
             {/* STEP 2: SMS OTP VERIFICATION */}
             {step === 2 && (
-              <form onSubmit={handleVerifyOTP} className="space-y-4 text-xs">
+              <form onSubmit={handleVerifyOTPAndPublish} className="space-y-4 text-xs">
                 <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-center space-y-1.5">
                   <div className="flex items-center justify-center gap-1.5 font-black text-emerald-800 text-sm">
                     <ShieldCheck className="size-5 text-emerald-600" />
@@ -1276,7 +1470,7 @@ export function ServicesRentalPage() {
                   disabled={loading}
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-xl shadow-emerald-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98] disabled:opacity-50"
                 >
-                  {loading ? "ధృవీకరిస్తున్నాము..." : "✅ OTP ధృవీకరించు & కొనసాగించు (Verify & Continue)"}
+                  {loading ? "ధృవీకరిస్తున్నాము..." : "✅ OTP ధృవీకరించు & సేవను ప్రచురించు (Verify OTP & Publish Service)"}
                 </button>
 
                 <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-xs font-bold">
@@ -1297,387 +1491,14 @@ export function ServicesRentalPage() {
                     }}
                     className="text-slate-500 hover:text-slate-800 hover:underline cursor-pointer flex items-center gap-1"
                   >
-                    <span>✏️ నంబర్ మార్చండి (Change Number)</span>
+                    <span>← వివరాలను సవరించండి (Edit Details)</span>
                   </button>
                 </div>
               </form>
             )}
 
-            {/* STEP 3: MANDATORY FULL NAME (First Profile Field) */}
-            {step === 3 && (
-              <form onSubmit={handleValidateFullName} className="space-y-4 text-xs">
-                <div className="p-4 rounded-2xl bg-blue-50/80 border border-blue-200 text-blue-900 space-y-1.5">
-                  <div className="flex items-center gap-1.5 font-black text-blue-800 text-sm">
-                    <User className="size-4 text-blue-600" />
-                    <span>దశ 3/6: తప్పనిసరి పూర్తి పేరు (Legal Full Name)</span>
-                  </div>
-                  <p className="text-[11px] text-blue-800 leading-relaxed font-semibold">
-                    కస్టమర్ భద్రత మరియు విశ్వసనీయత కోసం మీ అసలు పూర్తి పేరు (Legal / Real Name) నమోదు చేయడం తప్పనిసరి. నకిలీ పేర్లు, నిక్-నేమ్స్ లేదా సంక్షిప్త పదాలు అనుమతించబడవు.
-                  </p>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="font-extrabold text-slate-800 flex items-center gap-1">
-                    <span>మీ నిజమైన పూర్తి పేరు (Full Legal Name) <span className="text-red-500">*</span></span>
-                  </label>
-                  <input
-                    type="text"
-                    value={providerName}
-                    onChange={(e) => setProviderName(e.target.value)}
-                    placeholder="ఉదా: రమేష్ బాబు గారపాటి (Ramesh Babu Garapati)"
-                    autoFocus
-                    required
-                    className="w-full rounded-xl border border-slate-300 bg-slate-50 p-3.5 text-sm font-black text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                  />
-                  <p className="text-[11px] text-slate-500 font-semibold">
-                    కనీసం 2 అక్షరాలు ఉండాలి. ఇది మీ జాబితా మరియు చట్టపరమైన నిబంధనల రికార్డులో నమోదవుతుంది.
-                  </p>
-                </div>
-
-                <div className="pt-2 flex items-center gap-2">
-                  <button
-                    type="submit"
-                    className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-black text-sm shadow-xl shadow-blue-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
-                  >
-                    <span>కొనసాగించండి ➔ సేవా వివరాలు (Continue to Service Details)</span>
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* STEP 4: SERVICE / MACHINE DETAILS */}
-            {step === 4 && (
-              <form onSubmit={handleProceedToEmail} className="space-y-3.5 text-xs">
-                <div className="flex items-center justify-between pb-1 border-b border-slate-100">
-                  <span className="font-black text-slate-700 text-xs flex items-center gap-1">
-                    <HardHat className="size-3.5 text-teal-600" />
-                    దశ 4/6: సేవ & అద్దె వివరాలు (Service Details)
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setStep(3)}
-                    className="text-teal-600 hover:underline font-bold text-[11px] cursor-pointer"
-                  >
-                    ← పేరు మార్చు ({providerName})
-                  </button>
-                </div>
-
-                {/* Category & Locality */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-slate-800">
-                      విభాగం (Category Dropdown) <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={category}
-                      onChange={(e) => {
-                        const newCat = e.target.value as ServiceCategory;
-                        setCategory(newCat);
-                        const group = SERVICE_GROUPS.find((g) => g.id === newCat);
-                        if (group && group.items.length > 0) {
-                          setServiceType(group.items[0]);
-                        }
-                      }}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
-                    >
-                      {SERVICE_GROUPS.map((grp) => (
-                        <option key={grp.id} value={grp.id}>
-                          {grp.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <LocationAreaSelector
-                    value={village}
-                    onChange={setVillage}
-                    label="ప్రాంతం / ఏరియా / గ్రామం / పట్టణం (Locality / Area)"
-                    placeholder="ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ... (Anandapuram, Kukatpally, Vijayawada...)"
-                    required
-                  />
-                </div>
-
-                {/* Specific Service Dropdown */}
-                <div className="space-y-1">
-                  <label className="font-extrabold text-slate-800">
-                    నిర్దిష్ట సేవ / యంత్రం (Specific Service / Machine) <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={serviceType}
-                    onChange={(e) => setServiceType(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
-                  >
-                    {(SERVICE_GROUPS.find((g) => g.id === category)?.items || []).map((item) => (
-                      <option key={item} value={item}>
-                        {item}
-                      </option>
-                    ))}
-                    <option value="ఇతర సేవ / పరికరం (Other Custom Service)">🔧 ఇతర సేవ / పరికరం (Other Custom Service)</option>
-                  </select>
-                </div>
-
-                {/* Description */}
-                <div className="space-y-1">
-                  <label className="font-extrabold text-slate-800">
-                    వివరణ (Description Textarea)
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={2}
-                    placeholder="మీ సేవలు, అనుభవం, పని వేళలు మరియు పని సమయాల పూర్తి వివరాలు..."
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
-                  />
-                </div>
-
-                {/* Price & Optional Free Visit */}
-                <div className="p-3 rounded-2xl border border-slate-200 bg-slate-50 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-slate-800 flex items-center justify-between">
-                      <span>చార్జీలు / అద్దె (Rate in ₹) <span className="text-red-500">*</span></span>
-                      <label className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={isFreeVisit}
-                          onChange={(e) => setIsFreeVisit(e.target.checked)}
-                          className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                        />
-                        ఉచిత విజిట్ (Free Visit)
-                      </label>
-                    </label>
-                    <input
-                      type="text"
-                      value={priceRate}
-                      onChange={(e) => setPriceRate(e.target.value)}
-                      disabled={isFreeVisit}
-                      placeholder={isFreeVisit ? "ఉచిత విజిట్ (Free Visit)" : "ఉదా: ₹1,500/day లేదా ₹500/hour"}
-                      required={!isFreeVisit}
-                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 disabled:opacity-50 transition"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-extrabold text-amber-700 flex items-center gap-1">
-                      <Tag className="size-3 text-amber-600" />
-                      యంత్ర మోడల్ / ఆఫర్ Tag <span className="text-slate-500 font-normal">(Optional)</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={machineDetails}
-                      onChange={(e) => setMachineDetails(e.target.value)}
-                      placeholder="ఉదా: Mahindra 575 DI లేదా 15% OFF"
-                      className="w-full rounded-xl border border-slate-200 bg-white p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                    />
-                  </div>
-                </div>
-
-                {/* Photo Upload */}
-                <div className="space-y-1.5">
-                  <label className="font-extrabold text-slate-800">
-                    ఫోటో (Photo Upload - Optional)
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="relative flex flex-col items-center justify-center p-3 rounded-2xl border-2 border-dashed border-teal-300 bg-teal-50/60 hover:bg-teal-100/70 transition cursor-pointer group shadow-sm">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        capture="environment"
-                        onChange={handleImageFileChange}
-                        className="hidden"
-                      />
-                      <Camera className="size-5 text-teal-600 group-hover:scale-110 transition mb-1" />
-                      <span className="text-[10px] font-black text-teal-700">కెమెరా (Camera)</span>
-                    </label>
-
-                    <label className="relative flex flex-col items-center justify-center p-3 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/60 hover:bg-emerald-100/70 transition cursor-pointer group shadow-sm">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleImageFileChange}
-                        className="hidden"
-                      />
-                      <ImageIcon className="size-5 text-emerald-600 group-hover:scale-110 transition mb-1" />
-                      <span className="text-[10px] font-black text-emerald-700">గ్యాలరీ (Gallery)</span>
-                    </label>
-                  </div>
-
-                  {imageUrl && (
-                    <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-200 mt-2 shadow-sm">
-                      <img src={imageUrl} alt="preview" className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => setImageUrl("")}
-                        className="absolute top-2 right-2 rounded-full bg-slate-900/80 p-1.5 text-white hover:bg-black transition cursor-pointer"
-                      >
-                        <X className="size-4" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-2 flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setStep(3)}
-                    className="px-4 py-3.5 rounded-xl border border-slate-300 text-slate-700 font-bold hover:bg-slate-100 cursor-pointer"
-                  >
-                    ← వెనుకకు
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-4 rounded-2xl bg-gradient-to-r from-teal-600 via-emerald-600 to-indigo-600 hover:from-teal-700 hover:via-emerald-700 hover:to-indigo-700 text-white font-black text-sm shadow-xl shadow-teal-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
-                  >
-                    <span>తదుపరి దశ ➔ ఇమెయిల్ & నిబంధనలు (Next Step)</span>
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* STEP 5: OPTIONAL EMAIL */}
-            {step === 5 && (
-              <form onSubmit={handleContinueWithEmail} className="space-y-4 text-xs">
-                <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-amber-900 space-y-1.5">
-                  <div className="flex items-center gap-1.5 font-black text-amber-800 text-sm">
-                    <Clock className="size-4 text-amber-600" />
-                    <span>దశ 5/6: ఇమెయిల్ చిరునామా (Email - Optional)</span>
-                  </div>
-                  <p className="text-[11px] text-amber-800 leading-relaxed font-semibold">
-                    ఇమెయిల్ <strong>పూర్తిగా ఐచ్ఛికం</strong> (Not required). మీ వద్ద ఇమెయిల్ లేకపోయినా మీ ప్రకటనను ప్రచురించవచ్చు. ఇమెయిల్ ఇస్తే మీ జాబితా ధృవీకరణ మరియు ఇన్వాయిస్‌లు ఇమెయిల్‌కి అందుతాయి. (ఏ ఇమెయిల్ అయినా ఇవ్వవచ్చు - Gmail మాత్రమే కానవసరం లేదు).
-                  </p>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="font-extrabold text-slate-800 flex items-center justify-between">
-                    <span>ఇమెయిల్ చిరునామా (Email Address)</span>
-                    <span className="text-emerald-700 text-[10px] font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                      ఐచ్ఛికం (Optional)
-                    </span>
-                  </label>
-                  <input
-                    type="email"
-                    value={userEmail}
-                    onChange={(e) => setUserEmail(e.target.value)}
-                    placeholder="ఉదా: yourname@gmail.com లేదా name@company.in"
-                    className="w-full rounded-xl border border-slate-300 bg-slate-50 p-3.5 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500 transition"
-                  />
-                  <p className="text-[11px] text-slate-500 font-semibold">
-                    మీ వద్ద ఇమెయిల్ లేకపోతే నేరుగా "ఇమెయిల్ లేదు / దాటవేయండి" బటన్ నొక్కండి.
-                  </p>
-                </div>
-
-                <div className="space-y-2 pt-2">
-                  <button
-                    type="submit"
-                    className="w-full py-3.5 rounded-2xl bg-teal-600 hover:bg-teal-700 text-white font-black text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer min-h-[44px]"
-                  >
-                    <span>ఇమెయిల్‌తో కొనసాగండి ➔ (Continue with Email)</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSkipEmail}
-                    className="w-full py-3.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black text-xs transition flex items-center justify-center gap-1.5 cursor-pointer min-h-[44px] border border-slate-300"
-                  >
-                    <span>⏩ ఇమెయిల్ లేదు / దాటవేయండి (Skip / No Email - Continue)</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setStep(4)}
-                    className="w-full py-2 text-slate-500 hover:text-slate-800 text-[11px] font-bold text-center cursor-pointer"
-                  >
-                    ← వివరాలకు తిరిగి వెళ్లు (Back to Details)
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* STEP 6: LEGAL DECLARATIONS & TERMS ACCEPTANCE */}
-            {step === 6 && (
-              <form onSubmit={handleAcceptTermsAndPublish} className="space-y-4 text-xs">
-                <div className="p-4 rounded-2xl bg-indigo-50/80 border border-indigo-200 text-indigo-950 space-y-1.5">
-                  <div className="flex items-center gap-1.5 font-black text-indigo-900 text-sm">
-                    <FileCheck className="size-4 text-indigo-600" />
-                    <span>దశ 6/6: చట్టపరమైన డిక్లరేషన్లు & నిబంధనలు (Legal Terms)</span>
-                  </div>
-                  <p className="text-[11px] text-indigo-800 leading-relaxed font-semibold">
-                    VaartaNow అనేది భారతదేశ IT చట్టం (IT Rules 2021) ప్రకారం ఒక మధ్యవర్తి (Intermediary) స్థానిక డైరెక్టరీ ప్లాట్‌ఫారమ్ మాత్రమే. ప్రకటన ప్రచురించే ముందు క్రింది 3 డిక్లరేషన్లను చదివి అంగీకరించాలి:
-                  </p>
-                </div>
-
-                <div className="space-y-3 p-3.5 rounded-2xl border border-slate-200 bg-slate-50">
-                  
-                  {/* Declaration 1: Independent Provider */}
-                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={declarationIndependent}
-                      onChange={(e) => setDeclarationIndependent(e.target.checked)}
-                      className="mt-1 size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer shrink-0"
-                    />
-                    <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
-                      <span className="text-teal-900 font-black">1. స్వతంత్ర సర్వీస్ ప్రొవైడర్ డిక్లరేషన్:</span> నేను స్వతంత్ర సేవా ప్రదాతనని/విక్రేతనని, VaartaNow ఉద్యోగిని లేదా ఏజెంట్‌ను కాదని ధృవీకరిస్తున్నాను. (I declare that I am an independent provider, not an employee or agent of VaartaNow.)
-                    </div>
-                  </label>
-
-                  {/* Declaration 2: Quality & Safety Sole Responsibility */}
-                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={declarationResponsibility}
-                      onChange={(e) => setDeclarationResponsibility(e.target.checked)}
-                      className="mt-1 size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer shrink-0"
-                    />
-                    <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
-                      <span className="text-teal-900 font-black">2. నాణ్యత & భద్రతా బాధ్యత:</span> నేను అందించే సేవల నాణ్యత, పనితనం, ధర మరియు కస్టమర్ భద్రతకు నేనే స్వయంగా బాధ్యుడను. (I am solely responsible for the quality, pricing, safety, and conduct of services rendered.)
-                    </div>
-                  </label>
-
-                  {/* Declaration 3: Terms & Code of Conduct */}
-                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={declarationTerms}
-                      onChange={(e) => setDeclarationTerms(e.target.checked)}
-                      className="mt-1 size-4 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer shrink-0"
-                    />
-                    <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
-                      <span className="text-teal-900 font-black">3. ప్రవర్తనా నియమావళి & నిబంధనలు:</span> నేను VaartaNow{" "}
-                      <Link to="/provider-terms" target="_blank" className="text-teal-600 underline font-black">
-                        సేవా ప్రదాత నిబంధనలు (Provider Terms)
-                      </Link>
-                      {" "}మరియు{" "}
-                      <Link to="/provider-code-of-conduct" target="_blank" className="text-teal-600 underline font-black">
-                        ప్రవర్తనా నియమావళి (Code of Conduct)
-                      </Link>
-                      ని చదివి, పూర్తిగా అంగీకరిస్తున్నాను.
-                    </div>
-                  </label>
-                </div>
-
-                <div className="pt-2 space-y-2">
-                  <button
-                    type="submit"
-                    disabled={loading || !declarationIndependent || !declarationResponsibility || !declarationTerms}
-                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-xl shadow-emerald-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    {loading ? "సేవను ప్రచురిస్తున్నాము..." : "📜 సమ్మతించి సేవను ప్రచురించు ➔ (Accept & Publish Listing)"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setStep(5)}
-                    className="w-full py-2 text-slate-500 hover:text-slate-800 text-[11px] font-bold text-center cursor-pointer"
-                  >
-                    ← వెనుకకు (Back to Email)
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* STEP 7: IMMUTABLE AUDIT CONFIRMATION & PUBLISHED RECEIPT */}
-            {step === 7 && publishedRecord && (
+            {/* STEP 3: IMMUTABLE AUDIT CONFIRMATION & PUBLISHED RECEIPT */}
+            {step === 3 && publishedRecord && (
               <div className="space-y-4 text-xs animate-in zoom-in-95 duration-200">
                 <div className="p-5 rounded-3xl bg-emerald-50 border-2 border-emerald-300 text-emerald-950 text-center space-y-2">
                   <div className="size-12 rounded-full bg-emerald-600 text-white mx-auto flex items-center justify-center shadow-lg shadow-emerald-600/30">

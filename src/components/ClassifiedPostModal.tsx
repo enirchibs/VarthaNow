@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { 
   X, 
   User,
@@ -10,7 +11,8 @@ import {
   Tag,
   Gift,
   ArrowLeft,
-  Upload
+  Upload,
+  FileCheck
 } from "lucide-react";
 import { 
   addClassifiedItem, 
@@ -45,6 +47,11 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
   const [price, setPrice] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
 
+  // Mandatory Disclaimers & Terms (Default checked = true)
+  const [declarationIndependent, setDeclarationIndependent] = useState<boolean>(true);
+  const [declarationResponsibility, setDeclarationResponsibility] = useState<boolean>(true);
+  const [declarationTerms, setDeclarationTerms] = useState<boolean>(true);
+
   // OTP State (Step 2: Live SMS OTP Verification)
   const [otp, setOtp] = useState<string>("");
   const [demoOtpHint, setDemoOtpHint] = useState<string>("");
@@ -59,6 +66,9 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
       if (currentProf.name) setSellerName(currentProf.name);
       if (currentProf.phone) setPhone(currentProf.phone);
     }
+    setDeclarationIndependent(true);
+    setDeclarationResponsibility(true);
+    setDeclarationTerms(true);
     setStep(1);
     setErrorMsg("");
   }, [isOpen]);
@@ -106,6 +116,11 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
     const cleanPhone = phone.replace(/\D/g, "");
     if (!cleanPhone || cleanPhone.length < 10) {
       setErrorMsg("దయచేసి 10-అంకెల వాట్సాప్ మొబైల్ నంబర్ ఇవ్వండి (10-digit WhatsApp phone)");
+      return;
+    }
+
+    if (!declarationIndependent || !declarationResponsibility || !declarationTerms) {
+      setErrorMsg("దయచేసి ఫారమ్ చివర ఉన్న చట్టపరమైన డిక్లరేషన్లను అంగీకరించండి (Please check declaration boxes to proceed)");
       return;
     }
 
@@ -422,13 +437,68 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
 
             </div>
 
+            {/* AT LAST OF THE FORM: DISCLAIMER & TERMS AND CONDITIONS ACCEPTANCE (DEFAULT CHECKED) */}
+            <div className="space-y-2.5 p-3.5 rounded-2xl border border-indigo-200 bg-indigo-50/50">
+              <div className="flex items-center gap-1.5 font-black text-indigo-950 text-xs">
+                <FileCheck className="size-4 text-indigo-600" />
+                <span>చట్టపరమైన డిక్లరేషన్లు & నిబంధనల అంగీకారం (Legal Terms & Disclaimer)</span>
+              </div>
+
+              {/* Declaration 1: Independent Seller */}
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={declarationIndependent}
+                  onChange={(e) => setDeclarationIndependent(e.target.checked)}
+                  className="mt-0.5 size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                />
+                <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
+                  <span className="text-indigo-950 font-black">1. స్వతంత్ర విక్రేత డిక్లరేషన్:</span> నేను స్వతంత్ర విక్రేతనని, VaartaNow ఉద్యోగిని లేదా ఏజెంట్‌ను కాదని ధృవీకరిస్తున్నాను. (Independent Seller declaration)
+                </div>
+              </label>
+
+              {/* Declaration 2: Item Quality & Safety */}
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={declarationResponsibility}
+                  onChange={(e) => setDeclarationResponsibility(e.target.checked)}
+                  className="mt-0.5 size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                />
+                <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
+                  <span className="text-indigo-950 font-black">2. నాణ్యత & బాధ్యత:</span> నేను విక్రయించే వస్తువు నాణ్యత, ధర మరియు వివరణల ఖచ్చితత్వానికి నేనే స్వయంగా బాధ్యుడను. (Sole responsibility for listing & product quality)
+                </div>
+              </label>
+
+              {/* Declaration 3: Terms Acceptance */}
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={declarationTerms}
+                  onChange={(e) => setDeclarationTerms(e.target.checked)}
+                  className="mt-0.5 size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                />
+                <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
+                  <span className="text-indigo-950 font-black">3. నిబంధనలు:</span> నేను VaartaNow{" "}
+                  <Link to="/provider-terms" target="_blank" className="text-blue-600 underline font-black">
+                    విక్రేత నిబంధనలు (Terms)
+                  </Link>
+                  {" "}మరియు{" "}
+                  <Link to="/provider-code-of-conduct" target="_blank" className="text-blue-600 underline font-black">
+                    ప్రవర్తనా నియమావళి (Code of Conduct)
+                  </Link>
+                  {" "}ని చదివి, పూర్తిగా అంగీకరిస్తున్నాను.
+                </div>
+              </label>
+            </div>
+
             {/* Primary Action Button */}
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-black text-sm shadow-xl shadow-indigo-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+              disabled={loading || !declarationIndependent || !declarationResponsibility || !declarationTerms}
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-black text-sm shadow-xl shadow-indigo-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live SMS OTP పొందండి"}
+              {loading ? "SMS OTP పంపుతున్నాము..." : "Live SMS OTP పొందండి ➔ (Send OTP)"}
             </button>
 
           </form>

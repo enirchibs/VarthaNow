@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { 
   X, 
   User, 
@@ -10,7 +11,8 @@ import {
   Phone, 
   ArrowLeft,
   Sparkles,
-  FileText
+  FileText,
+  FileCheck
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 import { addLocalJob } from "@/lib/jobs-api";
@@ -39,6 +41,10 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
   const [description, setDescription] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
 
+  // Mandatory Compliance & Terms Acceptance (Default checked = true)
+  const [declarationIndependent, setDeclarationIndependent] = useState<boolean>(true);
+  const [declarationTerms, setDeclarationTerms] = useState<boolean>(true);
+
   // OTP State (Step 2)
   const [otp, setOtp] = useState<string>("");
   const [demoOtpHint, setDemoOtpHint] = useState<string>("");
@@ -57,6 +63,8 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
         if (parsed.phone) setPhone(parsed.phone);
       }
     } catch {}
+    setDeclarationIndependent(true);
+    setDeclarationTerms(true);
     setStep(1);
     setErrorMsg("");
   }, [isOpen]);
@@ -89,6 +97,11 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
     const cleanPhone = phone.replace(/\D/g, "");
     if (!cleanPhone || cleanPhone.length < 10) {
       setErrorMsg("దయచేసి 10-అంకెల మొబైల్ నంబర్ ఇవ్వండి (Please enter 10-digit mobile number)");
+      return;
+    }
+
+    if (!declarationIndependent || !declarationTerms) {
+      setErrorMsg("దయచేసి ఫారమ్ చివర ఉన్న నియమ నిబంధనలను అంగీకరించండి (Please check declaration boxes to proceed)");
       return;
     }
 
@@ -366,13 +379,55 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
               />
             </div>
 
+            {/* AT LAST OF THE FORM: DISCLAIMER & TERMS AND CONDITIONS ACCEPTANCE (DEFAULT CHECKED) */}
+            <div className="space-y-2.5 p-3.5 rounded-2xl border border-indigo-200 bg-indigo-50/50">
+              <div className="flex items-center gap-1.5 font-black text-indigo-950 text-xs">
+                <FileCheck className="size-4 text-indigo-600" />
+                <span>యాజమాన్య నిబంధనలు & చట్టపరమైన సమ్మతి (Terms & Compliance)</span>
+              </div>
+
+              {/* Declaration 1: Direct Employer */}
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={declarationIndependent}
+                  onChange={(e) => setDeclarationIndependent(e.target.checked)}
+                  className="mt-0.5 size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                />
+                <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
+                  <span className="text-indigo-950 font-black">1. ప్రత్యక్ష యాజమాన్య డిక్లరేషన్:</span> నేను ప్రత్యక్ష యజమానిని/అధికృత రిక్రూటర్‌నని, జాబ్ వివరాలు వాస్తవమైనవని ధృవీకరిస్తున్నాను. (Direct Employer / Genuine Job Posting)
+                </div>
+              </label>
+
+              {/* Declaration 2: Terms & No Fee Policy */}
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={declarationTerms}
+                  onChange={(e) => setDeclarationTerms(e.target.checked)}
+                  className="mt-0.5 size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                />
+                <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
+                  <span className="text-indigo-950 font-black">2. నిబంధనలు:</span> మేము అభ్యర్థుల నుండి ఎటువంటి నమోదు రుసుము వసూలు చేయబోమని మరియు VaartaNow{" "}
+                  <Link to="/provider-terms" target="_blank" className="text-blue-600 underline font-black">
+                    నిబంధనలు
+                  </Link>
+                  {" "}మరియు{" "}
+                  <Link to="/provider-code-of-conduct" target="_blank" className="text-blue-600 underline font-black">
+                    ప్రవర్తనా నియమావళి
+                  </Link>
+                  {" "}ని అంగీకరిస్తున్నాము.
+                </div>
+              </label>
+            </div>
+
             {/* Proceed Button */}
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-black text-sm shadow-xl shadow-indigo-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+              disabled={loading || !declarationIndependent || !declarationTerms}
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-black text-sm shadow-xl shadow-indigo-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live SMS OTP పొందండి"}
+              {loading ? "SMS OTP పంపుతున్నాము..." : "Live SMS OTP పొందండి ➔ (Send OTP)"}
             </button>
 
           </form>
