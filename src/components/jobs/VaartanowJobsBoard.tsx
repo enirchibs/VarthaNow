@@ -338,9 +338,9 @@ export function VaartanowJobsBoard({
   return (
     <div className="space-y-3.5">
       {/* 🚀 Hero Section: SaaS Gradient Header (Compact & Height-Reduced) */}
-      <section className="relative overflow-hidden rounded-[1.4rem] bg-gradient-to-br from-indigo-950 via-indigo-900 to-zinc-950 p-3 sm:p-3.5 text-center text-white border border-white/10 shadow-md">
-        <div className="absolute -left-32 -top-32 size-48 rounded-full bg-blue-500/20 blur-3xl animate-pulse" />
-        <div className="absolute -right-32 -bottom-32 size-48 rounded-full bg-indigo-500/20 blur-3xl animate-pulse" />
+      <section className="relative z-30 rounded-[1.4rem] bg-gradient-to-br from-indigo-950 via-indigo-900 to-zinc-950 p-3 sm:p-3.5 text-center text-white border border-white/10 shadow-md">
+        <div className="absolute -left-32 -top-32 size-48 rounded-full bg-blue-500/20 blur-3xl animate-pulse pointer-events-none" />
+        <div className="absolute -right-32 -bottom-32 size-48 rounded-full bg-indigo-500/20 blur-3xl animate-pulse pointer-events-none" />
 
         <div className="max-w-xl mx-auto space-y-1.5 relative z-10">
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-[9px] sm:text-[10px] font-black text-indigo-300 uppercase tracking-widest animate-pulse">

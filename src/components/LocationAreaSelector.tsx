@@ -253,13 +253,13 @@ export function LocationAreaSelector({
 
         {/* Live Suggestions Dropdown (Triggers on 2+ Telugu / 3+ English chars) */}
         {showDropdown && (
-          <div className="absolute left-0 right-0 top-full mt-1.5 z-50 rounded-2xl border border-[hsl(var(--border))] bg-white dark:bg-slate-900 p-2 shadow-2xl space-y-1 max-h-60 overflow-y-auto animate-in fade-in duration-150">
-            <div className="px-2 py-1 text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] tracking-wider flex items-center justify-between border-b border-[hsl(var(--border))]/50 mb-1">
-              <span className="flex items-center gap-1">
-                <Sparkles className="size-3 text-blue-500" />
-                <span>సూచించిన ప్రాంతాలు (Location Suggestions)</span>
+          <div className="absolute left-0 right-0 top-full mt-1.5 z-[9999] rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 shadow-2xl space-y-1 max-h-64 overflow-y-auto animate-in fade-in duration-150">
+            <div className="px-2 py-1.5 text-[10.5px] font-black uppercase text-slate-700 dark:text-slate-300 tracking-wider flex items-center justify-between border-b border-slate-100 dark:border-slate-800 mb-1">
+              <span className="flex items-center gap-1.5">
+                <Sparkles className="size-3.5 text-blue-600 dark:text-blue-400" />
+                <span className="font-extrabold text-slate-800 dark:text-slate-100">సూచించిన ప్రాంతాలు (Location Suggestions)</span>
               </span>
-              <span className="text-[9px] text-blue-500 font-bold">తెలుగు / English</span>
+              <span className="text-[9.5px] text-blue-600 dark:text-blue-400 font-black">తెలుగు / English</span>
             </div>
 
             {suggestions.length > 0 ? (
@@ -268,14 +268,14 @@ export function LocationAreaSelector({
                   key={idx}
                   type="button"
                   onClick={() => handleSelectArea(sug)}
-                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold hover:bg-blue-500/10 hover:text-blue-600 transition flex items-center gap-2 cursor-pointer"
+                  className="w-full text-left px-3 py-2.5 rounded-xl text-xs font-black text-slate-900 dark:text-slate-100 hover:bg-blue-50 dark:hover:bg-blue-950/60 hover:text-blue-700 dark:hover:text-blue-300 transition-colors flex items-center gap-2.5 cursor-pointer border border-transparent hover:border-blue-200 dark:hover:border-blue-800"
                 >
-                  <MapPin className="size-3.5 text-blue-500 shrink-0" />
-                  <span className="truncate">{renderHighlightedText(sug, query)}</span>
+                  <MapPin className="size-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                  <span className="truncate leading-tight">{renderHighlightedText(sug, query)}</span>
                 </button>
               ))
             ) : !isSearching ? (
-              <div className="px-3 py-2 text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+              <div className="px-3 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300">
                 ప్రాంతం వివరాలు కనుగొనబడలేదు. దయచేసి గ్రామం/పట్టణం సరిగ్గా టైప్ చేయండి లేదా GPS ఉపయోగించండి.
               </div>
             ) : null}
