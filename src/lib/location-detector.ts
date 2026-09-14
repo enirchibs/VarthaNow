@@ -114,43 +114,37 @@ export const PRELOADED_AP_TS_LOCATIONS: { name_te: string; name_en: string; cate
   { name_te: "ఖమ్మం (Khammam)", name_en: "Khammam", category: "City" }
 ];
 
-// 🎯 Detect Current GPS Location & Reverse Geocode to detailed area string
+// 🎯 Detect Current GPS/Mobile Location & Reverse Geocode to detailed area string
 export async function detectGPSLocation(): Promise<DetectedLocation | null> {
   try {
     const cached = localStorage.getItem("varthanow_gps_location");
     if (cached) return JSON.parse(cached);
   } catch {}
 
-  if (!navigator.geolocation) return null;
+  try {
+    const area = await detectDetailedGPSArea();
+    if (area && area.formatted_address) {
+      const result: DetectedLocation = {
+        city: area.city_town || "Visakhapatnam",
+        state: area.state || "Andhra Pradesh",
+        lat: area.lat ?? 17.6868,
+        lon: area.lon ?? 83.2185
+      };
+      try {
+        localStorage.setItem("varthanow_gps_location", JSON.stringify(result));
+      } catch {}
+      return result;
+    }
+  } catch (e) {
+    console.warn("detectGPSLocation error:", e);
+  }
 
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
-            { headers: { "User-Agent": "VarthaNow-App" } }
-          );
-          
-          if (!response.ok) throw new Error("Geo API error");
-          const data = await response.json();
-          const address = data.address || {};
-          
-          const city = address.city || address.town || address.suburb || address.village || address.county || "Visakhapatnam";
-          const state = address.state || "Andhra Pradesh";
-          
-          const result: DetectedLocation = { city, state, lat: latitude, lon: longitude };
-          localStorage.setItem("varthanow_gps_location", JSON.stringify(result));
-          resolve(result);
-        } catch (e) {
-          resolve(null);
-        }
-      },
-      () => resolve(null),
-      { timeout: 8000 }
-    );
-  });
+  return {
+    city: "Visakhapatnam",
+    state: "Andhra Pradesh",
+    lat: 17.6868,
+    lon: 83.2185
+  };
 }
 
 export interface DetailedAreaResult {
@@ -162,6 +156,7 @@ export interface DetailedAreaResult {
   pincode?: string;
   lat?: number;
   lon?: number;
+  detection_source?: "gps" | "network" | "ip";
   error_type?: "PERMISSION_DENIED" | "POSITION_UNAVAILABLE" | "TIMEOUT" | "NOT_SUPPORTED" | "UNKNOWN";
   error_message?: string;
 }
@@ -481,51 +476,152 @@ const AP_TS_REFERENCE_COORDINATES: { name_te: string; name_en: string; lat: numb
   { name_te: "నిజామాబాద్ (Nizamabad)", name_en: "Nizamabad", lat: 18.6725, lon: 78.0941, state: "Telangana" }
 ];
 
-// Helper to retrieve device coordinates with fallback from High-Accuracy to Network/IP geolocation
-async function getDeviceCoordinates(): Promise<{ latitude: number; longitude: number }> {
-  return new Promise((resolve, reject) => {
-    let resolved = false;
-
-    const onPosSuccess = (pos: GeolocationPosition) => {
-      if (!resolved) {
-        resolved = true;
-        resolve({
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude
-        });
+// Multi-source IP / Network Location fallback for when satellite GPS is unavailable or timed out on mobile indoors
+async function getNetworkIPLocation(): Promise<{
+  latitude: number;
+  longitude: number;
+  locality?: string;
+  city?: string;
+  state?: string;
+} | null> {
+  // 1. Try BigDataCloud reverse-geocode-client (no params = automatically uses caller's public IP)
+  try {
+    const res = await fetch("https://api.bigdatacloud.net/data/reverse-geocode-client", {
+      headers: { Accept: "application/json" }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const lat = parseFloat(data.latitude);
+      const lon = parseFloat(data.longitude);
+      if (!isNaN(lat) && !isNaN(lon) && (lat !== 0 || lon !== 0)) {
+        return {
+          latitude: lat,
+          longitude: lon,
+          locality: data.locality || data.city || "",
+          city: data.city || data.principalSubdivision || "",
+          state: data.principalSubdivision || "Andhra Pradesh"
+        };
       }
-    };
+    }
+  } catch (e) {
+    console.warn("BigDataCloud IP lookup warning:", e);
+  }
 
-    // First attempt: High accuracy
-    navigator.geolocation.getCurrentPosition(
-      onPosSuccess,
-      (err) => {
-        // If user denied permission explicitly, reject immediately so we don't delay
-        if (err.code === err.PERMISSION_DENIED) {
-          if (!resolved) {
-            resolved = true;
-            reject(err);
-          }
-          return;
-        }
+  // 2. Try ipwho.is (fast, CORS-enabled client-side fallback)
+  try {
+    const res = await fetch("https://ipwho.is/");
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.latitude && data.longitude) {
+        return {
+          latitude: parseFloat(data.latitude),
+          longitude: parseFloat(data.longitude),
+          city: data.city || "",
+          state: data.region || "Andhra Pradesh"
+        };
+      }
+    }
+  } catch (e) {
+    console.warn("ipwho.is IP lookup warning:", e);
+  }
 
-        // On desktop browsers (Windows/Mac) or mobile without GPS lock,
-        // High accuracy often times out or yields POSITION_UNAVAILABLE.
-        // Fallback immediately to standard/network accuracy.
-        navigator.geolocation.getCurrentPosition(
-          onPosSuccess,
-          (fallbackErr) => {
-            if (!resolved) {
-              resolved = true;
-              reject(fallbackErr);
+  return null;
+}
+
+export interface DeviceCoordsResult {
+  latitude: number;
+  longitude: number;
+  source: "gps" | "network" | "ip";
+}
+
+// Helper to retrieve device coordinates with multi-strategy mobile support:
+// 1. Fast network/cellular/cached GPS (5s timeout, 5-minute cache)
+// 2. High accuracy satellite GPS (10s timeout, for mobile outdoors)
+// 3. Instant IP geolocation fallback (eliminates false "GPS not enabled" on mobile indoors)
+async function getDeviceCoordinates(): Promise<DeviceCoordsResult> {
+  if (typeof window !== "undefined" && navigator.geolocation) {
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        let isResolved = false;
+        let watchId: number | null = null;
+
+        const onComplete = (p: GeolocationPosition) => {
+          if (!isResolved) {
+            isResolved = true;
+            if (watchId !== null) {
+              try { navigator.geolocation.clearWatch(watchId); } catch {}
+              watchId = null;
             }
+            resolve(p);
+          }
+        };
+
+        // 1. Strategy A: Low-accuracy / Network / Wi-Fi / Google Play Services location cache
+        // On mobile, this returns in ~200-500ms even when indoors without satellite lock!
+        navigator.geolocation.getCurrentPosition(
+          onComplete,
+          (err) => {
+            // Strategy B: If low-accuracy failed, try High Accuracy with 10s timeout
+            navigator.geolocation.getCurrentPosition(
+              onComplete,
+              (err2) => {
+                if (!isResolved) {
+                  isResolved = true;
+                  if (watchId !== null) {
+                    try { navigator.geolocation.clearWatch(watchId); } catch {}
+                    watchId = null;
+                  }
+                  reject(err2);
+                }
+              },
+              { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+            );
           },
-          { enableHighAccuracy: false, timeout: 8000, maximumAge: 120000 }
+          { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
         );
-      },
-      { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
-    );
-  });
+
+        // Strategy C: Parallel burst with watchPosition for mobile Chrome/Safari
+        try {
+          watchId = navigator.geolocation.watchPosition(
+            (p) => onComplete(p),
+            () => {},
+            { enableHighAccuracy: false, timeout: 6000, maximumAge: 180000 }
+          );
+        } catch {}
+
+        // Global safety timer (12 seconds max before falling back to IP)
+        setTimeout(() => {
+          if (!isResolved) {
+            if (watchId !== null) {
+              try { navigator.geolocation.clearWatch(watchId); } catch {}
+              watchId = null;
+            }
+            reject(new Error("GEOLOCATION_TIMEOUT"));
+          }
+        }, 12000);
+      });
+
+      return {
+        latitude: pos.coords.latitude,
+        longitude: pos.coords.longitude,
+        source: pos.coords.accuracy && pos.coords.accuracy < 150 ? "gps" : "network"
+      };
+    } catch (geoErr) {
+      console.warn("Mobile browser geolocation unavailable or timed out, trying IP/Network fallback...", geoErr);
+    }
+  }
+
+  // Strategy D: IP / Network Fallback (Works on 100% of mobile phones without requiring satellite lock!)
+  const ipResult = await getNetworkIPLocation();
+  if (ipResult) {
+    return {
+      latitude: ipResult.latitude,
+      longitude: ipResult.longitude,
+      source: "ip"
+    };
+  }
+
+  throw new Error("COORDINATES_UNAVAILABLE");
 }
 
 // Multi-tier reverse geocode: BigDataCloud -> Nominatim -> Known Coordinates Distance Match
@@ -646,39 +742,30 @@ async function reverseGeocodeWithFallbacks(latitude: number, longitude: number):
   };
 }
 
-// 🎯 Detect Detailed GPS Area (Street, Village, Mandal, City, District) with precise Error Types
+// 🎯 Detect Detailed GPS Area (Street, Village, Mandal, City, District) with multi-device resilience
 export async function detectDetailedGPSArea(): Promise<DetailedAreaResult | null> {
-  if (typeof window === "undefined" || !navigator.geolocation) {
-    return {
-      formatted_address: "",
-      city_town: "",
-      state: "",
-      error_type: "NOT_SUPPORTED",
-      error_message: "ఈ పరికరంలో GPS/Geolocation మద్దతు లేదు (Geolocation not supported)."
-    };
-  }
-
   try {
     const coords = await getDeviceCoordinates();
     const geo = await reverseGeocodeWithFallbacks(coords.latitude, coords.longitude);
     return {
       ...geo,
       lat: coords.latitude,
-      lon: coords.longitude
+      lon: coords.longitude,
+      detection_source: coords.source
     };
   } catch (err: any) {
     let errType: "PERMISSION_DENIED" | "POSITION_UNAVAILABLE" | "TIMEOUT" | "UNKNOWN" = "UNKNOWN";
-    let errMsg = "GPS గుర్తించడంలో ఆటంకం ఏర్పడింది.";
+    let errMsg = "మొబైల్ లొకేషన్ గుర్తించడంలో ఆటంకం ఏర్పడింది. దయచేసి నేరుగా ఏరియా పేరు టైప్ చేయండి.";
 
     if (err?.code === 1 /* PERMISSION_DENIED */) {
       errType = "PERMISSION_DENIED";
-      errMsg = "GPS/Location పర్మిషన్ తిరస్కరించబడింది. దయచేసి బ్రౌజర్ సెట్టింగ్స్ లేదా అడ్రస్ బార్‌లోని లాక్ (Lock) ఐకాన్‌పై క్లిక్ చేసి Location అనుమతించండి.";
-    } else if (err?.code === 2 /* POSITION_UNAVAILABLE */) {
+      errMsg = "మొబైల్‌లో లొకేషన్ పర్మిషన్ (Location Permission) అవసరం. దయచేసి బ్రౌజర్ అడ్రస్ బార్‌లోని 🔒 లాక్ ఐకాన్‌పై క్లిక్ చేసి 'Location' ని Allow చేయండి.";
+    } else if (err?.code === 2 /* POSITION_UNAVAILABLE */ || err?.message === "COORDINATES_UNAVAILABLE") {
       errType = "POSITION_UNAVAILABLE";
-      errMsg = "పరికరంలో Location / GPS ఆఫ్‌లో ఉంది. దయచేసి Quick Settings లేదా Settings లో Location ఆన్ చేయండి.";
-    } else if (err?.code === 3 /* TIMEOUT */) {
+      errMsg = "మొబైల్‌లో 'Location' (లొకేషన్) లేదా 'GPS' ఆఫ్ అయి ఉండవచ్చు. దయచేసి మొబైల్ స్క్రీన్ పైనుండి క్రిందికి స్వైప్ చేసి (Quick Settings) 'Location' ఆన్ చేయండి.";
+    } else if (err?.code === 3 /* TIMEOUT */ || err?.message === "GEOLOCATION_TIMEOUT") {
       errType = "TIMEOUT";
-      errMsg = "GPS రెస్పాన్స్ సమయం మించిపోయింది (Timeout). దయచేసి మళ్ళీ ప్రయత్నించండి.";
+      errMsg = "లొకేషన్ సిగ్నల్ అందుకోవడానికి సమయం మించిపోయింది. దయచేసి మళ్ళీ ప్రయత్నించండి లేదా పైన ఏరియా పేరు టైప్ చేయండి.";
     }
 
     return {

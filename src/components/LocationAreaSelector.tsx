@@ -131,7 +131,7 @@ export function LocationAreaSelector({
     setSuggestions([]);
   };
 
-  // 🎯 One-Tap GPS Detection
+  // 🎯 One-Tap Mobile Location & GPS Detection
   const handleDetectGPS = async () => {
     setIsDetectingGPS(true);
     setGpsErrorMsg("");
@@ -151,13 +151,13 @@ export function LocationAreaSelector({
         setShowDropdown(false);
         setShowGpsModal(false);
       } else {
-        const msg = result?.error_message || "GPS సేవలు లభ్యం కాలేదు. దయచేసి పరికరంలో Location/GPS ఆన్ చేయండి.";
+        const msg = result?.error_message || "మొబైల్ లొకేషన్ సేవలు లభ్యం కాలేదు. దయచేసి మొబైల్‌లో Location / GPS ఆన్ చేయండి.";
         setGpsErrorMsg(msg);
         setShowGpsModal(true);
       }
     } catch (err) {
-      console.warn("GPS error:", err);
-      setGpsErrorMsg("GPS లోపం జరిగింది. దయచేసి Location Service ఆన్ చేయండి.");
+      console.warn("GPS/Location error:", err);
+      setGpsErrorMsg("లొకేషన్ గుర్తించడంలో సమస్య ఏర్పడింది. దయచేసి మొబైల్ Quick Settings లో 'Location' ఆన్ చేయండి లేదా నేరుగా ఏరియా పేరు టైప్ చేయండి.");
       setShowGpsModal(true);
     } finally {
       setIsDetectingGPS(false);
@@ -296,30 +296,30 @@ export function LocationAreaSelector({
         </div>
       )}
 
-      {/* 2. 🎯 Option to Detect via GPS */}
+      {/* 2. 🎯 Option to Detect via Mobile Location / GPS */}
       <div className="pt-0.5">
         <button
           type="button"
           onClick={handleDetectGPS}
           disabled={isDetectingGPS}
           className="w-full h-10 px-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black text-xs shadow-sm transition flex items-center justify-center gap-2 active:scale-98 disabled:opacity-70 cursor-pointer"
-          title="Detect my current location using GPS"
+          title="Detect my current location using Mobile Location or GPS"
         >
           {isDetectingGPS ? (
             <>
               <RefreshCw className="size-4 animate-spin" />
-              <span>GPS ద్వారా గుర్తిస్తోంది...</span>
+              <span>లొకేషన్ / GPS ద్వారా గుర్తిస్తోంది...</span>
             </>
           ) : (
             <>
               <Navigation className="size-4 text-yellow-300" />
-              <span>🎯 నా ప్రస్తుత ప్రాంతం గుర్తించండి (Detect GPS)</span>
+              <span>🎯 నా ప్రస్తుత ప్రాంతం గుర్తించండి (Location / GPS)</span>
             </>
           )}
         </button>
       </div>
 
-      {/* ⚠️ GPS ENABLE GUIDANCE MODAL */}
+      {/* ⚠️ MOBILE LOCATION / GPS ENABLE GUIDANCE MODAL */}
       {showGpsModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 max-w-sm w-full shadow-2xl border border-amber-500/30 space-y-4 relative">
@@ -337,10 +337,10 @@ export function LocationAreaSelector({
               </div>
               <div>
                 <h3 className="font-extrabold text-sm text-slate-900 dark:text-slate-100">
-                  {gpsErrorMsg.includes("పర్మిషన్") ? "లొకేషన్ పర్మిషన్ అవసరం!" : "GPS Location సేవలు అవసరం!"}
+                  {gpsErrorMsg.includes("పర్మిషన్") ? "లొకేషన్ పర్మిషన్ అవసరం!" : "మొబైల్ Location / GPS ఆన్ చేయండి"}
                 </h3>
                 <p className="text-[11px] text-amber-600 dark:text-amber-400 font-bold">
-                  {gpsErrorMsg.includes("పర్మిషన్") ? "Location Permission Needed" : "Enable GPS Location Services"}
+                  {gpsErrorMsg.includes("పర్మిషన్") ? "Location Permission Needed" : "Enable Mobile Location / GPS"}
                 </p>
               </div>
             </div>
@@ -351,9 +351,9 @@ export function LocationAreaSelector({
 
             <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800/80 space-y-2 text-[11px]">
               <div className="font-bold text-slate-800 dark:text-slate-200">
-                📍 {gpsErrorMsg.includes("పర్మిషన్") ? "పర్మిషన్ అనుమతించడానికి సూచనలు:" : "GPS ఆన్ చేయడానికి సూచనలు:"}
+                📍 {gpsErrorMsg.includes("పర్మిషన్") ? "పర్మిషన్ అనుమతించడానికి సూచనలు:" : "మొబైల్‌లో ఆన్ చేయడానికి సూచనలు:"}
               </div>
-              <ol className="list-decimal list-inside space-y-1.5 text-slate-600 dark:text-slate-300">
+              <ol className="list-decimal list-inside space-y-1.5 text-slate-600 dark:text-slate-300 font-medium">
                 {gpsErrorMsg.includes("పర్మిషన్") ? (
                   <>
                     <li>బ్రౌజర్ అడ్రస్ బార్‌లోని <b>🔒 లాక్ (Lock) / Tune</b> ఐకాన్‌పై క్లిక్ చేయండి.</li>
@@ -362,9 +362,15 @@ export function LocationAreaSelector({
                   </>
                 ) : (
                   <>
-                    <li>మీ ఫోన్/కంప్యూటర్‌లో Quick Settings లేదా Settings తెరవండి.</li>
-                    <li><b>Location / GPS Services</b> ని <b>ON</b> చేయండి.</li>
-                    <li>బ్రౌజర్‌లో <b>Allow Location</b> అడిగినప్పుడు అనుమతించండి.</li>
+                    <li>
+                      మొబైల్ స్క్రీన్ పైభాగం నుండి క్రిందికి స్వైప్ చేసి (Quick Settings) <b>"Location" (లొకేషన్)</b> లేదా <b>"GPS"</b> ఐకాన్ ఆన్ చేయండి.
+                    </li>
+                    <li className="text-[10px] text-blue-600 dark:text-blue-400 font-bold">
+                      (గమనిక: మొబైల్స్‌లో GPS బదులుగా "Location" అని పేరు ఉంటుంది).
+                    </li>
+                    <li>
+                      బ్రౌజర్‌లో <b>"Allow Location"</b> లేదా <b>"While using the app"</b> ప్రాంప్ట్ వచ్చినప్పుడు అనుమతించండి.
+                    </li>
                   </>
                 )}
               </ol>
@@ -380,7 +386,7 @@ export function LocationAreaSelector({
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-black text-xs shadow-md hover:brightness-110 flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <RefreshCw className="size-4" />
-                <span>మళ్ళీ ప్రయత్నించండి (Retry GPS)</span>
+                <span>మళ్ళీ ప్రయత్నించండి (Retry Location)</span>
               </button>
             </div>
           </div>
