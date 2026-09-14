@@ -390,8 +390,8 @@ export function VaartanowJobsBoard({
               onChange={(e) => setSelectedDistrict(e.target.value)}
               className="h-9 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold text-xs px-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer shadow-sm"
             >
-              {/* 1. ALL DISTRICTS */}
-              <option value="" className="bg-slate-900 text-white">-- అన్ని జిల్లాలు & ప్రాంతాలు (All Districts) --</option>
+              {/* 1. AP & TG MAIN CITIES */}
+              <option value="" className="bg-slate-900 text-white">-- AP & TG ప్రధాన నగరాలు (AP & TG Main Cities) --</option>
 
               {/* 2. REMOTE / WFH JOBS */}
               <option value="Remote" className="bg-slate-900 text-white">💻 రిమోట్ / వర్క్ ఫ్రమ్ హోమ్ (Remote WFH Jobs)</option>
