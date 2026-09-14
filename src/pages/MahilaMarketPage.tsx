@@ -22,6 +22,12 @@ import {
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 import { LocationAreaSelector } from "@/components/LocationAreaSelector";
+import { 
+  UserProfile, 
+  getStoredUserProfile, 
+  saveStoredUserProfile, 
+  PROFILE_EVENT_NAME 
+} from "@/lib/user-profile";
 
 export interface MahilaItem {
   id: string;
@@ -222,6 +228,28 @@ export function MahilaMarketPage() {
   const [loadingSMS, setLoadingSMS] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
 
+  // Persistent User Profile Session (OLX / Upwork Style)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(getStoredUserProfile());
+
+  // Auto-fill from active user profile on open or profile change
+  useEffect(() => {
+    const syncProfile = () => {
+      const active = getStoredUserProfile();
+      setUserProfile(active);
+      if (active && active.is_verified) {
+        if (active.name && !sellerName) setSellerName(active.name);
+        if (active.phone && !phone) setPhone(active.phone);
+      }
+    };
+    syncProfile();
+    window.addEventListener(PROFILE_EVENT_NAME as any, syncProfile);
+    window.addEventListener("storage", syncProfile);
+    return () => {
+      window.removeEventListener(PROFILE_EVENT_NAME as any, syncProfile);
+      window.removeEventListener("storage", syncProfile);
+    };
+  }, [isPostModalOpen]);
+
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
@@ -250,13 +278,57 @@ export function MahilaMarketPage() {
     });
   }, [items, selectedCat, searchQuery]);
 
+  // Direct publish logic (Used by logged-in users directly and after OTP verification)
+  const executePublishMahilaItem = (cleanPhone: string, validSeller: string) => {
+    const defaultCover = "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80";
+
+    const newItem: MahilaItem = {
+      id: `mahila-${Date.now()}`,
+      seller_name: validSeller.trim(),
+      category,
+      title: title.trim(),
+      description: description.trim() || "స్వచ్ఛమైన హోమ్‌మేడ్ ఉత్పత్తి.",
+      price: price.startsWith("₹") ? price.trim() : `₹${price.trim()}`,
+      locality: locality.trim(),
+      contact: cleanPhone,
+      image: imageUrl.trim() || defaultCover,
+      created_at: new Date().toISOString()
+    };
+
+    const updated = [newItem, ...items];
+    setItems(updated);
+    localStorage.setItem("vaartanow_mahila_items", JSON.stringify(updated));
+
+    // Save persistent user profile
+    const profileToSave: UserProfile = {
+      id: userProfile?.id || `usr_${cleanPhone}`,
+      name: validSeller.trim(),
+      phone: cleanPhone,
+      is_verified: true,
+      avatar_url: userProfile?.avatar_url,
+      headline: userProfile?.headline || "👩 మహిళా తయారీదారు & విక్రేత (Women Entrepreneur)",
+      bio: userProfile?.bio,
+      created_at: userProfile?.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    saveStoredUserProfile(profileToSave);
+    setUserProfile(profileToSave);
+
+    setLoadingSMS(false);
+    setIsPostModalOpen(false);
+    setStep(1);
+    setTitle("");
+    setPrice("");
+    setDescription("");
+  };
+
   const handleProceedToOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sellerName.trim() || !title.trim() || !price.trim() || !phone.trim()) {
       setErrorMsg("దయచేసి అన్ని అవసరమైన వివరాలను భర్తీ చేయండి (* Required)");
       return;
     }
-    const cleanPhone = phone.replace(/\D/g, "");
+    const cleanPhone = phone.replace(/\D/g, "").slice(-10);
     if (cleanPhone.length < 10) {
       setErrorMsg("దయచేసి 10-అంకెల వాట్సాప్ మొబైల్ నంబర్ ఇవ్వండి");
       return;
@@ -264,6 +336,15 @@ export function MahilaMarketPage() {
 
     if (!declarationIndependent || !declarationResponsibility || !declarationTerms) {
       setErrorMsg("దయచేసి ఫారమ్ చివర ఉన్న చట్టపరమైన డిక్లరేషన్లను అంగీకరించండి (Check declaration boxes to proceed)");
+      return;
+    }
+
+    // ⚡ OLX-STYLE MULTI-AD SUBMISSION:
+    // If logged in, skip OTP and post immediately!
+    if (userProfile && userProfile.is_verified && userProfile.phone) {
+      setLoadingSMS(true);
+      setErrorMsg("");
+      executePublishMahilaItem(cleanPhone, sellerName);
       return;
     }
 
@@ -299,31 +380,8 @@ export function MahilaMarketPage() {
       return;
     }
 
-    const defaultCover = "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80";
-
-    const newItem: MahilaItem = {
-      id: `mahila-${Date.now()}`,
-      seller_name: sellerName.trim(),
-      category,
-      title: title.trim(),
-      description: description.trim() || "స్వచ్ఛమైన హోమ్‌మేడ్ ఉత్పత్తి.",
-      price: price.startsWith("₹") ? price.trim() : `₹${price.trim()}`,
-      locality: locality.trim(),
-      contact: phone.replace(/\D/g, ""),
-      image: imageUrl.trim() || defaultCover,
-      created_at: new Date().toISOString()
-    };
-
-    const updated = [newItem, ...items];
-    setItems(updated);
-    localStorage.setItem("vaartanow_mahila_items", JSON.stringify(updated));
-
-    setLoadingSMS(false);
-    setIsPostModalOpen(false);
-    setStep(1);
-    setTitle("");
-    setPrice("");
-    setDescription("");
+    const cleanPhone = phone.replace(/\D/g, "").slice(-10);
+    executePublishMahilaItem(cleanPhone, sellerName);
   };
 
   return (
@@ -550,6 +608,33 @@ export function MahilaMarketPage() {
             {step === 1 && (
               <form onSubmit={handleProceedToOTP} className="space-y-3.5 text-xs">
                 
+                {/* 🌟 Logged-in Profile Badge (OLX Multi-Ad Posting Active) */}
+                {userProfile && userProfile.is_verified && (
+                  <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-950 flex items-center justify-between gap-2 shadow-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="size-8 rounded-full overflow-hidden border border-rose-400 bg-rose-600 text-white flex items-center justify-center font-black text-xs shrink-0">
+                        {userProfile.avatar_url ? (
+                          <img src={userProfile.avatar_url} alt={userProfile.name} className="size-full object-cover" />
+                        ) : (
+                          <span>{userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}</span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1 font-black text-xs">
+                          <span className="truncate">లాగిన్ అయ్యారు: {userProfile.name}</span>
+                          <ShieldCheck className="size-3.5 text-rose-600 shrink-0" />
+                        </div>
+                        <p className="text-[10px] text-rose-700 font-semibold truncate">
+                          +91 {userProfile.phone} • OLX తరహాలో నేరుగా పోస్ట్ చేయవచ్చు (No OTP)
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-rose-200 text-rose-900 shrink-0">
+                      OTP ఫ్రీ
+                    </span>
+                  </div>
+                )}
+
                 {/* Field 1: మీ పూర్తి పేరు */}
                 <div className="space-y-1">
                   <label className="font-extrabold text-slate-800 flex items-center gap-1">
@@ -819,7 +904,13 @@ export function MahilaMarketPage() {
                   disabled={loadingSMS || !declarationIndependent || !declarationResponsibility || !declarationTerms}
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 hover:from-rose-700 hover:via-pink-700 hover:to-purple-700 text-white font-black text-sm shadow-xl shadow-rose-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loadingSMS ? "SMS OTP పంపుతున్నాము..." : "Live SMS OTP పొందండి ➔ (Send OTP)"}
+                  {loadingSMS ? (
+                    "ప్రక్రియ జరుగుతోంది..."
+                  ) : userProfile && userProfile.is_verified ? (
+                    "🚀 ఉత్పత్తిని నేరుగా ప్రచురించండి (Publish Product Directly - No OTP)"
+                  ) : (
+                    "Live SMS OTP పొందండి ➔ (Send OTP)"
+                  )}
                 </button>
 
               </form>

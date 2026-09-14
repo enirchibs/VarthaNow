@@ -47,6 +47,13 @@ import {
   recordAuditEvent,
   ListingPurpose
 } from "@/lib/safety-compliance";
+import { 
+  UserProfile, 
+  getStoredUserProfile, 
+  saveStoredUserProfile, 
+  isUserLoggedIn, 
+  PROFILE_EVENT_NAME 
+} from "@/lib/user-profile";
 
 export type ServiceCategory =
   | "workers"
@@ -629,6 +636,29 @@ export function ServicesRentalPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
 
+  // Persistent User Profile Session (OLX / Upwork Style)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(getStoredUserProfile());
+
+  // Auto-fill from active user profile on load or profile update
+  useEffect(() => {
+    const syncProfile = () => {
+      const active = getStoredUserProfile();
+      setUserProfile(active);
+      if (active && active.is_verified) {
+        if (active.name) setProviderName(active.name);
+        if (active.phone) setPhone(active.phone);
+        setMobileVerified(true);
+      }
+    };
+    syncProfile();
+    window.addEventListener(PROFILE_EVENT_NAME as any, syncProfile);
+    window.addEventListener("storage", syncProfile);
+    return () => {
+      window.removeEventListener(PROFILE_EVENT_NAME as any, syncProfile);
+      window.removeEventListener("storage", syncProfile);
+    };
+  }, []);
+
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
@@ -657,7 +687,117 @@ export function ServicesRentalPage() {
     });
   }, [items, selectedGroup, searchQuery]);
 
-  // Step 1: Validate Service Form & Legal Declarations, then Send Live SMS OTP
+  // Reusable direct publish logic (used both by logged-in users directly and after OTP verification)
+  const executePublishService = (cleanPhone: string, validName: string) => {
+    const now = new Date().toISOString();
+    const acceptanceId = `ta_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const termsHash = "SHA256:PROV_TERMS_V1_" + Date.now().toString(36).toUpperCase();
+
+    // 1. Record Immutable Terms Acceptance
+    recordTermsAcceptance({
+      id: acceptanceId,
+      role: "provider",
+      terms_type: "provider_terms",
+      terms_version: CURRENT_TERMS_VERSION.provider_terms,
+      terms_hash: termsHash,
+      accepted_at: now,
+      mobile_number: cleanPhone,
+      mobile_verified_at: now,
+      email: userEmail.trim() || null,
+      email_verified_at: null,
+      user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "Web Browser",
+      acceptance_method: "web_checkbox",
+      document_snapshot_reference: `snapshot://provider_terms_v1_0/${cleanPhone}/${Date.now()}`
+    });
+
+    // 2. Record Code of Conduct Acceptance
+    recordTermsAcceptance({
+      id: `ta_coc_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      role: "provider",
+      terms_type: "code_of_conduct",
+      terms_version: CURRENT_TERMS_VERSION.code_of_conduct,
+      terms_hash: "SHA256:COC_V1_" + Date.now().toString(36).toUpperCase(),
+      accepted_at: now,
+      mobile_number: cleanPhone,
+      mobile_verified_at: now,
+      email: userEmail.trim() || null,
+      email_verified_at: null,
+      user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "Web Browser",
+      acceptance_method: "web_checkbox",
+      document_snapshot_reference: `snapshot://code_of_conduct_v1_0/${cleanPhone}/${Date.now()}`
+    });
+
+    // 3. Save Persistent User Profile & Safety Profile
+    const updatedProfile: UserProfile = {
+      id: userProfile?.id || `usr_${cleanPhone}`,
+      name: validName.trim(),
+      phone: cleanPhone,
+      is_verified: true,
+      avatar_url: userProfile?.avatar_url,
+      headline: userProfile?.headline,
+      bio: userProfile?.bio,
+      created_at: userProfile?.created_at || now,
+      updated_at: now
+    };
+    saveStoredUserProfile(updatedProfile);
+    setUserProfile(updatedProfile);
+
+    // 4. Record Audit Event
+    recordAuditEvent({
+      event_type: "listing_submitted",
+      metadata: {
+        provider_name: validName.trim(),
+        category,
+        service_type: serviceType,
+        village: village.trim(),
+        has_email: Boolean(userEmail.trim()),
+        terms_accepted: true,
+        mobile: cleanPhone
+      }
+    });
+
+    const defaultImg = category === "farm_machines" ? "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80" :
+                       category === "construction" ? "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=800&q=80" :
+                       category === "transport" ? "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=80" :
+                       category === "events" ? "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" :
+                       category === "hotel_food" ? "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=800&q=80" :
+                       category === "beauty" ? "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80" :
+                       category === "education" ? "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80" :
+                       category === "professional" ? "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80" :
+                       category === "local_shops" ? "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80" :
+                       category === "pets_animals" ? "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=800&q=80" :
+                       category === "care_services" ? "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80" :
+                       "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80";
+
+    const newItem: ServiceRentalItem = {
+      id: `service-${Date.now()}`,
+      provider_name: validName.trim(),
+      category,
+      service_type: serviceType,
+      village: village.trim(),
+      price_rate: isFreeVisit ? "ఉచిత విజిట్ (Free Visit)" : (priceRate.startsWith("₹") ? priceRate.trim() : `₹${priceRate.trim()}`),
+      machine_details: machineDetails.trim() || undefined,
+      available_days: availableDays.trim() || "ప్రతిరోజూ అందుబాటులో ఉంటుంది",
+      description: description.trim() || "నమ్మకమైన సేవ మరియు సకాలంలో పని అందించబడును.",
+      contact: cleanPhone,
+      image: imageUrl.trim() || defaultImg,
+      created_at: now
+    };
+
+    const updated = [newItem, ...items];
+    setItems(updated);
+    localStorage.setItem("vaartanow_service_items", JSON.stringify(updated));
+
+    setPublishedRecord({
+      id: newItem.id,
+      termsHash,
+      acceptedAt: now
+    });
+    setLoading(false);
+    setStep(3); // Direct publish to Step 3 without OTP!
+  };
+
+  // Step 1: Validate Service Form & Legal Declarations, then Send Live SMS OTP (or publish directly if logged in)
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -703,6 +843,17 @@ export function ServicesRentalPage() {
     }
 
     setProviderName(nameResult.sanitized);
+
+    // ⚡ OLX-STYLE MULTI-AD SUBMISSION:
+    // If the user is already logged in with verified profile, SKIP OTP and publish directly!
+    if (userProfile && userProfile.is_verified && userProfile.phone) {
+      setLoading(true);
+      setErrorMsg("");
+      executePublishService(cleanPhone, nameResult.sanitized);
+      return;
+    }
+
+    // Otherwise, first-time unauthenticated user: Send SMS OTP
     setLoading(true);
     setErrorMsg("");
 
@@ -762,120 +913,7 @@ export function ServicesRentalPage() {
     }
 
     const cleanPhone = phone.replace(/\D/g, "");
-    const now = new Date().toISOString();
-    const acceptanceId = `ta_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    const termsHash = "SHA256:PROV_TERMS_V1_" + Date.now().toString(36).toUpperCase();
-
-    // 1. Record Immutable Terms Acceptance
-    recordTermsAcceptance({
-      id: acceptanceId,
-      role: "provider",
-      terms_type: "provider_terms",
-      terms_version: CURRENT_TERMS_VERSION.provider_terms,
-      terms_hash: termsHash,
-      accepted_at: now,
-      mobile_number: cleanPhone,
-      mobile_verified_at: now,
-      email: userEmail.trim() || null,
-      email_verified_at: null,
-      user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "Web Browser",
-      acceptance_method: "web_checkbox",
-      document_snapshot_reference: `snapshot://provider_terms_v1_0/${cleanPhone}/${Date.now()}`
-    });
-
-    // 2. Record Code of Conduct Acceptance
-    recordTermsAcceptance({
-      id: `ta_coc_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      role: "provider",
-      terms_type: "code_of_conduct",
-      terms_version: CURRENT_TERMS_VERSION.code_of_conduct,
-      terms_hash: "SHA256:COC_V1_" + Date.now().toString(36).toUpperCase(),
-      accepted_at: now,
-      mobile_number: cleanPhone,
-      mobile_verified_at: now,
-      email: userEmail.trim() || null,
-      email_verified_at: null,
-      user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "Web Browser",
-      acceptance_method: "web_checkbox",
-      document_snapshot_reference: `snapshot://code_of_conduct_v1_0/${cleanPhone}/${Date.now()}`
-    });
-
-    // 3. Save User Safety Profile
-    saveStoredSafetyProfile({
-      id: `usr_${cleanPhone}`,
-      mobile_number: cleanPhone,
-      mobile_verified: true,
-      mobile_verified_at: now,
-      full_name: providerName.trim(),
-      full_name_added_at: now,
-      email: userEmail.trim() || null,
-      email_verified: false,
-      role: "provider",
-      listing_purpose: "service",
-      account_status: "active",
-      verification_badges: {
-        mobile_verified: true,
-        email_verified: false,
-        identity_verified: false,
-        business_verified: false,
-        licence_verified: false,
-        customer_rated: false
-      }
-    });
-
-    // 4. Record Audit Event
-    recordAuditEvent({
-      event_type: "listing_submitted",
-      metadata: {
-        provider_name: providerName.trim(),
-        category,
-        service_type: serviceType,
-        village: village.trim(),
-        has_email: Boolean(userEmail.trim()),
-        terms_accepted: true,
-        mobile: cleanPhone
-      }
-    });
-
-    const defaultImg = category === "farm_machines" ? "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80" :
-                       category === "construction" ? "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=800&q=80" :
-                       category === "transport" ? "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=80" :
-                       category === "events" ? "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" :
-                       category === "hotel_food" ? "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=800&q=80" :
-                       category === "beauty" ? "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80" :
-                       category === "education" ? "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80" :
-                       category === "professional" ? "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80" :
-                       category === "local_shops" ? "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80" :
-                       category === "pets_animals" ? "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=800&q=80" :
-                       category === "care_services" ? "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80" :
-                       "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80";
-
-    const newItem: ServiceRentalItem = {
-      id: `service-${Date.now()}`,
-      provider_name: providerName.trim(),
-      category,
-      service_type: serviceType,
-      village: village.trim(),
-      price_rate: isFreeVisit ? "ఉచిత విజిట్ (Free Visit)" : (priceRate.startsWith("₹") ? priceRate.trim() : `₹${priceRate.trim()}`),
-      machine_details: machineDetails.trim() || undefined,
-      available_days: availableDays.trim() || "ప్రతిరోజూ అందుబాటులో ఉంటుంది",
-      description: description.trim() || "నమ్మకమైన సేవ మరియు సకాలంలో పని అందించబడును.",
-      contact: cleanPhone,
-      image: imageUrl.trim() || defaultImg,
-      created_at: now
-    };
-
-    const updated = [newItem, ...items];
-    setItems(updated);
-    localStorage.setItem("vaartanow_service_items", JSON.stringify(updated));
-
-    setPublishedRecord({
-      id: newItem.id,
-      termsHash,
-      acceptedAt: now
-    });
-    setLoading(false);
-    setStep(3); // Proceed to Step 3 (Success & Immutable Audit Confirmation)
+    executePublishService(cleanPhone, providerName);
   };
 
   const handleCloseModal = () => {
@@ -1154,6 +1192,33 @@ export function ServicesRentalPage() {
             {step === 1 && (
               <form onSubmit={handleSendOTP} className="space-y-3.5 text-xs">
                 
+                {/* 🌟 Logged-in Profile Badge (OLX Multi-Ad Posting Active) */}
+                {userProfile && userProfile.is_verified && (
+                  <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-center justify-between gap-2 shadow-xs">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="size-8 rounded-full overflow-hidden border border-emerald-500 bg-emerald-600 text-white flex items-center justify-center font-black text-xs shrink-0">
+                        {userProfile.avatar_url ? (
+                          <img src={userProfile.avatar_url} alt={userProfile.name} className="size-full object-cover" />
+                        ) : (
+                          <span>{userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}</span>
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1 font-black text-xs">
+                          <span className="truncate">లాగిన్ అయ్యారు: {userProfile.name}</span>
+                          <ShieldCheck className="size-3.5 text-emerald-600 shrink-0" />
+                        </div>
+                        <p className="text-[10px] text-emerald-700 font-semibold truncate">
+                          +91 {userProfile.phone} • OLX తరహాలో నేరుగా పోస్ట్ చేయవచ్చు (No OTP)
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-200 text-emerald-900 shrink-0">
+                      OTP ఫ్రీ
+                    </span>
+                  </div>
+                )}
+
                 {/* 1. Provider Full Name */}
                 <div className="space-y-1">
                   <label className="font-extrabold text-slate-800 flex items-center gap-1">
@@ -1420,13 +1485,19 @@ export function ServicesRentalPage() {
                   <p className="text-[10px] text-slate-500 font-semibold">ఈ నంబర్‌కు Live SMS OTP పంపబడుతుంది. కస్టమర్లు మిమ్మల్ని సంప్రదించడానికి కూడా ఇదే నంబర్ ఉపయోగపడుతుంది.</p>
                 </div>
 
-                {/* SUBMIT BUTTON ➔ SEND OTP */}
+                {/* SUBMIT BUTTON ➔ SEND OTP OR DIRECT PUBLISH IF LOGGED IN */}
                 <button
                   type="submit"
                   disabled={loading || !declarationIndependent || !declarationResponsibility || !declarationTerms}
                   className="w-full py-4 rounded-2xl bg-gradient-to-r from-teal-600 via-emerald-600 to-indigo-600 hover:from-teal-700 hover:via-emerald-700 hover:to-indigo-700 text-white font-black text-sm shadow-xl shadow-teal-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? "SMS OTP పంపుతున్నాము..." : "Live SMS OTP పొందండి ➔ (Send OTP)"}
+                  {loading ? (
+                    "ప్రక్రియ జరుగుతోంది..."
+                  ) : userProfile && userProfile.is_verified ? (
+                    "🚀 సేవను నేరుగా ప్రచురించండి (Publish Service Directly - No OTP)"
+                  ) : (
+                    "Live SMS OTP పొందండి ➔ (Send OTP)"
+                  )}
                 </button>
               </form>
             )}

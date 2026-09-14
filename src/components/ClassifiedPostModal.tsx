@@ -23,6 +23,12 @@ import {
   SellerProfile 
 } from "@/lib/classifieds-api";
 import { LocationAreaSelector } from "@/components/LocationAreaSelector";
+import { 
+  UserProfile, 
+  getStoredUserProfile, 
+  saveStoredUserProfile, 
+  PROFILE_EVENT_NAME 
+} from "@/lib/user-profile";
 
 interface ClassifiedPostModalProps {
   isOpen: boolean;
@@ -59,18 +65,33 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string>("");
 
+  // Persistent User Profile Session (OLX / Upwork Style)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(getStoredUserProfile());
+
   useEffect(() => {
-    const currentProf = getStoredSellerProfile();
-    setProfile(currentProf);
-    if (currentProf) {
-      if (currentProf.name) setSellerName(currentProf.name);
-      if (currentProf.phone) setPhone(currentProf.phone);
+    const syncProfile = () => {
+      const active = getStoredUserProfile();
+      setUserProfile(active);
+      if (active && active.is_verified) {
+        if (active.name && !sellerName) setSellerName(active.name);
+        if (active.phone && !phone) setPhone(active.phone);
+      } else {
+        const currentProf = getStoredSellerProfile();
+        if (currentProf) {
+          if (currentProf.name && !sellerName) setSellerName(currentProf.name);
+          if (currentProf.phone && !phone) setPhone(currentProf.phone);
+        }
+      }
+    };
+    if (isOpen) {
+      syncProfile();
     }
-    setDeclarationIndependent(true);
-    setDeclarationResponsibility(true);
-    setDeclarationTerms(true);
-    setStep(1);
-    setErrorMsg("");
+    window.addEventListener(PROFILE_EVENT_NAME as any, syncProfile);
+    window.addEventListener("storage", syncProfile);
+    return () => {
+      window.removeEventListener(PROFILE_EVENT_NAME as any, syncProfile);
+      window.removeEventListener("storage", syncProfile);
+    };
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -90,11 +111,57 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
     }
   };
 
-  // Step 1 Submission ➔ Trigger Live Twilio SMS OTP Code
+  // Direct publish logic (used by logged-in users directly and after OTP verification)
+  const executePublishClassified = async (cleanPhone: string, validSeller: string) => {
+    // Default HD cover based on category if no photo selected
+    const catType = (category as ClassifiedCategory) || "other";
+    const defaultImg = catType === "electronics" ? "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80" :
+                       catType === "vehicles" ? "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80" :
+                       catType === "furniture" ? "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80" :
+                       catType === "property" ? "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80" :
+                       catType === "services" ? "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80" :
+                       "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80";
+
+    const finalPrice = isFree ? "ఉచితం (Free)" : (price.startsWith("₹") ? price.trim() : `₹${price.trim()}`);
+
+    await addClassifiedItem({
+      seller_name: validSeller.trim(),
+      category: catType,
+      title: title.trim(),
+      description: description.trim() || "ఏలాంటి సమస్య లేదు. నాణ్యమైన వస్తువు. (Good condition)",
+      price: finalPrice,
+      locality: locality.trim(),
+      contact: cleanPhone,
+      images: imageUrl.trim() ? [imageUrl.trim()] : [defaultImg],
+      offer_discount: offerDiscount.trim() || undefined,
+      free_items: freeBonusItems.trim() || (isFree ? "ఉచిత వస్తువు (Free Item)" : undefined)
+    });
+
+    // Save persistent user profile
+    const profileToSave: UserProfile = {
+      id: userProfile?.id || `usr_${cleanPhone}`,
+      name: validSeller.trim(),
+      phone: cleanPhone,
+      is_verified: true,
+      avatar_url: userProfile?.avatar_url,
+      headline: userProfile?.headline || "🛍️ స్థానిక విక్రేత (Local Seller)",
+      bio: userProfile?.bio,
+      created_at: userProfile?.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    saveStoredUserProfile(profileToSave);
+    setUserProfile(profileToSave);
+
+    setLoading(false);
+    onPostSuccess();
+    onClose();
+  };
+
+  // Step 1 Submission ➔ Trigger Live Twilio SMS OTP Code or publish directly if logged in
   const handleProceedToOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sellerName.trim()) {
-      setErrorMsg("దయచేసి మీ పూర్తి పేరు నమోదు చేయండి (Please enter your full name)");
+      setErrorMsg("దయచేసి మీ పూర్తి పేరు నమోదు చేయండి (* Name is mandatory)");
       return;
     }
     if (!category) {
@@ -113,7 +180,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
       setErrorMsg("దయచేసి ధర నమోదు చేయండి (Please enter price in ₹)");
       return;
     }
-    const cleanPhone = phone.replace(/\D/g, "");
+    const cleanPhone = phone.replace(/\D/g, "").slice(-10);
     if (!cleanPhone || cleanPhone.length < 10) {
       setErrorMsg("దయచేసి 10-అంకెల వాట్సాప్ మొబైల్ నంబర్ ఇవ్వండి (10-digit WhatsApp phone)");
       return;
@@ -121,6 +188,15 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
 
     if (!declarationIndependent || !declarationResponsibility || !declarationTerms) {
       setErrorMsg("దయచేసి ఫారమ్ చివర ఉన్న చట్టపరమైన డిక్లరేషన్లను అంగీకరించండి (Please check declaration boxes to proceed)");
+      return;
+    }
+
+    // ⚡ OLX-STYLE MULTI-AD SUBMISSION:
+    // If logged in, skip OTP and post immediately!
+    if (userProfile && userProfile.is_verified && userProfile.phone) {
+      setLoading(true);
+      setErrorMsg("");
+      await executePublishClassified(cleanPhone, sellerName);
       return;
     }
 
@@ -158,33 +234,8 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
       return;
     }
 
-    // Default HD cover based on category if no photo selected
-    const catType = (category as ClassifiedCategory) || "other";
-    const defaultImg = catType === "electronics" ? "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80" :
-                       catType === "vehicles" ? "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80" :
-                       catType === "furniture" ? "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80" :
-                       catType === "property" ? "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80" :
-                       catType === "services" ? "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80" :
-                       "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80";
-
-    const finalPrice = isFree ? "ఉచితం (Free)" : (price.startsWith("₹") ? price.trim() : `₹${price.trim()}`);
-
-    await addClassifiedItem({
-      seller_name: sellerName.trim(),
-      category: catType,
-      title: title.trim(),
-      description: description.trim() || "ఏలాంటి సమస్య లేదు. నాణ్యమైన వస్తువు. (Good condition)",
-      price: finalPrice,
-      locality: locality.trim(),
-      contact: phone.replace(/\D/g, ""),
-      images: imageUrl.trim() ? [imageUrl.trim()] : [defaultImg],
-      offer_discount: offerDiscount.trim() || undefined,
-      free_items: freeBonusItems.trim() || (isFree ? "ఉచిత వస్తువు (Free Item)" : undefined)
-    });
-
-    setLoading(false);
-    onPostSuccess();
-    onClose();
+    const cleanPhone = phone.replace(/\D/g, "").slice(-10);
+    await executePublishClassified(cleanPhone, sellerName);
   };
 
   return (
@@ -222,6 +273,33 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
         {step === 1 && (
           <form onSubmit={handleProceedToOTP} className="space-y-3.5 text-xs">
             
+            {/* 🌟 Logged-in Profile Badge (OLX Multi-Ad Posting Active) */}
+            {userProfile && userProfile.is_verified && (
+              <div className="p-3 rounded-2xl bg-blue-50 border border-blue-200 text-blue-950 flex items-center justify-between gap-2 shadow-xs">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="size-8 rounded-full overflow-hidden border border-blue-500 bg-blue-600 text-white flex items-center justify-center font-black text-xs shrink-0">
+                    {userProfile.avatar_url ? (
+                      <img src={userProfile.avatar_url} alt={userProfile.name} className="size-full object-cover" />
+                    ) : (
+                      <span>{userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}</span>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1 font-black text-xs">
+                      <span className="truncate">లాగిన్ అయ్యారు: {userProfile.name}</span>
+                      <ShieldCheck className="size-3.5 text-blue-600 shrink-0" />
+                    </div>
+                    <p className="text-[10px] text-blue-700 font-semibold truncate">
+                      +91 {userProfile.phone} • ఎన్ని ప్రకటనలైనా OTP లేకుండా పోస్ట్ చేయవచ్చు
+                    </p>
+                  </div>
+                </div>
+                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-blue-200 text-blue-900 shrink-0">
+                  OTP ఫ్రీ
+                </span>
+              </div>
+            )}
+
             {/* Field 1: మీ పూర్తి పేరు (Your Full Name) * */}
             <div className="space-y-1">
               <label className="font-extrabold text-slate-800 flex items-center gap-1">
@@ -498,7 +576,11 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
               disabled={loading || !declarationIndependent || !declarationResponsibility || !declarationTerms}
               className="w-full py-4 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 text-white font-black text-sm shadow-xl shadow-indigo-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "SMS OTP పంపుతున్నాము..." : "Live SMS OTP పొందండి ➔ (Send OTP)"}
+              {loading
+                ? (userProfile?.is_verified ? "ప్రకటనను ప్రచురిస్తున్నాము..." : "SMS OTP పంపుతున్నాము...")
+                : userProfile && userProfile.is_verified
+                ? "🚀 ప్రకటనను నేరుగా ప్రచురించండి (Publish Ad Directly - No OTP)"
+                : "Live SMS OTP పొందండి ➔ (Send OTP)"}
             </button>
 
           </form>

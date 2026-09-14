@@ -9,6 +9,8 @@ import { detectGPSLocation } from "@/lib/location-detector";
 import { CreatePostModal } from "@/components/CreatePostModal";
 import { SmartChatbotWidget } from "@/components/SmartChatbotWidget";
 import { HeaderFlowTicker } from "@/components/HeaderFlowTicker";
+import { UserProfileModal } from "@/components/UserProfileModal";
+import { UserProfile, getStoredUserProfile, PROFILE_EVENT_NAME } from "@/lib/user-profile";
 
 const categoryEmojis: Record<string, string> = {
   viralshorts: "🔥",
@@ -38,8 +40,23 @@ export function Layout() {
   const [showGPSPrompt, setShowGPSPrompt] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(getStoredUserProfile());
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [showMoreCategories, setShowMoreCategories] = useState(false);
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+
+  // Sync profile reactively across tabs and ad submission flows
+  useEffect(() => {
+    const syncProfile = () => {
+      setUserProfile(getStoredUserProfile());
+    };
+    window.addEventListener(PROFILE_EVENT_NAME as any, syncProfile);
+    window.addEventListener("storage", syncProfile);
+    return () => {
+      window.removeEventListener(PROFILE_EVENT_NAME as any, syncProfile);
+      window.removeEventListener("storage", syncProfile);
+    };
+  }, []);
   const navRef = useRef<HTMLElement>(null);
   const [isNavAnimating, setIsNavAnimating] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
@@ -453,6 +470,43 @@ export function Layout() {
                 {lang === "te" ? "బుక్‌మార్క్‌లు" : "Bookmarks"}
               </Button>
             </Link>
+
+            {/* 👤 Top of Website Profile Button (OLX & Upwork Style) */}
+            {userProfile ? (
+              <button
+                type="button"
+                onClick={() => setIsProfileModalOpen(true)}
+                className="flex items-center gap-1.5 sm:gap-2 pl-1 pr-2 sm:pr-3 py-1 rounded-full border border-blue-300 dark:border-blue-800 bg-blue-50/90 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition shadow-xs cursor-pointer shrink-0 group"
+                title={`${userProfile.name} - నా ప్రొఫైల్ (Click to view/edit profile)`}
+              >
+                <div className="size-7 sm:size-8 rounded-full overflow-hidden border border-blue-500 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
+                  {userProfile.avatar_url ? (
+                    <img src={userProfile.avatar_url} alt={userProfile.name} className="size-full object-cover" />
+                  ) : (
+                    <span>{userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}</span>
+                  )}
+                </div>
+                <div className="text-left hidden xs:block min-w-0 max-w-[100px] sm:max-w-[140px]">
+                  <div className="flex items-center gap-1 font-black text-xs text-slate-900 dark:text-slate-100 truncate">
+                    <span className="truncate">{userProfile.name}</span>
+                    <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" title="ధృవీకరించబడింది" />
+                  </div>
+                  <p className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 truncate">
+                    {userProfile.headline || "నా ప్రొఫైల్"}
+                  </p>
+                </div>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsProfileModalOpen(true)}
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200 dark:border-zinc-800 bg-[hsl(var(--card))] hover:bg-blue-50 dark:hover:bg-zinc-800 text-[hsl(var(--foreground))] hover:text-blue-600 transition shadow-xs font-black text-xs cursor-pointer shrink-0"
+                title="లాగిన్ లేదా ప్రొఫైల్ నమోదు చేయండి"
+              >
+                <User className="size-3.5 text-blue-600" />
+                <span className="text-[11px] sm:text-xs">లాగిన్</span>
+              </button>
+            )}
           </div>
           <Link to="/search" className="hidden md:grid size-11 place-items-center rounded-full bg-[hsl(var(--muted))]" aria-label="Search">
             <Search className="size-4" />
@@ -876,6 +930,12 @@ export function Layout() {
       <CreatePostModal 
         isOpen={isPostModalOpen} 
         onClose={() => setIsPostModalOpen(false)} 
+      />
+
+      {/* 👤 User Profile & Multi-Ad Settings Modal */}
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
       />
 
       {/* 💬 Floating Smart Assistant Chatbot Widget */}

@@ -18,6 +18,12 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { LocationAreaSelector } from "./LocationAreaSelector";
+import { 
+  UserProfile, 
+  getStoredUserProfile, 
+  saveStoredUserProfile, 
+  PROFILE_EVENT_NAME 
+} from "@/lib/user-profile";
 
 interface PropertyPostModalProps {
   isOpen: boolean;
@@ -106,6 +112,30 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
   const [declarationIndependent, setDeclarationIndependent] = useState<boolean>(true);
   const [declarationResponsibility, setDeclarationResponsibility] = useState<boolean>(true);
   const [declarationTerms, setDeclarationTerms] = useState<boolean>(true);
+
+  // Persistent User Profile Session (OLX / Upwork Style)
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(getStoredUserProfile());
+
+  // Auto-fill from active user profile on open or profile change
+  React.useEffect(() => {
+    const syncProfile = () => {
+      const active = getStoredUserProfile();
+      setUserProfile(active);
+      if (active && active.is_verified) {
+        if (active.name && !agentName) setAgentName(active.name);
+        if (active.phone && !contactPhone) setContactPhone(active.phone);
+      }
+    };
+    if (isOpen) {
+      syncProfile();
+    }
+    window.addEventListener(PROFILE_EVENT_NAME as any, syncProfile);
+    window.addEventListener("storage", syncProfile);
+    return () => {
+      window.removeEventListener(PROFILE_EVENT_NAME as any, syncProfile);
+      window.removeEventListener("storage", syncProfile);
+    };
+  }, [isOpen]);
 
   // Media & UI States
   const [images, setImages] = useState<string[]>([]);
@@ -221,8 +251,13 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
       setErrorMsg("దయచేసి ప్రాపర్టీ ప్రాంతం / లొకేషన్ ఎంచుకోండి (Please select property locality)");
       return;
     }
-    if (!contactPhone.trim()) {
-      setErrorMsg("దయచేసి సంప్రదించాల్సిన ఫోన్ నెంబర్ నమోదు చేయండి (Please enter contact phone)");
+    if (!agentName.trim()) {
+      setErrorMsg("దయచేసి ఏజెంట్ లేదా యజమాని పేరు నమోదు చేయండి (* Name is mandatory)");
+      return;
+    }
+    const cleanPhone = contactPhone.replace(/\D/g, "").slice(-10);
+    if (cleanPhone.length !== 10 || !/^[6-9]/.test(cleanPhone)) {
+      setErrorMsg("దయచేసి సరైన 10-అంకెల భారతీయ మొబైల్ నంబర్ ఇవ్వండి (10-digit Phone Required)");
       return;
     }
     if (!declarationIndependent || !declarationResponsibility || !declarationTerms) {
@@ -232,6 +267,21 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
 
     setSubmitting(true);
     setErrorMsg("");
+
+    // Persist session so future ads do not require login/OTP
+    const profileToSave: UserProfile = {
+      id: userProfile?.id || `usr_${cleanPhone}`,
+      name: agentName.trim(),
+      phone: cleanPhone,
+      is_verified: true,
+      avatar_url: userProfile?.avatar_url,
+      headline: userProfile?.headline || "🏡 ప్రాపర్టీ ఓనర్ / రియల్ ఎస్టేట్ ఏజెంట్",
+      bio: userProfile?.bio,
+      created_at: userProfile?.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    saveStoredUserProfile(profileToSave);
+    setUserProfile(profileToSave);
 
     try {
       const propertyAd = {
@@ -302,6 +352,33 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
 
         {/* Scrollable Form Body */}
         <div className="p-6 overflow-y-auto space-y-6">
+
+          {/* 🌟 Logged-in Profile Badge (OLX Multi-Ad Posting Active) */}
+          {userProfile && userProfile.is_verified && (
+            <div className="p-3 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900 text-blue-950 dark:text-blue-200 flex items-center justify-between gap-2 shadow-xs">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="size-8 rounded-full overflow-hidden border border-blue-500 bg-blue-600 text-white flex items-center justify-center font-black text-xs shrink-0">
+                  {userProfile.avatar_url ? (
+                    <img src={userProfile.avatar_url} alt={userProfile.name} className="size-full object-cover" />
+                  ) : (
+                    <span>{userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}</span>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1 font-black text-xs">
+                    <span className="truncate">లాగిన్ అయ్యారు: {userProfile.name}</span>
+                    <ShieldCheck className="size-3.5 text-blue-600 shrink-0" />
+                  </div>
+                  <p className="text-[10px] text-blue-700 dark:text-blue-300 font-semibold truncate">
+                    +91 {userProfile.phone} • OLX తరహాలో ఎన్ని ప్రకటనలైనా OTP లేకుండా పోస్ట్ చేయవచ్చు
+                  </p>
+                </div>
+              </div>
+              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-blue-200 dark:bg-blue-900 text-blue-900 dark:text-blue-100 shrink-0">
+                OTP ఫ్రీ
+              </span>
+            </div>
+          )}
           
           {/* WhatsApp Direct Posting Strip */}
           <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-left space-y-2">
@@ -738,7 +815,13 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
               className="w-full h-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Home className="size-4" />
-              <span>List Property / ప్రాపర్టీ ప్రకటన పోస్ట్ చేయండి</span>
+              <span>
+                {submitting
+                  ? "పోస్ట్ చేస్తోంది..."
+                  : userProfile && userProfile.is_verified
+                  ? "🚀 ప్రాపర్టీని నేరుగా ప్రచురించండి (Publish Property - No OTP)"
+                  : "List Property / ప్రాపర్టీ ప్రకటన పోస్ట్ చేయండి"}
+              </span>
             </button>
           </form>
         </div>
