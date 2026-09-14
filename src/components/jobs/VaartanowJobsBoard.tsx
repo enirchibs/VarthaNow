@@ -15,7 +15,8 @@ import {
   PlusCircle,
   ExternalLink,
   X,
-  Sparkles
+  Sparkles,
+  CheckCircle2
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { 
@@ -72,12 +73,36 @@ export function VaartanowJobsBoard({
     }
   });
 
+  const [showNewJobAlert, setShowNewJobAlert] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get("post") === "true") {
       setIsPostModalOpen(true);
     }
+    if (params.get("newJob") === "true") {
+      setShowNewJobAlert(true);
+      setActiveTab("all");
+      setIsTabAutoTouring(false);
+      setVisibleCount(50);
+      setRefreshTrigger((prev) => prev + 1);
+      window.history.replaceState({}, "", "/jobs");
+    }
   }, [location.search]);
+
+  // Reactive listener for newly posted jobs across tabs / modals
+  useEffect(() => {
+    const handleJobsUpdated = () => {
+      setRefreshTrigger((prev) => prev + 1);
+    };
+    window.addEventListener("vaartanow_jobs_updated", handleJobsUpdated);
+    window.addEventListener("storage", handleJobsUpdated);
+    return () => {
+      window.removeEventListener("vaartanow_jobs_updated", handleJobsUpdated);
+      window.removeEventListener("storage", handleJobsUpdated);
+    };
+  }, []);
   
   // AI Resume tools states
   const [resumeText, setResumeText] = useState("");
@@ -184,7 +209,7 @@ export function VaartanowJobsBoard({
     return () => {
       isMounted = false;
     };
-  }, [searchQuery, activeTab, selectedDistrict, initialWorkModeFilter, initialContractFilter]);
+  }, [searchQuery, activeTab, selectedDistrict, initialWorkModeFilter, initialContractFilter, refreshTrigger]);
 
   // Handle Bookmarks
   const toggleSaveJob = (id: string) => {
@@ -398,6 +423,23 @@ export function VaartanowJobsBoard({
           </div>
         </div>
       </section>
+
+      {/* Success Alert Banner for Newly Posted Job */}
+      {showNewJobAlert && (
+        <div className="rounded-2xl bg-emerald-500/15 border border-emerald-500/40 p-4 text-center font-black text-xs sm:text-sm text-emerald-800 dark:text-emerald-200 flex items-center justify-between gap-2 shadow-md animate-in slide-in-from-top-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <CheckCircle2 className="size-5 text-emerald-600 shrink-0" />
+            <span className="truncate">🎉 మీ ఉద్యోగ ప్రకటన విజయవంతంగా ప్రచురించబడింది! జాబితాలో మొదటిగా జోడించబడింది.</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowNewJobAlert(false)}
+            className="text-emerald-700 hover:text-emerald-900 dark:text-emerald-300 size-6 flex items-center justify-center rounded-full hover:bg-emerald-500/20 shrink-0 cursor-pointer"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
+      )}
 
       {/* 🗂️ Category Tabs with 3s Auto Tour */}
       <div 
@@ -903,10 +945,18 @@ export function VaartanowJobsBoard({
       {/* Job Post Modal */}
       <JobPostModal
         isOpen={isPostModalOpen}
-        onClose={() => setIsPostModalOpen(false)}
+        onClose={() => {
+          setIsPostModalOpen(false);
+          window.history.replaceState({}, "", "/jobs");
+        }}
         onJobPosted={() => {
-          // Refresh list on new job post
-          window.location.reload();
+          setIsPostModalOpen(false);
+          window.history.replaceState({}, "", "/jobs");
+          setActiveTab("all");
+          setIsTabAutoTouring(false);
+          setVisibleCount(50);
+          setShowNewJobAlert(true);
+          setRefreshTrigger((prev) => prev + 1);
         }}
       />
     </div>

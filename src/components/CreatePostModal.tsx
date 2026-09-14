@@ -22,7 +22,9 @@ import {
 import { useLanguage } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
 import { PropertyPostModal } from "./PropertyPostModal";
+import { JobPostModal } from "./jobs/JobPostModal";
 import { LocationAreaSelector } from "./LocationAreaSelector";
+import { addLocalJob } from "@/lib/jobs-api";
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -127,15 +129,16 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [contactNumber, setContactNumber] = useState<string>("");
+  const [isJobModalOpen, setIsJobModalOpen] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  if (!isOpen && !isPropertyModalOpen) return null;
+  if (!isOpen && !isPropertyModalOpen && !isJobModalOpen) return null;
 
   const handleSelectCategory = (catId: PostCategoryType) => {
     if (catId === "job") {
       onClose();
-      navigate("/jobs?post=true");
+      setIsJobModalOpen(true);
       return;
     }
     if (catId === "buy_sell_items") {
@@ -166,6 +169,48 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
     }
 
     setSubmitting(true);
+
+    // If job was selected via form, save to Jobs Hub
+    if (selectedCategory === "job") {
+      const cleanPhone = contactNumber.replace(/\D/g, "");
+      addLocalJob({
+        title: title.trim() || "ఉద్యోగావకాశం",
+        company_name: "స్థానిక సంస్థ / యజమాని",
+        location: `${selectedArea}, AP & TS`,
+        district: selectedArea,
+        state: "Andhra Pradesh",
+        description_snippet: description.trim().slice(0, 140) || "ఉద్యోగానికి సంబంధించిన పూర్తి వివరాల కోసం సంప్రదించండి.",
+        full_description: description.trim() || `## ఉద్యోగ వివరాలు (Job Details):\n- శీర్షిక: ${title}\n- ప్రాంతం: ${selectedArea}\n- సంప్రదించే సంఖ్య: ${contactNumber}`,
+        apply_link: cleanPhone ? `https://wa.me/91${cleanPhone}` : "https://localhost:3080/jobs",
+        source_platform: "VaartaNow Jobs Board",
+        salary_range: price ? (price.includes("₹") ? price : `₹${price}`) : "సంప్రదించండి (Negotiable)",
+        skills: ["స్థానిక ఉద్యోగం"],
+        tags: ["Local Job", selectedArea],
+        experience_level: "Fresher",
+        work_mode: "On-site",
+        contract_type: "Full-time",
+        is_featured: true,
+        is_approved: true,
+        is_active: true,
+        employer_name: "నియామకదారు",
+        contact_phone: cleanPhone
+      });
+
+      setSuccessMessage("మీ ఉద్యోగ ప్రకటన విజయవంతంగా ప్రచురించబడింది! ఉద్యోగాల హబ్‌కు వెళ్తున్నాము...");
+      setTimeout(() => {
+        setSuccessMessage(null);
+        setSelectedCategory(null);
+        setTitle("");
+        setDescription("");
+        setPrice("");
+        setContactNumber("");
+        onClose();
+        navigate("/jobs?newJob=true");
+      }, 1500);
+      setSubmitting(false);
+      return;
+    }
+
     const newPost = {
       id: `post_${Date.now()}`,
       category: selectedCategory,
@@ -672,6 +717,16 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
       <PropertyPostModal
         isOpen={isPropertyModalOpen}
         onClose={() => setIsPropertyModalOpen(false)}
+      />
+
+      {/* 💼 Job Post Modal */}
+      <JobPostModal
+        isOpen={isJobModalOpen}
+        onClose={() => setIsJobModalOpen(false)}
+        onJobPosted={() => {
+          setIsJobModalOpen(false);
+          navigate("/jobs?newJob=true");
+        }}
       />
     </div>
   );

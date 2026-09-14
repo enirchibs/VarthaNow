@@ -535,19 +535,47 @@ export function autoDetectContractType(title: string, desc: string): ContractTyp
 // DATABASE QUERIES & API INTERFACES
 // ====================================================
 export const LOCAL_STORAGE_KEY = "vaartanow_jobs_db";
+export const USER_POSTED_JOBS_KEY = "vaartanow_user_posted_jobs";
+export const JOBS_UPDATED_EVENT = "vaartanow_jobs_updated";
+
+export function getUserPostedJobs(): VaartanowJob[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(USER_POSTED_JOBS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveUserPostedJob(job: VaartanowJob) {
+  if (typeof window === "undefined") return;
+  try {
+    const existing = getUserPostedJobs();
+    const updated = [job, ...existing.filter(j => j.job_id !== job.job_id)];
+    localStorage.setItem(USER_POSTED_JOBS_KEY, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent(JOBS_UPDATED_EVENT, { detail: job }));
+  } catch (e) {
+    console.warn("Failed to save user job:", e);
+  }
+}
 
 export function getLocalJobs(): VaartanowJob[] {
   if (typeof window === "undefined") return mockJobs;
+  const userJobs = getUserPostedJobs();
+  const userJobIds = new Set(userJobs.map(j => j.job_id));
+
   const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-  if (!stored) {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(mockJobs));
-    return mockJobs;
+  let baseJobs = mockJobs;
+  if (stored) {
+    try {
+      baseJobs = JSON.parse(stored);
+    } catch (e) {
+      baseJobs = mockJobs;
+    }
   }
-  try {
-    return JSON.parse(stored);
-  } catch (e) {
-    return mockJobs;
-  }
+  // User jobs always stay at top
+  return [...userJobs, ...baseJobs.filter(j => !userJobIds.has(j.job_id))];
 }
 
 export function saveLocalJobs(jobs: VaartanowJob[]) {
@@ -557,13 +585,17 @@ export function saveLocalJobs(jobs: VaartanowJob[]) {
 }
 
 export async function getJobsList(filters?: JobFilters): Promise<VaartanowJob[]> {
+  const userJobs = getUserPostedJobs();
+  const userJobIds = new Set(userJobs.map(j => j.job_id));
+
+  let fetchedJobs: VaartanowJob[] = [];
+
   // If Supabase client exists, fetch dynamically from Remote PostgreSQL table
   if (supabase) {
     try {
       let query = supabase.from("vaartanow_jobs").select("*").eq("is_active", true).eq("is_approved", true);
 
       if (filters?.query) {
-        // GIN full text search helper or standard ilike fallback
         query = query.or(`title.ilike.%${filters.query}%,company_name.ilike.%${filters.query}%,description_snippet.ilike.%${filters.query}%`);
       }
       if (filters?.workMode && filters.workMode !== "all") {
@@ -587,18 +619,33 @@ export async function getJobsList(filters?: JobFilters): Promise<VaartanowJob[]>
         .order("posted_date", { ascending: false })
         .limit(1000);
 
-      if (error) throw error;
-      if (data && data.length > 0) {
-        saveLocalJobs(data as VaartanowJob[]);
-        return data as VaartanowJob[];
+      if (!error && data && data.length > 0) {
+        fetchedJobs = data as VaartanowJob[];
       }
     } catch (err) {
       console.warn("Failed to query Supabase, falling back to mock jobs catalog:", err);
     }
   }
 
+  if (fetchedJobs.length === 0) {
+    const rawStored = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (rawStored) {
+      try {
+        fetchedJobs = JSON.parse(rawStored);
+      } catch {
+        fetchedJobs = mockJobs;
+      }
+    } else {
+      fetchedJobs = mockJobs;
+    }
+  }
+
+  // Combined: User posted jobs ALWAYS placed at the very top!
+  const combined = [...userJobs, ...fetchedJobs.filter(j => !userJobIds.has(j.job_id))];
+  saveLocalJobs(combined);
+
   // Client-side fallback filtered feed (only active and approved)
-  let result = getLocalJobs().filter(j => j.is_active && j.is_approved);
+  let result = combined.filter(j => j.is_active && j.is_approved);
   if (filters?.query) {
     const q = filters.query.toLowerCase();
     result = result.filter(
@@ -813,25 +860,44 @@ export function addLocalJob(jobData: Omit<VaartanowJob, "job_id" | "posted_date"
     job_id: `job-user-${Date.now()}`,
     posted_date: new Date().toISOString(),
     is_approved: true,
-    is_active: true
+    is_active: true,
+    is_featured: true
   };
-  const jobs = getLocalJobs();
-  jobs.unshift(newJob);
-  saveLocalJobs(jobs);
 
-  // Optionally insert into Supabase public.jobs table if connected
+  // 1. Permanently save to dedicated user-posted store
+  saveUserPostedJob(newJob);
+
+  // 2. Also prepend to current local database
+  const jobs = getLocalJobs();
+  const deduped = [newJob, ...jobs.filter(j => j.job_id !== newJob.job_id)];
+  saveLocalJobs(deduped);
+
+  // 3. Insert into Supabase 'vaartanow_jobs' table if connected
   if (supabase) {
     (async () => {
       try {
-        await supabase.from("jobs").insert({
+        await supabase.from("vaartanow_jobs").insert({
+          job_id: newJob.job_id,
           title: newJob.title,
           company_name: newJob.company_name,
           location: newJob.location,
+          district: newJob.district || "",
+          state: newJob.state || "Andhra Pradesh",
           salary_range: newJob.salary_range,
-          description: newJob.full_description,
-          contact: newJob.contact_phone || "",
+          description_snippet: newJob.description_snippet,
+          full_description: newJob.full_description,
+          apply_link: newJob.apply_link,
+          source_platform: newJob.source_platform || "VaartaNow Jobs Board",
+          skills: newJob.skills || [],
+          tags: newJob.tags || [],
+          experience_level: newJob.experience_level,
           work_mode: newJob.work_mode,
-          contract_type: newJob.contract_type
+          contract_type: newJob.contract_type,
+          is_featured: true,
+          is_approved: true,
+          is_active: true,
+          employer_name: newJob.employer_name,
+          contact_phone: newJob.contact_phone || ""
         });
       } catch (err) {
         console.warn("Supabase jobs insert notice:", err);
