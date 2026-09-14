@@ -597,7 +597,14 @@ export function Layout() {
           <Link to="/about" className="hover:text-[hsl(var(--primary))] transition">About Us</Link>
           <Link to="/contact" className="hover:text-[hsl(var(--primary))] transition">Contact Us</Link>
           <Link to="/privacy" className="hover:text-[hsl(var(--primary))] transition">Privacy Policy</Link>
-          <Link to="/terms" className="hover:text-[hsl(var(--primary))] transition">Terms & Conditions</Link>
+          <Link to="/terms" className="hover:text-[hsl(var(--primary))] transition">Terms of Service</Link>
+          <Link to="/customer-terms" className="hover:text-[hsl(var(--primary))] transition">Customer Terms</Link>
+          <Link to="/provider-terms" className="hover:text-[hsl(var(--primary))] transition">Provider Terms</Link>
+          <Link to="/provider-code-of-conduct" className="hover:text-[hsl(var(--primary))] transition">Code of Conduct</Link>
+          <Link to="/safety" className="hover:text-amber-500 font-black transition">🛡️ Safety Tips</Link>
+          <Link to="/report-abuse" className="hover:text-red-500 font-black transition">🚨 Report Abuse</Link>
+          <Link to="/grievance" className="hover:text-[hsl(var(--primary))] transition">Grievance Officer</Link>
+          <Link to="/legal-agreements" className="hover:text-teal-500 font-black transition">📜 My Agreements</Link>
           <Link to="/disclaimer" className="hover:text-[hsl(var(--primary))] transition">Disclaimer</Link>
           <a href="/sitemap.xml" className="hover:text-[hsl(var(--primary))] transition" target="_blank" rel="noreferrer">Sitemap</a>
         </div>

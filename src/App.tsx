@@ -25,7 +25,20 @@ import {
   JobsRemoteITPage,
   JobsAdminPage
 } from "@/pages/jobs/JobsPages";
-import { AboutPage, ContactPage, PrivacyPage, TermsPage, DisclaimerPage } from "@/pages/LegalPages";
+import { 
+  AboutPage, 
+  ContactPage, 
+  PrivacyPage, 
+  TermsPage, 
+  DisclaimerPage,
+  CustomerTermsPage,
+  ProviderTermsPage,
+  ProviderCodeOfConductPage,
+  SafetyTipsPage,
+  GrievancePage
+} from "@/pages/LegalPages";
+import { LegalAgreementsPage } from "@/pages/LegalAgreementsPage";
+import { ReportAbusePage } from "@/components/ReportAbuseModal";
 import { HealthPortal } from "@/pages/health/HealthPortal";
 
 import { MaatlaaduAIPage } from "@/pages/tutor/MaatlaaduAIPage";
@@ -73,7 +86,15 @@ const router = createBrowserRouter([
       { path: "/contact", element: <ContactPage /> },
       { path: "/privacy", element: <PrivacyPage /> },
       { path: "/terms", element: <TermsPage /> },
-      { path: "/disclaimer", element: <DisclaimerPage /> }
+      { path: "/disclaimer", element: <DisclaimerPage /> },
+      { path: "/customer-terms", element: <CustomerTermsPage /> },
+      { path: "/provider-terms", element: <ProviderTermsPage /> },
+      { path: "/seller-terms", element: <ProviderTermsPage /> },
+      { path: "/provider-code-of-conduct", element: <ProviderCodeOfConductPage /> },
+      { path: "/safety", element: <SafetyTipsPage /> },
+      { path: "/report-abuse", element: <ReportAbusePage /> },
+      { path: "/grievance", element: <GrievancePage /> },
+      { path: "/legal-agreements", element: <LegalAgreementsPage /> }
     ]
   }
 ]);
