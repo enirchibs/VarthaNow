@@ -404,23 +404,20 @@ export function VaartanowJobsBoard({
               {/* 4. APPRENTICESHIP JOBS */}
               <option value="Apprenticeship" className="bg-slate-900 text-white">🛠️ అప్రెంటిస్‌షిప్ ఉద్యోగాలు (Apprenticeship Jobs)</option>
               
-              {/* 5. ANDHRA PRADESH CITIES (FIRST) */}
-              <option value="Visakhapatnam" className="bg-slate-900 text-white">🌊 విశాఖపట్నం (Vizag) — North Coastal AP</option>
-              <option value="Vijayawada" className="bg-slate-900 text-white">🏙️ విజయవాడ (Vijayawada) — Central AP</option>
-              <option value="Tirupati" className="bg-slate-900 text-white">🕉️ తిరుపతి (Tirupati) — South AP</option>
-              <option value="Rajahmundry" className="bg-slate-900 text-white">🌊 రాజమండ్రి (Rajamahendravaram) — East/Central Godavari</option>
-              <option value="Nellore" className="bg-slate-900 text-white">🦐 నెల్లూరు (Nellore) — South Coastal AP</option>
-              <option value="Guntur" className="bg-slate-900 text-white">🌶️ గుంటూరు (Guntur)</option>
-              <option value="Kurnool" className="bg-slate-900 text-white">⛰️ కర్నూలు (Kurnool) — Rayalaseema</option>
-              <option value="Amaravati" className="bg-slate-900 text-white">🏛️ అమరావతి (Amaravati)</option>
-
-              {/* TELANGANA CITIES (SECOND) */}
+              {/* 5. MAJOR AP & TG CITIES (Prioritized Order) */}
               <option value="Hyderabad" className="bg-slate-900 text-white">🏢 హైదరాబాద్ (Hyderabad)</option>
+              <option value="Visakhapatnam" className="bg-slate-900 text-white">🌊 విశాఖపట్నం (Vizag)</option>
+              <option value="Vijayawada" className="bg-slate-900 text-white">🏙️ విజయవాడ (Vijayawada)</option>
+              <option value="Tirupati" className="bg-slate-900 text-white">🕉️ తిరుపతి (Tirupati)</option>
               <option value="Warangal" className="bg-slate-900 text-white">🏰 వరంగల్ (Warangal)</option>
-              <option value="Nizamabad" className="bg-slate-900 text-white">🏭 నిజామాబాద్ (Nizamabad)</option>
-              <option value="Karimnagar" className="bg-slate-900 text-white">🌾 కరీంనగర్ (Karimnagar)</option>
               <option value="Khammam" className="bg-slate-900 text-white">🌳 ఖమ్మం (Khammam)</option>
-              <option value="Mahbubnagar" className="bg-slate-900 text-white">🏞️ మహబూబ్‌నగర్ (Mahbubnagar)</option>
+              <option value="Rajahmundry" className="bg-slate-900 text-white">🌊 రాజమండ్రి (Rajahmundry)</option>
+              <option value="Guntur" className="bg-slate-900 text-white">🌶️ గుంటూరు (Guntur)</option>
+              <option value="Nellore" className="bg-slate-900 text-white">🦐 నెల్లూరు (Nellore)</option>
+              <option value="Kurnool" className="bg-slate-900 text-white">⛰️ కర్నూలు (Kurnool)</option>
+              <option value="Karimnagar" className="bg-slate-900 text-white">🌾 కరీంనగర్ (Karimnagar)</option>
+              <option value="Nizamabad" className="bg-slate-900 text-white">🏭 నిజామాబాద్ (Nizamabad)</option>
+              <option value="Amaravati" className="bg-slate-900 text-white">🏛️ అమరావతి (Amaravati)</option>
             </select>
           </div>
 
