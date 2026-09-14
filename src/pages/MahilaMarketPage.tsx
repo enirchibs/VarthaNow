@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { 
   ShoppingBag, 
   MapPin, 
@@ -17,7 +17,8 @@ import {
   Tag,
   Camera,
   Image as ImageIcon,
-  Gift
+  Gift,
+  FileCheck
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 import { LocationAreaSelector } from "@/components/LocationAreaSelector";
@@ -211,6 +212,11 @@ export function MahilaMarketPage() {
   const [freeBonusItems, setFreeBonusItems] = useState<string>("");
   const [isFree, setIsFree] = useState<boolean>(false);
 
+  // Mandatory Disclaimers & Terms (Default checked = true)
+  const [declarationIndependent, setDeclarationIndependent] = useState<boolean>(true);
+  const [declarationResponsibility, setDeclarationResponsibility] = useState<boolean>(true);
+  const [declarationTerms, setDeclarationTerms] = useState<boolean>(true);
+
   const [otp, setOtp] = useState<string>("");
   const [demoOtpHint, setDemoOtpHint] = useState<string>("");
   const [loadingSMS, setLoadingSMS] = useState<boolean>(false);
@@ -253,6 +259,11 @@ export function MahilaMarketPage() {
     const cleanPhone = phone.replace(/\D/g, "");
     if (cleanPhone.length < 10) {
       setErrorMsg("దయచేసి 10-అంకెల వాట్సాప్ మొబైల్ నంబర్ ఇవ్వండి");
+      return;
+    }
+
+    if (!declarationIndependent || !declarationResponsibility || !declarationTerms) {
+      setErrorMsg("దయచేసి ఫారమ్ చివర ఉన్న చట్టపరమైన డిక్లరేషన్లను అంగీకరించండి (Check declaration boxes to proceed)");
       return;
     }
 
@@ -725,29 +736,90 @@ export function MahilaMarketPage() {
                       className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 disabled:opacity-50 transition"
                     />
                   </div>
+                </div>
 
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-slate-800">
-                      సంప్రదించే సంఖ్య (Contact Number - WhatsApp) <span className="text-red-500">*</span>
-                    </label>
+                {/* AT THE END OF FORM, BEFORE UPDATING MOBILE NUMBER: TERMS & CONDITIONS (DEFAULT CHECKED) */}
+                <div className="space-y-2.5 p-3.5 rounded-2xl border border-rose-200 bg-rose-50/50">
+                  <div className="flex items-center gap-1.5 font-black text-rose-950 text-xs">
+                    <FileCheck className="size-4 text-rose-600" />
+                    <span>చట్టపరమైన డిక్లరేషన్లు & నిబంధనల అంగీకారం (Legal Terms & Disclaimer)</span>
+                  </div>
+
+                  {/* Declaration 1: Independent Women Entrepreneur / Seller */}
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={declarationIndependent}
+                      onChange={(e) => setDeclarationIndependent(e.target.checked)}
+                      className="mt-0.5 size-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500 cursor-pointer shrink-0"
+                    />
+                    <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
+                      <span className="text-rose-950 font-black">1. స్వతంత్ర మహిళా విక్రేత డిక్లరేషన్:</span> నేను స్వతంత్ర మహిళా విక్రేతనని/ఉద్యమశీలిని, VaartaNow ఉద్యోగిని లేదా ఏజెంట్‌ను కాదని ధృవీకరిస్తున్నాను. (Independent Women Entrepreneur / Seller)
+                    </div>
+                  </label>
+
+                  {/* Declaration 2: Product Quality & Safety */}
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={declarationResponsibility}
+                      onChange={(e) => setDeclarationResponsibility(e.target.checked)}
+                      className="mt-0.5 size-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500 cursor-pointer shrink-0"
+                    />
+                    <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
+                      <span className="text-rose-950 font-black">2. నాణ్యత & బాధ్యత:</span> నేను విక్రయించే ఉత్పత్తుల/సేవల నాణ్యత, స్వచ్ఛత, ధర మరియు కస్టమర్ భద్రతకు నేనే స్వయంగా బాధ్యురాలిని. (Sole responsibility for product quality & safety)
+                    </div>
+                  </label>
+
+                  {/* Declaration 3: Terms Acceptance */}
+                  <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={declarationTerms}
+                      onChange={(e) => setDeclarationTerms(e.target.checked)}
+                      className="mt-0.5 size-4 rounded border-slate-300 text-rose-600 focus:ring-rose-500 cursor-pointer shrink-0"
+                    />
+                    <div className="text-[11px] leading-relaxed text-slate-800 font-bold">
+                      <span className="text-rose-950 font-black">3. నిబంధనలు:</span> నేను VaartaNow{" "}
+                      <Link to="/seller-terms" target="_blank" className="text-rose-700 underline font-black">
+                        విక్రేత నిబంధనలు (Seller Terms)
+                      </Link>
+                      {" "}మరియు{" "}
+                      <Link to="/provider-code-of-conduct" target="_blank" className="text-rose-700 underline font-black">
+                        ప్రవర్తనా నియమావళి (Code of Conduct)
+                      </Link>
+                      {" "}ని చదివి, పూర్తిగా అంగీకరిస్తున్నాను.
+                    </div>
+                  </label>
+                </div>
+
+                {/* UPDATING MOBILE NUMBER (RIGHT AFTER TERMS) */}
+                <div className="space-y-1">
+                  <label className="font-extrabold text-slate-800 flex items-center justify-between">
+                    <span>సంప్రదించే మొబైల్ నంబర్ (WhatsApp / Phone) <span className="text-red-500">*</span></span>
+                    <span className="text-[10px] text-slate-500 font-bold">భారతదేశం (+91)</span>
+                  </label>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3.5 text-xs font-black text-slate-500 select-none">+91</span>
                     <input
                       type="tel"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
                       placeholder="9876543210"
                       maxLength={10}
                       required
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
+                      className="w-full pl-12 rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
                     />
                   </div>
+                  <p className="text-[10px] text-slate-500 font-semibold">ఈ నంబర్‌కు 6-అంకెల Live SMS OTP పంపబడుతుంది.</p>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={loadingSMS}
-                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 hover:from-rose-700 hover:via-pink-700 hover:to-purple-700 text-white font-black text-sm shadow-xl shadow-rose-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98]"
+                  disabled={loadingSMS || !declarationIndependent || !declarationResponsibility || !declarationTerms}
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 hover:from-rose-700 hover:via-pink-700 hover:to-purple-700 text-white font-black text-sm shadow-xl shadow-rose-500/25 transition flex items-center justify-center gap-2 cursor-pointer min-h-[48px] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loadingSMS ? "SMS OTP పంపుతున్నాము..." : "కొనసాగించు ➔ Live SMS OTP పొందండి"}
+                  {loadingSMS ? "SMS OTP పంపుతున్నాము..." : "Live SMS OTP పొందండి ➔ (Send OTP)"}
                 </button>
 
               </form>

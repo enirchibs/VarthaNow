@@ -1327,45 +1327,22 @@ export function ServicesRentalPage() {
                   )}
                 </div>
 
-                {/* 7. Contact Mobile & Optional Email */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-slate-800 flex items-center justify-between">
-                      <span>మొబైల్ నంబర్ (WhatsApp / Phone) <span className="text-red-500">*</span></span>
-                      <span className="text-[10px] text-slate-500 font-bold">+91</span>
-                    </label>
-                    <div className="relative flex items-center">
-                      <span className="absolute left-3 text-xs font-black text-slate-500 select-none">
-                        +91
-                      </span>
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                        placeholder="9876543210"
-                        maxLength={10}
-                        required
-                        className="w-full pl-10 rounded-xl border border-slate-300 bg-slate-50 p-2 text-xs font-black text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-slate-800 flex items-center justify-between">
-                      <span>ఇమెయిల్ (Email - Optional)</span>
-                      <span className="text-emerald-700 text-[10px] font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">ఐచ్ఛికం</span>
-                    </label>
-                    <input
-                      type="email"
-                      value={userEmail}
-                      onChange={(e) => setUserEmail(e.target.value)}
-                      placeholder="yourname@gmail.com"
-                      className="w-full rounded-xl border border-slate-300 bg-slate-50 p-2 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
-                    />
-                  </div>
+                {/* 7. Optional Email */}
+                <div className="space-y-1">
+                  <label className="font-extrabold text-slate-800 flex items-center justify-between">
+                    <span>ఇమెయిల్ చిరునామా (Email - Optional)</span>
+                    <span className="text-emerald-700 text-[10px] font-bold bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">ఐచ్ఛికం</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={userEmail}
+                    onChange={(e) => setUserEmail(e.target.value)}
+                    placeholder="yourname@gmail.com"
+                    className="w-full rounded-xl border border-slate-300 bg-slate-50 p-2.5 text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                  />
                 </div>
 
-                {/* 8. AT LAST OF THE FORM: DISCLAIMER & TERMS AND CONDITIONS ACCEPTANCE (DEFAULT CHECKED) */}
+                {/* 8. AT THE END OF FORM, BEFORE UPDATING MOBILE NUMBER: DISCLAIMER & TERMS AND CONDITIONS ACCEPTANCE (DEFAULT CHECKED) */}
                 <div className="space-y-2.5 p-3.5 rounded-2xl border border-indigo-200 bg-indigo-50/50">
                   <div className="flex items-center gap-1.5 font-black text-indigo-950 text-xs">
                     <FileCheck className="size-4 text-indigo-600" />
@@ -1418,6 +1395,29 @@ export function ServicesRentalPage() {
                       {" "}ని చదివి, పూర్తిగా అంగీకరిస్తున్నాను.
                     </div>
                   </label>
+                </div>
+
+                {/* 9. MOBILE NUMBER INPUT (UPDATING MOBILE NUMBER) */}
+                <div className="space-y-1">
+                  <label className="font-extrabold text-slate-800 flex items-center justify-between">
+                    <span>మొబైల్ నంబర్ (WhatsApp / Phone Number) <span className="text-red-500">*</span></span>
+                    <span className="text-[10px] text-slate-500 font-bold">భారతదేశం (+91)</span>
+                  </label>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-3 text-xs font-black text-slate-500 select-none">
+                      +91
+                    </span>
+                    <input
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      placeholder="9876543210"
+                      maxLength={10}
+                      required
+                      className="w-full pl-11 rounded-xl border border-slate-300 bg-slate-50 p-3 text-xs font-black text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition"
+                    />
+                  </div>
+                  <p className="text-[10px] text-slate-500 font-semibold">ఈ నంబర్‌కు Live SMS OTP పంపబడుతుంది. కస్టమర్లు మిమ్మల్ని సంప్రదించడానికి కూడా ఇదే నంబర్ ఉపయోగపడుతుంది.</p>
                 </div>
 
                 {/* SUBMIT BUTTON ➔ SEND OTP */}

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { 
   X, 
   Home, 
@@ -9,10 +10,11 @@ import {
   Upload, 
   Camera, 
   Sparkles, 
-  MessageCircle,
-  ShieldCheck,
-  CheckCircle2,
-  RefreshCw
+  MessageCircle, 
+  ShieldCheck, 
+  CheckCircle2, 
+  RefreshCw,
+  FileCheck
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { LocationAreaSelector } from "./LocationAreaSelector";
@@ -99,6 +101,11 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
   const [agentName, setAgentName] = useState("");
   const [contactPhone, setContactPhone] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState("");
+
+  // Mandatory Legal Terms & Disclaimers (Default checked = true)
+  const [declarationIndependent, setDeclarationIndependent] = useState<boolean>(true);
+  const [declarationResponsibility, setDeclarationResponsibility] = useState<boolean>(true);
+  const [declarationTerms, setDeclarationTerms] = useState<boolean>(true);
 
   // Media & UI States
   const [images, setImages] = useState<string[]>([]);
@@ -216,6 +223,10 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
     }
     if (!contactPhone.trim()) {
       setErrorMsg("దయచేసి సంప్రదించాల్సిన ఫోన్ నెంబర్ నమోదు చేయండి (Please enter contact phone)");
+      return;
+    }
+    if (!declarationIndependent || !declarationResponsibility || !declarationTerms) {
+      setErrorMsg("దయచేసి ఫారమ్ చివర ఉన్న చట్టపరమైన డిక్లరేషన్లను అంగీకరించండి (Please check declaration boxes to proceed)");
       return;
     }
 
@@ -567,33 +578,17 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
             </div>
 
             {/* Agent / Owner Info */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
-                  Agent / Owner Name *
-                </label>
-                <input
-                  type="text"
-                  value={agentName}
-                  onChange={(e) => setAgentName(e.target.value)}
-                  placeholder="e.g., Sekhar V"
-                  className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
-                  Contact Phone Number *
-                </label>
-                <input
-                  type="tel"
-                  value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  placeholder="+91 9876543210"
-                  className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
-                  required
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5">
+                Agent / Owner Name (ఏజెంట్ / యజమాని పేరు) *
+              </label>
+              <input
+                type="text"
+                value={agentName}
+                onChange={(e) => setAgentName(e.target.value)}
+                placeholder="e.g., Sekhar V"
+                className="w-full h-11 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-bold outline-none focus:border-blue-600"
+              />
             </div>
 
             {/* Property Images Upload & Camera Capture */}
@@ -660,11 +655,87 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
               )}
             </div>
 
+            {/* AT THE END OF FORM, BEFORE UPDATING MOBILE NUMBER: LEGAL TERMS & DISCLAIMER (DEFAULT CHECKED) */}
+            <div className="space-y-2.5 p-3.5 rounded-2xl border border-blue-200 dark:border-blue-900 bg-blue-50/60 dark:bg-blue-950/20">
+              <div className="flex items-center gap-1.5 font-black text-blue-950 dark:text-blue-300 text-xs">
+                <FileCheck className="size-4 text-blue-600" />
+                <span>చట్టపరమైన డిక్లరేషన్లు & నిబంధనల అంగీకారం (Legal Terms & Disclaimer)</span>
+              </div>
+
+              {/* Declaration 1: Independent Property Owner / Agent */}
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={declarationIndependent}
+                  onChange={(e) => setDeclarationIndependent(e.target.checked)}
+                  className="mt-0.5 size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                />
+                <div className="text-[11px] leading-relaxed text-slate-800 dark:text-slate-200 font-bold">
+                  <span className="text-blue-950 dark:text-blue-300 font-black">1. స్వతంత్ర ప్రాపర్టీ ఓనర్ / ఏజెంట్ డిక్లరేషన్:</span> నేను ప్రాపర్టీ యజమానిని లేదా అధికృత ఏజెంట్‌నని, ప్రాపర్టీ వివరాలు మరియు యాజమాన్యం వాస్తవమైనవని ధృవీకరిస్తున్నాను. (Independent Owner / Agent declaration)
+                </div>
+              </label>
+
+              {/* Declaration 2: Legal Title & Responsibility */}
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={declarationResponsibility}
+                  onChange={(e) => setDeclarationResponsibility(e.target.checked)}
+                  className="mt-0.5 size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                />
+                <div className="text-[11px] leading-relaxed text-slate-800 dark:text-slate-200 font-bold">
+                  <span className="text-blue-950 dark:text-blue-300 font-black">2. టైటిల్ & చట్టపరమైన బాధ్యత:</span> ఈ ఆస్తి లీగల్ టైటిల్, డాక్యుమెంట్లు, చట్టపరమైన అనుమతులు మరియు ధర వివరాల ఖచ్చితత్వానికి నేనే స్వయంగా బాధ్యుడను. (Sole legal responsibility for title, approvals & pricing)
+                </div>
+              </label>
+
+              {/* Declaration 3: Terms Acceptance */}
+              <label className="flex items-start gap-2.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={declarationTerms}
+                  onChange={(e) => setDeclarationTerms(e.target.checked)}
+                  className="mt-0.5 size-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
+                />
+                <div className="text-[11px] leading-relaxed text-slate-800 dark:text-slate-200 font-bold">
+                  <span className="text-blue-950 dark:text-blue-300 font-black">3. నిబంధనలు:</span> నేను VaartaNow{" "}
+                  <Link to="/provider-terms" target="_blank" className="text-blue-600 underline font-black">
+                    రియల్ ఎస్టేట్ నిబంధనలు (Terms)
+                  </Link>
+                  {" "}మరియు{" "}
+                  <Link to="/provider-code-of-conduct" target="_blank" className="text-blue-600 underline font-black">
+                    ప్రవర్తనా నియమావళి (Code of Conduct)
+                  </Link>
+                  {" "}ని చదివి, పూర్తిగా అంగీకరిస్తున్నాను.
+                </div>
+              </label>
+            </div>
+
+            {/* UPDATING MOBILE NUMBER (AT THE END OF FORM, RIGHT AFTER TERMS) */}
+            <div>
+              <label className="block text-xs font-black uppercase text-[hsl(var(--muted-foreground))] mb-1.5 flex items-center justify-between">
+                <span>Contact Phone / WhatsApp Number (సంప్రదించే మొబైల్ నంబర్) *</span>
+                <span className="text-[10px] text-slate-500 font-bold">భారతదేశం (+91)</span>
+              </label>
+              <div className="relative flex items-center">
+                <span className="absolute left-3.5 text-xs font-black text-slate-500 select-none">+91</span>
+                <input
+                  type="tel"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                  placeholder="9876543210"
+                  maxLength={10}
+                  className="w-full h-11 pl-12 pr-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] text-xs font-black outline-none focus:border-blue-600"
+                  required
+                />
+              </div>
+              <p className="text-[10px] text-slate-500 font-semibold mt-1">కొనుగోలుదారులు మరియు అద్దెదారులు మిమ్మల్ని సంప్రదించడానికి ఈ నంబర్ ఉపయోగపడుతుంది.</p>
+            </div>
+
             {/* Primary Submit Button */}
             <button
               type="submit"
-              disabled={submitting}
-              className="w-full h-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2 active:scale-[0.99]"
+              disabled={submitting || !declarationIndependent || !declarationResponsibility || !declarationTerms}
+              className="w-full h-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               <Home className="size-4" />
               <span>List Property / ప్రాపర్టీ ప్రకటన పోస్ట్ చేయండి</span>
