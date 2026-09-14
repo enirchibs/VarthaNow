@@ -54,6 +54,30 @@ select {
   font: inherit;
 }
 
+select {
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.25rem;
+}
+
+select option,
+select optgroup {
+  font-family: Inter, "Noto Sans Telugu", system-ui, sans-serif;
+  font-size: 0.75rem !important; /* 12px */
+  font-weight: 500;
+  padding: 4px 6px;
+}
+
+@media (max-width: 640px) {
+  select {
+    font-size: 0.75rem !important; /* 12px */
+  }
+  select option,
+  select optgroup {
+    font-size: 0.6875rem !important; /* 11px */
+    padding: 3px 5px;
+  }
+}
+
 .container-shell {
   width: min(1120px, calc(100% - 1.5rem));
   margin-inline: auto;

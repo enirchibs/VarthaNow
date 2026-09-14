@@ -973,7 +973,7 @@ export function ServicesRentalPage() {
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
             <button
               onClick={() => setSelectedGroup("all")}
-              className={`rounded-full px-4 py-2.5 text-xs font-black whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 min-h-[44px] touch-manipulation active:scale-95 ${
+              className={`rounded-full px-3 py-1.5 text-[11px] sm:text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 min-h-[36px] touch-manipulation active:scale-95 ${
                 selectedGroup === "all"
                   ? "bg-teal-600 text-white shadow-md"
                   : "bg-[#111827] border border-[#1f2937] text-gray-300 hover:bg-[#1f2937]"
@@ -988,7 +988,7 @@ export function ServicesRentalPage() {
                 <button
                   key={group.id}
                   onClick={() => setSelectedGroup(group.id)}
-                  className={`rounded-full px-4 py-2.5 text-xs font-black whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 min-h-[44px] touch-manipulation active:scale-95 ${
+                  className={`rounded-full px-3 py-1.5 text-[11px] sm:text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 min-h-[36px] touch-manipulation active:scale-95 ${
                     isSel
                       ? "bg-teal-600 text-white shadow-md"
                       : "bg-[#111827] border border-[#1f2937] text-gray-300 hover:bg-[#1f2937]"
@@ -1254,10 +1254,10 @@ export function ServicesRentalPage() {
                           setServiceType(group.items[0]);
                         }
                       }}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-[11px] sm:text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
                     >
                       {SERVICE_GROUPS.map((grp) => (
-                        <option key={grp.id} value={grp.id}>
+                        <option key={grp.id} value={grp.id} className="text-[11px] sm:text-xs py-1" style={{ fontSize: "11.5px" }}>
                           {grp.title}
                         </option>
                       ))}
@@ -1281,14 +1281,14 @@ export function ServicesRentalPage() {
                   <select
                     value={serviceType}
                     onChange={(e) => setServiceType(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2.5 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-[11px] sm:text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
                   >
                     {(SERVICE_GROUPS.find((g) => g.id === category)?.items || []).map((item) => (
-                      <option key={item} value={item}>
+                      <option key={item} value={item} className="text-[11px] sm:text-xs py-1" style={{ fontSize: "11.5px" }}>
                         {item}
                       </option>
                     ))}
-                    <option value="ఇతర సేవ / పరికరం (Other Custom Service)">🔧 ఇతర సేవ / పరికరం (Other Custom Service)</option>
+                    <option value="ఇతర సేవ / పరికరం (Other Custom Service)" className="text-[11px] sm:text-xs py-1" style={{ fontSize: "11.5px" }}>🔧 ఇతర సేవ / పరికరం (Other Custom Service)</option>
                   </select>
                 </div>
 

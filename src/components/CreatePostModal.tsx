@@ -483,7 +483,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                   <select
                     value={itemType}
                     onChange={(e) => setItemType(e.target.value)}
-                    className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                    className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-2.5 text-[11px] sm:text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
                   >
                     <option value="మొబైల్ (Mobile)">📱 మొబైల్ (Mobile)</option>
                     <option value="బైక్ / వాహనం (Bike / Vehicle)">🚗 బైక్ / కార్ / వాహనం (Bike / Vehicle)</option>
@@ -503,7 +503,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                   <select
                     value={itemType}
                     onChange={(e) => setItemType(e.target.value)}
-                    className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-3 text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer"
+                    className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] p-2.5 text-[11px] sm:text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer"
                   >
                     <optgroup label="👷 సేవా నిపుణులు (Service Professionals)">
                       <option value="🚰 Plumber — ప్లంబర్">🚰 Plumber — ప్లంబర్</option>
