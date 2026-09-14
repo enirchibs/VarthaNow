@@ -30,6 +30,7 @@ import {
 } from "@/lib/jobs-api";
 import type { VaartanowJob, JobFilters, AIResumeAnalysis } from "@/types/jobs";
 import { JobPostModal } from "./JobPostModal";
+import { LocationAreaSelector } from "@/components/LocationAreaSelector";
 
 interface VaartanowJobsBoardProps {
   initialCategoryFilter?: string;
@@ -60,6 +61,7 @@ export function VaartanowJobsBoard({
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>(initialCategoryFilter || "all");
   const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedAreaLocality, setSelectedAreaLocality] = useState("");
   const [visibleCount, setVisibleCount] = useState(3); // show 2 or 3 job posts initially
   const tabsRef = useRef<HTMLDivElement>(null);
   const [activeTabIdx, setActiveTabIdx] = useState<number>(0);
@@ -123,10 +125,10 @@ export function VaartanowJobsBoard({
     async function loadJobs() {
       setLoading(true);
       
-      // Determine district filter parameter
+      // Determine district / locality filter parameter
       const districtFilter = (selectedDistrict === "Remote" || selectedDistrict === "Freelance" || selectedDistrict === "Apprenticeship")
         ? ""
-        : selectedDistrict;
+        : (selectedAreaLocality || selectedDistrict);
 
       const data = await getJobsList({
         query: searchQuery,
@@ -209,7 +211,7 @@ export function VaartanowJobsBoard({
     return () => {
       isMounted = false;
     };
-  }, [searchQuery, activeTab, selectedDistrict, initialWorkModeFilter, initialContractFilter, refreshTrigger]);
+  }, [searchQuery, activeTab, selectedDistrict, selectedAreaLocality, initialWorkModeFilter, initialContractFilter, refreshTrigger]);
 
   // Handle Bookmarks
   const toggleSaveJob = (id: string) => {
@@ -420,6 +422,23 @@ export function VaartanowJobsBoard({
               <option value="Khammam" className="bg-slate-900 text-white">🌳 ఖమ్మం (Khammam)</option>
               <option value="Mahbubnagar" className="bg-slate-900 text-white">🏞️ మహబూబ్‌నగర్ (Mahbubnagar)</option>
             </select>
+          </div>
+
+          {/* Area / Locality Autocomplete & GPS Detection Selector */}
+          <div className="pt-2 max-w-lg mx-auto text-left">
+            <div className="rounded-2xl bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-slate-100 p-3 shadow-xl border border-white/20 backdrop-blur-md">
+              <LocationAreaSelector
+                value={selectedAreaLocality}
+                onChange={(area) => {
+                  setSelectedAreaLocality(area);
+                  if (area) {
+                    setSelectedDistrict(""); // Clear general city select when specific locality/GPS is picked
+                  }
+                }}
+                label="ప్రాంతం / ఏరియా / గ్రామం / పట్టణం (LOCALITY / GPS)"
+                placeholder="ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ..."
+              />
+            </div>
           </div>
         </div>
       </section>

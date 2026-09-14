@@ -666,7 +666,22 @@ export async function getJobsList(filters?: JobFilters): Promise<VaartanowJob[]>
     result = result.filter((j) => j.contract_type === filters.contractType);
   }
   if (filters?.district) {
-    result = result.filter((j) => j.district?.toLowerCase().includes(filters.district!.toLowerCase()));
+    const raw = filters.district.toLowerCase().trim();
+    const tokens = raw.split(/[,\s\(\)\/–—]+/).filter((t) => t.length >= 2);
+    result = result.filter((j) => {
+      const matchFull =
+        j.district?.toLowerCase().includes(raw) ||
+        j.location?.toLowerCase().includes(raw) ||
+        (j.tags || []).some((t) => t.toLowerCase().includes(raw));
+      if (matchFull) return true;
+      return tokens.some(
+        (token) =>
+          j.district?.toLowerCase().includes(token) ||
+          j.location?.toLowerCase().includes(token) ||
+          (j.tags || []).some((t) => t.toLowerCase().includes(token)) ||
+          j.title.toLowerCase().includes(token)
+      );
+    });
   }
   return result;
 }
