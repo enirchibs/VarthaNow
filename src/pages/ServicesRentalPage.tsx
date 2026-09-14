@@ -37,6 +37,7 @@ import {
 import { Link } from "react-router-dom";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 import { LocationAreaSelector } from "@/components/LocationAreaSelector";
+import { MobileSelectPicker } from "@/components/MobileSelectPicker";
 import { CustomerSafetyNotice } from "@/components/CustomerSafetyNotice";
 import { ReportAbuseModal } from "@/components/ReportAbuseModal";
 import { 
@@ -1240,29 +1241,26 @@ export function ServicesRentalPage() {
 
                 {/* 2. Category & Locality */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="font-extrabold text-slate-800">
-                      విభాగం (Category) <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={category}
-                      onChange={(e) => {
-                        const newCat = e.target.value as ServiceCategory;
-                        setCategory(newCat);
-                        const group = SERVICE_GROUPS.find((g) => g.id === newCat);
-                        if (group && group.items.length > 0) {
-                          setServiceType(group.items[0]);
-                        }
-                      }}
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-[11px] sm:text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
-                    >
-                      {SERVICE_GROUPS.map((grp) => (
-                        <option key={grp.id} value={grp.id} className="text-[11px] sm:text-xs py-1" style={{ fontSize: "11.5px" }}>
-                          {grp.title}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <MobileSelectPicker
+                    label="విభాగం (Category)"
+                    required
+                    value={category}
+                    onChange={(newVal) => {
+                      const newCat = newVal as ServiceCategory;
+                      setCategory(newCat);
+                      const group = SERVICE_GROUPS.find((g) => g.id === newCat);
+                      if (group && group.items.length > 0) {
+                        setServiceType(group.items[0]);
+                      }
+                    }}
+                    options={SERVICE_GROUPS.map((grp) => ({
+                      value: grp.id,
+                      label: grp.title
+                    }))}
+                    title="విభాగం ఎంచుకోండి (Select Category)"
+                    searchPlaceholder="విభాగం వెతకండి (Search category)..."
+                    activeColor="teal"
+                  />
 
                   <LocationAreaSelector
                     value={village}
@@ -1273,24 +1271,26 @@ export function ServicesRentalPage() {
                   />
                 </div>
 
-                {/* 3. Specific Service Dropdown */}
-                <div className="space-y-1">
-                  <label className="font-extrabold text-slate-800">
-                    నిర్దిష్ట సేవ / యంత్రం (Specific Service / Machine) <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={serviceType}
-                    onChange={(e) => setServiceType(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 p-2 text-[11px] sm:text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
-                  >
-                    {(SERVICE_GROUPS.find((g) => g.id === category)?.items || []).map((item) => (
-                      <option key={item} value={item} className="text-[11px] sm:text-xs py-1" style={{ fontSize: "11.5px" }}>
-                        {item}
-                      </option>
-                    ))}
-                    <option value="ఇతర సేవ / పరికరం (Other Custom Service)" className="text-[11px] sm:text-xs py-1" style={{ fontSize: "11.5px" }}>🔧 ఇతర సేవ / పరికరం (Other Custom Service)</option>
-                  </select>
-                </div>
+                {/* 3. Specific Service Dropdown (1-Tap Direct Select) */}
+                <MobileSelectPicker
+                  label="నిర్దిష్ట సేవ / యంత్రం (Specific Service / Machine)"
+                  required
+                  value={serviceType}
+                  onChange={(val) => setServiceType(val)}
+                  options={[
+                    ...(SERVICE_GROUPS.find((g) => g.id === category)?.items || []).map((item) => ({
+                      value: item,
+                      label: item
+                    })),
+                    {
+                      value: "ఇతర సేవ / పరికరం (Other Custom Service)",
+                      label: "🔧 ఇతర సేవ / పరికరం (Other Custom Service)"
+                    }
+                  ]}
+                  title="సేవ లేదా యంత్రాన్ని ఎంచుకోండి (Select Service / Machine)"
+                  searchPlaceholder="సేవను వెతకండి (ఉదా: ఎలక్ట్రీషియన్, ప్లంబర్, ట్రాక్టర్)..."
+                  activeColor="teal"
+                />
 
                 {/* 4. Price & Free Visit */}
                 <div className="p-3 rounded-2xl border border-slate-200 bg-slate-50 grid grid-cols-1 sm:grid-cols-2 gap-3">
