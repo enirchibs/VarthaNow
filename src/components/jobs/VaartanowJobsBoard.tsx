@@ -9,6 +9,7 @@ import {
   Bookmark, 
   Search, 
   ChevronRight, 
+  ChevronDown,
   Brain, 
   FileText, 
   HelpCircle, 
@@ -16,7 +17,28 @@ import {
   ExternalLink,
   X,
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Check,
+  Building2,
+  ShoppingCart,
+  Truck,
+  Wrench,
+  HardHat,
+  UtensilsCrossed,
+  HeartPulse,
+  GraduationCap,
+  ShieldCheck,
+  Laptop,
+  Landmark,
+  Compass,
+  Navigation,
+  Clock,
+  Home,
+  UserCheck,
+  Bell,
+  User,
+  Crosshair,
+  Loader2
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { 
@@ -31,6 +53,25 @@ import {
 import type { VaartanowJob, JobFilters, AIResumeAnalysis } from "@/types/jobs";
 import { JobPostModal } from "./JobPostModal";
 import { LocationAreaSelector } from "@/components/LocationAreaSelector";
+import { detectDetailedGPSArea } from "@/lib/location-detector";
+import { UserProfileModal } from "@/components/UserProfileModal";
+import { UserProfile, getStoredUserProfile, PROFILE_EVENT_NAME } from "@/lib/user-profile";
+
+// 🛍️ Local Job Categories matching Mana Adda Image
+const MANA_ADDA_CATEGORIES = [
+  { name: "ఆఫీస్ & అడ్మిన్", enName: "Office & Admin", slug: "Office", icon: Building2, color: "text-blue-600 bg-blue-50 dark:bg-blue-950/50" },
+  { name: "సేల్స్ & రిటైల్", enName: "Sales & Retail", slug: "Sales", icon: ShoppingCart, color: "text-red-500 bg-red-50 dark:bg-red-950/50" },
+  { name: "డ్రైవర్ & డెలివరీ", enName: "Driver & Delivery", slug: "Delivery", icon: Truck, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50" },
+  { name: "టెక్నీషియన్ & స్కిల్డ్", enName: "Technician & Skilled", slug: "Technician", icon: Wrench, color: "text-purple-600 bg-purple-50 dark:bg-purple-950/50" },
+  { name: "కన్‌స్ట్రక్షన్", enName: "Construction", slug: "Construction", icon: HardHat, color: "text-amber-600 bg-amber-50 dark:bg-amber-950/50" },
+  { name: "హోటల్ & హాస్పిటాలిటీ", enName: "Hotel & Hospitality", slug: "Hospitality", icon: UtensilsCrossed, color: "text-pink-600 bg-pink-50 dark:bg-pink-950/50" },
+  { name: "హెల్త్‌కేర్", enName: "Healthcare", slug: "Healthcare", icon: HeartPulse, color: "text-rose-600 bg-rose-50 dark:bg-rose-950/50" },
+  { name: "టీచింగ్ & ఎడ్యుకేషన్", enName: "Teaching & Education", slug: "Teaching", icon: GraduationCap, color: "text-teal-600 bg-teal-50 dark:bg-teal-950/50" },
+  { name: "సెక్యూరిటీ", enName: "Security", slug: "Security", icon: ShieldCheck, color: "text-sky-600 bg-sky-50 dark:bg-sky-950/50" },
+  { name: "IT & Software", enName: "IT & Software", slug: "IT", icon: Laptop, color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50" },
+  { name: "గవర్నమెంట్", enName: "Government", slug: "Government", icon: Landmark, color: "text-green-700 bg-green-50 dark:bg-green-950/50" },
+  { name: "ఇంటర్న్‌షిప్స్", enName: "Internships", slug: "Internships", icon: GraduationCap, color: "text-orange-600 bg-orange-50 dark:bg-orange-950/50" }
+];
 
 interface VaartanowJobsBoardProps {
   initialCategoryFilter?: string;
@@ -62,10 +103,27 @@ export function VaartanowJobsBoard({
   const [activeTab, setActiveTab] = useState<string>(initialCategoryFilter || "all");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedAreaLocality, setSelectedAreaLocality] = useState("");
-  const [visibleCount, setVisibleCount] = useState(3); // show 2 or 3 job posts initially
+  const [selectedTown, setSelectedTown] = useState<string>("విశాఖపట్నం (Visakhapatnam)");
+  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+  const [quickChip, setQuickChip] = useState<string>("all");
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isUserProfileModalOpen, setIsUserProfileModalOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(() => {
+    try {
+      return getStoredUserProfile();
+    } catch {
+      return null;
+    }
+  });
+  const [isGPSDetecting, setIsGPSDetecting] = useState(false);
+  const [gpsNotice, setGpsNotice] = useState<string | null>(null);
+  const locationDropdownRef = useRef<HTMLDivElement>(null);
+  const notificationsRef = useRef<HTMLDivElement>(null);
+
+  const [visibleCount, setVisibleCount] = useState(10);
   const tabsRef = useRef<HTMLDivElement>(null);
   const [activeTabIdx, setActiveTabIdx] = useState<number>(0);
-  const [isTabAutoTouring, setIsTabAutoTouring] = useState<boolean>(true);
+  const [isTabAutoTouring, setIsTabAutoTouring] = useState<boolean>(false);
   const location = useLocation();
   const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(() => {
     try {
@@ -77,6 +135,62 @@ export function VaartanowJobsBoard({
 
   const [showNewJobAlert, setShowNewJobAlert] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (locationDropdownRef.current && !locationDropdownRef.current.contains(e.target as Node)) {
+        setIsLocationDropdownOpen(false);
+      }
+      if (notificationsRef.current && !notificationsRef.current.contains(e.target as Node)) {
+        setIsNotificationsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Sync profile reactively
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setUserProfile(getStoredUserProfile());
+    };
+    window.addEventListener(PROFILE_EVENT_NAME as any, handleProfileUpdate);
+    window.addEventListener("storage", handleProfileUpdate);
+    return () => {
+      window.removeEventListener(PROFILE_EVENT_NAME as any, handleProfileUpdate);
+      window.removeEventListener("storage", handleProfileUpdate);
+    };
+  }, []);
+
+  // One-tap GPS Detection
+  const handleDetectGPS = async () => {
+    setIsGPSDetecting(true);
+    setGpsNotice("మీ ప్రస్తుత లొకేషన్ గుర్తిస్తున్నాము...");
+    try {
+      const area = await detectDetailedGPSArea();
+      if (area) {
+        const detectedName = area.suburb_village || area.city_town || area.formatted_address || "విశాఖపట్నం";
+        setSelectedTown(detectedName);
+        setQuickChip("near_me");
+        setActiveTab("NearMe");
+        setGpsNotice(`✅ మీ లొకేషన్ గుర్తించబడింది: ${detectedName}`);
+      } else {
+        setSelectedTown("విశాఖపట్నం (Visakhapatnam)");
+        setQuickChip("near_me");
+        setActiveTab("NearMe");
+        setGpsNotice("✅ స్థానిక ఉద్యోగాలు లోడ్ చేయబడ్డాయి.");
+      }
+    } catch {
+      setSelectedTown("విశాఖపట్నం (Visakhapatnam)");
+      setQuickChip("near_me");
+      setActiveTab("NearMe");
+      setGpsNotice("✅ సమీప ఉద్యోగాలు లోడ్ చేయబడ్డాయి.");
+    } finally {
+      setIsGPSDetecting(false);
+      setTimeout(() => setGpsNotice(null), 4000);
+    }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -189,6 +303,103 @@ export function VaartanowJobsBoard({
           j.contract_type === "Internship" || 
           /intern|internship|ఇంటర్న్‌షిప్/i.test(j.title + j.contract_type + (j.tags || []).join(" "))
         );
+      } else if (tabSlug === "Office") {
+        filteredData = data.filter(j => 
+          /office|admin|computer operator|data entry|ఆఫీస్|అడ్మిన్|కంప్యూటర్|డేటా ఎంట్రీ/i.test(j.title + j.skills.join(" ") + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Sales") {
+        filteredData = data.filter(j => 
+          /sales|retail|store|billing|సేల్స్|రిటైల్|స్టోర్|మార్కెటింగ్/i.test(j.title + j.skills.join(" ") + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Delivery") {
+        filteredData = data.filter(j => 
+          /delivery|driver|rider|zomato|swiggy|blinkit|డెలివరీ|డ్రైవర్/i.test(j.title + j.skills.join(" ") + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Technician") {
+        filteredData = data.filter(j => 
+          /technician|mechanic|electrician|ac repair|repair|టెక్నీషియన్|మెకానిక్|ఎలక్ట్రీషియన్/i.test(j.title + j.skills.join(" ") + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Construction") {
+        filteredData = data.filter(j => 
+          /construction|site|civil|supervisor|కన్‌స్ట్రక్షన్|సివిల్|సూపర్‌వైజర్/i.test(j.title + j.skills.join(" ") + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Hospitality") {
+        filteredData = data.filter(j => 
+          /hotel|hospitality|restaurant|chef|cook|waiter|హోటల్|రెస్టారెంట్/i.test(j.title + j.skills.join(" ") + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Healthcare") {
+        filteredData = data.filter(j => 
+          /health|hospital|nurse|pharma|medical|హెల్త్|హాస్పిటల్|నర్సు/i.test(j.title + j.skills.join(" ") + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Teaching") {
+        filteredData = data.filter(j => 
+          /teaching|teacher|trainer|education|tutor|టీచర్|లెక్చరర్|ట్రైనర్/i.test(j.title + j.skills.join(" ") + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "Security") {
+        filteredData = data.filter(j => 
+          /security|guard|watchman|సెక్యూరిటీ|గార్డ్/i.test(j.title + j.skills.join(" ") + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "IT") {
+        filteredData = data.filter(j => 
+          /software|developer|engineer|it|programmer|సాఫ్ట్‌వేర్|కోడింగ్/i.test(j.title + j.skills.join(" ") + (j.tags || []).join(" "))
+        );
+      } else if (tabSlug === "NearMe") {
+        // Show local town-level / near-me jobs
+        filteredData = data.filter(j => 
+          (j.tags || []).includes("నా దగ్గర") || 
+          j.source_platform.includes("మన అడ్డా") || 
+          /km\)|local|town/i.test(j.location)
+        );
+        if (filteredData.length === 0) filteredData = data;
+      }
+
+      // Quick Chips Filter
+      if (quickChip === "near_me") {
+        const nearJobs = filteredData.filter(j => 
+          (j.tags || []).includes("నా దగ్గర") || 
+          j.source_platform.includes("మన అడ్డా") || 
+          /km\)|local|town/i.test(j.location)
+        );
+        if (nearJobs.length > 0) filteredData = nearJobs;
+      } else if (quickChip === "govt") {
+        filteredData = filteredData.filter(j => 
+          (j.tags || []).some(t => /govt|government/i.test(t)) || 
+          /govt|government|appsc|tspsc|ప్రభుత్వ/i.test(j.title + j.company_name + (j.tags || []).join(" "))
+        );
+      } else if (quickChip === "freshers") {
+        filteredData = filteredData.filter(j => 
+          j.experience_level === "Fresher" || 
+          (j.tags || []).includes("Freshers") || 
+          /fresher|trainee|ఫ్రెషర్|ట్రైనీ/i.test(j.title + j.description_snippet)
+        );
+      } else if (quickChip === "wfh") {
+        filteredData = filteredData.filter(j => 
+          j.work_mode === "Remote" || 
+          /remote|wfh|work from home|వర్క్ ఫ్రమ్ హోమ్/i.test(j.title + j.location)
+        );
+      } else if (quickChip === "part_time") {
+        filteredData = filteredData.filter(j => 
+          j.contract_type === "Freelance" || 
+          (j.tags || []).includes("Part-time") || 
+          /part-time|పార్ట్ టైమ్|ఫ్రీలాన్స్/i.test(j.title + j.contract_type)
+        );
+      } else if (quickChip === "onsite") {
+        filteredData = filteredData.filter(j => j.work_mode === "On-site");
+      }
+
+      // Selected Town/City Filter
+      if (selectedTown && selectedTown.trim() !== "") {
+        const teTown = selectedTown.split("(")[0].trim().toLowerCase();
+        const enTown = (selectedTown.match(/\((.*?)\)/)?.[1] || "").toLowerCase();
+        const townMatches = filteredData.filter(j => 
+          (teTown && j.location.toLowerCase().includes(teTown)) ||
+          (enTown && j.location.toLowerCase().includes(enTown)) ||
+          (enTown && (j.district || "").toLowerCase().includes(enTown)) ||
+          (teTown && (j.district || "").toLowerCase().includes(teTown))
+        );
+        if (townMatches.length > 0) {
+          filteredData = townMatches;
+        }
       }
 
       // Secondary District Override for Special Filter items
@@ -211,7 +422,7 @@ export function VaartanowJobsBoard({
     return () => {
       isMounted = false;
     };
-  }, [searchQuery, activeTab, selectedDistrict, selectedAreaLocality, initialWorkModeFilter, initialContractFilter, refreshTrigger]);
+  }, [searchQuery, activeTab, selectedDistrict, selectedAreaLocality, selectedTown, quickChip, initialWorkModeFilter, initialContractFilter, refreshTrigger]);
 
   // Handle Bookmarks
   const toggleSaveJob = (id: string) => {
@@ -337,108 +548,221 @@ export function VaartanowJobsBoard({
 
   return (
     <div className="space-y-3.5">
-      {/* 🚀 Hero Section: SaaS Gradient Header (Compact & Height-Reduced) */}
-      <section className="relative z-30 rounded-[1.4rem] bg-gradient-to-br from-indigo-950 via-indigo-900 to-zinc-950 p-3 sm:p-3.5 text-center text-white border border-white/10 shadow-md">
-        <div className="absolute -left-32 -top-32 size-48 rounded-full bg-blue-500/20 blur-3xl animate-pulse pointer-events-none" />
-        <div className="absolute -right-32 -bottom-32 size-48 rounded-full bg-indigo-500/20 blur-3xl animate-pulse pointer-events-none" />
+      {/* 🌟 1. Mana Adda Brand Header: Logo, Town Selector, Notifications & Profile */}
+      <header className="rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-5 shadow-lg border border-indigo-500/20 relative overflow-hidden">
+        {/* Background Glows */}
+        <div className="absolute -left-20 -top-20 size-40 rounded-full bg-blue-500/20 blur-3xl pointer-events-none" />
+        <div className="absolute -right-20 -bottom-20 size-40 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none" />
 
-        <div className="max-w-xl mx-auto space-y-1.5 relative z-10">
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-400/30 text-[9px] sm:text-[10px] font-black text-indigo-300 uppercase tracking-widest animate-pulse">
-            <Sparkles className="size-2.5 text-indigo-400" />
-            VaartaNow జాబ్స్ హబ్ (Jobs Hub)
-          </span>
-          <h1 className="text-sm sm:text-base md:text-lg font-black tracking-tight leading-snug">
-            మీ కెరీర్‌కు సరైన <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-rose-400">ఉద్యోగ అవకాశాలు</span>
-          </h1>
-          <p className="text-[10.5px] sm:text-xs font-bold text-zinc-300">
-            ఆంధ్రప్రదేశ్, తెలంగాణ & రిమోట్ ఐటీ రంగాలలో వేల ఉద్యోగాలు — నేరుగా దరఖాస్తు చేసుకోండి!
-          </p>
+        <div className="flex items-center justify-between gap-3 relative z-10">
+          {/* Left: Brand + Tagline + Location Picker */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
+                  <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 bg-clip-text text-transparent">మన అడ్డా</span>
+                </span>
+                <span className="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-200 border border-indigo-400/30">
+                  జాబ్స్
+                </span>
+              </div>
+              <p className="text-[10.5px] sm:text-xs font-bold text-zinc-300">
+                మన ఊరి.. మన వాళ్ల కోసం
+              </p>
+            </div>
 
-          <div className="pt-0.5">
+            {/* Location Selector Dropdown Pill */}
+            <div className="relative" ref={locationDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-black text-white transition active:scale-95 cursor-pointer shadow-sm"
+              >
+                <MapPin className="size-3.5 text-rose-400 shrink-0" />
+                <span className="truncate max-w-[130px] sm:max-w-[170px]">
+                  {selectedTown || "విశాఖపట్నం ∨"}
+                </span>
+                <ChevronDown className="size-3 text-zinc-300 shrink-0" />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isLocationDropdownOpen && (
+                <div className="absolute left-0 top-full mt-2 w-72 sm:w-80 max-h-80 overflow-y-auto rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl p-2 z-50 animate-in fade-in-50 zoom-in-95 text-xs text-white divide-y divide-slate-800">
+                  {/* 1-tap GPS Button */}
+                  <div className="p-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsLocationDropdownOpen(false);
+                        handleDetectGPS();
+                      }}
+                      disabled={isGPSDetecting}
+                      className="w-full flex items-center gap-2 p-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow transition active:scale-95 cursor-pointer"
+                    >
+                      {isGPSDetecting ? (
+                        <Loader2 className="size-4 animate-spin text-white shrink-0" />
+                      ) : (
+                        <Crosshair className="size-4 text-emerald-200 shrink-0" />
+                      )}
+                      <span>🎯 ప్రస్తుత స్థానం ఉపయోగించండి (GPS)</span>
+                    </button>
+                  </div>
+
+                  {/* AP & TG Main Cities */}
+                  <div className="p-1.5 space-y-1">
+                    <div className="text-[10px] font-black uppercase text-indigo-400 px-2 py-0.5">
+                      🏙️ AP & TG ప్రధాన నగరాలు (Main Cities)
+                    </div>
+                    {[
+                      "హైదరాబాద్ (Hyderabad)",
+                      "విశాఖపట్నం (Visakhapatnam)",
+                      "విజయవాడ (Vijayawada)",
+                      "తిరుపతి (Tirupati)",
+                      "వరంగల్ (Warangal)",
+                      "ఖమ్మం (Khammam)",
+                      "రాజమండ్రి (Rajahmundry)",
+                      "గుంటూరు (Guntur)",
+                      "నెల్లూరు (Nellore)",
+                      "కర్నూలు (Kurnool)",
+                      "కాకినాడ (Kakinada)",
+                      "నిజామాబాద్ (Nizamabad)",
+                      "కరీంనగర్ (Karimnagar)"
+                    ].map((city) => (
+                      <button
+                        key={city}
+                        type="button"
+                        onClick={() => {
+                          setSelectedTown(city);
+                          setSelectedDistrict(city.split("(")[1]?.replace(")", "") || "");
+                          setIsLocationDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between font-bold transition hover:bg-white/10 ${
+                          selectedTown === city ? "bg-indigo-600 text-white" : "text-zinc-300"
+                        }`}
+                      >
+                        <span>{city}</span>
+                        {selectedTown === city && <Check className="size-3.5 text-white" />}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Town / Mandal Localities */}
+                  <div className="p-1.5 space-y-1">
+                    <div className="text-[10px] font-black uppercase text-emerald-400 px-2 py-0.5">
+                      📍 లోకల్ టౌన్లు & మండలాలు (Towns & Mandals)
+                    </div>
+                    {[
+                      "డాబాగార్డెన్స్ (Daba Gardens, Vizag)",
+                      "మధురవాడ (Madhurawada, Vizag)",
+                      "గాజువాక (Gajuwaka, Vizag)",
+                      "ఎంవీపీ కాలనీ (MVP Colony, Vizag)",
+                      "సీతమ్మధార (Seethammadhara, Vizag)",
+                      "ఆనందపురం (Anandapuram)",
+                      "బెంచ్ సర్కిల్ (Benz Circle, Vijayawada)",
+                      "కూకట్‌పల్లి (Kukatpally, Hyderabad)",
+                      "హైటెక్ సిటీ (Hitec City, Hyderabad)"
+                    ].map((town) => (
+                      <button
+                        key={town}
+                        type="button"
+                        onClick={() => {
+                          setSelectedTown(town);
+                          setIsLocationDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between font-bold transition hover:bg-white/10 ${
+                          selectedTown === town ? "bg-indigo-600 text-white" : "text-zinc-300"
+                        }`}
+                      >
+                        <span>{town}</span>
+                        {selectedTown === town && <Check className="size-3.5 text-white" />}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* All Locations */}
+                  <div className="p-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedTown("");
+                        setSelectedDistrict("");
+                        setIsLocationDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-2.5 py-1.5 rounded-lg font-bold text-zinc-400 hover:bg-white/10 hover:text-white transition"
+                    >
+                      🌐 అన్ని నగరాలు & పట్టణాలు (All Locations)
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right: Notifications Bell (with badge 3) + Profile Avatar */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Notification Bell */}
+            <div className="relative" ref={notificationsRef}>
+              <button
+                type="button"
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                className="relative p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition active:scale-95 cursor-pointer"
+                title="నోటిఫికేషన్లు (Notifications)"
+              >
+                <Bell className="size-4 sm:size-5" />
+                <span className="absolute -top-1 -right-1 size-4 sm:size-4.5 rounded-full bg-rose-600 text-white font-black text-[9px] sm:text-[10px] flex items-center justify-center border-2 border-slate-900 shadow">
+                  3
+                </span>
+              </button>
+
+              {isNotificationsOpen && (
+                <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl p-3 z-50 animate-in fade-in text-xs text-white space-y-2">
+                  <div className="flex justify-between items-center pb-2 border-b border-slate-800">
+                    <span className="font-black text-white text-xs">🔔 ఉద్యోగ నోటిఫికేషన్లు</span>
+                    <span className="text-[10px] bg-rose-600/20 text-rose-300 px-1.5 py-0.5 rounded font-bold">3 కొత్తవి</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="p-2 rounded-xl bg-slate-800/70 border border-slate-700">
+                      <p className="font-bold text-[11px] text-emerald-400">⚡ 3 కొత్త లోకల్ ఉద్యోగాలు</p>
+                      <p className="text-[10px] text-zinc-300 mt-0.5">వైజాగ్ & విజయవాడ పరిసర ప్రాంతాల్లో తాజా లోకల్ ఉద్యోగాలు చేరాయి.</p>
+                    </div>
+                    <div className="p-2 rounded-xl bg-slate-800/70 border border-slate-700">
+                      <p className="font-bold text-[11px] text-blue-400">💼 TV Mechanic & Sales Executive</p>
+                      <p className="text-[10px] text-zinc-300 mt-0.5">తక్కువ దూరం (5-12 km) లోని ఉద్యోగాలకు నేరుగా దరఖాస్తు చేసుకోండి.</p>
+                    </div>
+                    <div className="p-2 rounded-xl bg-slate-800/70 border border-slate-700">
+                      <p className="font-bold text-[11px] text-purple-400">🤖 AI రెజ్యూమ్ స్కానర్</p>
+                      <p className="text-[10px] text-zinc-300 mt-0.5">మీ రెజ్యూమ్‌ను స్కాన్ చేసి జాబ్ మ్యాచ్ స్కోర్ చెక్ చేయండి.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* User Profile Avatar */}
             <button
-              onClick={() => setIsPostModalOpen(true)}
-              className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:opacity-95 text-white px-3.5 py-1.5 text-xs font-black transition-all shadow-md active:scale-95 cursor-pointer touch-manipulation"
+              type="button"
+              onClick={() => setIsUserProfileModalOpen(true)}
+              className="size-9 sm:size-10 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 border-2 border-white/40 flex items-center justify-center text-white font-black text-xs sm:text-sm shadow-md hover:scale-105 active:scale-95 transition overflow-hidden cursor-pointer"
+              title={userProfile?.name ? userProfile.name : "ప్రొఫైల్ (Profile)"}
             >
-              <PlusCircle className="size-3.5 text-white" />
-              + ఉద్యోగ ప్రకటన పోస్ట్ చేయండి (Post a Job)
+              {userProfile?.avatar_url ? (
+                <img src={userProfile.avatar_url} alt="User" className="size-full object-cover" />
+              ) : userProfile?.name ? (
+                userProfile.name.charAt(0).toUpperCase()
+              ) : (
+                <User className="size-4 sm:size-5" />
+              )}
             </button>
           </div>
-
-          {/* Search Box & All AP/TG Regional Locations Dropdown */}
-          <div className="pt-1 flex flex-col sm:flex-row gap-1.5 max-w-lg mx-auto">
-            <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-zinc-400" />
-              <input
-                type="text"
-                placeholder="ఉద్యోగం, టెక్నాలజీ లేదా కంపెనీ పేరుతో వెతకండి..."
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    setSearchQuery(searchInput);
-                  }
-                }}
-                className="w-full h-9 pl-8 pr-16 rounded-xl bg-white/10 border border-white/10 text-white text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-zinc-400 transition"
-              />
-              <button
-                onClick={() => setSearchQuery(searchInput)}
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 px-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[9.5px] font-black uppercase tracking-wider transition active:scale-95 flex items-center justify-center gap-1 shadow-sm cursor-pointer"
-              >
-                వెతకండి
-              </button>
-            </div>
-            <select
-              value={selectedDistrict}
-              onChange={(e) => setSelectedDistrict(e.target.value)}
-              className="h-9 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-white font-bold text-xs px-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-400 cursor-pointer shadow-sm"
-            >
-              {/* 1. AP & TG MAIN CITIES */}
-              <option value="" className="bg-slate-900 text-white">-- AP & TG ప్రధాన నగరాలు (AP & TG Main Cities) --</option>
-
-              {/* 2. REMOTE / WFH JOBS */}
-              <option value="Remote" className="bg-slate-900 text-white">💻 రిమోట్ / వర్క్ ఫ్రమ్ హోమ్ (Remote WFH Jobs)</option>
-
-              {/* 3. FREELANCE JOBS */}
-              <option value="Freelance" className="bg-slate-900 text-white">🌍 ఫ్రీలాన్స్ ఉద్యోగాలు (Freelance Jobs)</option>
-
-              {/* 4. APPRENTICESHIP JOBS */}
-              <option value="Apprenticeship" className="bg-slate-900 text-white">🛠️ అప్రెంటిస్‌షిప్ ఉద్యోగాలు (Apprenticeship Jobs)</option>
-              
-              {/* 5. MAJOR AP & TG CITIES (Prioritized Order) */}
-              <option value="Hyderabad" className="bg-slate-900 text-white">🏢 హైదరాబాద్ (Hyderabad)</option>
-              <option value="Visakhapatnam" className="bg-slate-900 text-white">🌊 విశాఖపట్నం (Vizag)</option>
-              <option value="Vijayawada" className="bg-slate-900 text-white">🏙️ విజయవాడ (Vijayawada)</option>
-              <option value="Tirupati" className="bg-slate-900 text-white">🕉️ తిరుపతి (Tirupati)</option>
-              <option value="Warangal" className="bg-slate-900 text-white">🏰 వరంగల్ (Warangal)</option>
-              <option value="Khammam" className="bg-slate-900 text-white">🌳 ఖమ్మం (Khammam)</option>
-              <option value="Rajahmundry" className="bg-slate-900 text-white">🌊 రాజమండ్రి (Rajahmundry)</option>
-              <option value="Guntur" className="bg-slate-900 text-white">🌶️ గుంటూరు (Guntur)</option>
-              <option value="Nellore" className="bg-slate-900 text-white">🦐 నెల్లూరు (Nellore)</option>
-              <option value="Kurnool" className="bg-slate-900 text-white">⛰️ కర్నూలు (Kurnool)</option>
-              <option value="Karimnagar" className="bg-slate-900 text-white">🌾 కరీంనగర్ (Karimnagar)</option>
-              <option value="Nizamabad" className="bg-slate-900 text-white">🏭 నిజామాబాద్ (Nizamabad)</option>
-              <option value="Amaravati" className="bg-slate-900 text-white">🏛️ అమరావతి (Amaravati)</option>
-            </select>
-          </div>
-
-          {/* Area / Locality Autocomplete & GPS Detection Selector */}
-          <div className="pt-2 max-w-lg mx-auto text-left">
-            <div className="rounded-2xl bg-white/95 dark:bg-slate-900/95 text-slate-900 dark:text-slate-100 p-3 shadow-xl border border-white/20 backdrop-blur-md">
-              <LocationAreaSelector
-                value={selectedAreaLocality}
-                onChange={(area) => {
-                  setSelectedAreaLocality(area);
-                  if (area) {
-                    setSelectedDistrict(""); // Clear general city select when specific locality/GPS is picked
-                  }
-                }}
-                label="ప్రాంతం / ఏరియా / గ్రామం / పట్టణం (LOCALITY / GPS)"
-                placeholder="ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ..."
-              />
-            </div>
-          </div>
         </div>
-      </section>
+      </header>
+
+      {/* GPS Status Notice Banner */}
+      {gpsNotice && (
+        <div className="rounded-2xl bg-emerald-500/15 border border-emerald-500/40 p-3 text-center font-bold text-xs text-emerald-800 dark:text-emerald-200 animate-in slide-in-from-top-2 shadow-xs">
+          {gpsNotice}
+        </div>
+      )}
 
       {/* Success Alert Banner for Newly Posted Job */}
       {showNewJobAlert && (
@@ -457,59 +781,196 @@ export function VaartanowJobsBoard({
         </div>
       )}
 
-      {/* 🗂️ Category Tabs with 3s Auto Tour */}
-      <div 
-        ref={tabsRef}
-        onMouseEnter={() => setIsTabAutoTouring(false)}
-        onMouseLeave={() => setIsTabAutoTouring(true)}
-        onTouchStart={() => setIsTabAutoTouring(false)}
-        className="flex border-b border-[hsl(var(--border))]/70 overflow-x-auto no-scrollbar gap-1 py-0.5 relative"
-      >
-        {tabs.map((t, idx) => {
-          const isActive = activeTab === t.slug;
+      {/* 💼 2. Section Title Row */}
+      <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+        <div>
+          <h1 className="text-base sm:text-lg font-black text-[hsl(var(--foreground))] flex items-center gap-1.5">
+            <span>💼 ఉద్యోగాలు</span>
+          </h1>
+          <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">
+            మంచి అవకాశాలు.. మీ కోసం..
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsPostModalOpen(true)}
+          className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-black shadow-md active:scale-95 transition cursor-pointer"
+        >
+          <PlusCircle className="size-3.5" />
+          <span>+ ప్రకటన పోస్ట్ చేయండి</span>
+        </button>
+      </div>
+
+      {/* 🔍 3. Search & GPS Bar */}
+      <div className="flex flex-col sm:flex-row gap-2 pt-0.5">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
+          <input
+            type="text"
+            placeholder="ఉద్యోగాలు, నైపుణ్యాలు లేదా కంపెనీ పేరు వెతకండి..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setSearchQuery(searchInput);
+              }
+            }}
+            className="w-full h-10 pl-9 pr-20 rounded-2xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-zinc-400 shadow-sm transition"
+          />
+          <button
+            type="button"
+            onClick={() => setSearchQuery(searchInput)}
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[10px] font-black uppercase tracking-wider transition active:scale-95 shadow cursor-pointer"
+          >
+            వెతకండి
+          </button>
+        </div>
+
+        {/* GPS Location 1-tap Detect Button */}
+        <button
+          type="button"
+          onClick={handleDetectGPS}
+          disabled={isGPSDetecting}
+          className="h-10 px-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition cursor-pointer shrink-0"
+        >
+          {isGPSDetecting ? (
+            <Loader2 className="size-4 animate-spin text-white shrink-0" />
+          ) : (
+            <Crosshair className="size-4 text-emerald-200 shrink-0" />
+          )}
+          <span>🎯 ప్రస్తుత స్థానం ఉపయోగించండి</span>
+        </button>
+      </div>
+
+      {/* 🏷️ 4. Quick Filter Horizontal Chips */}
+      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 text-xs font-black">
+        {[
+          { id: "near_me", label: "📍 నా దగ్గర (Near Me)" },
+          { id: "govt", label: "🏛️ ప్రభుత్వ ఉద్యోగాలు" },
+          { id: "freshers", label: "🎓 Freshers" },
+          { id: "wfh", label: "🏠 Remote Work From Home" },
+          { id: "part_time", label: "⏱️ Part-time" },
+          { id: "onsite", label: "🏢 On-site" },
+        ].map((chip) => {
+          const isSelected = quickChip === chip.id;
           return (
             <button
-              key={t.slug}
+              key={chip.id}
+              type="button"
               onClick={() => {
-                setIsTabAutoTouring(false);
-                setActiveTab(t.slug);
-                setActiveTabIdx(idx);
-                setVisibleCount(3);
+                if (isSelected) {
+                  setQuickChip("all");
+                } else {
+                  setQuickChip(chip.id);
+                  if (chip.id === "near_me") {
+                    setActiveTab("NearMe");
+                  }
+                }
               }}
-              className={"py-2 px-3 text-xs font-black border-b-2 shrink-0 transition cursor-pointer relative flex items-center gap-1.5 " + (
-                isActive
-                  ? "border-indigo-600 text-indigo-600 font-extrabold bg-indigo-50/60 dark:bg-indigo-950/40 rounded-t-lg"
-                  : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-              )}
+              className={`px-3 py-1.5 rounded-full shrink-0 border transition active:scale-95 cursor-pointer flex items-center gap-1 text-[11px] ${
+                isSelected
+                  ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                  : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-indigo-400"
+              }`}
             >
-              <span>{t.name}</span>
-              {isActive && isTabAutoTouring && (
-                <span className="size-1.5 rounded-full bg-indigo-600 animate-ping shrink-0" title="10s Stay" />
-              )}
+              <span>{chip.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* 🗄️ Double Column Grid layout */}
-      <div className="grid gap-6 lg:grid-cols-[1.75fr_1.25fr]">
+      {/* 🗂️ 5. Category Grid Section: ఉద్యోగాలు వెతకండి (2 Columns matching mockup) */}
+      <section className="space-y-2.5 pt-1">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-sm sm:text-base font-black text-[hsl(var(--foreground))]">
+              ఉద్యోగాలు వెతకండి
+            </h2>
+            <p className="text-[11px] font-bold text-[hsl(var(--muted-foreground))]">
+              మీకు సరిపోయే ఉద్యోగ విభాగాన్ని ఎంచుకోండి
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("all");
+              setQuickChip("all");
+            }}
+            className="text-xs font-black text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <span>అన్ని కేటగిరీలు</span>
+            <ChevronRight className="size-3.5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          {MANA_ADDA_CATEGORIES.map((cat) => {
+            const Icon = cat.icon;
+            const isActive = activeTab === cat.slug;
+            return (
+              <button
+                key={cat.slug}
+                type="button"
+                onClick={() => {
+                  setIsTabAutoTouring(false);
+                  setActiveTab(cat.slug);
+                  setVisibleCount(30);
+                }}
+                className={`p-2.5 rounded-2xl border transition flex items-center justify-between gap-2 text-left active:scale-[0.98] cursor-pointer shadow-xs ${
+                  isActive
+                    ? "bg-indigo-50 dark:bg-indigo-950/60 border-indigo-500 ring-2 ring-indigo-500/20 shadow-sm"
+                    : "bg-[hsl(var(--card))] border-[hsl(var(--border))] hover:border-indigo-300 dark:hover:border-indigo-700"
+                }`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className={`size-8 rounded-xl flex items-center justify-center shrink-0 ${cat.color}`}>
+                    <Icon className="size-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="block font-black text-xs text-[hsl(var(--foreground))] truncate">
+                      {cat.name}
+                    </span>
+                    <span className="block text-[9.5px] font-bold text-[hsl(var(--muted-foreground))] truncate">
+                      {cat.enName}
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className={`size-3.5 shrink-0 transition ${isActive ? "text-indigo-600" : "text-[hsl(var(--muted-foreground))]"}`} />
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 🗄️ 6. Double Column Grid layout: Feed & Detail Drawer */}
+      <div className="grid gap-6 lg:grid-cols-[1.75fr_1.25fr] pt-2">
         
-        {/* Left Column: Job Cards List */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-base font-black text-[hsl(var(--foreground))]">
-              {loading && jobs.length === 0 ? (
-                <span className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
-                  <span className="inline-block size-2 rounded-full bg-indigo-500 animate-ping" />
-                  ఉద్యోగాలు లోడ్ అవుతున్నాయి...
-                </span>
-              ) : (
-                jobs.length + " ఉద్యోగావకాశాలు లభించాయి"
-              )}
-            </h3>
-            <span className="text-[10px] bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded font-black border border-indigo-500/20">
-              ⚡ తాజా అప్‌డేట్స్ (Live)
-            </span>
+        {/* Left Column: Recommended Job Cards Feed */}
+        <div className="space-y-3">
+          {/* Feed Title Bar matching mockup */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-sm sm:text-base font-black text-[hsl(var(--foreground))]">
+                మీకు సరిపోయే ఉద్యోగాలు
+              </h3>
+              <p className="text-[11px] font-bold text-[hsl(var(--muted-foreground))]">
+                మీ ప్రాంతంలోని తాజా ఉద్యోగ అవకాశాలు
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTab("all");
+                setQuickChip("all");
+                setSelectedTown("");
+                setSelectedDistrict("");
+                setVisibleCount(50);
+              }}
+              className="text-xs font-black text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <span>అన్ని చూడండి</span>
+              <ChevronRight className="size-3.5" />
+            </button>
           </div>
 
           {loading ? (
@@ -529,6 +990,9 @@ export function VaartanowJobsBoard({
             <div className="space-y-3">
               {jobs.slice(0, visibleCount).map((job) => {
                 const isSelected = selectedJob?.job_id === job.job_id;
+                const isFresherFriendly = job.experience_level === "Fresher" || (job.tags || []).includes("Freshers");
+                const isNew = (job.tags || []).includes("New") || (Date.now() - new Date(job.posted_date).getTime() < 86400000 * 3);
+
                 return (
                   <div
                     key={job.job_id}
@@ -536,15 +1000,16 @@ export function VaartanowJobsBoard({
                       setSelectedJob(job);
                       setIsDetailModalOpen(true);
                     }}
-                    className={"p-5 rounded-3xl border transition cursor-pointer flex flex-col gap-3 group " + (
+                    className={`p-4 sm:p-5 rounded-3xl border transition cursor-pointer flex flex-col gap-3 group ${
                       isSelected
                         ? "bg-indigo-500/5 border-indigo-500 shadow-sm"
                         : "bg-[hsl(var(--card))] border-[hsl(var(--border))] hover:border-indigo-500/50 hover:shadow-md"
-                    )}
+                    }`}
                   >
-                    <div className="flex gap-4">
-                      {/* Logo */}
-                      <div className="size-12 shrink-0 rounded-2xl bg-[hsl(var(--muted))] border border-[hsl(var(--border))]/50 overflow-hidden flex items-center justify-center font-black text-indigo-500 text-lg">
+                    {/* Header Row: Company Avatar + Title/Company/Distance + Badges/Bookmark */}
+                    <div className="flex gap-3 items-start">
+                      {/* Logo Avatar */}
+                      <div className="size-12 shrink-0 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-black text-lg flex items-center justify-center shadow-xs overflow-hidden">
                         {job.logo_url ? (
                           <img src={job.logo_url} alt={job.company_name} className="size-full object-cover" />
                         ) : (
@@ -552,78 +1017,92 @@ export function VaartanowJobsBoard({
                         )}
                       </div>
 
-                      <div className="flex-1 min-w-0 space-y-1.5">
-                        <div className="flex justify-between items-start gap-1">
-                          <div>
-                            <h4 className="font-black text-sm text-[hsl(var(--foreground))] group-hover:text-indigo-600 transition leading-snug">
-                              {formatJobTitleTelugu(job.title)}
-                            </h4>
-                            <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 block mt-0.5">
-                              🏢 {job.company_name}
-                            </span>
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleSaveJob(job.job_id);
-                            }}
-                            className={"p-1.5 rounded-full border transition active:scale-95 shrink-0 " + (
-                              savedJobIds.includes(job.job_id)
-                                ? "bg-indigo-500/15 border-indigo-400 text-indigo-500"
-                                : "border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
-                            )}
-                            title="Save Job"
-                          >
-                            <Bookmark className="size-3.5" />
-                          </button>
+                      {/* Main Title & Subtitle */}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-black text-sm text-[hsl(var(--foreground))] group-hover:text-indigo-600 transition leading-snug">
+                          {formatJobTitleTelugu(job.title)}
+                        </h4>
+                        <div className="text-[11px] font-bold text-[hsl(var(--muted-foreground))] mt-0.5">
+                          {job.company_name}
                         </div>
-
-                        {/* Info badges in Telugu */}
-                        <div className="flex flex-wrap gap-1.5 text-[10px] font-bold pt-0.5">
-                          <span className="flex items-center gap-1 bg-[hsl(var(--muted))] px-2 py-0.5 rounded-md border border-[hsl(var(--border))]/60 text-[hsl(var(--foreground))]">
-                            <MapPin className="size-3 text-red-500 shrink-0" />
-                            <span>{job.location}</span>
-                          </span>
-
-                          <span className="flex items-center gap-1 bg-[hsl(var(--muted))] px-2 py-0.5 rounded-md border border-[hsl(var(--border))]/60 text-emerald-600 dark:text-emerald-400 font-extrabold">
-                            <DollarSign className="size-3 text-emerald-500 shrink-0" />
-                            <span>{formatSalaryTelugu(job.salary_range)}</span>
-                          </span>
-
-                          <span className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-md font-black">
-                            {formatWorkModeTelugu(job.work_mode)}
-                          </span>
-
-                          <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md font-black">
-                            {formatContractTypeTelugu(job.contract_type)}
-                          </span>
+                        <div className="flex items-center gap-1 text-[10.5px] font-extrabold text-indigo-600 dark:text-indigo-400 mt-1">
+                          <MapPin className="size-3 text-red-500 shrink-0" />
+                          <span className="truncate">{job.location}</span>
                         </div>
+                      </div>
 
-                        <p className="text-[11px] leading-relaxed text-[hsl(var(--muted-foreground))] line-clamp-2 pt-1">
-                          {job.description_snippet}
-                        </p>
-
-                        {/* Skills */}
-                        <div className="flex flex-wrap gap-1 pt-1">
-                          {job.skills.map((s) => (
-                            <span key={s} className="bg-[hsl(var(--muted))]/80 border border-[hsl(var(--border))]/40 px-2 py-0.5 rounded-md text-[9.5px] font-extrabold text-[hsl(var(--muted-foreground))]">
-                              {s}
-                            </span>
-                          ))}
-                        </div>
+                      {/* Top Right: Badges + Bookmark */}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {isNew && (
+                          <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-[9.5px] font-black">
+                            New
+                          </span>
+                        )}
+                        {isFresherFriendly && !isNew && (
+                          <span className="px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/30 text-[9.5px] font-black">
+                            Freshers OK
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSaveJob(job.job_id);
+                          }}
+                          className={`p-1.5 rounded-full border transition active:scale-95 shrink-0 ${
+                            savedJobIds.includes(job.job_id)
+                              ? "bg-indigo-500/15 border-indigo-400 text-indigo-500"
+                              : "border-[hsl(var(--border))] text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]"
+                          }`}
+                          title="Save Job"
+                        >
+                          <Bookmark className="size-3.5" />
+                        </button>
                       </div>
                     </div>
 
-                    {/* Direct Apply Button on Card */}
-                    <div className="flex items-center gap-2 pt-2 border-t border-[hsl(var(--border))]/50 mt-1">
+                    {/* Metadata Row: Salary · Work Mode · Experience */}
+                    <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-extrabold pt-0.5">
+                      <span className="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                        <DollarSign className="size-3 shrink-0" />
+                        <span>{formatSalaryTelugu(job.salary_range)}</span>
+                      </span>
+
+                      <span className="flex items-center gap-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 px-2 py-0.5 rounded-md">
+                        <Building2 className="size-3 shrink-0" />
+                        <span>{formatWorkModeTelugu(job.work_mode)}</span>
+                      </span>
+
+                      <span className="flex items-center gap-1 bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 px-2 py-0.5 rounded-md">
+                        <Briefcase className="size-3 shrink-0" />
+                        <span>{formatExperienceTelugu(job.experience_level)}</span>
+                      </span>
+                    </div>
+
+                    {/* Description snippet */}
+                    <p className="text-[11px] leading-relaxed text-[hsl(var(--muted-foreground))] line-clamp-2">
+                      {job.description_snippet}
+                    </p>
+
+                    {/* Skills pills */}
+                    <div className="flex flex-wrap gap-1">
+                      {job.skills.map((s) => (
+                        <span key={s} className="bg-[hsl(var(--muted))]/80 border border-[hsl(var(--border))]/50 px-2 py-0.5 rounded-md text-[9.5px] font-bold text-[hsl(var(--muted-foreground))]">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Action buttons matching image */}
+                    <div className="flex items-center gap-2 pt-2 border-t border-[hsl(var(--border))]/50 mt-0.5">
                       <a
                         href={job.apply_link}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-black text-xs shadow-md shadow-indigo-600/20 transition flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer min-h-[38px]"
+                        className="flex-1 py-2 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-black text-xs shadow-md shadow-indigo-600/20 transition flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer min-h-[36px]"
                       >
-                        <span>👉 దరఖాస్తు చేసుకోండి (Apply Now)</span>
+                        <span>అప్లై చేయండి (Apply)</span>
                         <ExternalLink className="size-3.5" />
                       </a>
 
@@ -634,7 +1113,7 @@ export function VaartanowJobsBoard({
                           setSelectedJob(job);
                           setIsDetailModalOpen(true);
                         }}
-                        className="py-2.5 px-3.5 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] hover:bg-indigo-500/10 text-xs font-bold text-[hsl(var(--foreground))] transition cursor-pointer min-h-[38px]"
+                        className="py-2 px-3 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))] hover:bg-indigo-500/10 text-xs font-bold text-[hsl(var(--foreground))] transition cursor-pointer min-h-[36px]"
                       >
                         వివరాలు ➔
                       </button>
@@ -973,6 +1452,16 @@ export function VaartanowJobsBoard({
           setVisibleCount(50);
           setShowNewJobAlert(true);
           setRefreshTrigger((prev) => prev + 1);
+        }}
+      />
+
+      {/* User Profile Modal */}
+      <UserProfileModal
+        isOpen={isUserProfileModalOpen}
+        onClose={() => setIsUserProfileModalOpen(false)}
+        onLoginSuccess={(profile) => {
+          setUserProfile(profile);
+          setIsUserProfileModalOpen(false);
         }}
       />
     </div>
