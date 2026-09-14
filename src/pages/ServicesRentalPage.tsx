@@ -22,15 +22,37 @@ import {
   Tag,
   Gift,
   User,
-  UtensilsCrossed
+  UtensilsCrossed,
+  Car,
+  Scissors,
+  GraduationCap,
+  Briefcase,
+  ShoppingBag,
+  HeartHandshake,
+  Stethoscope
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 import { LocationAreaSelector } from "@/components/LocationAreaSelector";
 
+export type ServiceCategory =
+  | "workers"
+  | "transport"
+  | "construction"
+  | "farm_machines"
+  | "events"
+  | "hotel_food"
+  | "beauty"
+  | "education"
+  | "professional"
+  | "local_shops"
+  | "pets_animals"
+  | "care_services"
+  | "other_services";
+
 export interface ServiceRentalItem {
   id: string;
   provider_name: string;
-  category: "workers" | "farm_machines" | "construction" | "events" | "hotel_food" | "other_services";
+  category: ServiceCategory;
   service_type: string;
   village: string;
   price_rate: string;
@@ -42,103 +64,333 @@ export interface ServiceRentalItem {
   created_at: string;
 }
 
-const SERVICE_GROUPS = [
+const SERVICE_GROUPS: {
+  id: ServiceCategory;
+  title: string;
+  icon: React.ElementType;
+  items: string[];
+}[] = [
   {
     id: "workers",
-    title: "👷 సేవా నిపుణులు (Service Professionals)",
+    title: "🧑‍🔧 సేవా నిపుణులు (Service Professionals)",
     icon: HardHat,
     items: [
-      "🚰 Plumber — ప్లంబర్",
+      // Home Repair & Maintenance
       "⚡ Electrician — ఎలక్ట్రీషియన్",
-      "🧱 Mason — మేస్త్రీ",
-      "🧱 Tiles Mesthri — టైల్స్ & మార్బుల్ మేస్త్రీ",
-      "🪚 Wood Work = Carpenter — వుడ్ వర్క్ కార్పెంటర్",
-      "👨‍🏭 Welder / Welding — వెల్డర్ / వెల్డింగ్ వర్క్",
+      "🔧 Plumber — ప్లంబర్",
+      "🪚 Carpenter — వడ్రంగి / కార్పెంటర్",
+      "🔑 Locksmith — తాళాల నిపుణుడు",
       "🎨 Painter — పెయింటర్",
-      "🛖 False Ceiling / Poly Sheeling — ఫాల్స్ సీలింగ్",
-      "🧹 Cleaning — క్లీనింగ్",
-      "👩‍🏫 Tuition — ట్యూషన్"
+      "🧹 House Cleaning — ఇంటి క్లీనింగ్",
+      "🧼 Deep Cleaning — డీప్ క్లీనింగ్",
+      "🚿 Bathroom Cleaning — బాత్రూమ్ క్లీనింగ్",
+      "🪟 Glass & Window Work — గ్లాస్ & విండో వర్క్",
+      "🚪 Door & Window Repair — డోర్ & విండో రిపేర్",
+      "💧 Waterproofing — వాటర్ప్రూఫింగ్",
+      "🐜 Pest Control — పెస్ట్ కంట్రోల్",
+      "🌱 Gardener — తోటమాలి",
+      "🏡 Home Maintenance — ఇంటి నిర్వహణ",
+      "🛠️ Handyman — చిన్నచిన్న ఇంటి పనులు",
+      // AC & Appliance Services
+      "❄️ AC Technician — ఏసీ టెక్నీషియన్",
+      "📺 TV Repair — టీవీ రిపేర్",
+      "🧊 Refrigerator Repair — ఫ్రిజ్ రిపేర్",
+      "🧺 Washing Machine Repair — వాషింగ్ మెషిన్ రిపేర్",
+      "🔥 Geyser Repair — గీజర్ రిపేర్",
+      "🍳 Microwave/Oven Repair — మైక్రోవేవ్/ఓవెన్ రిపేర్",
+      "💧 RO/Water Purifier — ఆర్ఓ సర్వీస్",
+      "🌀 Fan Repair — ఫ్యాన్ రిపేర్",
+      "🔌 Inverter/UPS — ఇన్వర్టర్/యూపీఎస్",
+      "🔋 Battery Service — బ్యాటరీ సర్వీస్",
+      // Electronics & Technology
+      "📱 Mobile Repair — మొబైల్ రిపేర్",
+      "💻 Laptop Repair — ల్యాప్టాప్ రిపేర్",
+      "🖥️ Computer Repair — కంప్యూటర్ రిపేర్",
+      "🖨️ Printer Repair — ప్రింటర్ రిపేర్",
+      "📹 CCTV Technician — సీసీటీవీ టెక్నీషియన్",
+      "📡 DTH/Dish Service — డీటీహెచ్/డిష్",
+      "🌐 Wi-Fi/Network Technician — వై-ఫై/నెట్వర్క్",
+      "🔊 Sound System Technician — సౌండ్ సిస్టమ్",
+      "🏠 Smart Home Technician — స్మార్ట్ హోమ్",
+      // Domestic Services
+      "👩‍🍳 Cook — కుక్",
+      "🧹 Maid/House Help — ఇంటి సహాయకులు",
+      "👕 Laundry — లాండ్రీ",
+      "👔 Ironing — ఇస్త్రీ",
+      "👶 Babysitter — పిల్లల సంరక్షణ",
+      "👴 Elder Care — వృద్ధుల సంరక్షణ",
+      "🐕 Pet Care — పెట్ కేర్",
+      "🐕 Dog Walker — డాగ్ వాకర్"
     ]
   },
   {
-    id: "farm_machines",
-    title: "🚜 వ్యవసాయ యంత్రాలు (Agricultural Machinery)",
-    icon: Tractor,
+    id: "transport",
+    title: "🚗 డ్రైవింగ్ & రవాణా సేవలు (Drivers & Transport)",
+    icon: Car,
     items: [
-      "🚜 Tractor — ట్రాక్టర్",
-      "🏗️ Proclainer / Excavator — ప్రొక్లైనర్ / ఎక్స్కవేటర్",
-      "🌾 కోత యంత్రం — Harvesting Machine",
-      "🌱 నాట్లు వేసే యంత్రం — Planting Machine",
-      "💧 ఉడుపు / నీటి యంత్రం — Irrigation/Pump Machine",
-      "🚜 Rotavator — రోటావेटर",
-      "🌾 Paddy / Crop Cutter — పంట కోత యంత్రం",
-      "🚛 Tractor Trolley — ట్రాక్టర్ ట్రాలీ"
+      // Drivers
+      "🚗 Car Driver — కార్ డ్రైవర్",
+      "🚕 Taxi Driver — టాక్సీ డ్రైవర్",
+      "🚙 Personal Driver — వ్యక్తిగత డ్రైవర్",
+      "🚗 Outstation Driver — అవుట్స్టేషన్ డ్రైవర్",
+      "🚐 Van Driver — వ్యాన్ డ్రైవర్",
+      "🚌 Bus Driver — బస్ డ్రైవర్",
+      "🚚 Lorry Driver — లారీ డ్రైవర్",
+      "🚜 Tractor Driver — ట్రాక్టర్ డ్రైవర్",
+      "🛺 Auto Driver — ఆటో డ్రైవర్",
+      // Transport
+      "🚚 Goods Transport — గూడ్స్ ట్రాన్స్పోర్ట్",
+      "🚛 Mini Truck — మినీ ట్రక్",
+      "🚚 Lorry Service — లారీ సర్వీస్",
+      "📦 Local Delivery — స్థానిక డెలివరీ",
+      "🛵 Delivery Partner — డెలివరీ పార్టనర్",
+      "📦 Packers & Movers — ప్యాకర్స్ & మూవర్స్",
+      "🚗 Vehicle Rental — వాహన అద్దె",
+      "🛻 Towing Service — టోయింగ్ సర్వీస్",
+      // Vehicle Services
+      "🚗 Car Mechanic — కార్ మెకానిక్",
+      "🏍️ Bike Mechanic — బైక్ మెకానిక్",
+      "🛞 Tyre/Puncture — టైర్/పంక్చర్",
+      "🔋 Battery Service — బ్యాటరీ",
+      "🚿 Car Wash — కార్ వాష్",
+      "✨ Car Detailing — కార్ డీటైలింగ్",
+      "❄️ Car AC — కార్ ఏసీ",
+      "🎨 Vehicle Painting — వెహికల్ పెయింటింగ్"
     ]
   },
   {
     id: "construction",
-    title: "🏗️ నిర్మాణ సేవలు & సామగ్రి (Construction Services & Materials)",
+    title: "🏗️ నిర్మాణ సేవలు (Construction Services)",
     icon: Wrench,
     items: [
-      "🎨 Painter — పెయింటర్ (పుట్టీ & పెయింటింగ్)",
-      "👨‍🏭 Welder / Welding — వెల్డర్ / వెల్డింగ్ వర్క్",
-      "🧱 Tiles Mesthri — టైల్స్ & మార్బుల్ మేస్త్రీ",
-      "🪚 Wood Work = Carpenter — వుడ్ వర్క్ కార్పెంటర్",
-      "🛖 Poly Sheeling / Ceiling — ఫాల్స్ సీలింగ్ & పాలీ షీలింగ్",
-      "🏖️ Sand Supplier — ఇసుక సరఫరాదారు (Sand Supplier)",
-      "🧱 Eetuka / Brick Supplier — ఇటుకల సరఫరాదారు (Bricks Supplier)",
-      "🏗️ Cement & Iron Supplier — సిమెంట్ & ఐరన్/స్టీల్ సరఫరాదారు",
-      "🏗️ JCB / Excavator — జేసీబీ / ఎక్స్కవేటర్",
-      "🚧 Earthmover — ఎర్త్‌మూవర్",
-      "🧱 Concrete Mixer — కాంక్రీట్ మిక్సర్",
+      // Skilled Construction Professionals
+      "🧱 Mason — మేస్త్రీ",
+      "🧱 Tiles Mason — టైల్స్ మేస్త్రీ",
+      "🪨 Marble/Granite Worker — మార్బుల్/గ్రానైట్ మేస్త్రీ",
+      "🪚 Carpenter — కార్పెంటర్",
+      "🎨 Painter — పెయింటర్",
+      "🔥 Welder — వెల్డర్",
+      "🏠 False Ceiling — ఫాల్స్ సీలింగ్",
+      "🏠 Poly Sheeting — పాలీ షీటింగ్",
+      "🏗️ Fabrication — ఫ్యాబ్రికేషన్",
+      "💧 Waterproofing — వాటర్ప్రూఫింగ్",
+      "🏠 Roofing — రూఫింగ్",
+      "🧱 Flooring — ఫ్లోరింగ్",
+      "🧰 Construction Labour — నిర్మాణ కార్మికులు",
+      // Construction Machinery
+      "🚜 JCB Operator — జేసీబీ ఆపరేటర్",
+      "🚜 Excavator — ఎక్స్కవేటర్",
+      "🚜 Earthmover — ఎర్త్మూవర్",
+      "🚧 Bulldozer — బుల్డోజర్",
       "🏗️ Crane — క్రేన్",
-      "🚛 Tipper — టిప్పర్",
-      "👷 Construction Workers — నిర్మాణ కార్మికులు"
+      "🚚 Tipper — టిప్పర్",
+      "🚛 Tractor — ట్రాక్టర్",
+      "🏗️ Concrete Mixer — కాంక్రీట్ మిక్సర్",
+      "🏗️ Concrete Pump — కాంక్రీట్ పంప్",
+      "🚧 Road Roller — రోడ్ రోలర్",
+      "🚜 Machinery Rental — నిర్మాణ యంత్రాల అద్దె",
+      // Construction Material Suppliers
+      "🏖️ Sand Supplier — ఇసుక సరఫరాదారు",
+      "🧱 Brick Supplier — ఇటుకల సరఫరాదారు",
+      "🧱 Cement Supplier — సిమెంట్ సరఫరాదారు",
+      "🔩 Iron/Steel Supplier — ఐరన్/స్టీల్ సరఫరాదారు",
+      "🪨 Stone Supplier — రాయి సరఫరాదారు",
+      "🪵 Wood Supplier — కలప సరఫరాదారు",
+      "🧱 Tiles Supplier — టైల్స్ సరఫరాదారు",
+      "🚪 Doors & Windows Supplier — డోర్స్/విండోస్",
+      "🚿 Plumbing Material — ప్లంబింగ్ మెటీరియల్",
+      "⚡ Electrical Material — ఎలక్ట్రికల్ మెటీరియల్",
+      "🎨 Paint & Hardware — పెయింట్ & హార్డ్వేర్"
+    ]
+  },
+  {
+    id: "farm_machines",
+    title: "🚜 వ్యవసాయ యంత్రాలు & సేవలు (Agricultural Machinery & Services)",
+    icon: Tractor,
+    items: [
+      "🚜 Tractor — ట్రాక్టర్",
+      "🚜 Tractor Rental — ట్రాక్టర్ అద్దె",
+      "🌾 Harvester — హార్వెస్టర్",
+      "🌱 Rotavator — రోటావేటర్",
+      "🌾 Cultivator — కల్టివేటర్",
+      "🚜 Ploughing Service — దున్నే సేవ",
+      "🌾 Paddy Harvester — వరి హార్వెస్టర్",
+      "🌽 Corn Harvester — మొక్కజొన్న హార్వెస్టర్",
+      "💧 Borewell Service — బోర్వెల్ సర్వీస్",
+      "💦 Water Pump — వాటర్ పంప్",
+      "🌾 Agricultural Equipment Rental — వ్యవసాయ యంత్రాల అద్దె",
+      "👨‍🌾 Farm Labour — వ్యవసాయ కార్మికులు",
+      "🌱 Landscaping — ల్యాండ్స్కేపింగ్",
+      "🌳 Tree Cutting — చెట్ల కటింగ్",
+      "🌿 Nursery/Plants — నర్సరీ/మొక్కలు"
     ]
   },
   {
     id: "events",
-    title: "🎪 కార్యక్రమాల సేవలు (Event & Function Services)",
+    title: "🎉 కార్యక్రమాలు & ఈవెంట్ సేవలు (Event & Function Services)",
     icon: PartyPopper,
     items: [
-      "⛺ Samiyana — శామియానా",
-      "🪑 Chairs & Tables — కుర్చీలు & బల్లలు",
-      "🎤 Sound System — సౌండ్ సిస్టమ్",
+      "📸 Photographer — ఫోటోగ్రాఫర్",
+      "🎥 Videographer — వీడియోగ్రాఫర్",
+      "🎬 Video Editing — వీడియో ఎడిటింగ్",
+      "🎤 DJ — డీజే",
+      "🔊 Sound System — సౌండ్ సిస్టమ్",
       "💡 Lighting — లైటింగ్",
-      "🎉 Decoration — డెకరేషన్",
-      "🍽️ Catering — క్యాటరింగ్",
-      "📸 Photography — ఫోటోగ్రఫీ"
+      "🌸 Flower Decoration — పూల అలంకరణ",
+      "🎈 Balloon Decoration — బెలూన్ డెకరేషన్",
+      "🪑 Chairs & Tables — కుర్చీలు/టేబుల్స్",
+      "⛺ Tent House — టెంట్ హౌస్",
+      "💍 Wedding Planner — వెడ్డింగ్ ప్లానర్",
+      "🎉 Event Planner — ఈవెంట్ ప్లానర్",
+      "🍽️ Function Catering — ఫంక్షన్ క్యాటరింగ్",
+      "💄 Bridal Makeup — బ్రైడల్ మేకప్",
+      "🎨 Mehendi Artist — మెహందీ",
+      "🎶 Orchestra/Music — ఆర్కెస్ట్రా",
+      "🥁 Band — బ్యాండ్"
     ]
   },
   {
     id: "hotel_food",
-    title: "🏨 హోటల్, టిఫిన్ & ఫుడ్ బిజినెస్ (Hotel, Tiffin & Food Business)",
+    title: "🏨 హోటళ్లు, టిఫిన్ & ఫుడ్ వ్యాపారాలు (Hotels, Tiffin & Food)",
     icon: UtensilsCrossed,
     items: [
-      "🏨 హోటళ్లు — Hotels & Restaurants",
-      "🥣 టిఫిన్ సెంటర్లు — Tiffin Centers",
-      "🍲 హోమ్ ఫుడ్ — Home Food",
-      "☕ టీ/కాఫీ షాపులు — Tea & Coffee Shops",
-      "🥐 బేకరీలు — Bakeries",
-      "🍹 జ్యూస్ సెంటర్లు — Juice Centers",
-      "🛵 ఫుడ్ డెలివరీ — Food Delivery",
-      "🍽️ ఫంక్షన్ కేటరింగ్ — Function Catering"
+      // Food Businesses
+      "🏨 Hotels — హోటల్స్",
+      "🍛 Restaurants — రెస్టారెంట్లు",
+      "🥘 Tiffin Centers — టిఫిన్ సెంటర్లు",
+      "🏠 Home Food — హోమ్ ఫుడ్",
+      "☕ Tea & Coffee Shops — టీ/కాఫీ షాపులు",
+      "🥐 Bakeries — బేకరీలు",
+      "🥤 Juice Centers — జ్యూస్ సెంటర్లు",
+      "🍦 Ice Cream Shops — ఐస్క్రీమ్",
+      "🍕 Fast Food Centers — ఫాస్ట్ ఫుడ్",
+      "🍗 Chicken/Mutton Shops — చికెన్/మటన్",
+      "🐟 Fish Shops — చేపల దుకాణాలు",
+      "🥦 Vegetable Shops — కూరగాయల దుకాణాలు",
+      "🍎 Fruit Shops — పండ్ల దుకాణాలు",
+      // Food Services
+      "🛵 Food Delivery — ఫుడ్ డెలివరీ",
+      "🍽️ Catering — క్యాటరింగ్",
+      "🎉 Function Catering — ఫంక్షన్ క్యాటరింగ్",
+      "🍱 Meal Box/Tiffin Delivery — మీల్ బాక్స్",
+      "🎂 Cake Orders — కేక్ ఆర్డర్స్",
+      "🍰 Home Bakers — హోమ్ బేకర్స్"
+    ]
+  },
+  {
+    id: "beauty",
+    title: "💇 అందం & వ్యక్తిగత సేవలు (Beauty & Personal Services)",
+    icon: Scissors,
+    items: [
+      "💇 Barber — బార్బర్",
+      "💇‍♀️ Beauty Parlour — బ్యూటీ పార్లర్",
+      "💄 Makeup Artist — మేకప్ ఆర్టిస్ట్",
+      "💅 Nail Services — నెయిల్ సర్వీసెస్",
+      "🌸 Mehendi — మెహందీ",
+      "💍 Bridal Services — బ్రైడల్ సర్వీసెస్",
+      "💆 Massage Services — మసాజ్ సర్వీసెస్",
+      "💇 Hair Stylist — హెయిర్ స్టైలిస్ట్"
+    ]
+  },
+  {
+    id: "education",
+    title: "📚 విద్య & శిక్షణ (Education & Training)",
+    icon: GraduationCap,
+    items: [
+      "📚 Home Tuition — హోమ్ ట్యూషన్",
+      "🏫 Tuition Center — ట్యూషన్ సెంటర్",
+      "🗣️ Spoken English — స్పోకెన్ ఇంగ్లీష్",
+      "💻 Computer Training — కంప్యూటర్ ట్రైనింగ్",
+      "🎵 Music Teacher — మ్యూజిక్ టీచర్",
+      "💃 Dance Teacher — డ్యాన్స్ టీచర్",
+      "🎨 Drawing Teacher — డ్రాయింగ్ టీచర్",
+      "🏏 Sports Coach — స్పోర్ట్స్ కోచ్",
+      "🧘 Yoga Trainer — యోగా ట్రైనర్",
+      "🏋️ Fitness Trainer — ఫిట్నెస్ ట్రైనర్",
+      "🎓 Competitive Exam Coaching — పోటీ పరీక్షల కోచింగ్"
+    ]
+  },
+  {
+    id: "professional",
+    title: "💼 ప్రొఫెషనల్ సేవలు (Professional Services)",
+    icon: Briefcase,
+    items: [
+      "⚖️ Lawyer — న్యాయవాది",
+      "📊 Accountant — అకౌంటెంట్",
+      "🧾 GST/Tax Consultant — GST/ట్యాక్స్ కన్సల్టెంట్",
+      "🏠 Real Estate Agent — రియల్ ఎస్టేట్ ఏజెంట్",
+      "📐 Architect — ఆర్కిటెక్ట్",
+      "🏗️ Civil Engineer — సివిల్ ఇంజనీర్",
+      "🏠 Interior Designer — ఇంటీరియర్ డిజైనర్",
+      "📏 Surveyor — సర్వేయర్",
+      "📋 Documentation Services — డాక్యుమెంటేషన్",
+      "💻 Computer Services — కంప్యూటర్ సేవలు",
+      "🌐 Web Developer — వెబ్ డెవలపర్",
+      "🎨 Graphic Designer — గ్రాఫిక్ డిజైనర్",
+      "📢 Digital Marketing — డిజిటల్ మార్కెటింగ్",
+      "📸 Photo Studio — ఫోటో స్టూడియో"
+    ]
+  },
+  {
+    id: "local_shops",
+    title: "🛍️ స్థానిక వ్యాపారాలు & దుకాణాలు (Local Shops & Businesses)",
+    icon: ShoppingBag,
+    items: [
+      "🔑 Hardware Shop — హార్డ్వేర్",
+      "⚡ Electrical Shop — ఎలక్ట్రీకల్ షాప్",
+      "🔧 Plumbing Shop — ప్లంబింగ్",
+      "🪑 Furniture Shop — ఫర్నిచర్",
+      "📱 Mobile Shop — మొబైల్ షాప్",
+      "💻 Computer Shop — కంప్యూటర్ షాప్",
+      "🏠 Home Appliances — గృహోపకరణాలు",
+      "👗 Tailor — టైలర్",
+      "👞 Shoe Repair — చెప్పుల రిపేర్",
+      "🧵 Boutique — బుటిక్",
+      "🌸 Flower Shop — పూల షాప్",
+      "🖨️ Xerox/Printing — జిరాక్స్/ప్రింటింగ్",
+      "📦 Courier — కొరియర్",
+      "💍 Jewellery — నగల దుకాణం"
+    ]
+  },
+  {
+    id: "pets_animals",
+    title: "🐕 పెట్స్ & పశు సేవలు (Pet & Animal Services)",
+    icon: HeartHandshake,
+    items: [
+      "🐕 Pet Grooming — పెట్ గ్రూమింగ్",
+      "🐕 Dog Walking — డాగ్ వాకింగ్",
+      "🐾 Pet Boarding — పెట్ బోర్డింగ్",
+      "🐄 Cattle Services — పశు సేవలు",
+      "🐔 Poultry Services — పౌల్ట్రీ",
+      "🐐 Goat/Sheep Services — మేక/గొర్రెల సేవలు",
+      "🌾 Animal Feed Supplier — పశువుల మేత",
+      "🐕 Pet Food — పెట్ ఫుడ్"
+    ]
+  },
+  {
+    id: "care_services",
+    title: "🏥 ఆరోగ్యం & సంరక్షణ సేవలు (Care Services)",
+    icon: Stethoscope,
+    items: [
+      "👩‍⚕️ Home Nursing — హోమ్ నర్సింగ్",
+      "👴 Elder Care — వృద్ధుల సంరక్షణ",
+      "👶 Baby Care — శిశు సంరక్షణ",
+      "🧑‍🦽 Caregiver — కేర్గివర్",
+      "🚑 Ambulance — అంబులెన్స్",
+      "💊 Pharmacy Delivery — మెడిసిన్ డెలివరీ",
+      "🧘 Physiotherapy at Home — ఇంటి వద్ద ఫిజియోథెరపీ",
+      "🩺 Home Sample Collection — ఇంటి వద్ద శాంపిల్ కలెక్షన్"
     ]
   },
   {
     id: "other_services",
-    title: "🔧 ఇతర స్థానిక సేవలు (General & Local Services)",
+    title: "🔧 ఇతర స్థానిక సేవలు (Other Local Services)",
     icon: Truck,
     items: [
-      "🚗 Driver — డ్రైవర్ (Car / Auto / Heavy Driver)",
-      "🛵 Mechanic — మెకానిక్",
-      "📱 Mobile Repair — మొబైల్ రిపేర్",
-      "💻 Computer Service — కంప్యూటర్ సర్వీస్",
-      "🚗 Car/Auto Service — కార్/ఆటో సర్వీస్",
-      "🔑 Key Maker — కీ మేకర్",
-      "❄️ AC/Fridge Repair — ఏసీ/ఫ్రిడ్జ్ రిపేర్",
-      "🚚 Transport — రవాణా",
-      "🚛 Goods Vehicle — గూడ్స్ వాహనం"
+      "🔨 General Labour — సాధారణ కార్మిక సేవలు",
+      "📦 Miscellaneous Service — ఇతర సేవలు",
+      "🛠️ Custom Service — ప్రత్యేక సేవ",
+      "➕ Add Your Service — మీ సేవను జోడించండి"
     ]
   }
 ];
@@ -325,8 +577,8 @@ export function ServicesRentalPage() {
   // Form State for Service Posting Modal
   const [step, setStep] = useState<1 | 2>(1);
   const [providerName, setProviderName] = useState<string>("");
-  const [category, setCategory] = useState<"workers" | "farm_machines" | "construction" | "events" | "hotel_food" | "other_services">("farm_machines");
-  const [serviceType, setServiceType] = useState<string>("🚜 Tractor — ట్రాక్టర్");
+  const [category, setCategory] = useState<ServiceCategory>("workers");
+  const [serviceType, setServiceType] = useState<string>("⚡ Electrician — ఎలక్ట్రీషియన్");
   const [village, setVillage] = useState<string>("");
   const [priceRate, setPriceRate] = useState<string>("");
   const [machineDetails, setMachineDetails] = useState<string>("");
@@ -420,8 +672,15 @@ export function ServicesRentalPage() {
 
     const defaultImg = category === "farm_machines" ? "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80" :
                        category === "construction" ? "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=800&q=80" :
+                       category === "transport" ? "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=800&q=80" :
                        category === "events" ? "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80" :
                        category === "hotel_food" ? "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=800&q=80" :
+                       category === "beauty" ? "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80" :
+                       category === "education" ? "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80" :
+                       category === "professional" ? "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80" :
+                       category === "local_shops" ? "https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80" :
+                       category === "pets_animals" ? "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=800&q=80" :
+                       category === "care_services" ? "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80" :
                        "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80";
 
     const newItem: ServiceRentalItem = {
@@ -705,7 +964,7 @@ export function ServicesRentalPage() {
                     <select
                       value={category}
                       onChange={(e) => {
-                        const newCat = e.target.value as any;
+                        const newCat = e.target.value as ServiceCategory;
                         setCategory(newCat);
                         const group = SERVICE_GROUPS.find((g) => g.id === newCat);
                         if (group && group.items.length > 0) {
@@ -714,12 +973,11 @@ export function ServicesRentalPage() {
                       }}
                       className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer transition"
                     >
-                      <option value="workers">👷 సేవా నిపుణులు (Service Professionals)</option>
-                      <option value="farm_machines">🚜 వ్యవసాయ యంత్రాలు (Agricultural Machinery)</option>
-                      <option value="construction">🏗️ నిర్మాణ సేవలు (Construction Services)</option>
-                      <option value="events">🎪 కార్యక్రమాల సేవలు (Event & Function Services)</option>
-                      <option value="hotel_food">🏨 హోటల్, టిఫిన్ & ఫుడ్ బిజినెస్ (Hotel, Tiffin & Food Business)</option>
-                      <option value="other_services">🔧 ఇతర స్థానిక సేవలు (Other Local Services)</option>
+                      {SERVICE_GROUPS.map((grp) => (
+                        <option key={grp.id} value={grp.id}>
+                          {grp.title}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
