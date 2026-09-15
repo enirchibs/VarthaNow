@@ -38,7 +38,9 @@ import {
   Bell,
   User,
   Crosshair,
-  Loader2
+  Loader2,
+  ArrowLeft,
+  Layers
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { 
@@ -118,6 +120,31 @@ export function VaartanowJobsBoard({
   const [quickChip, setQuickChip] = useState<string>("all");
   const [selectedRadius, setSelectedRadius] = useState<number>(20); // 10, 20, 50, 100, or 0 (all)
   const [isNearMeDropdownOpen, setIsNearMeDropdownOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<"home" | "category">(() => {
+    if (initialCategoryFilter && initialCategoryFilter !== "all") return "category";
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("category") || params.get("view") === "category") return "category";
+    }
+    return "home";
+  });
+
+  const activeCategoryInfo = MANA_ADDA_CATEGORIES.find((c) => c.slug === activeTab) || null;
+
+  const handleSelectCategory = (slug: string) => {
+    setIsTabAutoTouring(false);
+    setActiveTab(slug);
+    setVisibleCount(30);
+    setCurrentView("category");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleBackToHome = () => {
+    setCurrentView("home");
+    setActiveTab("all");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const nearMeDropdownRef = useRef<HTMLDivElement>(null);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isUserProfileModalOpen, setIsUserProfileModalOpen] = useState(false);
@@ -834,45 +861,48 @@ export function VaartanowJobsBoard({
         </button>
       </div>
 
-      {/* 🔍 3. Search & GPS Bar */}
-      <div className="flex flex-col sm:flex-row gap-2 pt-0.5">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
-          <input
-            type="text"
-            placeholder="ఉద్యోగాలు, నైపుణ్యాలు లేదా కంపెనీ పేరు వెతకండి..."
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setSearchQuery(searchInput);
-              }
-            }}
-            className="w-full h-10 pl-9 pr-20 rounded-2xl bg-[hsl(var(--card))] border border-[hsl(var(--border))] text-[hsl(var(--foreground))] text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-zinc-400 shadow-sm transition"
-          />
-          <button
-            type="button"
-            onClick={() => setSearchQuery(searchInput)}
-            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[10px] font-black uppercase tracking-wider transition active:scale-95 shadow cursor-pointer"
-          >
-            వెతకండి
-          </button>
-        </div>
+      {/* 🔍 3. Town or City Search & GPS Detector (Matching User Screenshot Exactly) */}
+      <div className="bg-[hsl(var(--card))] p-3.5 sm:p-4 rounded-3xl border border-[hsl(var(--border))] shadow-xs space-y-3">
+        <LocationAreaSelector
+          value={selectedAreaLocality || selectedTown}
+          onChange={(newArea) => {
+            setSelectedAreaLocality(newArea);
+            setSelectedTown(newArea);
+            if (newArea) {
+              setQuickChip("near_me");
+              setActiveTab("NearMe");
+            }
+          }}
+          label="పట్టణం / నగరం / ప్రాంతం (TOWN / CITY / AREA)"
+          placeholder="ఉదా: విశాఖపట్నం, హైదరాబాద్, విజయవాడ... (నగరం లేదా పట్టణం పేరుతో వెతకండి)"
+          preferCityOrTown={true}
+        />
 
-        {/* GPS Location 1-tap Detect Button */}
-        <button
-          type="button"
-          onClick={handleDetectGPS}
-          disabled={isGPSDetecting}
-          className="h-10 px-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition cursor-pointer shrink-0"
-        >
-          {isGPSDetecting ? (
-            <Loader2 className="size-4 animate-spin text-white shrink-0" />
-          ) : (
-            <Crosshair className="size-4 text-emerald-200 shrink-0" />
-          )}
-          <span>🎯 ప్రస్తుత స్థానం ఉపయోగించండి</span>
-        </button>
+        {/* Companion Search for Job Role, Company or Skills */}
+        <div className="flex gap-2 pt-1 border-t border-[hsl(var(--border))]/60">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
+            <input
+              type="text"
+              placeholder="ఉద్యోగాలు, నైపుణ్యాలు లేదా కంపెనీ పేరు వెతకండి..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setSearchQuery(searchInput);
+                }
+              }}
+              className="w-full h-10 pl-9 pr-20 rounded-2xl bg-[hsl(var(--muted))]/60 border border-[hsl(var(--border))] text-[hsl(var(--foreground))] text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-zinc-400 shadow-xs transition"
+            />
+            <button
+              type="button"
+              onClick={() => setSearchQuery(searchInput)}
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[10px] font-black uppercase tracking-wider transition active:scale-95 shadow cursor-pointer"
+            >
+              వెతకండి
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* 🏷️ 4. Quick Filter Horizontal Chips with Expandable Radius */}
@@ -1005,71 +1035,212 @@ export function VaartanowJobsBoard({
         )}
       </div>
 
-      {/* 🗂️ 5. Category Grid Section: ఉద్యోగాలు వెతకండి (2 Columns matching mockup) */}
-      <section className="space-y-2.5 pt-1">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-sm sm:text-base font-black text-[hsl(var(--foreground))]">
-              ఉద్యోగాలు వెతకండి
-            </h2>
-            <p className="text-[11px] font-bold text-[hsl(var(--muted-foreground))]">
-              మీకు సరిపోయే ఉద్యోగ విభాగాన్ని ఎంచుకోండి
-            </p>
-          </div>
+      {/* 🌟 Return Bar when in Category View */}
+      {currentView === "category" && (
+        <div className="flex items-center justify-between bg-[hsl(var(--card))] p-3 sm:p-3.5 rounded-3xl border border-[hsl(var(--border))] shadow-xs pt-1">
           <button
             type="button"
-            onClick={() => {
-              setActiveTab("all");
-              setQuickChip("all");
-            }}
-            className="text-xs font-black text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+            onClick={handleBackToHome}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 text-xs font-black transition cursor-pointer active:scale-95 shadow-xs"
           >
-            <span>అన్ని కేటగిరీలు</span>
-            <ChevronRight className="size-3.5" />
+            <ArrowLeft className="size-4" />
+            <span>← మొదటి పేజీ (అన్ని విభాగాలు)</span>
           </button>
+          <div className="flex items-center gap-2">
+            {activeCategoryInfo ? (
+              <div className={`size-7 rounded-xl flex items-center justify-center shrink-0 ${activeCategoryInfo.color}`}>
+                <activeCategoryInfo.icon className="size-4" />
+              </div>
+            ) : (
+              <div className="size-7 rounded-xl flex items-center justify-center shrink-0 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600">
+                <Layers className="size-4" />
+              </div>
+            )}
+            <span className="text-xs sm:text-sm font-black text-[hsl(var(--foreground))] truncate max-w-[140px] sm:max-w-none">
+              {activeCategoryInfo ? activeCategoryInfo.name : "అన్ని ఉద్యోగాలు"}
+            </span>
+            <span className="text-[10px] sm:text-xs font-black px-2.5 py-0.5 rounded-full bg-indigo-600 text-white shadow-xs shrink-0">
+              {jobs.length} లభ్యం
+            </span>
+          </div>
         </div>
+      )}
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-          {MANA_ADDA_CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            const isActive = activeTab === cat.slug;
-            return (
+      {/* 🗂️ 5. Category Grid Section: Shown ONLY on First Page (currentView === 'home') */}
+      {currentView === "home" && (
+        <section className="space-y-2.5 pt-1">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-sm sm:text-base font-black text-[hsl(var(--foreground))]">
+                ఉద్యోగాలు వెతకండి
+              </h2>
+              <p className="text-[11px] font-bold text-[hsl(var(--muted-foreground))]">
+                మీకు సరిపోయే ఉద్యోగ విభాగాన్ని ఎంచుకోండి
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => handleSelectCategory("all")}
+              className="text-xs font-black text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <span>అన్ని కేటగిరీలు</span>
+              <ChevronRight className="size-3.5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            {MANA_ADDA_CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              const isActive = activeTab === cat.slug;
+              return (
+                <button
+                  key={cat.slug}
+                  type="button"
+                  onClick={() => handleSelectCategory(cat.slug)}
+                  className={`p-2.5 rounded-2xl border transition flex items-center justify-between gap-2 text-left active:scale-[0.98] cursor-pointer shadow-xs ${
+                    isActive
+                      ? "bg-indigo-50 dark:bg-indigo-950/60 border-indigo-500 ring-2 ring-indigo-500/20 shadow-sm"
+                      : "bg-[hsl(var(--card))] border-[hsl(var(--border))] hover:border-indigo-300 dark:hover:border-indigo-700"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className={`size-8 rounded-xl flex items-center justify-center shrink-0 ${cat.color}`}>
+                      <Icon className="size-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="block font-black text-xs text-[hsl(var(--foreground))] truncate">
+                        {cat.name}
+                      </span>
+                      <span className="block text-[9.5px] font-bold text-[hsl(var(--muted-foreground))] truncate">
+                        {cat.enName}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight className={`size-3.5 shrink-0 transition ${isActive ? "text-indigo-600" : "text-[hsl(var(--muted-foreground))]"}`} />
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
+
+      {/* Outer Flex Container for Category View or Standard Flow */}
+      <div className={currentView === "category" ? "flex flex-row gap-2.5 sm:gap-4 lg:gap-6 items-start pt-1" : ""}>
+        {/* 👈 LEFT HAND SIDE MENU: Shown when in Category View ("all thses categories shown on le ft hand side.. onme by one left menu") */}
+        {currentView === "category" && (
+          <aside className="w-[76px] sm:w-28 md:w-64 lg:w-72 shrink-0 sticky top-20">
+            <div className="bg-[hsl(var(--card))] rounded-3xl border border-[hsl(var(--border))] shadow-xs p-2 sm:p-3 space-y-1 sm:space-y-1.5 max-h-[82vh] overflow-y-auto no-scrollbar">
+              <div className="hidden md:flex items-center justify-between px-2 py-1 border-b border-[hsl(var(--border))]/60 mb-1">
+                <span className="text-[11px] font-black uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+                  📂 ఉద్యోగ విభాగాలు
+                </span>
+                <span className="text-[10px] font-extrabold text-indigo-600">
+                  {MANA_ADDA_CATEGORIES.length}
+                </span>
+              </div>
+
+              {/* All Jobs option */}
               <button
-                key={cat.slug}
                 type="button"
                 onClick={() => {
-                  setIsTabAutoTouring(false);
-                  setActiveTab(cat.slug);
+                  setActiveTab("all");
                   setVisibleCount(30);
                 }}
-                className={`p-2.5 rounded-2xl border transition flex items-center justify-between gap-2 text-left active:scale-[0.98] cursor-pointer shadow-xs ${
-                  isActive
-                    ? "bg-indigo-50 dark:bg-indigo-950/60 border-indigo-500 ring-2 ring-indigo-500/20 shadow-sm"
-                    : "bg-[hsl(var(--card))] border-[hsl(var(--border))] hover:border-indigo-300 dark:hover:border-indigo-700"
-                }`}
+                className={`w-full rounded-2xl transition cursor-pointer active:scale-[0.98] ${
+                  activeTab === "all"
+                    ? "bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-500/20"
+                    : "bg-transparent text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))]"
+                } p-2 md:p-2.5 md:flex md:items-center md:gap-3`}
               >
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className={`size-8 rounded-xl flex items-center justify-center shrink-0 ${cat.color}`}>
-                    <Icon className="size-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <span className="block font-black text-xs text-[hsl(var(--foreground))] truncate">
-                      {cat.name}
-                    </span>
-                    <span className="block text-[9.5px] font-bold text-[hsl(var(--muted-foreground))] truncate">
-                      {cat.enName}
-                    </span>
-                  </div>
+                <div className={`size-8 rounded-xl flex items-center justify-center shrink-0 mx-auto md:mx-0 ${
+                  activeTab === "all" ? "bg-white/20 text-white" : "bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600"
+                }`}>
+                  <Layers className="size-4" />
                 </div>
-                <ChevronRight className={`size-3.5 shrink-0 transition ${isActive ? "text-indigo-600" : "text-[hsl(var(--muted-foreground))]"}`} />
+                <div className="text-center md:text-left min-w-0 mt-1 md:mt-0">
+                  <span className="block font-black text-[10px] sm:text-xs md:text-xs truncate">
+                    అన్ని ఉద్యోగాలు
+                  </span>
+                  <span className={`hidden md:block text-[9.5px] font-bold truncate ${
+                    activeTab === "all" ? "text-indigo-100" : "text-[hsl(var(--muted-foreground))]"
+                  }`}>
+                    All Jobs & Gigs
+                  </span>
+                </div>
               </button>
-            );
-          })}
-        </div>
-      </section>
 
-      {/* 🗄️ 6. Double Column Grid layout: Feed & Detail Drawer */}
-      <div className="grid gap-6 lg:grid-cols-[1.75fr_1.25fr] pt-2">
+              {/* The 12 Categories listed ONE BY ONE */}
+              {MANA_ADDA_CATEGORIES.map((cat) => {
+                const Icon = cat.icon;
+                const isActive = activeTab === cat.slug;
+                return (
+                  <button
+                    key={cat.slug}
+                    type="button"
+                    onClick={() => {
+                      setActiveTab(cat.slug);
+                      setVisibleCount(30);
+                    }}
+                    className={`w-full rounded-2xl transition cursor-pointer active:scale-[0.98] ${
+                      isActive
+                        ? "bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-500 ring-2 ring-indigo-500/20 shadow-xs"
+                        : "bg-transparent hover:bg-[hsl(var(--muted))] border border-transparent"
+                    } p-2 md:p-2.5 md:flex md:items-center md:justify-between md:gap-2`}
+                  >
+                    <div className="md:flex md:items-center md:gap-2.5 min-w-0">
+                      <div className={`size-8 rounded-xl flex items-center justify-center shrink-0 mx-auto md:mx-0 ${cat.color}`}>
+                        <Icon className="size-4" />
+                      </div>
+                      <div className="text-center md:text-left min-w-0 mt-1 md:mt-0">
+                        <span className={`block font-black text-[10px] sm:text-xs truncate ${
+                          isActive ? "text-indigo-600 dark:text-indigo-400 font-black" : "text-[hsl(var(--foreground))]"
+                        }`}>
+                          {cat.name}
+                        </span>
+                        <span className="hidden md:block text-[9.5px] font-bold text-[hsl(var(--muted-foreground))] truncate">
+                          {cat.enName}
+                        </span>
+                      </div>
+                    </div>
+                    <ChevronRight className={`hidden md:block size-3.5 shrink-0 transition ${
+                      isActive ? "text-indigo-600" : "text-[hsl(var(--muted-foreground))]"
+                    }`} />
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
+        )}
+
+        {/* 👉 MAIN CONTENT AREA: Wraps the feed & details */}
+        <div className={currentView === "category" ? "flex-1 min-w-0 space-y-3" : "space-y-3"}>
+          {/* Category Header Banner when in category view */}
+          {currentView === "category" && (
+            <div className="p-3.5 sm:p-4 rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-xs flex items-center justify-between">
+              <div className="flex items-center gap-3 min-w-0">
+                {activeCategoryInfo ? (
+                  <div className={`size-11 rounded-2xl flex items-center justify-center shrink-0 ${activeCategoryInfo.color}`}>
+                    <activeCategoryInfo.icon className="size-6" />
+                  </div>
+                ) : (
+                  <div className="size-11 rounded-2xl flex items-center justify-center shrink-0 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600">
+                    <Layers className="size-6" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <h3 className="text-sm sm:text-base font-black text-[hsl(var(--foreground))] truncate">
+                    {activeCategoryInfo ? activeCategoryInfo.name : "అన్ని ఉద్యోగాలు (All Jobs)"}
+                  </h3>
+                  <p className="text-[11px] font-bold text-[hsl(var(--muted-foreground))] truncate">
+                    {activeCategoryInfo ? activeCategoryInfo.enName : "All Categories"} · {jobs.length} ఉద్యోగాలు అందుబాటులో ఉన్నాయి
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 🗄️ 6. Double Column Grid layout: Feed & Detail Drawer */}
+          <div className="grid gap-6 lg:grid-cols-[1.75fr_1.25fr] pt-2">
         
         {/* Left Column: Recommended Job Cards Feed */}
         <div className="space-y-3">
@@ -1463,6 +1634,8 @@ export function VaartanowJobsBoard({
             )}
           </div>
         </div>
+      </div>
+      </div>
       </div>
 
       {/* 📱 FULL TELUGU JOB DETAIL POPUP MODAL (WORKS ON MOBILE & DESKTOP) */}

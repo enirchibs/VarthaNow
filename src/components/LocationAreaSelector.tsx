@@ -22,6 +22,7 @@ interface LocationAreaSelectorProps {
   label?: string;
   placeholder?: string;
   required?: boolean;
+  preferCityOrTown?: boolean;
 }
 
 function renderHighlightedText(text: string, highlight: string) {
@@ -59,7 +60,8 @@ export function LocationAreaSelector({
   onChange,
   label = "ప్రాంతం / ఏరియా / గ్రామం / మండలం (Area / Village / Mandal)",
   placeholder = "ఉదా: ఆనందపురం, కూకట్‌పల్లి, విజయవాడ... (Anandapuram, Kukatpally, Vijayawada...)",
-  required = false
+  required = false,
+  preferCityOrTown = false
 }: LocationAreaSelectorProps) {
   const [isAreaConfirmed, setIsAreaConfirmed] = useState(false);
   const [query, setQuery] = useState(value || "");
@@ -139,8 +141,11 @@ export function LocationAreaSelector({
     try {
       const result: DetailedAreaResult | null = await detectDetailedGPSArea();
       
-      if (result && result.formatted_address) {
-        let areaStr = result.formatted_address;
+      if (result && (result.city_town || result.formatted_address)) {
+        let areaStr = preferCityOrTown
+          ? (result.city_town || result.suburb_village || result.district_mandal || result.formatted_address)
+          : result.formatted_address;
+
         // 🌐 Ensure conversion into Telugu if any English text remains
         if (/[a-zA-Z]/.test(areaStr)) {
           areaStr = await convertAreaToTelugu(areaStr);
