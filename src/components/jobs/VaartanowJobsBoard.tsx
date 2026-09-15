@@ -911,6 +911,7 @@ export function VaartanowJobsBoard({
                     { label: "⚡ 20 కి.మీ పరిధిలో (20 km Radius)", value: 20 },
                     { label: "🚗 50 కి.మీ పరిధిలో (50 km Radius)", value: 50 },
                     { label: "🏙️ 100 కి.మీ పరిధిలో (100 km Radius)", value: 100 },
+                    { label: "🚀 200 కి.మీ పరిధిలో (200 km Radius)", value: 200 },
                     { label: "🌐 అన్ని దూరాలు (All Distances)", value: 0 },
                   ].map((opt) => (
                     <button
@@ -981,6 +982,7 @@ export function VaartanowJobsBoard({
               { label: "20 km", value: 20 },
               { label: "50 km", value: 50 },
               { label: "100 km", value: 100 },
+              { label: "200 km", value: 200 },
               { label: "అన్నీ (All)", value: 0 },
             ].map((r) => {
               const isRadiusActive = selectedRadius === r.value;
