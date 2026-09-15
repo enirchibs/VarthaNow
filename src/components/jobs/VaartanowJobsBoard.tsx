@@ -549,10 +549,12 @@ export function VaartanowJobsBoard({
   return (
     <div className="space-y-3.5">
       {/* 🌟 1. Mana Adda Brand Header: Logo, Town Selector, Notifications & Profile */}
-      <header className="rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-5 shadow-lg border border-indigo-500/20 relative overflow-hidden">
-        {/* Background Glows */}
-        <div className="absolute -left-20 -top-20 size-40 rounded-full bg-blue-500/20 blur-3xl pointer-events-none" />
-        <div className="absolute -right-20 -bottom-20 size-40 rounded-full bg-emerald-500/20 blur-3xl pointer-events-none" />
+      <header className="rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-4 sm:p-5 shadow-lg border border-indigo-500/20 relative z-30">
+        {/* Background Glows (Contained) */}
+        <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+          <div className="absolute -left-20 -top-20 size-40 rounded-full bg-blue-500/20 blur-3xl" />
+          <div className="absolute -right-20 -bottom-20 size-40 rounded-full bg-emerald-500/20 blur-3xl" />
+        </div>
 
         <div className="flex items-center justify-between gap-3 relative z-10">
           {/* Left: Brand + Tagline + Location Picker */}
@@ -576,18 +578,18 @@ export function VaartanowJobsBoard({
               <button
                 type="button"
                 onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-black text-white transition active:scale-95 cursor-pointer shadow-sm"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-black text-white transition active:scale-95 cursor-pointer shadow-sm"
               >
                 <MapPin className="size-3.5 text-rose-400 shrink-0" />
-                <span className="truncate max-w-[130px] sm:max-w-[170px]">
-                  {selectedTown || "విశాఖపట్నం ∨"}
+                <span className="truncate max-w-[170px] sm:max-w-[260px]">
+                  {selectedTown || "విశాఖపట్నం (Visakhapatnam)"}
                 </span>
                 <ChevronDown className="size-3 text-zinc-300 shrink-0" />
               </button>
 
               {/* Dropdown Menu */}
               {isLocationDropdownOpen && (
-                <div className="absolute left-0 top-full mt-2 w-72 sm:w-80 max-h-80 overflow-y-auto rounded-2xl bg-slate-900 border border-slate-700 shadow-2xl p-2 z-50 animate-in fade-in-50 zoom-in-95 text-xs text-white divide-y divide-slate-800">
+                <div className="absolute left-0 top-full mt-2 w-80 sm:w-96 max-h-[26rem] overflow-y-auto rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-indigo-500/40 shadow-2xl shadow-black/80 p-2 z-[60] animate-in fade-in-50 zoom-in-95 text-xs text-white divide-y divide-slate-800">
                   {/* 1-tap GPS Button */}
                   <div className="p-1">
                     <button
@@ -597,7 +599,7 @@ export function VaartanowJobsBoard({
                         handleDetectGPS();
                       }}
                       disabled={isGPSDetecting}
-                      className="w-full flex items-center gap-2 p-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow transition active:scale-95 cursor-pointer"
+                      className="w-full flex items-center gap-2 p-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow transition active:scale-95 cursor-pointer"
                     >
                       {isGPSDetecting ? (
                         <Loader2 className="size-4 animate-spin text-white shrink-0" />
@@ -609,8 +611,8 @@ export function VaartanowJobsBoard({
                   </div>
 
                   {/* AP & TG Main Cities */}
-                  <div className="p-1.5 space-y-1">
-                    <div className="text-[10px] font-black uppercase text-indigo-400 px-2 py-0.5">
+                  <div className="p-2 space-y-1">
+                    <div className="text-[10px] font-black uppercase text-indigo-400 px-2 py-1 tracking-wider">
                       🏙️ AP & TG ప్రధాన నగరాలు (Main Cities)
                     </div>
                     {[
@@ -636,19 +638,21 @@ export function VaartanowJobsBoard({
                           setSelectedDistrict(city.split("(")[1]?.replace(")", "") || "");
                           setIsLocationDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between font-bold transition hover:bg-white/10 ${
-                          selectedTown === city ? "bg-indigo-600 text-white" : "text-zinc-300"
+                        className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between font-bold text-xs transition cursor-pointer ${
+                          selectedTown === city 
+                            ? "bg-indigo-600 text-white shadow-sm" 
+                            : "text-zinc-200 hover:bg-slate-800 hover:text-white"
                         }`}
                       >
-                        <span>{city}</span>
-                        {selectedTown === city && <Check className="size-3.5 text-white" />}
+                        <span className="truncate">{city}</span>
+                        {selectedTown === city && <Check className="size-4 text-white shrink-0 ml-2" />}
                       </button>
                     ))}
                   </div>
 
                   {/* Town / Mandal Localities */}
-                  <div className="p-1.5 space-y-1">
-                    <div className="text-[10px] font-black uppercase text-emerald-400 px-2 py-0.5">
+                  <div className="p-2 space-y-1">
+                    <div className="text-[10px] font-black uppercase text-emerald-400 px-2 py-1 tracking-wider">
                       📍 లోకల్ టౌన్లు & మండలాలు (Towns & Mandals)
                     </div>
                     {[
@@ -669,18 +673,20 @@ export function VaartanowJobsBoard({
                           setSelectedTown(town);
                           setIsLocationDropdownOpen(false);
                         }}
-                        className={`w-full text-left px-2.5 py-1.5 rounded-lg flex items-center justify-between font-bold transition hover:bg-white/10 ${
-                          selectedTown === town ? "bg-indigo-600 text-white" : "text-zinc-300"
+                        className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between font-bold text-xs transition cursor-pointer ${
+                          selectedTown === town 
+                            ? "bg-indigo-600 text-white shadow-sm" 
+                            : "text-zinc-200 hover:bg-slate-800 hover:text-white"
                         }`}
                       >
-                        <span>{town}</span>
-                        {selectedTown === town && <Check className="size-3.5 text-white" />}
+                        <span className="truncate">{town}</span>
+                        {selectedTown === town && <Check className="size-4 text-white shrink-0 ml-2" />}
                       </button>
                     ))}
                   </div>
 
                   {/* All Locations */}
-                  <div className="p-1">
+                  <div className="p-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -688,7 +694,7 @@ export function VaartanowJobsBoard({
                         setSelectedDistrict("");
                         setIsLocationDropdownOpen(false);
                       }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-lg font-bold text-zinc-400 hover:bg-white/10 hover:text-white transition"
+                      className="w-full text-left px-3 py-2 rounded-xl font-bold text-xs text-zinc-400 hover:bg-slate-800 hover:text-white transition cursor-pointer"
                     >
                       🌐 అన్ని నగరాలు & పట్టణాలు (All Locations)
                     </button>
