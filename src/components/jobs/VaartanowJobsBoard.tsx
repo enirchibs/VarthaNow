@@ -40,7 +40,8 @@ import {
   Crosshair,
   Loader2,
   ArrowLeft,
-  Layers
+  Layers,
+  Globe
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { 
@@ -54,8 +55,11 @@ import {
 } from "@/lib/jobs-api";
 import type { VaartanowJob, JobFilters, AIResumeAnalysis } from "@/types/jobs";
 import { JobPostModal } from "./JobPostModal";
-import { LocationAreaSelector } from "@/components/LocationAreaSelector";
-import { detectDetailedGPSArea } from "@/lib/location-detector";
+import { 
+  detectDetailedGPSArea, 
+  searchAreaAutocomplete, 
+  convertAreaToTelugu 
+} from "@/lib/location-detector";
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { UserProfile, getStoredUserProfile, PROFILE_EVENT_NAME } from "@/lib/user-profile";
 
@@ -115,7 +119,7 @@ export function VaartanowJobsBoard({
   const [activeTab, setActiveTab] = useState<string>(initialCategoryFilter || "all");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedAreaLocality, setSelectedAreaLocality] = useState("");
-  const [selectedTown, setSelectedTown] = useState<string>("విశాఖపట్నం (Visakhapatnam)");
+  const [selectedTown, setSelectedTown] = useState<string>("అన్ని నగరాలు (All Cities)");
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [quickChip, setQuickChip] = useState<string>("all");
   const [selectedRadius, setSelectedRadius] = useState<number>(20); // 10, 20, 50, 100, or 0 (all)
@@ -128,6 +132,39 @@ export function VaartanowJobsBoard({
     }
     return "home";
   });
+
+  // Locality / Area search inside Black Box
+  const [areaSuggestions, setAreaSuggestions] = useState<string[]>([]);
+  const [isAreaDropdownOpen, setIsAreaDropdownOpen] = useState(false);
+  const areaSearchDropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleAreaInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSelectedAreaLocality(val);
+    if (val.trim().length >= 2) {
+      try {
+        const results = await searchAreaAutocomplete(val);
+        setAreaSuggestions(results);
+        setIsAreaDropdownOpen(results.length > 0);
+      } catch {
+        setAreaSuggestions([]);
+      }
+    } else {
+      setAreaSuggestions([]);
+      setIsAreaDropdownOpen(false);
+    }
+  };
+
+  const handleSelectAreaSuggestion = async (sug: string) => {
+    let finalArea = sug;
+    if (/[a-zA-Z]/.test(finalArea)) {
+      finalArea = await convertAreaToTelugu(finalArea);
+    }
+    setSelectedAreaLocality(finalArea);
+    setSelectedTown(finalArea);
+    setIsAreaDropdownOpen(false);
+    setAreaSuggestions([]);
+  };
 
   const activeCategoryInfo = MANA_ADDA_CATEGORIES.find((c) => c.slug === activeTab) || null;
 
@@ -188,6 +225,9 @@ export function VaartanowJobsBoard({
       if (notificationsRef.current && !notificationsRef.current.contains(e.target as Node)) {
         setIsNotificationsOpen(false);
       }
+      if (areaSearchDropdownRef.current && !areaSearchDropdownRef.current.contains(e.target as Node)) {
+        setIsAreaDropdownOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -213,19 +253,23 @@ export function VaartanowJobsBoard({
     try {
       const area = await detectDetailedGPSArea();
       if (area) {
-        const detectedName = area.suburb_village || area.city_town || area.formatted_address || "విశాఖపట్నం";
+        let detectedName = area.city_town || area.suburb_village || area.district_mandal || area.formatted_address || "విశాఖపట్నం";
+        if (/[a-zA-Z]/.test(detectedName)) {
+          detectedName = await convertAreaToTelugu(detectedName);
+        }
         setSelectedTown(detectedName);
+        setSelectedAreaLocality(detectedName);
         setQuickChip("near_me");
         setActiveTab("NearMe");
         setGpsNotice(`✅ మీ లొకేషన్ గుర్తించబడింది: ${detectedName}`);
       } else {
-        setSelectedTown("విశాఖపట్నం (Visakhapatnam)");
+        setSelectedTown("అన్ని నగరాలు (All Cities)");
         setQuickChip("near_me");
         setActiveTab("NearMe");
         setGpsNotice("✅ స్థానిక ఉద్యోగాలు లోడ్ చేయబడ్డాయి.");
       }
     } catch {
-      setSelectedTown("విశాఖపట్నం (Visakhapatnam)");
+      setSelectedTown("అన్ని నగరాలు (All Cities)");
       setQuickChip("near_me");
       setActiveTab("NearMe");
       setGpsNotice("✅ సమీప ఉద్యోగాలు లోడ్ చేయబడ్డాయి.");
@@ -283,9 +327,10 @@ export function VaartanowJobsBoard({
       setLoading(true);
       
       // Determine district / locality filter parameter
+      const isAllCities = !selectedDistrict || selectedTown === "అన్ని నగరాలు (All Cities)" || selectedTown === "";
       const districtFilter = (selectedDistrict === "Remote" || selectedDistrict === "Freelance" || selectedDistrict === "Apprenticeship")
         ? ""
-        : (selectedAreaLocality || selectedDistrict);
+        : (isAllCities ? (selectedAreaLocality && selectedAreaLocality !== "అన్ని నగరాలు (All Cities)" ? selectedAreaLocality : "") : (selectedAreaLocality || selectedDistrict));
 
       const data = await getJobsList({
         query: searchQuery,
@@ -636,7 +681,7 @@ export function VaartanowJobsBoard({
               >
                 <MapPin className="size-3.5 text-rose-400 shrink-0" />
                 <span className="truncate max-w-[170px] sm:max-w-[260px]">
-                  {selectedTown || "విశాఖపట్నం (Visakhapatnam)"}
+                  {selectedTown || "అన్ని నగరాలు (All Cities)"}
                 </span>
                 <ChevronDown className="size-3 text-zinc-300 shrink-0" />
               </button>
@@ -644,7 +689,33 @@ export function VaartanowJobsBoard({
               {/* Dropdown Menu */}
               {isLocationDropdownOpen && (
                 <div className="absolute left-0 top-full mt-2 w-80 sm:w-96 max-h-[26rem] overflow-y-auto rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-indigo-500/40 shadow-2xl shadow-black/80 p-2 z-[60] animate-in fade-in-50 zoom-in-95 text-xs text-white divide-y divide-slate-800">
-                  {/* 1-tap GPS Button */}
+                  {/* All Cities & Jobs (Default) */}
+                  <div className="p-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedTown("అన్ని నగరాలు (All Cities)");
+                        setSelectedDistrict("");
+                        setSelectedAreaLocality("");
+                        setIsLocationDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between font-black text-xs transition cursor-pointer ${
+                        selectedTown === "అన్ని నగరాలు (All Cities)" || !selectedTown
+                          ? "bg-indigo-600 text-white shadow-sm"
+                          : "text-zinc-200 hover:bg-slate-800 hover:text-white"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        <Globe className="size-4 text-emerald-400 shrink-0" />
+                        <span>🌐 అన్ని నగరాలు & ప్రాంతాలు (All Cities & Jobs)</span>
+                      </span>
+                      {(selectedTown === "అన్ని నగరాలు (All Cities)" || !selectedTown) && (
+                        <Check className="size-4 text-white shrink-0 ml-2" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* 1-tap GPS Button inside dropdown */}
                   <div className="p-1">
                     <button
                       type="button"
@@ -653,7 +724,7 @@ export function VaartanowJobsBoard({
                         handleDetectGPS();
                       }}
                       disabled={isGPSDetecting}
-                      className="w-full flex items-center gap-2 p-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow transition active:scale-95 cursor-pointer"
+                      className="w-full flex items-center gap-2 p-2 rounded-xl bg-gradient-to-r from-emerald-600/80 to-teal-600/80 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow transition active:scale-95 cursor-pointer"
                     >
                       {isGPSDetecting ? (
                         <Loader2 className="size-4 animate-spin text-white shrink-0" />
@@ -815,6 +886,247 @@ export function VaartanowJobsBoard({
             </button>
           </div>
         </div>
+
+        {/* Row 2: Locality / Area Search Bar + 1-Tap GPS Detector */}
+        <div className="flex flex-col sm:flex-row gap-2 pt-2 relative z-20">
+          {/* Area / Locality Search Bar with Autocomplete */}
+          <div className="relative flex-1" ref={areaSearchDropdownRef}>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-emerald-400 shrink-0 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="ఏరియా / లోకల్ పట్టణం పేరుతో వెతకండి (ఉదా: గాజువాక, మధురవాడ, కూకట్‌పల్లి, బెంజ్ సర్కిల్...)"
+                value={selectedAreaLocality}
+                onChange={handleAreaInputChange}
+                onFocus={() => {
+                  if (areaSuggestions.length > 0) setIsAreaDropdownOpen(true);
+                }}
+                className="w-full h-10 pl-9 pr-8 rounded-2xl bg-white/10 hover:bg-white/15 focus:bg-white/20 border border-white/20 text-white placeholder:text-zinc-400 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-emerald-400 shadow-inner transition"
+              />
+              {selectedAreaLocality && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedAreaLocality("");
+                    setIsAreaDropdownOpen(false);
+                    setAreaSuggestions([]);
+                  }}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white p-0.5 rounded-full cursor-pointer"
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Autocomplete Suggestions Dropdown */}
+            {isAreaDropdownOpen && areaSuggestions.length > 0 && (
+              <div className="absolute left-0 top-full mt-1.5 w-full max-h-56 overflow-y-auto rounded-2xl bg-slate-900/98 backdrop-blur-xl border border-emerald-500/40 shadow-2xl p-1.5 z-[75] text-xs text-white divide-y divide-slate-800 animate-in fade-in-50 zoom-in-95">
+                <div className="px-2.5 py-1 text-[10px] font-black uppercase text-emerald-400 tracking-wider">
+                  📍 సరిపోలిన ప్రాంతాలు (Matching Areas)
+                </div>
+                <div className="p-1 space-y-0.5">
+                  {areaSuggestions.map((sug, idx) => (
+                    <button
+                      key={`${sug}-${idx}`}
+                      type="button"
+                      onClick={() => handleSelectAreaSuggestion(sug)}
+                      className="w-full text-left px-3 py-2 rounded-xl flex items-center justify-between font-bold text-xs text-zinc-200 hover:bg-emerald-600/30 hover:text-white transition cursor-pointer"
+                    >
+                      <span className="truncate flex items-center gap-1.5">
+                        <MapPin className="size-3.5 text-emerald-400 shrink-0" />
+                        {sug}
+                      </span>
+                      <Check className="size-3.5 text-emerald-400 opacity-60" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 1-Tap GPS Button */}
+          <button
+            type="button"
+            onClick={handleDetectGPS}
+            disabled={isGPSDetecting}
+            className="h-10 px-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-md border border-emerald-400/30 transition cursor-pointer shrink-0 disabled:opacity-60"
+            title="మీ ప్రస్తుత GPS ప్రాంతాన్ని ఆటోమేటిక్‌గా గుర్తించండి"
+          >
+            {isGPSDetecting ? (
+              <Loader2 className="size-4 animate-spin text-white shrink-0" />
+            ) : (
+              <Crosshair className="size-4 text-emerald-200 shrink-0" />
+            )}
+            <span>{isGPSDetecting ? "గుర్తిస్తున్నాం..." : "🎯 నా ప్రాంతం (GPS)"}</span>
+          </button>
+        </div>
+
+        {/* Row 3: Role, Skills, Company Search */}
+        <div className="relative z-10 pt-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-indigo-300 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="ఉద్యోగాలు, నైపుణ్యాలు లేదా కంపెనీ పేరు వెతకండి... (ఉదా: డ్రైవర్, సేల్స్, IT, ఆఫీస్)"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setSearchQuery(searchInput);
+              }
+            }}
+            className="w-full h-10 pl-9 pr-24 rounded-2xl bg-white/10 hover:bg-white/15 focus:bg-white/20 border border-white/20 text-white placeholder:text-zinc-400 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-inner transition"
+          />
+          {searchInput && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchInput("");
+                setSearchQuery("");
+              }}
+              className="absolute right-20 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white p-0.5 rounded-full cursor-pointer"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setSearchQuery(searchInput)}
+            className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[11px] font-black tracking-wide transition active:scale-95 shadow cursor-pointer"
+          >
+            వెతకండి
+          </button>
+        </div>
+
+        {/* Row 4: Near Me Radius + Quick Kilometer Pills + Category Chips */}
+        <div className="space-y-2 pt-1 border-t border-white/10 relative z-10">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-xs font-black relative">
+            {/* 📍 Expandable 'Near Me' Radius Chip */}
+            <div className="relative shrink-0" ref={nearMeDropdownRef}>
+              <button
+                type="button"
+                onClick={() => {
+                  if (quickChip !== "near_me") {
+                    setQuickChip("near_me");
+                    setActiveTab("NearMe");
+                  }
+                  setIsNearMeDropdownOpen(!isNearMeDropdownOpen);
+                }}
+                className={`px-3 py-1.5 rounded-full shrink-0 border transition active:scale-95 cursor-pointer flex items-center gap-1.5 text-[11px] font-black ${
+                  quickChip === "near_me"
+                    ? "bg-indigo-600 text-white border-indigo-400 shadow-md ring-2 ring-indigo-400/40"
+                    : "bg-white/10 border-white/20 text-zinc-200 hover:bg-white/20 hover:text-white"
+                }`}
+              >
+                <Compass className="size-3 text-emerald-300 shrink-0" />
+                <span>📍 నా దగ్గర {selectedRadius > 0 ? `(${selectedRadius} km)` : "(All)"}</span>
+                <ChevronDown className={`size-3 transition-transform ${isNearMeDropdownOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {/* Kilometer Radius Dropdown Menu */}
+              {isNearMeDropdownOpen && (
+                <div className="absolute left-0 top-full mt-2 w-64 rounded-2xl bg-slate-900/98 backdrop-blur-xl border border-indigo-500/50 shadow-2xl p-2 z-[70] animate-in fade-in-50 zoom-in-95 text-xs text-white divide-y divide-slate-800">
+                  <div className="px-2.5 py-1 text-[10px] font-black uppercase text-indigo-400 tracking-wider">
+                    📏 దూరం పరిధి (Distance Range)
+                  </div>
+                  <div className="p-1 space-y-1">
+                    {[
+                      { label: "📍 10 కి.మీ లోపు (Local < 10 km)", value: 10 },
+                      { label: "⚡ 20 కి.మీ పరిధిలో (20 km Radius)", value: 20 },
+                      { label: "🚗 50 కి.మీ పరిధిలో (50 km Radius)", value: 50 },
+                      { label: "🏙️ 100 కి.మీ పరిధిలో (100 km Radius)", value: 100 },
+                      { label: "🚀 200 కి.మీ పరిధిలో (200 km Radius)", value: 200 },
+                      { label: "🌐 అన్ని దూరాలు (All Distances)", value: 0 },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          setSelectedRadius(opt.value);
+                          setQuickChip("near_me");
+                          setActiveTab("NearMe");
+                          setIsNearMeDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between font-bold text-xs transition cursor-pointer ${
+                          selectedRadius === opt.value
+                            ? "bg-indigo-600 text-white shadow-sm"
+                            : "text-zinc-200 hover:bg-slate-800 hover:text-white"
+                        }`}
+                      >
+                        <span>{opt.label}</span>
+                        {selectedRadius === opt.value && <Check className="size-4 text-white shrink-0 ml-1.5" />}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Other Quick Filter Chips */}
+            {[
+              { id: "govt", label: "🏛️ ప్రభుత్వ ఉద్యోగాలు" },
+              { id: "freshers", label: "🎓 Freshers" },
+              { id: "wfh", label: "🏠 Remote Work From Home" },
+              { id: "part_time", label: "⏱️ Part-time" },
+              { id: "onsite", label: "🏢 On-site" },
+            ].map((chip) => {
+              const isSelected = quickChip === chip.id;
+              return (
+                <button
+                  key={chip.id}
+                  type="button"
+                  onClick={() => {
+                    if (isSelected) {
+                      setQuickChip("all");
+                    } else {
+                      setQuickChip(chip.id);
+                    }
+                  }}
+                  className={`px-3 py-1.5 rounded-full shrink-0 border transition active:scale-95 cursor-pointer flex items-center gap-1 text-[11px] ${
+                    isSelected
+                      ? "bg-indigo-600 text-white border-indigo-400 shadow-md ring-2 ring-indigo-400/40"
+                      : "bg-white/10 border-white/20 text-zinc-300 hover:bg-white/20 hover:text-white"
+                  }`}
+                >
+                  <span>{chip.label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 🚀 Quick 1-Tap Kilometer Buttons when "నా దగ్గర" is active */}
+          {quickChip === "near_me" && (
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-2.5 bg-white/10 rounded-2xl border border-indigo-400/30 animate-in fade-in slide-in-from-top-1 text-xs">
+              <span className="text-[10.5px] sm:text-[11px] font-black text-indigo-300 shrink-0 flex items-center gap-1">
+                <Compass className="size-3 text-indigo-400" />
+                పరిధి (Radius):
+              </span>
+              {[
+                { label: "10 km", value: 10 },
+                { label: "20 km", value: 20 },
+                { label: "50 km", value: 50 },
+                { label: "100 km", value: 100 },
+                { label: "200 km", value: 200 },
+                { label: "అన్నీ (All)", value: 0 },
+              ].map((r) => {
+                const isRadiusActive = selectedRadius === r.value;
+                return (
+                  <button
+                    key={r.value}
+                    type="button"
+                    onClick={() => setSelectedRadius(r.value)}
+                    className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-extrabold transition shrink-0 active:scale-95 cursor-pointer ${
+                      isRadiusActive
+                        ? "bg-indigo-600 text-white shadow-xs ring-1 ring-white/50"
+                        : "bg-white/15 hover:bg-white/25 border border-white/20 text-zinc-200"
+                    }`}
+                  >
+                    {r.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </header>
 
       {/* GPS Status Notice Banner */}
@@ -859,180 +1171,6 @@ export function VaartanowJobsBoard({
           <PlusCircle className="size-3.5" />
           <span>+ ప్రకటన పోస్ట్ చేయండి</span>
         </button>
-      </div>
-
-      {/* 🔍 3. Town or City Search & GPS Detector (Matching User Screenshot Exactly) */}
-      <div className="bg-[hsl(var(--card))] p-3.5 sm:p-4 rounded-3xl border border-[hsl(var(--border))] shadow-xs space-y-3">
-        <LocationAreaSelector
-          value={selectedAreaLocality || selectedTown}
-          onChange={(newArea) => {
-            setSelectedAreaLocality(newArea);
-            setSelectedTown(newArea);
-            if (newArea) {
-              setQuickChip("near_me");
-              setActiveTab("NearMe");
-            }
-          }}
-          label="పట్టణం / నగరం / ప్రాంతం (TOWN / CITY / AREA)"
-          placeholder="ఉదా: విశాఖపట్నం, హైదరాబాద్, విజయవాడ... (నగరం లేదా పట్టణం పేరుతో వెతకండి)"
-          preferCityOrTown={true}
-        />
-
-        {/* Companion Search for Job Role, Company or Skills */}
-        <div className="flex gap-2 pt-1 border-t border-[hsl(var(--border))]/60">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400" />
-            <input
-              type="text"
-              placeholder="ఉద్యోగాలు, నైపుణ్యాలు లేదా కంపెనీ పేరు వెతకండి..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  setSearchQuery(searchInput);
-                }
-              }}
-              className="w-full h-10 pl-9 pr-20 rounded-2xl bg-[hsl(var(--muted))]/60 border border-[hsl(var(--border))] text-[hsl(var(--foreground))] text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder-zinc-400 shadow-xs transition"
-            />
-            <button
-              type="button"
-              onClick={() => setSearchQuery(searchInput)}
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-[10px] font-black uppercase tracking-wider transition active:scale-95 shadow cursor-pointer"
-            >
-              వెతకండి
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 🏷️ 4. Quick Filter Horizontal Chips with Expandable Radius */}
-      <div className="space-y-1.5 pt-0.5">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 text-xs font-black relative">
-          {/* 📍 Expandable 'Near Me' Radius Chip */}
-          <div className="relative shrink-0" ref={nearMeDropdownRef}>
-            <button
-              type="button"
-              onClick={() => {
-                if (quickChip !== "near_me") {
-                  setQuickChip("near_me");
-                  setActiveTab("NearMe");
-                }
-                setIsNearMeDropdownOpen(!isNearMeDropdownOpen);
-              }}
-              className={`px-3.5 py-1.5 rounded-full shrink-0 border transition active:scale-95 cursor-pointer flex items-center gap-1.5 text-[11px] font-black ${
-                quickChip === "near_me"
-                  ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                  : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-indigo-400"
-              }`}
-            >
-              <span>📍 నా దగ్గర {selectedRadius > 0 ? `(${selectedRadius} km)` : "(All)"}</span>
-              <ChevronDown className={`size-3 transition-transform ${isNearMeDropdownOpen ? "rotate-180" : ""}`} />
-            </button>
-
-            {/* Kilometer Radius Dropdown Menu */}
-            {isNearMeDropdownOpen && (
-              <div className="absolute left-0 top-full mt-2 w-64 rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-indigo-500/40 shadow-2xl p-2 z-[70] animate-in fade-in-50 zoom-in-95 text-xs text-white divide-y divide-slate-800">
-                <div className="px-2.5 py-1 text-[10px] font-black uppercase text-indigo-400 tracking-wider">
-                  📏 దూరం పరిధి (Distance Range)
-                </div>
-                <div className="p-1 space-y-1">
-                  {[
-                    { label: "📍 10 కి.మీ లోపు (Local < 10 km)", value: 10 },
-                    { label: "⚡ 20 కి.మీ పరిధిలో (20 km Radius)", value: 20 },
-                    { label: "🚗 50 కి.మీ పరిధిలో (50 km Radius)", value: 50 },
-                    { label: "🏙️ 100 కి.మీ పరిధిలో (100 km Radius)", value: 100 },
-                    { label: "🚀 200 కి.మీ పరిధిలో (200 km Radius)", value: 200 },
-                    { label: "🌐 అన్ని దూరాలు (All Distances)", value: 0 },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      type="button"
-                      onClick={() => {
-                        setSelectedRadius(opt.value);
-                        setQuickChip("near_me");
-                        setActiveTab("NearMe");
-                        setIsNearMeDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-xl flex items-center justify-between font-bold text-xs transition cursor-pointer ${
-                        selectedRadius === opt.value
-                          ? "bg-indigo-600 text-white shadow-sm"
-                          : "text-zinc-200 hover:bg-slate-800 hover:text-white"
-                      }`}
-                    >
-                      <span>{opt.label}</span>
-                      {selectedRadius === opt.value && <Check className="size-4 text-white shrink-0 ml-1.5" />}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Other Quick Filter Chips */}
-          {[
-            { id: "govt", label: "🏛️ ప్రభుత్వ ఉద్యోగాలు" },
-            { id: "freshers", label: "🎓 Freshers" },
-            { id: "wfh", label: "🏠 Remote Work From Home" },
-            { id: "part_time", label: "⏱️ Part-time" },
-            { id: "onsite", label: "🏢 On-site" },
-          ].map((chip) => {
-            const isSelected = quickChip === chip.id;
-            return (
-              <button
-                key={chip.id}
-                type="button"
-                onClick={() => {
-                  if (isSelected) {
-                    setQuickChip("all");
-                  } else {
-                    setQuickChip(chip.id);
-                  }
-                }}
-                className={`px-3 py-1.5 rounded-full shrink-0 border transition active:scale-95 cursor-pointer flex items-center gap-1 text-[11px] ${
-                  isSelected
-                    ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                    : "bg-[hsl(var(--card))] border-[hsl(var(--border))] text-[hsl(var(--foreground))] hover:border-indigo-400"
-                }`}
-              >
-                <span>{chip.label}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* 🚀 Quick 1-Tap Kilometer Buttons when "నా దగ్గర" is selected */}
-        {quickChip === "near_me" && (
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1 px-2.5 bg-indigo-50/70 dark:bg-indigo-950/40 rounded-2xl border border-indigo-500/20 animate-in fade-in slide-in-from-top-1 text-xs">
-            <span className="text-[10.5px] sm:text-[11px] font-black text-indigo-700 dark:text-indigo-300 shrink-0 flex items-center gap-1">
-              <Compass className="size-3 text-indigo-500" />
-              పరిధి (Radius):
-            </span>
-            {[
-              { label: "10 km", value: 10 },
-              { label: "20 km", value: 20 },
-              { label: "50 km", value: 50 },
-              { label: "100 km", value: 100 },
-              { label: "200 km", value: 200 },
-              { label: "అన్నీ (All)", value: 0 },
-            ].map((r) => {
-              const isRadiusActive = selectedRadius === r.value;
-              return (
-                <button
-                  key={r.value}
-                  type="button"
-                  onClick={() => setSelectedRadius(r.value)}
-                  className={`px-3 py-1 rounded-full text-[10.5px] font-extrabold transition shrink-0 active:scale-95 cursor-pointer ${
-                    isRadiusActive
-                      ? "bg-indigo-600 text-white shadow-xs"
-                      : "bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-800/60 text-slate-700 dark:text-slate-300 hover:border-indigo-400"
-                  }`}
-                >
-                  {r.label}
-                </button>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       {/* 🌟 Return Bar when in Category View */}
