@@ -66,6 +66,7 @@ export function Layout() {
   const cancelTourDelayRef = useRef<(() => void) | null>(null);
   const isNavTourActiveRef = useRef(false);
   const userInteractionResumeTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const runCategoryFlowRef = useRef<(() => void) | null>(null);
 
   // 🛑 Immediately stop category tour on user interaction, and resume after 30s of inactivity
   const stopCategoryTour = useCallback(() => {
@@ -81,6 +82,9 @@ export function Layout() {
     if (userInteractionResumeTimerRef.current) clearTimeout(userInteractionResumeTimerRef.current);
     userInteractionResumeTimerRef.current = setTimeout(() => {
       userInteractedNavRef.current = false;
+      if (runCategoryFlowRef.current) {
+        runCategoryFlowRef.current();
+      }
     }, 30000);
   }, []);
 
@@ -153,16 +157,18 @@ export function Layout() {
   }, []);
 
   // 🎡 Category auto-scroll flow:
-  // 1. Highlight for 10 seconds at start
-  // 2. Move right smoothly until reaching the end of category
-  // 3. Return smoothly to start
-  // 4. Wait for 30 seconds, then start move again
+  // 1. After opening app: wait 10-15 seconds on 'మీ వార్తలు'
+  // 2. Then local jobs, then jatakmi, then viral shorts.. so on until end
+  //    Wait 10 seconds on each category
+  // 3. After one round: wait 30 seconds
+  // 4. Start from first again
   // 🛑 Pauses immediately if user interacts, and resumes after 30 seconds of inactivity
   useEffect(() => {
     const navEl = navRef.current;
     if (!navEl) return;
 
     let isComponentMounted = true;
+    let isFirstOpen = true;
 
     const handleUserInteraction = () => {
       stopCategoryTour();
@@ -192,9 +198,13 @@ export function Layout() {
       isNavTourActiveRef.current = true;
       setIsNavAnimating(true);
 
-      // STEP 1: Highlight for 10 seconds at start (Index 1: 'మీ వార్తలు')
+      // STEP 1: First category (Index 1: 'మీ వార్తలు')
+      // After opening app: wait 15 seconds (10-15s), repeat rounds wait 10 seconds
       setHighlightedIndex(1);
       currentNavEl.scrollTo({ left: 0, behavior: "smooth" });
+
+      const initialWaitMs = isFirstOpen ? 15000 : 10000;
+      isFirstOpen = false;
 
       await new Promise<void>((resolve) => {
         let timer: any = null;
@@ -203,7 +213,7 @@ export function Layout() {
           resolve();
         };
         cancelTourDelayRef.current = finish;
-        timer = setTimeout(finish, 10000); // 10 seconds highlight
+        timer = setTimeout(finish, initialWaitMs);
       });
       cancelTourDelayRef.current = null;
 
@@ -213,7 +223,8 @@ export function Layout() {
         return;
       }
 
-      // STEP 2: Move right until end of category
+      // STEP 2: Move to local jobs (Index 2), then jatakmi (Index 3), then viral shorts (Index 4)... so on until end
+      // "wait 10 sec on each category.."
       for (let i = 2; i < children.length; i++) {
         if (!isComponentMounted || !isNavTourActiveRef.current || userInteractedNavRef.current) break;
 
@@ -229,7 +240,7 @@ export function Layout() {
           }
         }
 
-        // Delay between moving items
+        // Wait 10 seconds on each category!
         await new Promise<void>((resolve) => {
           let timer: any = null;
           const finish = () => {
@@ -237,32 +248,19 @@ export function Layout() {
             resolve();
           };
           cancelTourDelayRef.current = finish;
-          timer = setTimeout(finish, 1600);
+          timer = setTimeout(finish, 10000); // 10 seconds wait on each category
         });
         cancelTourDelayRef.current = null;
       }
 
-      // Showcase the end of category
-      if (isComponentMounted && isNavTourActiveRef.current && !userInteractedNavRef.current) {
-        await new Promise<void>((resolve) => {
-          let timer: any = null;
-          const finish = () => {
-            if (timer) clearTimeout(timer);
-            resolve();
-          };
-          cancelTourDelayRef.current = finish;
-          timer = setTimeout(finish, 2500);
-        });
-        cancelTourDelayRef.current = null;
-      }
-
-      // STEP 3: Once one flow done.. return smoothly to start, wait for 30 seconds
+      // STEP 3: After one round... clear highlight, return smoothly to start, wait for 30 seconds
+      // "after one round. wait 30 sec. than start from forst"
       setHighlightedIndex(null);
       setIsNavAnimating(false);
       currentNavEl.scrollTo({ left: 0, behavior: "smooth" });
       isNavTourActiveRef.current = false;
 
-      // Wait for 30 seconds before next move
+      // Wait for 30 seconds before starting from first again
       await new Promise<void>((resolve) => {
         let timer: any = null;
         const finish = () => {
@@ -270,21 +268,24 @@ export function Layout() {
           resolve();
         };
         cancelTourDelayRef.current = finish;
-        timer = setTimeout(finish, 30000); // 30 seconds wait
+        timer = setTimeout(finish, 30000); // 30 seconds wait after one round
       });
       cancelTourDelayRef.current = null;
 
-      // STEP 4: Start move again!
+      // STEP 4: Start from first again!
       if (isComponentMounted && !userInteractedNavRef.current) {
         runCategoryFlow();
       }
     };
+
+    runCategoryFlowRef.current = runCategoryFlow;
 
     // Trigger initial flow
     runCategoryFlow();
 
     return () => {
       isComponentMounted = false;
+      runCategoryFlowRef.current = null;
       stopCategoryTour();
       if (navEl) {
         interactionEvents.forEach((evt) => {
