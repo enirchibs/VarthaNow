@@ -64,8 +64,9 @@ export function Layout() {
   const userInteractedNavRef = useRef(false);
   const cancelTourDelayRef = useRef<(() => void) | null>(null);
   const isNavTourActiveRef = useRef(false);
+  const userInteractionResumeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 🛑 Immediately and completely stop category tour loop
+  // 🛑 Immediately stop category tour on user interaction, and resume after 30s of inactivity
   const stopCategoryTour = useCallback(() => {
     userInteractedNavRef.current = true;
     isNavTourActiveRef.current = false;
@@ -75,6 +76,11 @@ export function Layout() {
     }
     setHighlightedIndex(null);
     setIsNavAnimating(false);
+
+    if (userInteractionResumeTimerRef.current) clearTimeout(userInteractionResumeTimerRef.current);
+    userInteractionResumeTimerRef.current = setTimeout(() => {
+      userInteractedNavRef.current = false;
+    }, 30000);
   }, []);
 
   // 🌓 Background Theme (White / Dark) with Persistent Preference across ALL pages
@@ -145,11 +151,17 @@ export function Layout() {
     };
   }, []);
 
-  // 🎡 Serial 1-round category tour: stays 5s on each category, moves rightwards, completes ONLY 1 ROUND and stops without continuous looping
-  // 🛑 Stops IMMEDIATELY if user moves mouse over categories, touches, scrolls, or clicks to select.
+  // 🎡 Category auto-scroll flow:
+  // 1. Highlight for 10 seconds at start
+  // 2. Move right smoothly until reaching the end of category
+  // 3. Return smoothly to start
+  // 4. Wait for 30 seconds, then start move again
+  // 🛑 Pauses immediately if user interacts, and resumes after 30 seconds of inactivity
   useEffect(() => {
     const navEl = navRef.current;
     if (!navEl) return;
+
+    let isComponentMounted = true;
 
     const handleUserInteraction = () => {
       stopCategoryTour();
@@ -169,11 +181,8 @@ export function Layout() {
       navEl.addEventListener(evt, handleUserInteraction, { passive: true });
     });
 
-    const startNavTour = async () => {
-      // If user already interacted or tried to select, do NOT run tour
-      if (userInteractedNavRef.current) return;
-      if (isNavTourActiveRef.current) return;
-      if (!navRef.current) return;
+    const runCategoryFlow = async () => {
+      if (!isComponentMounted || userInteractedNavRef.current || !navRef.current) return;
 
       const currentNavEl = navRef.current;
       const children = Array.from(currentNavEl.children) as HTMLElement[];
@@ -181,30 +190,45 @@ export function Layout() {
 
       isNavTourActiveRef.current = true;
       setIsNavAnimating(true);
-      let currentIndex = 1;
 
-      while (isNavTourActiveRef.current && !userInteractedNavRef.current) {
-        if (!isNavTourActiveRef.current || userInteractedNavRef.current) break;
+      // STEP 1: Highlight for 10 seconds at start (Index 1: 'మీ వార్తలు')
+      setHighlightedIndex(1);
+      currentNavEl.scrollTo({ left: 0, behavior: "smooth" });
 
-        // When starting or returning to 'Mee Vaartulu' (index 1), reset scroll position cleanly
-        if (currentIndex === 1) {
-          currentNavEl.scrollTo({ left: 0, behavior: "auto" });
-        }
+      await new Promise<void>((resolve) => {
+        let timer: any = null;
+        const finish = () => {
+          if (timer) clearTimeout(timer);
+          resolve();
+        };
+        cancelTourDelayRef.current = finish;
+        timer = setTimeout(finish, 10000); // 10 seconds highlight
+      });
+      cancelTourDelayRef.current = null;
 
-        const child = children[currentIndex];
+      if (!isComponentMounted || !isNavTourActiveRef.current || userInteractedNavRef.current) {
+        setHighlightedIndex(null);
+        setIsNavAnimating(false);
+        return;
+      }
 
+      // STEP 2: Move right until end of category
+      for (let i = 2; i < children.length; i++) {
+        if (!isComponentMounted || !isNavTourActiveRef.current || userInteractedNavRef.current) break;
+
+        const child = children[i];
         if (child) {
-          // 1. Highlight this category pill with glowing indicator & '👉 నొక్కండి' badge
-          setHighlightedIndex(currentIndex);
-
-          // 2. Smoothly scroll container rightwards to center current child pill (for items after start)
-          if (currentIndex > 1) {
+          setHighlightedIndex(i);
+          if (i === children.length - 1) {
+            // Reached the very end of category
+            currentNavEl.scrollTo({ left: currentNavEl.scrollWidth, behavior: "smooth" });
+          } else {
             const targetLeft = Math.max(0, child.offsetLeft - (currentNavEl.clientWidth / 2) + (child.clientWidth / 2));
             currentNavEl.scrollTo({ left: targetLeft, behavior: "smooth" });
           }
         }
 
-        // 3. Human decision buffer period (5000ms / 5 seconds) interruptible immediately upon user interaction
+        // Delay between moving items
         await new Promise<void>((resolve) => {
           let timer: any = null;
           const finish = () => {
@@ -212,37 +236,55 @@ export function Layout() {
             resolve();
           };
           cancelTourDelayRef.current = finish;
-          timer = setTimeout(finish, 5000);
+          timer = setTimeout(finish, 1600);
         });
         cancelTourDelayRef.current = null;
-
-        if (!isNavTourActiveRef.current || userInteractedNavRef.current) {
-          setHighlightedIndex(null);
-          setIsNavAnimating(false);
-          break;
-        }
-
-        // Move serial way rightwards: 1 (Mee Vaartalu) -> 2 (Local Jobs) -> 3 -> 4 ... -> End
-        currentIndex++;
-        if (currentIndex >= children.length) {
-          // 🛑 ONLY ONE ROUND IS ENOUGH: Stop auto-tour after 1 pass and return smoothly to Home!
-          setHighlightedIndex(null);
-          currentNavEl.scrollTo({ left: 0, behavior: "smooth" });
-          setIsNavAnimating(false);
-          isNavTourActiveRef.current = false;
-          break;
-        }
       }
 
+      // Showcase the end of category
+      if (isComponentMounted && isNavTourActiveRef.current && !userInteractedNavRef.current) {
+        await new Promise<void>((resolve) => {
+          let timer: any = null;
+          const finish = () => {
+            if (timer) clearTimeout(timer);
+            resolve();
+          };
+          cancelTourDelayRef.current = finish;
+          timer = setTimeout(finish, 2500);
+        });
+        cancelTourDelayRef.current = null;
+      }
+
+      // STEP 3: Once one flow done.. return smoothly to start, wait for 30 seconds
       setHighlightedIndex(null);
       setIsNavAnimating(false);
+      currentNavEl.scrollTo({ left: 0, behavior: "smooth" });
       isNavTourActiveRef.current = false;
+
+      // Wait for 30 seconds before next move
+      await new Promise<void>((resolve) => {
+        let timer: any = null;
+        const finish = () => {
+          if (timer) clearTimeout(timer);
+          resolve();
+        };
+        cancelTourDelayRef.current = finish;
+        timer = setTimeout(finish, 30000); // 30 seconds wait
+      });
+      cancelTourDelayRef.current = null;
+
+      // STEP 4: Start move again!
+      if (isComponentMounted && !userInteractedNavRef.current) {
+        runCategoryFlow();
+      }
     };
 
-    window.addEventListener("gallery_first_round_complete", startNavTour);
+    // Trigger initial flow
+    runCategoryFlow();
+
     return () => {
+      isComponentMounted = false;
       stopCategoryTour();
-      window.removeEventListener("gallery_first_round_complete", startNavTour);
       if (navEl) {
         interactionEvents.forEach((evt) => {
           navEl.removeEventListener(evt, handleUserInteraction);
@@ -615,34 +657,6 @@ export function Layout() {
                 👉 నొక్కండి
               </span>
             )}
-          </NavLink>
-
-          {/* Mana Market */}
-          <NavLink
-            to="/market"
-            className={({ isActive }) =>
-              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
-                isActive && !location.search
-                  ? "bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/30 scale-105"
-                  : "bg-[hsl(var(--card))] border-blue-300/70 dark:border-blue-800/70 text-[hsl(var(--foreground))] hover:border-blue-500 hover:text-blue-600 hover:scale-105"
-              }`
-            }
-          >
-            <span>🛍️ {lang === "te" ? "మన మార్కెట్" : "Mana Market"}</span>
-          </NavLink>
-
-          {/* Deals (Directly beside Mana Market) */}
-          <NavLink
-            to="/deals"
-            className={({ isActive }) =>
-              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
-                isActive
-                  ? "bg-gradient-to-r from-orange-600 via-amber-500 to-red-500 text-white border-yellow-300 ring-2 ring-orange-400 shadow-md shadow-orange-600/30 scale-105"
-                  : "bg-[hsl(var(--card))] border-orange-300/80 dark:border-orange-800/80 text-[hsl(var(--foreground))] hover:border-orange-500 hover:text-orange-600 hover:scale-105"
-              }`
-            }
-          >
-            <span>🔥 {lang === "te" ? "మన అడ్డా డీల్స్" : "Deals"}</span>
           </NavLink>
 
           {/* Dynamic Categories starting with Bhakti & Jatakamu, Viral Shorts, WhatsApp Status Photo */}
