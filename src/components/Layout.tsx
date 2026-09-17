@@ -396,13 +396,13 @@ export function Layout() {
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] pb-16 md:pb-0">
       <header className="sticky top-0 z-50 border-b border-[hsl(var(--border))] bg-[hsl(var(--background))] backdrop-blur-xl">
-        <div className="container-shell flex h-16 items-center gap-2 sm:gap-3">
-          <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-            <Link to="/" className="flex min-w-0 items-center gap-2 sm:gap-3 shrink-0">
-              <img src="/vaartanow-logo.png" alt="VaartaNow" className="h-9 sm:h-10 w-auto rounded-xl object-contain dark:brightness-110" />
+        <div className="container-shell flex h-14 sm:h-16 items-center justify-between gap-1.5 sm:gap-3">
+          <div className="flex min-w-0 items-center gap-1.5 sm:gap-3">
+            <Link to="/" className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <img src="/vaartanow-logo.png" alt="VaartaNow" className="h-8 sm:h-10 w-auto rounded-xl object-contain dark:brightness-110" />
               <span className="min-w-0">
-                <span className="block truncate text-sm sm:text-lg font-black">VaartaNow</span>
-                <span className="hidden xs:block truncate text-[10px] sm:text-xs font-semibold text-[hsl(var(--muted-foreground))]">
+                <span className="block truncate text-xs sm:text-lg font-black">VaartaNow</span>
+                <span className="hidden md:block truncate text-[10px] sm:text-xs font-semibold text-[hsl(var(--muted-foreground))]">
                   {lang === "te" && "తాజా వార్తలు, తక్షణం"}
                   {lang === "en" && "Multilingual Live News"}
                   {lang === "hi" && "बहुभाषी ताज़ा समाचार"}
@@ -412,9 +412,9 @@ export function Layout() {
               </span>
             </Link>
 
-            {/* 🎨 Background Color Selector (తెలుపు / నలుపు) - Compact & Telugu */}
+            {/* 🎨 Background Color Selector (తెలుపు / నలుపు) - Compact, Both Visible Side-by-Side */}
             <div 
-              className="flex items-center p-0.5 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-xs shrink-0 ml-1"
+              className="flex items-center p-0.5 rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] shadow-xs shrink-0"
               role="group"
               aria-label="నేపథ్యం రంగు ఎంపిక"
             >
@@ -422,13 +422,13 @@ export function Layout() {
                 type="button"
                 onClick={() => setTheme("white")}
                 title="తెలుపు నేపథ్యం (White Background)"
-                className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold leading-none transition-all ${
+                className={`flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9.5px] font-black leading-none transition-all ${
                   theme === "white"
                     ? "bg-amber-400 text-amber-950 shadow-xs ring-1 ring-amber-500 scale-105"
                     : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
                 }`}
               >
-                <Sun className={`size-2.5 sm:size-3 ${theme === "white" ? "text-amber-950 fill-amber-500" : "text-amber-500"}`} />
+                <Sun className={`size-2.5 ${theme === "white" ? "text-amber-950 fill-amber-500" : "text-amber-500"}`} />
                 <span>తెలుపు</span>
               </button>
 
@@ -436,24 +436,24 @@ export function Layout() {
                 type="button"
                 onClick={() => setTheme("dark")}
                 title="నలుపు నేపథ్యం (Dark Background)"
-                className={`flex items-center gap-1 px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold leading-none transition-all ${
+                className={`flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[9.5px] font-black leading-none transition-all ${
                   theme === "dark"
                     ? "bg-indigo-600 text-white shadow-xs ring-1 ring-indigo-400 scale-105"
                     : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
                 }`}
               >
-                <Moon className={`size-2.5 sm:size-3 ${theme === "dark" ? "text-white fill-indigo-200" : "text-indigo-400"}`} />
+                <Moon className={`size-2.5 ${theme === "dark" ? "text-white fill-indigo-200" : "text-indigo-400"}`} />
                 <span>నలుపు</span>
               </button>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            {/* 🌟 Bouncing Yellow Remaining Categories dropdown for mobile */}
+          
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* 🌟 Reduced font Yellow Remaining Categories dropdown for mobile */}
             <div className="relative md:hidden z-50">
               <button
                 onClick={() => setShowMoreCategories(!showMoreCategories)}
-                className="flex items-center gap-1 px-2.5 py-1 text-[9px] font-black rounded-full bg-yellow-400 hover:bg-yellow-500 text-black shadow-[0_0_12px_rgba(250,204,21,0.4)] border border-yellow-300 animate-bounce transition-all tracking-wide shrink-0"
-                style={{ animationDuration: "2s" }}
+                className="flex items-center gap-0.5 px-1.5 sm:px-2 py-0.5 sm:py-1 text-[7.5px] sm:text-[9px] font-black rounded-full bg-yellow-400 hover:bg-yellow-500 text-black shadow-xs border border-yellow-300 transition-all tracking-tight shrink-0"
               >
                 <span>➕ మరిన్ని విభాగాలు</span>
               </button>
@@ -545,22 +545,22 @@ export function Layout() {
               </Button>
             </Link>
 
-            {/* 👤 Top of Website Profile Button (OLX & Upwork Style) */}
+            {/* 👤 Top of Website Profile Button (Compact, Reduced Size) */}
             {userProfile ? (
               <button
                 type="button"
                 onClick={() => setIsProfileModalOpen(true)}
-                className="flex items-center gap-1.5 sm:gap-2 pl-1 pr-2 sm:pr-3 py-1 rounded-full border border-blue-300 dark:border-blue-800 bg-blue-50/90 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition shadow-xs cursor-pointer shrink-0 group"
-                title={`${userProfile.name} - నా ప్రొఫైల్ (Click to view/edit profile)`}
+                className="flex items-center gap-1 sm:gap-1.5 p-0.5 sm:pl-1 sm:pr-2.5 sm:py-0.5 rounded-full border border-blue-300 dark:border-blue-800 bg-blue-50/90 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-900/60 transition shadow-xs cursor-pointer shrink-0 group"
+                title={`${userProfile.name} - నా ప్రొఫైల్`}
               >
-                <div className="size-7 sm:size-8 rounded-full overflow-hidden border border-blue-500 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-xs shrink-0 shadow-xs">
+                <div className="size-6 sm:size-7 rounded-full overflow-hidden border border-blue-500 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-[10px] sm:text-xs shrink-0 shadow-xs">
                   {userProfile.avatar_url ? (
                     <img src={userProfile.avatar_url} alt={userProfile.name} className="size-full object-cover" />
                   ) : (
                     <span>{userProfile.name ? userProfile.name.charAt(0).toUpperCase() : "U"}</span>
                   )}
                 </div>
-                <div className="text-left hidden xs:block min-w-0 max-w-[100px] sm:max-w-[140px]">
+                <div className="text-left hidden md:block min-w-0 max-w-[120px]">
                   <div className="flex items-center gap-1 font-black text-xs text-slate-900 dark:text-slate-100 truncate">
                     <span className="truncate">{userProfile.name}</span>
                     <span className="size-1.5 rounded-full bg-emerald-500 shrink-0" title="ధృవీకరించబడింది" />
@@ -574,11 +574,11 @@ export function Layout() {
               <button
                 type="button"
                 onClick={() => setIsProfileModalOpen(true)}
-                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-slate-200 dark:border-zinc-800 bg-[hsl(var(--card))] hover:bg-blue-50 dark:hover:bg-zinc-800 text-[hsl(var(--foreground))] hover:text-blue-600 transition shadow-xs font-black text-xs cursor-pointer shrink-0"
+                className="flex items-center gap-1 px-2 py-0.5 sm:py-1 rounded-full border border-slate-200 dark:border-zinc-800 bg-[hsl(var(--card))] hover:bg-blue-50 dark:hover:bg-zinc-800 text-[hsl(var(--foreground))] hover:text-blue-600 transition shadow-xs font-black text-[10px] sm:text-xs cursor-pointer shrink-0"
                 title="లాగిన్ లేదా ప్రొఫైల్ నమోదు చేయండి"
               >
-                <User className="size-3.5 text-blue-600" />
-                <span className="text-[11px] sm:text-xs">లాగిన్</span>
+                <User className="size-3 text-blue-600" />
+                <span className="text-[10px] sm:text-xs">లాగిన్</span>
               </button>
             )}
           </div>
