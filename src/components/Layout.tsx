@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles, Sprout, Wrench, UtensilsCrossed, HeartHandshake, Flame } from "lucide-react";
+import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles, Sprout, Wrench, UtensilsCrossed, Flame } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
@@ -707,7 +707,6 @@ export function Layout() {
         </div>
         <div className="border-t border-[hsl(var(--border))]/40 mt-6 pt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs font-bold justify-center sm:justify-start">
           <Link to="/deals" className="hover:text-orange-500 transition text-orange-600 dark:text-orange-400 font-extrabold">🔥 మన అడ్డా డీల్స్</Link>
-          <Link to="/matrimony" className="hover:text-rose-600 transition text-rose-600 dark:text-rose-400 font-extrabold">💍 మన అడ్డా మ్యాట్రిమోనీ</Link>
           <Link to="/about" className="hover:text-[hsl(var(--primary))] transition">About Us</Link>
           <Link to="/contact" className="hover:text-[hsl(var(--primary))] transition">Contact Us</Link>
           <Link to="/privacy" className="hover:text-[hsl(var(--primary))] transition">Privacy Policy</Link>
