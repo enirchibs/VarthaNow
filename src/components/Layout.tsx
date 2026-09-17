@@ -427,21 +427,6 @@ export function Layout() {
                       <span className="size-2 rounded-full bg-yellow-400 animate-ping" />
                     </div>
                     <div className="grid grid-cols-2 gap-1.5">
-                      <NavLink
-                        to="/matrimony"
-                        onClick={() => setShowMoreCategories(false)}
-                        className={({ isActive }) =>
-                          `flex items-center justify-start gap-1.5 rounded-2xl py-2 px-2 text-[10.5px] font-black border transition ${
-                            isActive 
-                              ? "bg-rose-500 text-white border-rose-600 shadow-sm" 
-                              : "bg-rose-50 dark:bg-rose-950/60 text-rose-950 dark:text-rose-100 border-rose-200 dark:border-rose-900 hover:bg-rose-500 hover:text-white"
-                          }`
-                        }
-                      >
-                        <span className="shrink-0 text-sm">💍</span>
-                        <span className="truncate">మ్యాట్రిమోనీ</span>
-                      </NavLink>
-
                       {categories.map((category) => {
                         const label = (lang === "te" ? (category.short || category.label.te) : category.label[lang]) || category.short;
                         const linkTarget = category.slug === "health" 
@@ -600,20 +585,6 @@ export function Layout() {
                 👉 నొక్కండి
               </span>
             )}
-          </NavLink>
-
-          {/* Index 2.5: Matrimony NavLink */}
-          <NavLink
-            to="/matrimony"
-            className={({ isActive }) =>
-              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
-                isActive
-                  ? "bg-gradient-to-r from-rose-600 via-pink-600 to-amber-500 text-white border-yellow-300 shadow-md shadow-rose-600/30 scale-105"
-                  : "bg-[hsl(var(--card))] border-rose-300/70 dark:border-rose-800/70 text-[hsl(var(--foreground))] hover:border-rose-500 hover:text-rose-600 hover:scale-105"
-              }`
-            }
-          >
-            <span>💍 {lang === "te" ? "మ్యాట్రిమోనీ" : "Matrimony"}</span>
           </NavLink>
 
           {/* Dynamic Categories starting with Bhakti & Jatakamu, Viral Shorts, WhatsApp Status Photo */}
