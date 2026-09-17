@@ -15,6 +15,7 @@ import {
 import { SERVICE_CATEGORIES, SERVICE_SUBCATEGORIES, saveCustomService } from "@/lib/services-api";
 import type { ServiceProvider, ServiceMode, PriceType } from "@/types/services";
 import { LocationAreaSelector } from "@/components/LocationAreaSelector";
+import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
 
 interface PostServiceModalProps {
   isOpen: boolean;
@@ -156,6 +157,9 @@ export function PostServiceModal({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs font-bold text-slate-800 dark:text-slate-100">
           
+          {/* ⌨️ Telugu Typing Helper Banner */}
+          <TeluguTypingBanner className="mb-2" />
+
           {/* STEP 1: Basic Profile & Contact */}
           {step === 1 && (
             <div className="space-y-3 animate-in fade-in-50">

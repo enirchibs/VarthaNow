@@ -9,6 +9,7 @@ import {
   Sparkles, 
   ArrowRight
 } from "lucide-react";
+import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
 
 interface ChatMessage {
   id: string;
@@ -382,6 +383,9 @@ export function SmartChatbotWidget() {
               ))}
             </div>
           </div>
+
+          {/* ⌨️ Telugu Typing Helper Banner */}
+          <TeluguTypingBanner compact={true} className="mx-3 my-1" />
 
           {/* Input Box & Voice Microphone Toolbar */}
           <form

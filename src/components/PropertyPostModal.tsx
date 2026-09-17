@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { LocationAreaSelector } from "./LocationAreaSelector";
+import { TeluguTypingBanner } from "./TeluguTypingBanner";
 import { 
   UserProfile, 
   getStoredUserProfile, 
@@ -352,6 +353,9 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
 
         {/* Scrollable Form Body */}
         <div className="p-6 overflow-y-auto space-y-6">
+
+          {/* ⌨️ Telugu Typing Enabled Helper Banner */}
+          <TeluguTypingBanner />
 
           {/* 🌟 Logged-in Profile Badge (OLX Multi-Ad Posting Active) */}
           {userProfile && userProfile.is_verified && (

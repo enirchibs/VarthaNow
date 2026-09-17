@@ -26,11 +26,7 @@ import { PropertyPostModal } from "./PropertyPostModal";
 import { JobPostModal } from "./jobs/JobPostModal";
 import { LocationAreaSelector } from "./LocationAreaSelector";
 import { addLocalJob } from "@/lib/jobs-api";
-import { 
-  isTeluguTypingActive, 
-  setTeluguTypingActive, 
-  TELUGU_TYPING_EVENT 
-} from "@/lib/telugu-typing";
+import { TeluguTypingBanner } from "./TeluguTypingBanner";
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -138,16 +134,6 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   const [isJobModalOpen, setIsJobModalOpen] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [isTeluguTyping, setIsTeluguTyping] = useState<boolean>(isTeluguTypingActive);
-
-  React.useEffect(() => {
-    const handleToggle = (e: Event) => {
-      const customEvent = e as CustomEvent<boolean>;
-      setIsTeluguTyping(customEvent.detail);
-    };
-    window.addEventListener(TELUGU_TYPING_EVENT, handleToggle);
-    return () => window.removeEventListener(TELUGU_TYPING_EVENT, handleToggle);
-  }, []);
 
   if (!isOpen && !isPropertyModalOpen && !isJobModalOpen) return null;
 
@@ -372,35 +358,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
               </div>
 
               {/* ⌨️ Telugu Typing Enabled Helper Banner */}
-              <div className="flex items-center justify-between p-2.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300/80 dark:border-amber-800 text-xs shadow-2xs">
-                <div className="flex items-center gap-2">
-                  <div className="size-7 rounded-xl bg-orange-500 text-white flex items-center justify-center shrink-0 shadow-xs">
-                    <Keyboard className="size-4" />
-                  </div>
-                  <div>
-                    <span className="font-black text-slate-900 dark:text-white flex items-center gap-1.5">
-                      తెలుగు టైపింగ్ అందుబాటులో ఉంది
-                      {isTeluguTyping && <span className="size-2 rounded-full bg-emerald-500 animate-ping" />}
-                    </span>
-                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-bold">
-                      ఇంగ్లీష్‌లో టైప్ చేసి స్పేస్ నొక్కండి (ఉదా: raithu + Space = రైతు)
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setTeluguTypingActive(!isTeluguTyping)}
-                  className={`px-2.5 py-1 rounded-xl text-xs font-black border transition cursor-pointer select-none shrink-0 ${
-                    isTeluguTyping
-                      ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white border-amber-300 shadow-xs"
-                      : "bg-slate-100 dark:bg-zinc-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-zinc-700"
-                  }`}
-                  title="తెలుగు / ఇంగ్లీష్ టైపింగ్ మార్చండి"
-                >
-                  {isTeluguTyping ? "తెలుగు [తె] ఆన్" : "English [En]"}
-                </button>
-              </div>
+              <TeluguTypingBanner />
 
               {/* 1. ఫోటోలు & వీడియోలు (ఐచ్ఛికం) */}
               <div className="space-y-1.5 rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))] p-4 shadow-xs">
@@ -565,6 +523,9 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                   </>
                 )}
               </div>
+
+              {/* ⌨️ Telugu Typing Enabled Helper Banner */}
+              <TeluguTypingBanner />
 
               {/* Sub-Category Item Type Selector for Combined Buy/Sell Option */}
               {selectedCategory === "buy_sell_items" && (

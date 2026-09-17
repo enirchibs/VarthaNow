@@ -7,6 +7,7 @@ import {
   setTeluguTypingActive, 
   TELUGU_TYPING_EVENT 
 } from "@/lib/telugu-typing";
+import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
 
 interface DealsSearchSectionProps {
   onSearch: (query: string, category?: string, maxPrice?: number) => void;
@@ -162,6 +163,9 @@ export const DealsSearchSection: React.FC<DealsSearchSectionProps> = ({
           </p>
         )}
       </form>
+
+      {/* ⌨️ Telugu Typing Enabled Helper Banner */}
+      <TeluguTypingBanner className="mt-2" />
 
       {/* Natural Language Interpretation Preview Badge (Section 11) */}
       {interpreted && (interpreted.interpreted_category_te || interpreted.interpreted_budget_te) && (

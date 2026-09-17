@@ -3,6 +3,7 @@ import { AlertOctagon, ShieldAlert, CheckCircle2, Send, ArrowLeft } from "lucide
 import { supabase } from "@/lib/supabase";
 import { recordAuditEvent } from "@/lib/safety-compliance";
 import { Link } from "react-router-dom";
+import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
 
 interface ReportAbuseModalProps {
   isOpen: boolean;
@@ -121,6 +122,9 @@ export function ReportAbuseModal({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+            {/* ⌨️ Telugu Typing Helper Banner */}
+            <TeluguTypingBanner compact={true} className="mb-2 text-slate-900" />
+
             {targetProviderName && (
               <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700 text-[11px] text-slate-300">
                 రిపోర్ట్ చేయబడుతున్న ప్రొవైడర్: <strong className="text-white">{targetProviderName}</strong>

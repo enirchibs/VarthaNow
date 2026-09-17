@@ -2,6 +2,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui";
 import { trendingSearches } from "@/lib/categories";
 import { useLanguage } from "@/hooks/useLanguage";
+import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
 
 export function SearchBox({ query, onQuery }: { query: string; onQuery: (value: string) => void }) {
   const { lang } = useLanguage();
@@ -9,6 +10,9 @@ export function SearchBox({ query, onQuery }: { query: string; onQuery: (value: 
 
   return (
     <section className="rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
+      {/* ⌨️ Telugu Typing Helper Banner */}
+      <TeluguTypingBanner compact={true} className="mb-2.5" />
+
       <div className="relative">
         <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
         <Input

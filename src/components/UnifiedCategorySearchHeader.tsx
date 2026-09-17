@@ -21,6 +21,7 @@ import {
   setTeluguTypingActive, 
   TELUGU_TYPING_EVENT 
 } from "@/lib/telugu-typing";
+import { TeluguTypingBanner } from "./TeluguTypingBanner";
 
 export interface UnifiedCategorySearchHeaderProps {
   moduleName: string;
@@ -461,6 +462,9 @@ export function UnifiedCategorySearchHeader({
           </button>
         </div>
       </div>
+
+      {/* ⌨️ Telugu Typing Enabled Helper Banner */}
+      <TeluguTypingBanner compact={true} className="mt-1.5" />
 
       {/* Row 4: Distance / Radius Filter Pills (if radius handler provided) */}
       {onRadiusChange && (

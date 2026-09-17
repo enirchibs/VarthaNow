@@ -25,6 +25,7 @@ import {
 } from "@/lib/user-profile";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 import { validateAndSanitizeFullName } from "@/lib/safety-compliance";
+import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -250,6 +251,9 @@ export function UserProfileModal({ isOpen, onClose, onLoginSuccess }: UserProfil
         {/* Modal Body */}
         <div className="p-5 overflow-y-auto space-y-4 text-xs">
           
+          {/* ⌨️ Telugu Typing Helper Banner */}
+          <TeluguTypingBanner compact={true} className="mb-2" />
+
           {errorMsg && (
             <div className="p-3 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300 font-bold flex items-center gap-2">
               <AlertCircle className="size-4 shrink-0" />

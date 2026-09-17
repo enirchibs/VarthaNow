@@ -17,6 +17,7 @@ import {
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 import { addLocalJob } from "@/lib/jobs-api";
 import { LocationAreaSelector } from "@/components/LocationAreaSelector";
+import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
 import type { WorkMode, ContractType, ExperienceLevel } from "@/types/jobs";
 import { 
   UserProfile, 
@@ -269,6 +270,9 @@ export function JobPostModal({ isOpen, onClose, onJobPosted }: JobPostModalProps
         {step === 1 && (
           <form onSubmit={handleProceedToOTP} className="space-y-3.5 text-xs">
             
+            {/* ⌨️ Telugu Typing Helper Banner */}
+            <TeluguTypingBanner className="mb-2" />
+
             {/* 🌟 Logged-in Profile Badge (OLX Multi-Ad Posting Active) */}
             {userProfile && userProfile.is_verified && (
               <div className="p-3 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-950 flex items-center justify-between gap-2 shadow-xs">

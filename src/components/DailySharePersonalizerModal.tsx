@@ -3,6 +3,7 @@ import { X, Upload, Share2, Download, Check, Sparkles, User, Building, MapPin, S
 import { DailyShareItem, PersonalizeOptions } from "@/types/daily-share";
 import { saveUserCreation } from "@/lib/daily-share-api";
 import { useLanguage } from "@/hooks/useLanguage";
+import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
 
 interface DailySharePersonalizerModalProps {
   item: DailyShareItem;
@@ -267,6 +268,9 @@ export function DailySharePersonalizerModal({ item, isOpen, onClose }: DailyShar
               <User className="size-4 text-red-500" />
               {lang === "te" ? "1. మీ పేరు మరియు ఫోటో వివరాలు" : "1. Enter Name & Photo Details"}
             </h4>
+
+            {/* ⌨️ Telugu Typing Helper Banner */}
+            <TeluguTypingBanner compact={true} className="mb-2" />
 
             {/* Photo Selection */}
             <div className="space-y-2">

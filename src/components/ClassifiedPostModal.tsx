@@ -23,6 +23,7 @@ import {
   SellerProfile 
 } from "@/lib/classifieds-api";
 import { LocationAreaSelector } from "@/components/LocationAreaSelector";
+import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
 import { 
   UserProfile, 
   getStoredUserProfile, 
@@ -273,6 +274,9 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
         {step === 1 && (
           <form onSubmit={handleProceedToOTP} className="space-y-3.5 text-xs">
             
+            {/* ⌨️ Telugu Typing Helper Banner */}
+            <TeluguTypingBanner className="mb-2" />
+
             {/* 🌟 Logged-in Profile Badge (OLX Multi-Ad Posting Active) */}
             {userProfile && userProfile.is_verified && (
               <div className="p-3 rounded-2xl bg-blue-50 border border-blue-200 text-blue-950 flex items-center justify-between gap-2 shadow-xs">

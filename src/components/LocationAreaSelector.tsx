@@ -24,6 +24,7 @@ import {
   setTeluguTypingActive, 
   TELUGU_TYPING_EVENT 
 } from "@/lib/telugu-typing";
+import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
 
 export interface LocationAreaSelectorProps {
   value: string;
@@ -415,6 +416,9 @@ export function LocationAreaSelector({
             )}
           </div>
         </div>
+
+        {/* ⌨️ Telugu Typing Helper Banner */}
+        <TeluguTypingBanner compact={true} className="my-1 text-slate-900" />
 
         {/* Row 2: Area / Locality Search Bar with Autocomplete */}
         <div className="relative z-20">

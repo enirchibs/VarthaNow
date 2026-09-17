@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X, Phone, ShieldCheck, User } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP, SellerProfile } from "@/lib/classifieds-api";
+import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
 
 interface SellerLoginModalProps {
   isOpen: boolean;
@@ -101,6 +102,9 @@ export function SellerLoginModal({ isOpen, onClose, onLoginSuccess }: SellerLogi
 
         {step === "send" ? (
           <form onSubmit={handleSendOTP} className="space-y-3">
+            {/* ⌨️ Telugu Typing Helper Banner */}
+            <TeluguTypingBanner compact={true} className="mb-2" />
+
             <div className="space-y-1">
               <label className="text-xs font-extrabold text-slate-800">
                 మీ పేరు (Full Name) *
