@@ -1,6 +1,6 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles, Sprout, Wrench, UtensilsCrossed, Flame } from "lucide-react";
-import { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -31,6 +31,45 @@ const categoryEmojis: Record<string, string> = {
   national: "🌐",
   education: "🎓"
 };
+
+class SafeOutletBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    console.warn("Caught error in SafeOutletBoundary:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="container-shell py-12 text-center space-y-4">
+          <div className="text-4xl">🔄</div>
+          <h2 className="text-base font-black text-slate-800 dark:text-slate-100">
+            కంటెంట్ లోడ్ చేయడంలో తాత్కాలిక సమస్య ఎదురైంది.
+          </h2>
+          <p className="text-xs text-slate-500">దయచేసి పేజీని రిఫ్రెష్ చేయండి.</p>
+          <button
+            onClick={() => {
+              this.setState({ hasError: false });
+              window.location.reload();
+            }}
+            className="px-5 py-2 rounded-full bg-red-600 text-white font-black text-xs hover:bg-red-700 shadow-md cursor-pointer"
+          >
+            రిఫ్రెష్ చేయండి (Refresh)
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export function Layout() {
   const location = useLocation();
@@ -121,6 +160,40 @@ export function Layout() {
     };
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
+  }, []);
+
+  // 💡 Screen Wake Lock API: Keep device screen awake & prevent blank/sleep while using app
+  useEffect(() => {
+    let wakeLockSentinel: any = null;
+
+    const requestWakeLock = async () => {
+      if (typeof navigator !== "undefined" && "wakeLock" in navigator && document.visibilityState === "visible") {
+        try {
+          wakeLockSentinel = await (navigator as any).wakeLock.request("screen");
+        } catch (e) {
+          // May be rejected by device in low battery mode
+        }
+      }
+    };
+
+    requestWakeLock();
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        requestWakeLock();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (wakeLockSentinel) {
+        try {
+          wakeLockSentinel.release();
+        } catch (e) {}
+      }
+    };
   }, []);
 
   // 📱 Mobile Pre-Sleep Idle Haptic Buzz & Category Wake-Up Effect
@@ -698,7 +771,9 @@ export function Layout() {
           })}
         </nav>
       </header>
-      <Outlet />
+      <SafeOutletBoundary>
+        <Outlet />
+      </SafeOutletBoundary>
       
       <footer className="container-shell border-t border-[hsl(var(--border))] py-8 text-sm text-[hsl(var(--muted-foreground))]">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

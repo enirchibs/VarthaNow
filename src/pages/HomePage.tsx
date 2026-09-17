@@ -91,16 +91,25 @@ export function HomePage() {
 
   const numSlides = useMemo(() => Math.floor(Math.random() * 3) + 4, []); // 4 to 6 slides
   const [activeSlide, setActiveSlide] = useState(0);
-  const slides = useMemo(() => feed.posts.slice(0, numSlides), [feed.posts, numSlides]);
+
+  // Safe fallback to demoPosts so the page is NEVER blank while loading or on network issues
+  const effectivePosts = useMemo(() => {
+    if (feed.posts && feed.posts.length > 0) return feed.posts;
+    return demoPosts;
+  }, [feed.posts]);
+
+  const slides = useMemo(() => {
+    const list = effectivePosts.length > 0 ? effectivePosts : demoPosts;
+    return list.slice(0, Math.min(list.length, numSlides));
+  }, [effectivePosts, numSlides]);
 
   // Ensure AT LEAST 9 articles are ALWAYS displayed in the main grid
   const displayGridPosts = useMemo(() => {
-    if (!feed.posts || feed.posts.length === 0) return [];
+    const source = effectivePosts.length > 0 ? effectivePosts : demoPosts;
+    let gridList = source.slice(numSlides);
 
-    let gridList = feed.posts.slice(numSlides);
-
-    if (gridList.length < 9 && feed.posts.length >= 9) {
-      gridList = feed.posts;
+    if (gridList.length < 9 && source.length >= 9) {
+      gridList = source;
     }
 
     if (gridList.length < 9) {
@@ -114,8 +123,8 @@ export function HomePage() {
       gridList = combined;
     }
 
-    return gridList;
-  }, [feed.posts, numSlides]);
+    return gridList.filter(Boolean);
+  }, [effectivePosts, numSlides]);
 
   useEffect(() => {
     if (slides.length <= 1) return;
@@ -129,9 +138,10 @@ export function HomePage() {
       });
     }, 5000);
     return () => clearInterval(interval);
-  }, [slides]);
+  }, [slides.length]);
 
-  const currentSlide = slides[activeSlide];
+  const safeIndex = slides.length > 0 ? ((activeSlide % slides.length) + slides.length) % slides.length : 0;
+  const currentSlide = slides[safeIndex] || demoPosts[0];
 
   // Handle Refresh & Shuffle Feed action
   const handleRefreshShuffle = () => {
