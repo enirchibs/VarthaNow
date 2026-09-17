@@ -3,13 +3,10 @@ import {
   ExternalLink, 
   Bookmark, 
   Star, 
-  Sparkles, 
   ChevronDown, 
   ChevronUp, 
   Clock, 
-  ShieldCheck, 
-  Tag,
-  ArrowRight,
+  BellRing,
   TrendingDown
 } from "lucide-react";
 import type { CanonicalProduct, MerchantOffer } from "@/types/deals";
@@ -20,6 +17,7 @@ interface DealsProductCardProps {
   onToggleSave: (product: CanonicalProduct) => void;
   onOpenCompare: (product: CanonicalProduct) => void;
   onBuyClick: (product: CanonicalProduct, offer: MerchantOffer) => void;
+  onOpenPriceAlert?: (product: CanonicalProduct) => void;
 }
 
 export const DealsProductCard: React.FC<DealsProductCardProps> = ({
@@ -27,7 +25,8 @@ export const DealsProductCard: React.FC<DealsProductCardProps> = ({
   isSaved,
   onToggleSave,
   onOpenCompare,
-  onBuyClick
+  onBuyClick,
+  onOpenPriceAlert
 }) => {
   const [showWhyDeal, setShowWhyDeal] = useState(false);
 
@@ -67,7 +66,7 @@ export const DealsProductCard: React.FC<DealsProductCardProps> = ({
     <div className="bg-white dark:bg-zinc-900 rounded-3xl border-2 border-slate-200/80 dark:border-zinc-800 hover:border-orange-400 dark:hover:border-orange-600 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col justify-between">
       <div>
         {/* Top Image Box */}
-        <div className="relative w-full h-52 sm:h-56 bg-slate-50 dark:bg-zinc-800/60 p-4 flex items-center justify-center overflow-hidden">
+        <div className="relative w-full h-48 sm:h-52 bg-slate-50 dark:bg-zinc-800/60 p-4 flex items-center justify-center overflow-hidden">
           <img
             src={product.image_url}
             alt={product.model}
@@ -84,19 +83,32 @@ export const DealsProductCard: React.FC<DealsProductCardProps> = ({
             )}
           </div>
 
-          {/* Bookmark Button Top Right */}
-          <button
-            type="button"
-            onClick={() => onToggleSave(product)}
-            className={`absolute top-3 right-3 size-8 rounded-full flex items-center justify-center backdrop-blur-md transition shadow-xs z-10 ${
-              isSaved
-                ? "bg-amber-500 text-white"
-                : "bg-white/80 dark:bg-zinc-900/80 text-slate-700 dark:text-slate-200 hover:bg-white"
-            }`}
-            title={isSaved ? "సేవ్ తొలగించండి" : "డీల్ సేవ్ చేయండి"}
-          >
-            <Bookmark className={`size-4 ${isSaved ? "fill-white" : ""}`} />
-          </button>
+          {/* Action Icons Top Right (Bookmark + Price Alert) */}
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+            {onOpenPriceAlert && (
+              <button
+                type="button"
+                onClick={() => onOpenPriceAlert(product)}
+                className="size-8 rounded-full bg-white/80 dark:bg-zinc-900/80 text-slate-700 dark:text-slate-200 hover:bg-white hover:text-orange-600 flex items-center justify-center backdrop-blur-md transition shadow-xs cursor-pointer"
+                title="ధర తగ్గితే చెప్పండి"
+              >
+                <BellRing className="size-3.5" />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => onToggleSave(product)}
+              className={`size-8 rounded-full flex items-center justify-center backdrop-blur-md transition shadow-xs cursor-pointer ${
+                isSaved
+                  ? "bg-amber-500 text-white"
+                  : "bg-white/80 dark:bg-zinc-900/80 text-slate-700 dark:text-slate-200 hover:bg-white"
+              }`}
+              title={isSaved ? "సేవ్ తొలగించండి" : "డీల్ సేవ్ చేయండి"}
+            >
+              <Bookmark className={`size-3.5 ${isSaved ? "fill-white" : ""}`} />
+            </button>
+          </div>
         </div>
 
         {/* Content Body */}
@@ -135,7 +147,7 @@ export const DealsProductCard: React.FC<DealsProductCardProps> = ({
             </div>
           )}
 
-          {/* Price & Savings Display */}
+          {/* Price & Savings Box */}
           <div className="p-3 rounded-2xl bg-amber-50/50 dark:bg-zinc-800/60 border border-amber-200/60 dark:border-zinc-700/80 mb-3">
             <div className="flex items-baseline gap-2">
               <span className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -148,9 +160,17 @@ export const DealsProductCard: React.FC<DealsProductCardProps> = ({
               )}
             </div>
 
+            {/* Price Drop Signal if historical difference exists */}
+            {product.previous_observed_price && product.previous_observed_price > product.lowest_price && (
+              <div className="mt-1 flex items-center gap-1 text-[11px] font-black text-rose-600 dark:text-rose-400">
+                <TrendingDown className="size-3" />
+                <span>గత ధర ₹{product.previous_observed_price.toLocaleString("en-IN")} కంటే ₹{(product.previous_observed_price - product.lowest_price).toLocaleString("en-IN")} తగ్గింది!</span>
+              </div>
+            )}
+
             {/* Price Comparison Callout */}
             {otherOffer && product.price_difference && product.price_difference > 0 && (
-              <div className="mt-1.5 pt-1.5 border-t border-amber-200/40 dark:border-zinc-700 flex items-center justify-between text-[11px]">
+              <div className="mt-2 pt-2 border-t border-amber-200/40 dark:border-zinc-700 flex items-center justify-between text-[11px]">
                 <span className="font-bold text-slate-600 dark:text-slate-300">
                   {lowestOffer.merchant_name}: ₹{lowestOffer.price.toLocaleString("en-IN")} | {otherOffer.merchant_name}: ₹{otherOffer.price.toLocaleString("en-IN")}
                 </span>
@@ -167,7 +187,7 @@ export const DealsProductCard: React.FC<DealsProductCardProps> = ({
               <button
                 type="button"
                 onClick={() => setShowWhyDeal(!showWhyDeal)}
-                className="w-full flex items-center justify-between text-[11px] font-extrabold text-orange-600 dark:text-orange-400 py-1"
+                className="w-full flex items-center justify-between text-[11px] font-extrabold text-orange-600 dark:text-orange-400 py-1 cursor-pointer"
               >
                 <span>🔍 ఈ డీల్ ఎందుకు మంచిది? (Why This Deal)</span>
                 {showWhyDeal ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
@@ -186,10 +206,11 @@ export const DealsProductCard: React.FC<DealsProductCardProps> = ({
             </div>
           )}
 
-          {/* Dynamic Timestamp */}
+          {/* Dynamic Timestamp + Stale Warning */}
           <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400">
             <Clock className="size-3" />
-            <span>ధర తనిఖీ చేసిన సమయం: 17 Sep 2026, 8:30 PM</span>
+            <span>ధర తనిఖీ: 17 Sep 2026, 9:30 PM</span>
+            <span className="text-amber-600 ml-1">⚠️ ధర మారి ఉండవచ్చు</span>
           </div>
         </div>
       </div>
@@ -200,7 +221,7 @@ export const DealsProductCard: React.FC<DealsProductCardProps> = ({
         <button
           type="button"
           onClick={() => onBuyClick(product, lowestOffer)}
-          className={`w-full py-3 px-4 rounded-2xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-md active:scale-95 transition ${
+          className={`w-full py-3 px-4 rounded-2xl text-xs sm:text-sm font-black flex items-center justify-center gap-2 shadow-md active:scale-95 transition cursor-pointer ${
             lowestOffer.merchant === "amazon"
               ? "bg-[#FF9900] hover:bg-[#e68a00] text-black shadow-amber-500/20"
               : "bg-[#2874F0] hover:bg-[#2060c8] text-white shadow-blue-500/20"

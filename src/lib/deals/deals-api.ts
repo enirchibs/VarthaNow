@@ -8,25 +8,497 @@ import type {
   SavedDeal, 
   DealsAdminStats,
   DealCategory,
-  DealAudienceMode
+  DealAudienceMode,
+  PrimaryDealsTab,
+  KiranaSubcategory,
+  DealCollectionType,
+  PriceDropAlert
 } from "@/types/deals";
 import { generateApprovedAffiliateUrl } from "./merchant-adapters";
 
-// 🛍️ BROAD CATEGORIES
-export const DEAL_CATEGORIES: DealCategory[] = [
-  { id: "cat_mobile", slug: "mobiles", name_te: "మొబైల్స్ & ఫోన్లు", name_en: "Mobiles", icon: "📱", sort_order: 1 },
-  { id: "cat_audio", slug: "audio", name_te: "హెడ్‌ఫోన్లు & ఆడియో", name_en: "Headphones & Audio", icon: "🎧", sort_order: 2 },
-  { id: "cat_electronics", slug: "electronics", name_te: "ఎలక్ట్రానిక్స్ & యాక్సెసరీస్", name_en: "Electronics", icon: "🔌", sort_order: 3 },
-  { id: "cat_student", slug: "student", name_te: "స్టూడెంట్ అవసరాలు", name_en: "Student Essentials", icon: "🎒", sort_order: 4 },
-  { id: "cat_farmer", slug: "farmer", name_te: "రైతులకు ఉపయోగపడేవి", name_en: "Farmer Useful Products", icon: "👨‍🌾", sort_order: 5 },
-  { id: "cat_home", slug: "home", name_te: "ఇంటికి & నిత్యజీవితానికి", name_en: "Home & Kitchen", icon: "🏠", sort_order: 6 },
-  { id: "cat_lights", slug: "lights", name_te: "టార్చ్ లైట్లు & సోలార్", name_en: "Torches & Solar", icon: "🔦", sort_order: 7 }
+// ============================================================
+// 1. PRIMARY 7 DEALS NAVIGATION TABS
+// ============================================================
+export interface PrimaryTabItem {
+  id: PrimaryDealsTab;
+  label_te: string;
+  label_en: string;
+  icon: string;
+  category_slug?: string;
+}
+
+export const PRIMARY_DEALS_TABS: PrimaryTabItem[] = [
+  { id: "all", label_te: "అన్నీ", label_en: "All Deals", icon: "🔥" },
+  { id: "kirana", label_te: "నిత్యావసరాలు & కిరాణా", label_en: "Daily Essentials & Grocery", icon: "🛒", category_slug: "kirana" },
+  { id: "mobiles", label_te: "మొబైల్స్", label_en: "Mobiles", icon: "📱", category_slug: "mobiles" },
+  { id: "student", label_te: "స్టూడెంట్", label_en: "Student Deals", icon: "🎓", category_slug: "student" },
+  { id: "home", label_te: "ఇంటి డీల్స్", label_en: "Home Deals", icon: "🏠", category_slug: "home" },
+  { id: "farmer", label_te: "రైతుల డీల్స్", label_en: "Farmer Deals", icon: "👨‍🌾", category_slug: "farmer" },
+  { id: "more", label_te: "మరిన్ని", label_en: "More Categories", icon: "•••" }
 ];
 
-// 🌟 AUTHENTIC FACTUAL CANONICAL SEED PRODUCTS
-// Pre-matched between Amazon and Flipkart with realistic verified pricing and specs
+// ============================================================
+// 2. KIRANA / DAILY ESSENTIALS SUBCATEGORIES
+// ============================================================
+export interface KiranaSubcategoryItem {
+  id: KiranaSubcategory;
+  label_te: string;
+  label_en: string;
+  icon: string;
+}
+
+export const KIRANA_SUBCATEGORIES: KiranaSubcategoryItem[] = [
+  { id: "all", label_te: "అన్ని నిత్యావసరాలు", label_en: "All Grocery", icon: "🛒" },
+  { id: "kirana", label_te: "కిరాణా (బియ్యం, పప్పు, నూనె)", label_en: "Kirana Staples", icon: "🍚" },
+  { id: "personal_care", label_te: "పర్సనల్ కేర్ (సోపులు, షాంపూ)", label_en: "Personal Care", icon: "🧼" },
+  { id: "cleaning", label_te: "క్లీనింగ్ & సర్ఫ్", label_en: "Cleaning", icon: "🧹" },
+  { id: "kitchen", label_te: "కిచెన్ ఎసెన్షియల్స్", label_en: "Kitchen", icon: "🧂" },
+  { id: "baby_care", label_te: "బేబీ కేర్", label_en: "Baby Care", icon: "🍼" },
+  { id: "pet_care", label_te: "పెట్ కేర్", label_en: "Pet Care", icon: "🐶" },
+  { id: "household", label_te: "హౌస్‌హోల్డ్", label_en: "Household", icon: "🧻" }
+];
+
+// ============================================================
+// 3. MOBILE BUDGET SHORTCUTS
+// ============================================================
+export const MOBILE_BUDGET_SHORTCUTS = [
+  { label: "₹5,000 లోపు", maxPrice: 5000, tag: "under_5k" },
+  { label: "₹7,500 లోపు", maxPrice: 7500, tag: "under_7.5k" },
+  { label: "₹10,000 లోపు", maxPrice: 10000, tag: "under_10k" },
+  { label: "₹15,000 లోపు", maxPrice: 15000, tag: "under_15k" },
+  { label: "₹20,000 లోపు", maxPrice: 20000, tag: "under_20k" },
+  { label: "₹25,000 లోపు", maxPrice: 25000, tag: "under_25k" }
+];
+
+export const MOBILE_FILTER_PILLS = [
+  { label: "📱 ₹5,000 లోపు మొబైల్స్", maxPrice: 5000 },
+  { label: "📱 ₹10,000 లోపు మొబైల్స్", maxPrice: 10000 },
+  { label: "📱 స్టూడెంట్స్ కోసం మొబైల్స్", maxPrice: 12000, audience: "student" },
+  { label: "🔋 5000mAh+ బ్యాటరీ మొబైల్స్", query: "battery" }
+];
+
+// ============================================================
+// 4. STUDENT BUDGET & ESSENTIAL COLLECTIONS
+// ============================================================
+export const STUDENT_BUDGET_SHORTCUTS = [
+  { label: "₹100 లోపు", maxPrice: 100 },
+  { label: "₹500 లోపు", maxPrice: 500 },
+  { label: "₹1,000 లోపు", maxPrice: 1000 },
+  { label: "₹5,000 లోపు", maxPrice: 5000 },
+  { label: "₹10,000 లోపు", maxPrice: 10000 }
+];
+
+// ============================================================
+// 5. 19 SPECIALIZED CATEGORIES FOR "••• మరిన్ని"
+// ============================================================
+export interface MoreCategoryItem {
+  slug: string;
+  name_te: string;
+  name_en: string;
+  icon: string;
+}
+
+export const MORE_DEAL_CATEGORIES: MoreCategoryItem[] = [
+  { slug: "laptops_computers", name_te: "ల్యాప్టాప్స్ & కంప్యూటర్స్", name_en: "Laptops & Computers", icon: "💻" },
+  { slug: "audio", name_te: "హెడ్ఫోన్స్ & ఆడియో", name_en: "Headphones & Audio", icon: "🎧" },
+  { slug: "tv_appliances", name_te: "TV & Appliances", name_en: "TV & Appliances", icon: "📺" },
+  { slug: "kitchen", name_te: "కిచెన్", name_en: "Kitchen", icon: "🍳" },
+  { slug: "fashion", name_te: "ఫ్యాషన్", name_en: "Fashion", icon: "👕" },
+  { slug: "footwear", name_te: "షూస్ & ఫుట్వేర్", name_en: "Shoes & Footwear", icon: "👟" },
+  { slug: "beauty", name_te: "బ్యూటీ & పర్సనల్ కేర్", name_en: "Beauty & Personal Care", icon: "💄" },
+  { slug: "kids", name_te: "పిల్లల వస్తువులు", name_en: "Kids & Toys", icon: "🧸" },
+  { slug: "books", name_te: "బుక్స్", name_en: "Books", icon: "📚" },
+  { slug: "electronics", name_te: "ఎలక్ట్రానిక్స్", name_en: "Electronics", icon: "🔌" },
+  { slug: "chargers_powerbanks", name_te: "చార్జర్స్ & పవర్ బ్యాంక్స్", name_en: "Chargers & Power Banks", icon: "🔋" },
+  { slug: "tools_hardware", name_te: "టూల్స్ & హార్డ్వేర్", name_en: "Tools & Hardware", icon: "🛠️" },
+  { slug: "auto", name_te: "కార్ & బైక్ యాక్సెసరీస్", name_en: "Car & Bike Accessories", icon: "🚗" },
+  { slug: "fitness", name_te: "ఫిట్నెస్ & స్పోర్ట్స్", name_en: "Fitness & Sports", icon: "🏋️" },
+  { slug: "pet_care", name_te: "పెట్ కేర్", name_en: "Pet Care", icon: "🐶" },
+  { slug: "gifts", name_te: "గిఫ్ట్స్", name_en: "Gifts", icon: "🎁" },
+  { slug: "travel", name_te: "ట్రావెల్", name_en: "Travel", icon: "🧳" },
+  { slug: "solar_energy", name_te: "సోలార్ & ఎనర్జీ", name_en: "Solar & Energy", icon: "☀️" },
+  { slug: "lighting", name_te: "లైటింగ్", name_en: "Lighting", icon: "💡" }
+];
+
+export const DEAL_CATEGORIES: DealCategory[] = [
+  { id: "cat_kirana", slug: "kirana", name_te: "నిత్యావసరాలు & కిరాణా", name_en: "Daily Essentials & Grocery", icon: "🛒", sort_order: 1 },
+  { id: "cat_mobile", slug: "mobiles", name_te: "మొబైల్స్", name_en: "Mobiles", icon: "📱", sort_order: 2 },
+  { id: "cat_student", slug: "student", name_te: "స్టూడెంట్ డీల్స్", name_en: "Student Deals", icon: "🎓", sort_order: 3 },
+  { id: "cat_home", slug: "home", name_te: "ఇంటి డీల్స్", name_en: "Home Deals", icon: "🏠", sort_order: 4 },
+  { id: "cat_farmer", slug: "farmer", name_te: "రైతుల డీల్స్", name_en: "Farmer Deals", icon: "👨‍🌾", sort_order: 5 },
+  ...MORE_DEAL_CATEGORIES.map((m, idx) => ({
+    id: `cat_${m.slug}`,
+    slug: m.slug,
+    name_te: m.name_te,
+    name_en: m.name_en,
+    icon: m.icon,
+    sort_order: 6 + idx
+  }))
+];
+
+// ============================================================
+// 6. DISCOVERY COLLECTIONS
+// ============================================================
+export interface DealCollectionItem {
+  id: DealCollectionType;
+  label_te: string;
+  icon: string;
+}
+
+export const DEAL_COLLECTIONS_LIST: DealCollectionItem[] = [
+  { id: "todays_deals", label_te: "ఈరోజు డీల్స్", icon: "🔥" },
+  { id: "price_drop", label_te: "ధర తగ్గింది", icon: "⚡" },
+  { id: "budget_deals", label_te: "బడ్జెట్ డీల్స్", icon: "💰" },
+  { id: "good_deals", label_te: "మంచి డీల్స్", icon: "🏆" },
+  { id: "student_deals", label_te: "స్టూడెంట్ డీల్స్", icon: "🎓" },
+  { id: "farmer_deals", label_te: "రైతుల డీల్స్", icon: "👨‍🌾" },
+  { id: "home_deals", label_te: "మన ఇంటికి", icon: "🏡" },
+  { id: "kirana_deals", label_te: "నిత్యావసరాల డీల్స్", icon: "🛒" }
+];
+
+// ============================================================
+// 7. BUDGET FINDER STEPS
+// ============================================================
+export const BUDGET_FINDER_STEPS = [100, 500, 1000, 2500, 5000, 10000, 25000];
+
+// ============================================================
+// 8. AUTHENTIC CANONICAL PRODUCTS
+// ============================================================
 export const SEED_CANONICAL_PRODUCTS: CanonicalProduct[] = [
-  // 1. MOBILE UNDER 10,000
+  // --- 🛒 DAILY ESSENTIALS & KIRANA ---
+  {
+    id: "cp_daawat_basmati_rice",
+    brand: "Daawat",
+    model: "Rozana Super Basmati Rice (5kg)",
+    title_te: "దావత్ రోజానా సూపర్ బాస్మతి బియ్యం (5 కేజీలు • పొడవాటి గింజలు)",
+    title_en: "Daawat Rozana Super Basmati Rice, 5kg",
+    category_id: "kirana",
+    subcategory: "kirana",
+    category_name_te: "నిత్యావసరాలు & కిరాణా",
+    image_url: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=600&q=80",
+    key_specs: [
+      "5kg ప్యాక్ • స్వచ్ఛమైన బాస్మతి సువాసన",
+      "ప్రతిరోజూ అన్నం, బిర్యానీ, పులావ్‌కి అనువైనది",
+      "వండిన తర్వాత పొడవుగా మరియు విడివిడిగా వస్తుంది"
+    ],
+    lowest_price: 399,
+    highest_mrp: 499,
+    deal_label: "lowest_price",
+    deal_score: 96,
+    why_this_deal: [
+      "ప్రతిరోజూ వాడే నిత్యావసరాలలో బడ్జెట్ బెస్ట్ సెల్లర్",
+      "Flipkart కంటే Amazonలో ₹30 తక్కువ ధర",
+      "ఉచిత ఇంటి డెలివరీ అందుబాటులో ఉంది"
+    ],
+    price_difference: 30,
+    cheaper_merchant: "amazon",
+    previous_observed_price: 440,
+    price_drop_amount: 41,
+    audience_tags: ["all", "village"],
+    is_todays_deal: true,
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T15:00:00Z",
+    offers: [
+      {
+        merchant: "amazon",
+        merchant_name: "Amazon India",
+        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
+        product_id: "B00NWRU9D2",
+        product_title: "Daawat Rozana Super Basmati Rice 5kg",
+        price: 399,
+        mrp: 499,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B00NWRU9D2"),
+        in_stock: true,
+        shipping_info: "ఉచిత డెలివరీ",
+        rating: 4.3,
+        review_count: 54000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: true
+      },
+      {
+        merchant: "flipkart",
+        merchant_name: "Flipkart",
+        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
+        product_id: "GROFH87UHG",
+        product_title: "DAAWAT Rozana Super Basmati Rice (5 kg)",
+        price: 429,
+        mrp: 499,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/daawat-rozana-super-basmati-rice-5-kg/p/itm123"),
+        in_stock: true,
+        shipping_info: "ఉచిత డెలివరీ",
+        rating: 4.2,
+        review_count: 32000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: false
+      }
+    ]
+  },
+  {
+    id: "cp_fortune_sunflower_oil",
+    brand: "Fortune",
+    model: "Sunlite Refined Sunflower Oil (5 Litre Can)",
+    title_te: "ఫార్చ్యూన్ సన్‌లైట్ సన్‌ఫ్లవర్ నూనె (5 లీటర్ల క్యాన్ • విటమిన్ A & D)",
+    title_en: "Fortune Sunlite Refined Sunflower Oil, 5L Can",
+    category_id: "kirana",
+    subcategory: "kirana",
+    category_name_te: "నిత్యావసరాలు & కిరాణా",
+    image_url: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80",
+    key_specs: [
+      "5 లీటర్ల సౌకర్యవంతమైన క్యాన్",
+      "విటమిన్ A, D, E పుష్కలంగా ఉంటాయి",
+      "లైట్ మరియు ఆరోగ్యకరమైన వంట నూనె"
+    ],
+    lowest_price: 649,
+    highest_mrp: 799,
+    deal_label: "good_deal",
+    deal_score: 93,
+    why_this_deal: [
+      "కుటుంబానికి 1 నెల సరిపడా 5L క్యాన్",
+      "Amazon కంటే Flipkartలో ₹20 తక్కువ ధర",
+      "మార్కెట్ ఎం.ఆర్.పి కంటే ₹150 ఆదా"
+    ],
+    price_difference: 20,
+    cheaper_merchant: "flipkart",
+    previous_observed_price: 690,
+    price_drop_amount: 41,
+    audience_tags: ["all", "village"],
+    is_todays_deal: true,
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T15:00:00Z",
+    offers: [
+      {
+        merchant: "flipkart",
+        merchant_name: "Flipkart",
+        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
+        product_id: "EDOFC2345",
+        product_title: "Fortune Sunlite Refined Sunflower Oil Can (5 L)",
+        price: 649,
+        mrp: 799,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/fortune-sunlite-sunflower-oil-5l/p/itm555"),
+        in_stock: true,
+        rating: 4.4,
+        review_count: 67000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: true
+      },
+      {
+        merchant: "amazon",
+        merchant_name: "Amazon India",
+        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
+        product_id: "B00K5N4K9G",
+        product_title: "Fortune Sunlite Refined Sunflower Oil, 5L Can",
+        price: 669,
+        mrp: 799,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B00K5N4K9G"),
+        in_stock: true,
+        rating: 4.4,
+        review_count: 85000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: false
+      }
+    ]
+  },
+  {
+    id: "cp_aashirvaad_atta_10kg",
+    brand: "Aashirvaad",
+    model: "Shudh Chakki Whole Wheat Atta (10kg)",
+    title_te: "ఆశీర్వాద్ చక్కీ గోధుమ పిండి (10 కేజీలు • 100% స్వచ్ఛమైన గోధుమలు)",
+    title_en: "Aashirvaad Superior MP Whole Wheat Chakki Atta, 10kg",
+    category_id: "kirana",
+    subcategory: "kirana",
+    category_name_te: "నిత్యావసరాలు & కిరాణా",
+    image_url: "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80",
+    key_specs: [
+      "10kg సేవింగ్స్ ప్యాక్",
+      "మెత్తని మరియు రుచికరమైన రొట్టెలు/చపాతీలు",
+      "హై ఫైబర్ మరియు సహజ పోషకాలు"
+    ],
+    lowest_price: 429,
+    highest_mrp: 495,
+    deal_label: "budget_pick",
+    deal_score: 95,
+    why_this_deal: [
+      "తెలుగు రాష్ట్రాల్లో అత్యధికంగా అమ్ముడవుతున్న గోధుమ పిండి",
+      "Flipkart కంటే Amazonలో ₹20 తక్కువ ధర",
+      "భారీ 10kg ప్యాక్ నేరుగా ఇంటి వద్దకే డెలివరీ"
+    ],
+    price_difference: 20,
+    cheaper_merchant: "amazon",
+    audience_tags: ["all", "village"],
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T15:00:00Z",
+    offers: [
+      {
+        merchant: "amazon",
+        merchant_name: "Amazon India",
+        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
+        product_id: "B00NWRU9AA",
+        product_title: "Aashirvaad Superior MP Atta 10kg",
+        price: 429,
+        mrp: 495,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B00NWRU9AA"),
+        in_stock: true,
+        rating: 4.5,
+        review_count: 110000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: true
+      },
+      {
+        merchant: "flipkart",
+        merchant_name: "Flipkart",
+        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
+        product_id: "ATTA12345",
+        product_title: "AASHIRVAAD Superior MP Atta (10 kg)",
+        price: 449,
+        mrp: 495,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/aashirvaad-atta-10kg/p/itm987"),
+        in_stock: true,
+        rating: 4.4,
+        review_count: 82000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: false
+      }
+    ]
+  },
+  {
+    id: "cp_dettol_soaps_pack",
+    brand: "Dettol",
+    model: "Original Germ Protection Bathing Soap (Pack of 5 x 125g)",
+    title_te: "డెట్టాల్ ఒరిజినల్ బాతింగ్ సోప్ (5 సోపుల ప్యాక్ • 125 గ్రాములు ప్రతిదీ)",
+    title_en: "Dettol Original Germ Protection Bathing Soap Bar, 125g (Pack of 5)",
+    category_id: "kirana",
+    subcategory: "personal_care",
+    category_name_te: "నిత్యావసరాలు & కిరాణా",
+    image_url: "https://images.unsplash.com/photo-1607006314605-aac70a5c4e09?auto=format&fit=crop&w=600&q=80",
+    key_specs: [
+      "5 పెద్ద సోపుల సూపర్ సేవింగ్స్ కాంబో",
+      "99.9% క్రిముల నుండి రక్షణ",
+      "చర్మానికి తేమ మరియు రక్షణ"
+    ],
+    lowest_price: 249,
+    highest_mrp: 310,
+    deal_label: "lowest_price",
+    deal_score: 97,
+    why_this_deal: [
+      "₹250 లోపు మొత్తం కుటుంబానికి సరిపడా సోపులు",
+      "సూపర్ మార్కెట్ ధర కంటే ₹60 ఆదా",
+      "Flipkart కంటే Amazonలో ₹16 తక్కువ ధర"
+    ],
+    price_difference: 16,
+    cheaper_merchant: "amazon",
+    audience_tags: ["all", "village"],
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T15:00:00Z",
+    offers: [
+      {
+        merchant: "amazon",
+        merchant_name: "Amazon India",
+        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
+        product_id: "B00NWSOAP",
+        product_title: "Dettol Original Bathing Soap 125g Pack of 5",
+        price: 249,
+        mrp: 310,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B00NWSOAP"),
+        in_stock: true,
+        rating: 4.4,
+        review_count: 94000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: true
+      },
+      {
+        merchant: "flipkart",
+        merchant_name: "Flipkart",
+        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
+        product_id: "SOAPFK123",
+        product_title: "Dettol Original Soap (5 x 125 g)",
+        price: 265,
+        mrp: 310,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/dettol-original-soap-pack-of-5/p/itm543"),
+        in_stock: true,
+        rating: 4.3,
+        review_count: 48000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: false
+      }
+    ]
+  },
+
+  // --- 📱 MOBILES ---
+  {
+    id: "cp_itel_a70",
+    brand: "itel",
+    model: "A70 (4GB RAM • 64GB)",
+    title_te: "ఐటెల్ A70 (4GB ర్యామ్ • 64GB స్టోరేజ్ • 5000 mAh బ్యాటరీ)",
+    title_en: "itel A70 Brilliant Gold (4GB RAM, 64GB Storage) 5000 mAh Battery",
+    category_id: "mobiles",
+    category_name_te: "మొబైల్స్",
+    image_url: "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?auto=format&fit=crop&w=600&q=80",
+    key_specs: [
+      "₹5,000 లోపు 64GB మెమరీ ఫోన్",
+      "5000 mAh భారీ బ్యాటరీ",
+      "ఫింగర్‌ప్రింట్ సెన్సార్ & ఫేస్ అన్‌లాక్",
+      "6.6 అంగుళాల బిగ్ డిస్ప్లే"
+    ],
+    lowest_price: 4999,
+    highest_mrp: 7999,
+    deal_label: "budget_pick",
+    deal_score: 97,
+    why_this_deal: [
+      "₹5,000 లోపు లభించే ఏకైక 4GB/64GB స్మార్ట్‌ఫోన్",
+      "తల్లిదండ్రులకు మరియు గ్రామీణ వినియోగదారులకు బెస్ట్ ఎంపిక",
+      "Amazon కంటే Flipkartలో ₹100 తక్కువ ధర"
+    ],
+    price_difference: 100,
+    cheaper_merchant: "flipkart",
+    previous_observed_price: 5499,
+    price_drop_amount: 500,
+    audience_tags: ["all", "village"],
+    is_todays_deal: true,
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T15:00:00Z",
+    offers: [
+      {
+        merchant: "flipkart",
+        merchant_name: "Flipkart",
+        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
+        product_id: "MOBITEL70",
+        product_title: "itel A70 (Brilliant Gold, 64 GB)",
+        price: 4999,
+        mrp: 7999,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/itel-a70-gold-64gb/p/itm111"),
+        in_stock: true,
+        rating: 4.1,
+        review_count: 14500,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: true
+      },
+      {
+        merchant: "amazon",
+        merchant_name: "Amazon India",
+        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
+        product_id: "B0CNP77M9",
+        product_title: "itel A70 (4GB RAM, 64GB Storage)",
+        price: 5099,
+        mrp: 7999,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B0CNP77M9"),
+        in_stock: true,
+        rating: 4.0,
+        review_count: 11200,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: false
+      }
+    ]
+  },
   {
     id: "cp_samsung_m04",
     brand: "Samsung",
@@ -36,9 +508,6 @@ export const SEED_CANONICAL_PRODUCTS: CanonicalProduct[] = [
     category_id: "mobiles",
     category_name_te: "మొబైల్స్",
     image_url: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1598327105666-5b89351aff97?auto=format&fit=crop&w=600&q=80"
-    ],
     key_specs: [
       "4GB RAM • 64GB Storage (Expandable 1TB)",
       "5000 mAh భారీ బ్యాటరీ",
@@ -57,7 +526,9 @@ export const SEED_CANONICAL_PRODUCTS: CanonicalProduct[] = [
     price_difference: 300,
     cheaper_merchant: "amazon",
     previous_observed_price: 8499,
+    price_drop_amount: 500,
     audience_tags: ["all", "student", "village"],
+    is_todays_deal: true,
     created_at: "2026-09-17T10:00:00Z",
     updated_at: "2026-09-17T15:00:00Z",
     offers: [
@@ -89,7 +560,6 @@ export const SEED_CANONICAL_PRODUCTS: CanonicalProduct[] = [
         currency: "INR",
         affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/samsung-galaxy-m04-light-green-64-gb/p/itm12345"),
         in_stock: true,
-        shipping_info: "ఉచిత డెలివరీ",
         rating: 4.2,
         review_count: 18400,
         last_checked_at: "2026-09-17T15:00:00Z",
@@ -97,38 +567,36 @@ export const SEED_CANONICAL_PRODUCTS: CanonicalProduct[] = [
       }
     ]
   },
-
-  // 2. REDMI 13C 5G UNDER 10,000
   {
-    id: "cp_redmi_13c",
-    brand: "Redmi",
-    model: "Redmi 13C (4GB RAM • 128GB)",
-    title_te: "రెడ్మి 13C (4GB ర్యామ్ • 128GB స్టోరేజ్ • 50MP AI కెమెరా)",
-    title_en: "Redmi 13C Starshine Green, 4GB RAM, 128GB Storage",
+    id: "cp_poco_m6_5g",
+    brand: "POCO",
+    model: "M6 5G (6GB RAM • 128GB)",
+    title_te: "పోకో M6 5G (6GB ర్యామ్ • 128GB స్టోరేజ్ • 5G స్మార్ట్‌ఫోన్)",
+    title_en: "POCO M6 5G Orion Blue, 6GB RAM, 128GB Storage, Dimensity 6100+",
     category_id: "mobiles",
     category_name_te: "మొబైల్స్",
     image_url: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=600&q=80"
-    ],
     key_specs: [
-      "4GB RAM • 128GB భారీ స్టోరేజ్",
-      "50MP సూపర్ AI కెమెరా",
-      "5000 mAh బ్యాటరీ • 18W ఫాస్ట్ చార్జింగ్",
+      "₹10,000 లోపు అసలైన 5G స్మార్ట్‌ఫోన్",
+      "MediaTek Dimensity 6100+ 5G ప్రాసెసర్",
+      "50MP AI కెమెరా • 5000 mAh బ్యాటరీ",
       "90Hz స్మూత్ డిస్ప్లే"
     ],
-    lowest_price: 8499,
+    lowest_price: 9999,
     highest_mrp: 13999,
     deal_label: "good_deal",
-    deal_score: 92,
+    deal_score: 95,
     why_this_deal: [
-      "₹10,000 లోపు 128GB ఇంటర్నల్ మెమరీ లభించే ఫోన్",
-      "Amazon కంటే Flipkartలో ₹100 తక్కువ ధర",
-      "50MP కెమెరాతో మంచి ఫోటో క్వాలిటీ"
+      "₹10,000 లోపు ఫాస్ట్ 5G ఇంటర్నెట్ సపోర్ట్ చేసే ఫోన్",
+      "Amazon కంటే Flipkartలో ₹200 తక్కువ ధర",
+      "స్టూడెంట్స్ కోసం ఆన్‌లైన్ క్లాసులు మరియు గేమింగ్‌కి బెస్ట్"
     ],
-    price_difference: 100,
+    price_difference: 200,
     cheaper_merchant: "flipkart",
+    previous_observed_price: 10499,
+    price_drop_amount: 500,
     audience_tags: ["all", "student"],
+    is_todays_deal: true,
     created_at: "2026-09-17T10:00:00Z",
     updated_at: "2026-09-17T15:00:00Z",
     offers: [
@@ -136,15 +604,15 @@ export const SEED_CANONICAL_PRODUCTS: CanonicalProduct[] = [
         merchant: "flipkart",
         merchant_name: "Flipkart",
         merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
-        product_id: "MOBGW4FGWUGV",
-        product_title: "REDMI 13C (Starshine Green, 128 GB)",
-        price: 8499,
+        product_id: "MOBPOCOM6",
+        product_title: "POCO M6 5G (Orion Blue, 128 GB, 6 GB RAM)",
+        price: 9999,
         mrp: 13999,
         currency: "INR",
-        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/redmi-13c-starshine-green-128-gb/p/itmeee123"),
+        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/poco-m6-5g-128gb/p/itm999"),
         in_stock: true,
         rating: 4.3,
-        review_count: 32000,
+        review_count: 42000,
         last_checked_at: "2026-09-17T15:00:00Z",
         is_lowest: true
       },
@@ -152,34 +620,32 @@ export const SEED_CANONICAL_PRODUCTS: CanonicalProduct[] = [
         merchant: "amazon",
         merchant_name: "Amazon India",
         merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
-        product_id: "B0CNX5H9M4",
-        product_title: "Redmi 13C (Starshine Green, 4GB RAM, 128GB Storage)",
-        price: 8599,
+        product_id: "B0CQX45",
+        product_title: "POCO M6 5G (6GB RAM, 128GB Storage)",
+        price: 10199,
         mrp: 13999,
         currency: "INR",
-        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B0CNX5H9M4"),
+        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B0CQX45"),
         in_stock: true,
         rating: 4.2,
-        review_count: 28900,
+        review_count: 28000,
         last_checked_at: "2026-09-17T15:00:00Z",
         is_lowest: false
       }
     ]
   },
 
-  // 3. BOAT BASSHEADS 100 WIRED EARPHONES UNDER ₹500
+  // --- 🎓 STUDENT DEALS ---
   {
     id: "cp_boat_bassheads_100",
     brand: "boAt",
     model: "Bassheads 100 Wired Earphones with Mic",
     title_te: "బోట్ బాస్‌హెడ్స్ 100 ఇయర్ ఫోన్లు (మైక్ తో సహా • సూపర్ బాస్)",
     title_en: "boAt Bassheads 100 in Ear Wired Earphones with Mic",
-    category_id: "audio",
-    category_name_te: "హెడ్‌ఫోన్లు & ఆడియో",
+    category_id: "student",
+    subcategory: "audio",
+    category_name_te: "స్టూడెంట్ డీల్స్",
     image_url: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80"
-    ],
     key_specs: [
       "సూపర్ బాస్ సౌండ్ (10mm డైనమిక్ డ్రైవర్లు)",
       "ఇన్-లైన్ మైక్రోఫోన్ (కాలింగ్ కోసం)",
@@ -188,7 +654,7 @@ export const SEED_CANONICAL_PRODUCTS: CanonicalProduct[] = [
     ],
     lowest_price: 349,
     highest_mrp: 999,
-    deal_label: "lowest_price",
+    deal_label: "student_pick",
     deal_score: 98,
     why_this_deal: [
       "₹500 లోపు నెం.1 బెస్ట్ సెల్లింగ్ ఇయర్ ఫోన్",
@@ -197,7 +663,10 @@ export const SEED_CANONICAL_PRODUCTS: CanonicalProduct[] = [
     ],
     price_difference: 50,
     cheaper_merchant: "amazon",
+    previous_observed_price: 399,
+    price_drop_amount: 50,
     audience_tags: ["all", "student", "village"],
+    is_todays_deal: true,
     created_at: "2026-09-17T10:00:00Z",
     updated_at: "2026-09-17T15:00:00Z",
     offers: [
@@ -235,315 +704,35 @@ export const SEED_CANONICAL_PRODUCTS: CanonicalProduct[] = [
       }
     ]
   },
-
-  // 4. FARMER PICK: RECHARGEABLE BATTERY SPRAYER PUMP (16 LITRES)
   {
-    id: "cp_farmer_battery_sprayer",
-    brand: "KisanKraft",
-    model: "16 Litre Battery Sprayer Pump",
-    title_te: "కిసాన్ క్రాఫ్ట్ 16 లీటర్ల బ్యాటరీ స్ప్రేయర్ పంప్ (వ్యవసాయం & గార్డెనింగ్)",
-    title_en: "KisanKraft 16L Battery Operated Agricultural Knapsack Sprayer",
-    category_id: "farmer",
-    category_name_te: "రైతులకు ఉపయోగపడేవి",
-    image_url: "https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=600&q=80"
-    ],
-    key_specs: [
-      "16 లీటర్ల ట్యాంక్ కెపాసిటీ (బలమైన ప్లాస్టిక్)",
-      "12V 8Ah రీచార్జబుల్ బ్యాటరీ (ఒక్కసారి చార్జ్ చేస్తే 5-6 గంటలు)",
-      "4 రకాల నాజిల్స్ తో సహా",
-      "శ్రమ లేకుండా వేగంగా మందుల పిచికారీ"
-    ],
-    lowest_price: 2499,
-    highest_mrp: 4500,
-    deal_label: "farmer_pick",
-    deal_score: 96,
-    why_this_deal: [
-      "చేతితో కొట్టే పనిలేకుండా సులభంగా బ్యాటరీతో పిచికారీ",
-      "Amazon కంటే Flipkartలో ₹200 తక్కువ ధర",
-      "రైతులకు అత్యంత ఉపయోగకరమైన పనిముట్టు"
-    ],
-    price_difference: 200,
-    cheaper_merchant: "flipkart",
-    previous_observed_price: 2699,
-    audience_tags: ["all", "farmer", "village"],
-    created_at: "2026-09-17T10:00:00Z",
-    updated_at: "2026-09-17T15:00:00Z",
-    offers: [
-      {
-        merchant: "flipkart",
-        merchant_name: "Flipkart",
-        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
-        product_id: "SPRFG8YY6GYY",
-        product_title: "16 L Battery Knapsack Agriculture Sprayer",
-        price: 2499,
-        mrp: 4500,
-        currency: "INR",
-        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/agriculture-sprayer/p/itm1111"),
-        in_stock: true,
-        rating: 4.2,
-        review_count: 5400,
-        last_checked_at: "2026-09-17T15:00:00Z",
-        is_lowest: true
-      },
-      {
-        merchant: "amazon",
-        merchant_name: "Amazon India",
-        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
-        product_id: "B07K6Q1M99",
-        product_title: "KisanKraft 16 L Battery Sprayer for Agriculture",
-        price: 2699,
-        mrp: 4500,
-        currency: "INR",
-        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B07K6Q1M99"),
-        in_stock: true,
-        rating: 4.0,
-        review_count: 4800,
-        last_checked_at: "2026-09-17T15:00:00Z",
-        is_lowest: false
-      }
-    ]
-  },
-
-  // 5. VILLAGE PICK: LONG RANGE EMERGENCY LED RECHARGEABLE TORCH LIGHT
-  {
-    id: "cp_long_range_torch",
-    brand: "Wipro",
-    model: "Emerald Rechargeable LED Emergency Torch Light",
-    title_te: "విప్రో లాంగ్ రేంజ్ ఎమర్జెన్సీ టార్చ్ లైట్ (500 మీటర్ల వెలుగు • రీచార్జబుల్)",
-    title_en: "Wipro Emerald Rechargeable High Power Long Distance LED Torch",
-    category_id: "lights",
-    category_name_te: "టార్చ్ లైట్లు & సోలార్",
-    image_url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80"
-    ],
-    key_specs: [
-      "500 మీటర్ల దూరపు ప్రకాశవంతమైన వెలుగు",
-      "3000 mAh లిథియం అయాన్ బ్యాటరీ",
-      "ఒక్కసారి చార్జ్ చేస్తే 8 గంటల బ్యాకప్",
-      "పొలాల్లోకి, గ్రామాల్లో రాత్రి వేళల్లో అత్యవసరం"
-    ],
-    lowest_price: 549,
-    highest_mrp: 990,
-    deal_label: "good_deal",
-    deal_score: 93,
-    why_this_deal: [
-      "గ్రామాలు, రైతులకు రాత్రి వేళల్లో నమ్మకమైన వెలుగు",
-      "Flipkart కంటే Amazonలో ₹70 తక్కువ ధర",
-      "మంచి బ్యాటరీ లైఫ్ మరియు దృఢమైన నిర్మాణం"
-    ],
-    price_difference: 70,
-    cheaper_merchant: "amazon",
-    audience_tags: ["all", "farmer", "village"],
-    created_at: "2026-09-17T10:00:00Z",
-    updated_at: "2026-09-17T15:00:00Z",
-    offers: [
-      {
-        merchant: "amazon",
-        merchant_name: "Amazon India",
-        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
-        product_id: "B08GH99K22",
-        product_title: "Wipro Emerald Rechargeable LED Torch Light",
-        price: 549,
-        mrp: 990,
-        currency: "INR",
-        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B08GH99K22"),
-        in_stock: true,
-        rating: 4.3,
-        review_count: 14200,
-        last_checked_at: "2026-09-17T15:00:00Z",
-        is_lowest: true
-      },
-      {
-        merchant: "flipkart",
-        merchant_name: "Flipkart",
-        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
-        product_id: "TORFK898GYGV",
-        product_title: "Wipro Emerald Long Range Rechargeable Torch",
-        price: 619,
-        mrp: 990,
-        currency: "INR",
-        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/wipro-torch/p/itm2222"),
-        in_stock: true,
-        rating: 4.1,
-        review_count: 9800,
-        last_checked_at: "2026-09-17T15:00:00Z",
-        is_lowest: false
-      }
-    ]
-  },
-
-  // 6. STUDENT PICK: 10000mAh FAST CHARGING POWER BANK UNDER ₹1000
-  {
-    id: "cp_mi_power_bank_10000",
-    brand: "Mi / Xiaomi",
-    model: "10000mAh 22.5W Fast Charging Power Bank 3i",
-    title_te: "ఎంఐ 10,000 mAh ఫాస్ట్ చార్జింగ్ పవర్ బ్యాంక్ 3i (22.5W స్పీడ్)",
-    title_en: "Mi 10000mAh 22.5W Fast Charge Pocket Power Bank 3i",
-    category_id: "electronics",
-    category_name_te: "ఎలక్ట్రానిక్స్",
-    image_url: "https://images.unsplash.com/photo-1609592424364-a957b49cb475?auto=format&fit=crop&w=600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1609592424364-a957b49cb475?auto=format&fit=crop&w=600&q=80"
-    ],
-    key_specs: [
-      "10,000 mAh కెపాసిటీ (ఫోన్‌ను 2-3 సార్లు ఫుల్ చార్జ్ చేయవచ్చు)",
-      "22.5W సూపర్ ఫాస్ట్ చార్జింగ్",
-      "ట్రిపుల్ అవుట్‌పుట్ పోర్టులు (ఒకేసారి 3 డివైస్‌లు చార్జ్ చేయవచ్చు)",
-      "Type-C మరియు మైక్రో USB డ్యూయల్ ఇన్‌పుట్"
-    ],
-    lowest_price: 999,
-    highest_mrp: 1999,
-    deal_label: "student_pick",
-    deal_score: 95,
-    why_this_deal: [
-      "స్టూడెంట్స్ మరియు ప్రయాణికులకు అత్యంత ఉపయోగకరం",
-      "Flipkart కంటే Amazonలో ₹100 తక్కువ ధర",
-      "కరెంట్ పోయినప్పుడు లేదా ప్రయాణాల్లో ఫోన్ ఆగిపోకుండా రక్షణ"
-    ],
-    price_difference: 100,
-    cheaper_merchant: "amazon",
-    previous_observed_price: 1199,
-    audience_tags: ["all", "student", "village"],
-    created_at: "2026-09-17T10:00:00Z",
-    updated_at: "2026-09-17T15:00:00Z",
-    offers: [
-      {
-        merchant: "amazon",
-        merchant_name: "Amazon India",
-        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
-        product_id: "B08HV83HL3",
-        product_title: "Mi 10000mAH Li-Polymer, Micro-USB and Type C Power Bank 3i",
-        price: 999,
-        mrp: 1999,
-        currency: "INR",
-        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B08HV83HL3"),
-        in_stock: true,
-        rating: 4.3,
-        review_count: 145000,
-        last_checked_at: "2026-09-17T15:00:00Z",
-        is_lowest: true
-      },
-      {
-        merchant: "flipkart",
-        merchant_name: "Flipkart",
-        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
-        product_id: "PWBFV999GUGG",
-        product_title: "Mi 3i 10000 mAh Power Bank (22.5 W, Fast Charging)",
-        price: 1099,
-        mrp: 1999,
-        currency: "INR",
-        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/mi-3i-10000-mah-power-bank/p/itm3333"),
-        in_stock: true,
-        rating: 4.3,
-        review_count: 92000,
-        last_checked_at: "2026-09-17T15:00:00Z",
-        is_lowest: false
-      }
-    ]
-  },
-
-  // 7. HOME USEFUL PICK: PIGEON HANDY CHOPPER UNDER ₹250
-  {
-    id: "cp_pigeon_handy_chopper",
-    brand: "Pigeon",
-    model: "Handy and Compact Chopper with 3 Blades",
-    title_te: "పిజియన్ హ్యాండీ వెజిటబుల్ చాపర్ (3 స్టెయిన్‌లెస్ స్టీల్ బ్లేడ్లు • కరెంట్ అక్కర్లేదు)",
-    title_en: "Pigeon by Stovekraft Handy and Compact Vegetable Chopper (400 ml)",
-    category_id: "home",
-    category_name_te: "ఇంటికి & నిత్యజీవితానికి",
-    image_url: "https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=600&q=80"
-    ],
-    key_specs: [
-      "ఉల్లిపాయలు, కూరగాయలు 10 సెకన్లలో ముక్కలు అవుతాయి",
-      "కరెంట్ అవసరం లేదు (సులభంగా త్రాడు లాగితే చాలు)",
-      "3 పదునైన జపనీస్ స్టెయిన్‌లెస్ స్టీల్ బ్లేడ్లు",
-      "సులభంగా కడిగి శుభ్రం చేసుకోవచ్చు"
-    ],
-    lowest_price: 199,
-    highest_mrp: 495,
-    deal_label: "budget_pick",
-    deal_score: 97,
-    why_this_deal: [
-      "ప్రతి ఇంటి వంటింటికి తప్పక ఉండాల్సిన అత్యుపయోగ వస్తువు",
-      "Flipkart కంటే Amazonలో ₹30 తక్కువ ధర",
-      "కళ్ళలో నీళ్లు రాకుండా ఉల్లిపాయలను త్వరగా కోయవచ్చు"
-    ],
-    price_difference: 30,
-    cheaper_merchant: "amazon",
-    audience_tags: ["all", "village"],
-    created_at: "2026-09-17T10:00:00Z",
-    updated_at: "2026-09-17T15:00:00Z",
-    offers: [
-      {
-        merchant: "amazon",
-        merchant_name: "Amazon India",
-        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
-        product_id: "B01LWYX4AE",
-        product_title: "Pigeon Handy Chopper with 3 Stainless Steel Blades",
-        price: 199,
-        mrp: 495,
-        currency: "INR",
-        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B01LWYX4AE"),
-        in_stock: true,
-        rating: 4.1,
-        review_count: 220000,
-        last_checked_at: "2026-09-17T15:00:00Z",
-        is_lowest: true
-      },
-      {
-        merchant: "flipkart",
-        merchant_name: "Flipkart",
-        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
-        product_id: "CHPFG888HHYY",
-        product_title: "Pigeon Handy Chopper (Green, 3 Blades)",
-        price: 229,
-        mrp: 495,
-        currency: "INR",
-        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/pigeon-handy-chopper/p/itm4444"),
-        in_stock: true,
-        rating: 4.2,
-        review_count: 85000,
-        last_checked_at: "2026-09-17T15:00:00Z",
-        is_lowest: false
-      }
-    ]
-  },
-
-  // 8. STUDENT BACKPACK UNDER ₹1000
-  {
-    id: "cp_student_backpack",
+    id: "cp_student_backpack_32l",
     brand: "American Tourister",
-    model: "Casual School & College Backpack 32L",
-    title_te: "అమెరికన్ టూరిస్టర్ స్కూల్ & కాలేజ్ బ్యాగ్‌ప్యాక్ (32 లీటర్ల కెపాసిటీ • వాటర్ రెసిస్టెంట్)",
-    title_en: "American Tourister 32L Casual Backpack for Students",
+    model: "32 Litre Casual College / School Backpack",
+    title_te: "అమెరికన్ టూరిస్టర్ 32 లీటర్ల కాలేజ్ బ్యాగ్‌ప్యాక్ (వాటర్ రెసిస్టెంట్)",
+    title_en: "American Tourister 32L Casual Backpack for College & Work",
     category_id: "student",
-    category_name_te: "స్టూడెంట్ అవసరాలు",
+    subcategory: "bags",
+    category_name_te: "స్టూడెంట్ డీల్స్",
     image_url: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80",
-    gallery: [
-      "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80"
-    ],
     key_specs: [
-      "32 లీటర్ల పెద్ద కెపాసిటీ (పుస్తకాలు, ల్యాప్‌టాప్ పట్టేలా)",
-      "వాటర్ రెసిస్టెంట్ ఫ్యాబ్రిక్ (వర్షానికి సురక్షితం)",
-      "భుజాలకు నొప్పి రాకుండా మెత్తని పాడింగ్ స్ట్రాప్స్",
-      "బాటిల్ హోల్డర్ & రెయిన్ ప్రొటెక్షన్"
+      "32 లీటర్ల విశాలమైన సామర్థ్యం (3 కంపార్ట్‌మెంట్లు)",
+      "ల్యాప్‌టాప్ పాకెట్ మరియు బాటిల్ హోల్డర్",
+      "వాటర్ రెసిస్టెంట్ మన్నికైన క్లాత్",
+      "1 సంవత్సరం ఇంటర్నేషనల్ వారంటీ"
     ],
     lowest_price: 899,
     highest_mrp: 2200,
     deal_label: "student_pick",
     deal_score: 93,
     why_this_deal: [
-      "స్కూల్ & కాలేజ్ విద్యార్థులకు దృఢమైన బ్రాండెడ్ బ్యాగ్",
+      "కాలేజ్ & స్కూల్ స్టూడెంట్స్‌కి నంబర్ 1 బ్రాండ్",
       "Amazon కంటే Flipkartలో ₹50 తక్కువ ధర",
-      "వర్షాకాలంలో పుస్తకాలు తడవకుండా కాపాడుతుంది"
+      "ఎం.ఆర్.పి పై 59% భారీ తగ్గింపు"
     ],
     price_difference: 50,
     cheaper_merchant: "flipkart",
+    previous_observed_price: 999,
+    price_drop_amount: 100,
     audience_tags: ["all", "student"],
     created_at: "2026-09-17T10:00:00Z",
     updated_at: "2026-09-17T15:00:00Z",
@@ -581,64 +770,427 @@ export const SEED_CANONICAL_PRODUCTS: CanonicalProduct[] = [
         is_lowest: false
       }
     ]
+  },
+  {
+    id: "cp_sandisk_64gb_usb",
+    brand: "SanDisk",
+    model: "Ultra 64GB USB 3.0 Pen Drive (Speed up to 130MB/s)",
+    title_te: "శాన్‌డిస్క్ 64GB పెన్ డ్రైవ్ (USB 3.0 • హై స్పీడ్ డేటా ట్రాన్స్‌ఫర్)",
+    title_en: "SanDisk Ultra 64GB USB 3.0 Pen Drive",
+    category_id: "student",
+    subcategory: "accessories",
+    category_name_te: "స్టూడెంట్ డీల్స్",
+    image_url: "https://images.unsplash.com/photo-1618761714958-0abbbc12dd40?auto=format&fit=crop&w=600&q=80",
+    key_specs: [
+      "64GB భారీ స్టోరేజ్ (సినిమాలు, ప్రాజెక్టులు, నోట్స్)",
+      "USB 3.0 హై స్పీడ్ (130 MB/s వరకు వేగం)",
+      "5 సంవత్సరాల తయారీదారు వారంటీ"
+    ],
+    lowest_price: 429,
+    highest_mrp: 950,
+    deal_label: "budget_pick",
+    deal_score: 96,
+    why_this_deal: [
+      "₹500 లోపు ఒరిజినల్ శాన్‌డిస్క్ పెన్ డ్రైవ్",
+      "Flipkart కంటే Amazonలో ₹20 తక్కువ ధర",
+      "కాలేజ్ స్టూడెంట్స్ ప్రాజెక్ట్ ఫైల్స్ మరియు డేటా కోసం అనువైనది"
+    ],
+    price_difference: 20,
+    cheaper_merchant: "amazon",
+    audience_tags: ["all", "student"],
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T15:00:00Z",
+    offers: [
+      {
+        merchant: "amazon",
+        merchant_name: "Amazon India",
+        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
+        product_id: "B00NWUSB64",
+        product_title: "SanDisk Ultra 64GB USB 3.0 Pen Drive",
+        price: 429,
+        mrp: 950,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B00NWUSB64"),
+        in_stock: true,
+        rating: 4.4,
+        review_count: 125000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: true
+      },
+      {
+        merchant: "flipkart",
+        merchant_name: "Flipkart",
+        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
+        product_id: "USBFK64GB",
+        product_title: "SanDisk Ultra 64 GB Pen Drive",
+        price: 449,
+        mrp: 950,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/sandisk-ultra-64gb/p/itm123"),
+        in_stock: true,
+        rating: 4.3,
+        review_count: 85000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: false
+      }
+    ]
+  },
+
+  // --- 👨‍🌾 FARMER DEALS ---
+  {
+    id: "cp_farmer_battery_sprayer",
+    brand: "KisanKraft",
+    model: "16 Litre Battery Sprayer Pump",
+    title_te: "కిసాన్ క్రాఫ్ట్ 16 లీటర్ల బ్యాటరీ స్ప్రేయర్ పంప్ (వ్యవసాయం & గార్డెనింగ్)",
+    title_en: "KisanKraft 16L Battery Operated Agricultural Knapsack Sprayer",
+    category_id: "farmer",
+    category_name_te: "రైతుల డీల్స్",
+    image_url: "https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=600&q=80",
+    key_specs: [
+      "16 లీటర్ల హెవీ డ్యూటీ ట్యాంక్",
+      "12V 8Ah రీచార్జబుల్ బ్యాటరీ (ఒక ఛార్జ్‌తో 20 ట్యాంకులు)",
+      "రెగ్యులేటర్ కంట్రోల్ & 4 రకాల నాజిల్స్",
+      "తేలికపాటి బరువుతో భుజాలపై మోయడం సులువు"
+    ],
+    lowest_price: 2799,
+    highest_mrp: 4200,
+    deal_label: "farmer_pick",
+    deal_score: 95,
+    why_this_deal: [
+      "రైతులకు శ్రమ తగ్గించే బ్యాటరీ స్ప్రేయర్",
+      "Flipkart కంటే Amazonలో ₹200 తక్కువ ధర",
+      "మందులు, ఎరువులు మరియు పంట రక్షణకు అనువైనది"
+    ],
+    price_difference: 200,
+    cheaper_merchant: "amazon",
+    previous_observed_price: 2999,
+    price_drop_amount: 200,
+    audience_tags: ["all", "farmer", "village"],
+    is_todays_deal: true,
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T15:00:00Z",
+    offers: [
+      {
+        merchant: "amazon",
+        merchant_name: "Amazon India",
+        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
+        product_id: "B07P8J889L",
+        product_title: "KisanKraft 16-Litre Battery Knapsack Sprayer",
+        price: 2799,
+        mrp: 4200,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B07P8J889L"),
+        in_stock: true,
+        rating: 4.2,
+        review_count: 6500,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: true
+      },
+      {
+        merchant: "flipkart",
+        merchant_name: "Flipkart",
+        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
+        product_id: "SPRFK8882L",
+        product_title: "KisanKraft 16 L Knapsack Sprayer (Battery Operated)",
+        price: 2999,
+        mrp: 4200,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/kisankraft-16l-sprayer/p/itmspray1"),
+        in_stock: true,
+        rating: 4.1,
+        review_count: 4200,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: false
+      }
+    ]
+  },
+  {
+    id: "cp_kisan_led_torch",
+    brand: "Havells",
+    model: "Rechargeable Long Range LED Torch (Up to 1 KM Beam)",
+    title_te: "హావెల్స్ లాంగ్ రేంజ్ రీచార్జబుల్ LED టార్చ్ లైట్ (రాత్రి పొలం కాపలాకు బెస్ట్)",
+    title_en: "Havells Heavy Duty Long Range Rechargeable LED Torch Light",
+    category_id: "farmer",
+    category_name_te: "రైతుల డీల్స్",
+    image_url: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80",
+    key_specs: [
+      "1 కిలోమీటర్ దూరం వరకు వెలుతురు",
+      "హెవీ రీచార్జబుల్ బ్యాటరీ (8 గంటల బ్యాకప్)",
+      "వాటర్‌ప్రూఫ్ మరియు రఫ్ యూజ్ బాడీ",
+      "రాత్రి వేళ పొలం తిరగడానికి మరియు గ్రామాల్లో అత్యవసరం"
+    ],
+    lowest_price: 499,
+    highest_mrp: 999,
+    deal_label: "lowest_price",
+    deal_score: 96,
+    why_this_deal: [
+      "₹500 లోపు అత్యుత్తమ లాంగ్ రేంజ్ టార్చ్",
+      "Amazon కంటే Flipkartలో ₹50 తక్కువ ధర",
+      "రైతులు మరియు పల్లెటూరి ఇళ్లకు అత్యవసర వస్తువు"
+    ],
+    price_difference: 50,
+    cheaper_merchant: "flipkart",
+    previous_observed_price: 599,
+    price_drop_amount: 100,
+    audience_tags: ["all", "farmer", "village"],
+    is_todays_deal: true,
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T15:00:00Z",
+    offers: [
+      {
+        merchant: "flipkart",
+        merchant_name: "Flipkart",
+        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
+        product_id: "TORCHFK499",
+        product_title: "Havells Long Range Rechargeable LED Torch",
+        price: 499,
+        mrp: 999,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/havells-led-torch/p/itm777"),
+        in_stock: true,
+        rating: 4.3,
+        review_count: 19800,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: true
+      },
+      {
+        merchant: "amazon",
+        merchant_name: "Amazon India",
+        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
+        product_id: "B07TORCH99",
+        product_title: "Havells Heavy Duty Rechargeable LED Torch",
+        price: 549,
+        mrp: 999,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B07TORCH99"),
+        in_stock: true,
+        rating: 4.2,
+        review_count: 14200,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: false
+      }
+    ]
+  },
+
+  // --- 🏠 HOME DEALS ---
+  {
+    id: "cp_pigeon_handy_chopper",
+    brand: "Pigeon",
+    model: "Handy Vegetable Chopper (3 Stainless Steel Blades)",
+    title_te: "పీజియన్ హ్యాండీ వెజిటబుల్ చాపర్ (3 బ్లేడ్లు • కూరగాయలు క్షణాల్లో కట్ చేయండి)",
+    title_en: "Pigeon by Stovekraft Handy Mini Plastic Chopper with 3 Blades",
+    category_id: "home",
+    subcategory: "kitchen",
+    category_name_te: "ఇంటి డీల్స్",
+    image_url: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?auto=format&fit=crop&w=600&q=80",
+    key_specs: [
+      "విద్యుత్ అవసరం లేదు (సులభమైన పుల్-కార్డ్ సిస్టమ్)",
+      "3 పదునైన స్టెయిన్‌లెస్ స్టీల్ బ్లేడ్లు",
+      "ఉల్లిపాయలు, టమాటాలు, మిర్చిని 5 సెకన్లలో కట్ చేస్తుంది",
+      "ఈజీ క్లీనింగ్ మరియు ఫుడ్-గ్రేడ్ ప్లాస్టిక్"
+    ],
+    lowest_price: 199,
+    highest_mrp: 545,
+    deal_label: "lowest_price",
+    deal_score: 99,
+    why_this_deal: [
+      "₹200 లోపు ప్రతి వంటింటికీ అత్యంత ఉపయోగపడే వస్తువు",
+      "Flipkart కంటే Amazonలో ₹30 తక్కువ ధర",
+      "భారతదేశంలో 3 లక్షలకు పైగా పాజిటివ్ రేటింగ్స్"
+    ],
+    price_difference: 30,
+    cheaper_merchant: "amazon",
+    previous_observed_price: 249,
+    price_drop_amount: 50,
+    audience_tags: ["all", "village"],
+    is_todays_deal: true,
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T15:00:00Z",
+    offers: [
+      {
+        merchant: "amazon",
+        merchant_name: "Amazon India",
+        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
+        product_id: "B01LWYWF19",
+        product_title: "Pigeon by Stovekraft Handy Mini Plastic Chopper with 3 Blades",
+        price: 199,
+        mrp: 545,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B01LWYWF19"),
+        in_stock: true,
+        rating: 4.3,
+        review_count: 320000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: true
+      },
+      {
+        merchant: "flipkart",
+        merchant_name: "Flipkart",
+        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
+        product_id: "CHPFK2345",
+        product_title: "Pigeon Handy Mini Chopper 3 Blades",
+        price: 229,
+        mrp: 545,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/pigeon-mini-chopper/p/itmchop1"),
+        in_stock: true,
+        rating: 4.3,
+        review_count: 180000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: false
+      }
+    ]
+  },
+  {
+    id: "cp_wipro_emergency_light",
+    brand: "Wipro",
+    model: "Coral Rechargeable Emergency LED Lantern (3000 mAh)",
+    title_te: "విప్రో కోరల్ రీచార్జబుల్ ఎమర్జెన్సీ లైట్ (పవర్ కట్ సమయంలో 8 గంటల వెలుతురు)",
+    title_en: "Wipro Coral Rechargeable Emergency LED Lantern, 3000 mAh",
+    category_id: "home",
+    subcategory: "lighting",
+    category_name_te: "ఇంటి డీల్స్",
+    image_url: "https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=600&q=80",
+    key_specs: [
+      "3000 mAh లిథియం అయాన్ బ్యాటరీ",
+      "పవర్ కట్ అయినప్పుడు ఆటోమేటిక్‌గా ఆన్ అవుతుంది",
+      "8 గంటల నిరంతర బ్రైట్ ఎమర్జెన్సీ వెలుతురు",
+      "తేలికైనది, హ్యాండిల్‌తో సులువుగా పట్టుకోవచ్చు"
+    ],
+    lowest_price: 799,
+    highest_mrp: 1390,
+    deal_label: "good_deal",
+    deal_score: 94,
+    why_this_deal: [
+      "గ్రామీణ ప్రాంతాల్లో తరచుగా వచ్చే కరెంట్ కోతలకు బెస్ట్ పరిష్కారం",
+      "Flipkart కంటే Amazonలో ₹80 తక్కువ ధర",
+      "విప్రో 1 సంవత్సరం విశ్వసనీయమైన వారంటీ"
+    ],
+    price_difference: 80,
+    cheaper_merchant: "amazon",
+    previous_observed_price: 899,
+    price_drop_amount: 100,
+    audience_tags: ["all", "village"],
+    created_at: "2026-09-17T10:00:00Z",
+    updated_at: "2026-09-17T15:00:00Z",
+    offers: [
+      {
+        merchant: "amazon",
+        merchant_name: "Amazon India",
+        merchant_logo: "https://images.unsplash.com/photo-1523474255658-4af61b1c5d70?auto=format&fit=crop&w=80&q=80",
+        product_id: "B079D8965",
+        product_title: "Wipro Coral Rechargeable Emergency Lantern",
+        price: 799,
+        mrp: 1390,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("amazon", "https://www.amazon.in/dp/B079D8965"),
+        in_stock: true,
+        rating: 4.2,
+        review_count: 24000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: true
+      },
+      {
+        merchant: "flipkart",
+        merchant_name: "Flipkart",
+        merchant_logo: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=80&q=80",
+        product_id: "EMRFL7890",
+        product_title: "Wipro Coral Rechargeable Emergency Lantern",
+        price: 879,
+        mrp: 1390,
+        currency: "INR",
+        affiliate_url: generateApprovedAffiliateUrl("flipkart", "https://www.flipkart.com/wipro-emergency-light/p/itm5678"),
+        in_stock: true,
+        rating: 4.1,
+        review_count: 16000,
+        last_checked_at: "2026-09-17T15:00:00Z",
+        is_lowest: false
+      }
+    ]
   }
 ];
 
 // LocalStorage Keys
 const STORAGE_DEALS_SAVED = "mana_adda_saved_deals";
 const STORAGE_DEALS_CLICKS = "mana_adda_affiliate_clicks";
+const STORAGE_DEALS_ALERTS = "mana_adda_price_alerts";
 
-// 🧠 TELUGU & ENGLISH NATURAL LANGUAGE QUERY INTERPRETER
-export function parseNaturalDealsQuery(query: string): Partial<DealsSearchFilters> {
-  const result: Partial<DealsSearchFilters> = {};
-  const lower = query.toLowerCase();
+// ============================================================
+// 9. TELUGU & ENGLISH NATURAL LANGUAGE QUERY INTERPRETER
+// ============================================================
+export interface InterpretedDealsQuery {
+  rawQuery: string;
+  category?: string;
+  subcategory?: string;
+  max_price?: number;
+  audience_mode?: DealAudienceMode;
+  interpreted_category_te?: string;
+  interpreted_budget_te?: string;
+}
 
-  // 1. Budget extraction e.g. "under 10000", "10000 లోపు", "below 500", "500 kante takkuva"
-  const priceMatch = lower.match(/(?:under|below|లోపు|వరకు|కంటే తక్కువ)\s*₹?\s*(\d+)/i) || 
-                     lower.match(/₹?\s*(\d+)\s*(?:under|below|లోపు|వరకు)/i);
-  if (priceMatch && priceMatch[1]) {
-    result.max_price = parseInt(priceMatch[1], 10);
+export function parseNaturalDealsQuery(query: string): InterpretedDealsQuery {
+  const result: InterpretedDealsQuery = { rawQuery: query };
+  const lower = query.toLowerCase().trim();
+
+  // 1. Budget extraction
+  if (/(\d+)\s*వేల\s*(?:లోపు|వరకు)/i.test(lower)) {
+    const match = lower.match(/(\d+)\s*వేల/i);
+    if (match && match[1]) {
+      result.max_price = parseInt(match[1], 10) * 1000;
+      result.interpreted_budget_te = `₹${result.max_price.toLocaleString("en-IN")} లోపు`;
+    }
+  } else if (/(\d+)\s*k/i.test(lower)) {
+    const match = lower.match(/(\d+)\s*k/i);
+    if (match && match[1]) {
+      result.max_price = parseInt(match[1], 10) * 1000;
+      result.interpreted_budget_te = `₹${result.max_price.toLocaleString("en-IN")} లోపు`;
+    }
+  } else {
+    const priceMatch = lower.match(/(?:under|below|లోపు|వరకు|కంటే తక్కువ)\s*₹?\s*(\d+)/i) || 
+                       lower.match(/₹?\s*(\d+)\s*(?:under|below|లోపు|వరకు)/i);
+    if (priceMatch && priceMatch[1]) {
+      result.max_price = parseInt(priceMatch[1], 10);
+      result.interpreted_budget_te = `₹${result.max_price.toLocaleString("en-IN")} లోపు`;
+    }
   }
 
-  // Check 10k, 5k shorthand
-  const kMatch = lower.match(/(\d+)\s*k/i);
-  if (kMatch && kMatch[1]) {
-    result.max_price = parseInt(kMatch[1], 10) * 1000;
-  }
-
-  // 2. Category / Product classification
-  if (/మొబైల్|ఫోన్|ఫోన్లు|mobile|phone|smartphone/i.test(lower)) {
+  // 2. Category identification
+  if (/బియ్యం|వరి|రైస్|rice|నూనె|ఆయిల్|oil|పప్పు|dal|పిండి|atta|సబ్బు|సోప్|soap|షాంపూ|shampoo|కిరాణా|kirana|grocery|నిత్యావసరాలు|వాష్|సర్ఫ్|surf/i.test(lower)) {
+    result.category = "kirana";
+    result.interpreted_category_te = "🛒 నిత్యావసరాలు & కిరాణా";
+    if (/బియ్యం|రైస్|rice|పప్పు|dal|నూనె|oil|పిండి|atta/i.test(lower)) {
+      result.subcategory = "kirana";
+    } else if (/సబ్బు|సోప్|soap|షాంపూ|shampoo/i.test(lower)) {
+      result.subcategory = "personal_care";
+    } else if (/సర్ఫ్|క్లీనింగ్|surf|detergent|cleaning/i.test(lower)) {
+      result.subcategory = "cleaning";
+    }
+  } else if (/మొబైల్|ఫోన్|ఫోన్లు|mobile|phone|smartphone|శాంసంగ్|రెడ్మి|samsung|redmi|poco|realme/i.test(lower)) {
     result.category = "mobiles";
-  } else if (/హెడ్‌ఫోన్|ఇయర్ ఫోన్|స్పీకర్|audio|headphone|earphone|headset|sound/i.test(lower)) {
-    result.category = "audio";
-  } else if (/రైతు|స్ప్రేయర్|పొలం|వ్యవసాయం|farmer|agriculture|sprayer|pump/i.test(lower)) {
+    result.interpreted_category_te = "📱 మొబైల్స్";
+  } else if (/హెడ్‌ఫోన్|హెడ్ఫోన్|ఇయర్ ఫోన్|స్పీకర్|audio|headphone|earphone|sound/i.test(lower)) {
+    result.category = "student";
+    result.subcategory = "audio";
+    result.interpreted_category_te = "🎧 హెడ్ఫోన్స్ & ఆడియో";
+  } else if (/రైతు|స్ప్రేయర్|పొలం|వ్యవసాయం|farmer|agriculture|sprayer|pump|టార్చ్|torch/i.test(lower)) {
     result.category = "farmer";
     result.audience_mode = "farmer";
-  } else if (/స్టూడెంట్|కాలేజ్|స్కూల్|పుస్తకం|బ్యాగ్|student|school|college|backpack/i.test(lower)) {
+    result.interpreted_category_te = "👨‍🌾 రైతుల డీల్స్";
+  } else if (/స్టూడెంట్|కాలేజ్|స్కూల్|పుస్తకం|బ్యాగ్|student|school|college|backpack|ల్యాప్‌టాప్|laptop/i.test(lower)) {
     result.category = "student";
     result.audience_mode = "student";
-  } else if (/టార్చ్|లైట్|ఎమర్జెన్సీ|సోలార్|torch|light|emergency/i.test(lower)) {
-    result.category = "lights";
-  } else if (/ఇంటి|కిచెన్|చాపర్|home|kitchen|chopper/i.test(lower)) {
+    result.interpreted_category_te = "🎓 స్టూడెంట్ డీల్స్";
+  } else if (/ఇంటి|కిచెన్|చాపర్|లైట్|ఫ్యాన్|ఎమర్జెన్సీ|home|kitchen|chopper|fan/i.test(lower)) {
     result.category = "home";
-  } else if (/పవర్ బ్యాంక్|చార్జర్|కేబుల్|power bank|charger/i.test(lower)) {
-    result.category = "electronics";
+    result.interpreted_category_te = "🏠 ఇంటి డీల్స్";
   }
 
-  // 3. Audience mode
-  if (/స్టూడెంట్|విద్యార్థి|student/i.test(lower)) {
-    result.audience_mode = "student";
-  } else if (/రైతు|రైతులు|farmer/i.test(lower)) {
-    result.audience_mode = "farmer";
-  } else if (/గ్రామం|ఊరు|village/i.test(lower)) {
-    result.audience_mode = "village";
-  }
-
-  result.query = query;
   return result;
 }
 
-// 🔍 SEARCH CANONICAL PRODUCTS
+// ============================================================
+// 10. SEARCH CANONICAL PRODUCTS
+// ============================================================
 export async function searchCanonicalProducts(filters: DealsSearchFilters): Promise<{
   products: CanonicalProduct[];
   total: number;
@@ -653,6 +1205,32 @@ export async function searchCanonicalProducts(filters: DealsSearchFilters): Prom
   // Category Filter
   if (filters.category && filters.category !== "all") {
     list = list.filter((p) => p.category_id === filters.category);
+  }
+
+  // Subcategory Filter
+  if (filters.subcategory && filters.subcategory !== "all") {
+    list = list.filter((p) => p.subcategory === filters.subcategory);
+  }
+
+  // Collection Filter
+  if (filters.collection && filters.collection !== "all") {
+    if (filters.collection === "todays_deals") {
+      list = list.filter((p) => p.is_todays_deal);
+    } else if (filters.collection === "price_drop") {
+      list = list.filter((p) => (p.price_drop_amount && p.price_drop_amount > 0) || p.deal_label === "price_drop");
+    } else if (filters.collection === "budget_deals") {
+      list = list.filter((p) => p.lowest_price <= 500);
+    } else if (filters.collection === "good_deals") {
+      list = list.filter((p) => p.deal_score >= 94);
+    } else if (filters.collection === "student_deals") {
+      list = list.filter((p) => p.category_id === "student" || p.audience_tags.includes("student"));
+    } else if (filters.collection === "farmer_deals") {
+      list = list.filter((p) => p.category_id === "farmer" || p.audience_tags.includes("farmer"));
+    } else if (filters.collection === "home_deals") {
+      list = list.filter((p) => p.category_id === "home");
+    } else if (filters.collection === "kirana_deals") {
+      list = list.filter((p) => p.category_id === "kirana");
+    }
   }
 
   // Max Budget Filter
@@ -678,7 +1256,7 @@ export async function searchCanonicalProducts(filters: DealsSearchFilters): Prom
     );
   }
 
-  // Sorting (Affiliate commission is NEVER used for ranking)
+  // Sorting
   if (filters.sort_by === "price_asc") {
     list.sort((a, b) => a.lowest_price - b.lowest_price);
   } else if (filters.sort_by === "price_desc") {
@@ -686,7 +1264,6 @@ export async function searchCanonicalProducts(filters: DealsSearchFilters): Prom
   } else if (filters.sort_by === "savings") {
     list.sort((a, b) => (b.highest_mrp - b.lowest_price) - (a.highest_mrp - a.lowest_price));
   } else {
-    // Default Recommended: Sort by deal_score (Objective signal)
     list.sort((a, b) => b.deal_score - a.deal_score);
   }
 
@@ -696,7 +1273,9 @@ export async function searchCanonicalProducts(filters: DealsSearchFilters): Prom
   };
 }
 
-// 🖱️ RECORD AFFILIATE CLICK (Transparent Logging & Redirect URL Generation)
+// ============================================================
+// 11. RECORD AFFILIATE CLICK
+// ============================================================
 export function recordAffiliateClick(
   canonicalProduct: CanonicalProduct,
   merchantOffer: MerchantOffer
@@ -717,7 +1296,6 @@ export function recordAffiliateClick(
     user_session_id: sessionId
   };
 
-  // 1. LocalStorage fallback
   if (typeof window !== "undefined") {
     try {
       const existingRaw = localStorage.getItem(STORAGE_DEALS_CLICKS);
@@ -726,7 +1304,6 @@ export function recordAffiliateClick(
     } catch {}
   }
 
-  // 2. Asynchronous backend logging
   if (hasSupabaseEnv && supabase) {
     Promise.resolve(supabase.from("affiliate_clicks").insert([clickEvent]))
       .catch((e: any) => {
@@ -737,7 +1314,9 @@ export function recordAffiliateClick(
   return { affiliateUrl: merchantOffer.affiliate_url };
 }
 
-// 🔖 SAVED DEALS HANDLERS
+// ============================================================
+// 12. SAVED DEALS HANDLERS
+// ============================================================
 export function getSavedDealIds(): string[] {
   if (typeof window === "undefined") return [];
   try {
@@ -776,7 +1355,46 @@ export function toggleSaveDeal(product: CanonicalProduct): boolean {
   }
 }
 
-// 📊 ADMIN ANALYTICS HELPER
+// ============================================================
+// 13. PRICE DROP ALERTS
+// ============================================================
+export function savePriceDropAlert(alert: {
+  canonical_product_id: string;
+  product_title: string;
+  target_price: number;
+  current_price: number;
+  contact_info: string;
+}): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    const raw = localStorage.getItem(STORAGE_DEALS_ALERTS);
+    const existing: PriceDropAlert[] = raw ? JSON.parse(raw) : [];
+    const newAlert: PriceDropAlert = {
+      id: `alt_${Date.now()}`,
+      ...alert,
+      created_at: new Date().toISOString(),
+      is_active: true
+    };
+    localStorage.setItem(STORAGE_DEALS_ALERTS, JSON.stringify([newAlert, ...existing]));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function getPriceDropAlerts(): PriceDropAlert[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_DEALS_ALERTS);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+// ============================================================
+// 14. ADMIN ANALYTICS HELPER
+// ============================================================
 export function getDealsAdminStats(): DealsAdminStats {
   let clicks: AffiliateClickEvent[] = [];
   if (typeof window !== "undefined") {
@@ -798,13 +1416,13 @@ export function getDealsAdminStats(): DealsAdminStats {
       { merchant: "flipkart", count: flipkartClicks }
     ],
     top_categories: [
-      { category: "Mobiles", count: clicks.filter((c) => c.product_title.includes("Galaxy") || c.product_title.includes("Redmi")).length },
-      { category: "Audio", count: clicks.filter((c) => c.product_title.includes("boAt")).length },
+      { category: "Kirana & Essentials", count: clicks.filter((c) => c.product_title.includes("Rice") || c.product_title.includes("Oil")).length },
+      { category: "Mobiles", count: clicks.filter((c) => c.product_title.includes("Galaxy") || c.product_title.includes("itel")).length },
       { category: "Farmer Tools", count: clicks.filter((c) => c.product_title.includes("Sprayer")).length }
     ],
     active_merchants: [
-      { id: "amazon", name: "Amazon India (Creators API)", status: "active", last_sync: "17 Sep 2026, 8:30 PM" },
-      { id: "flipkart", name: "Flipkart Affiliate", status: "active", last_sync: "17 Sep 2026, 8:30 PM" }
+      { id: "amazon", name: "Amazon India (Creators API)", status: "active", last_sync: "17 Sep 2026, 9:30 PM" },
+      { id: "flipkart", name: "Flipkart Affiliate", status: "active", last_sync: "17 Sep 2026, 9:30 PM" }
     ]
   };
 }
