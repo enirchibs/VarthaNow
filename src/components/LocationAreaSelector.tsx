@@ -19,6 +19,11 @@ import {
   convertAreaToTelugu,
   DetailedAreaResult
 } from "@/lib/location-detector";
+import { 
+  isTeluguTypingActive, 
+  setTeluguTypingActive, 
+  TELUGU_TYPING_EVENT 
+} from "@/lib/telugu-typing";
 
 export interface LocationAreaSelectorProps {
   value: string;
@@ -126,9 +131,19 @@ export function LocationAreaSelector({
   // GPS Error Modal state
   const [showGpsModal, setShowGpsModal] = useState(false);
   const [gpsErrorMsg, setGpsErrorMsg] = useState("");
+  const [isTeluguTyping, setIsTeluguTyping] = useState<boolean>(isTeluguTypingActive);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cityDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleToggle = (e: Event) => {
+      const customEvent = e as CustomEvent<boolean>;
+      setIsTeluguTyping(customEvent.detail);
+    };
+    window.addEventListener(TELUGU_TYPING_EVENT, handleToggle);
+    return () => window.removeEventListener(TELUGU_TYPING_EVENT, handleToggle);
+  }, []);
 
   // Sync internal state when external value changes
   useEffect(() => {
@@ -435,26 +450,51 @@ export function LocationAreaSelector({
                   }
                 }
               }}
-              placeholder={placeholder}
-              className={`w-full h-11 pl-9 pr-9 rounded-xl text-xs font-bold transition text-white placeholder:text-zinc-400 placeholder:font-normal focus:outline-none ${
+              placeholder={
+                isTeluguTyping
+                  ? "ప్రాంతం పేరు తెలుగులో టైప్ చేయండి (ఉదా: guntur + Space = గుంటూరు)..."
+                  : placeholder
+              }
+              className={`w-full h-11 pl-9 pr-20 rounded-xl text-xs font-bold transition text-white placeholder:text-zinc-400 placeholder:font-normal focus:outline-none ${
                 isAreaConfirmed
                   ? "bg-emerald-950/40 border-2 border-emerald-500/80 ring-2 ring-emerald-500/20"
                   : "bg-white/10 hover:bg-white/15 focus:bg-white/20 border border-white/20 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/30"
               }`}
               required={required}
             />
-            {isSearching ? (
-              <RefreshCw className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-indigo-400 animate-spin z-10" />
-            ) : query ? (
+
+            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1 z-10">
+              {/* ⌨️ Telugu / English Switcher */}
               <button
                 type="button"
-                onClick={handleClear}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white p-1 rounded-full cursor-pointer z-10"
-                title="Clear text"
+                onClick={() => setTeluguTypingActive(!isTeluguTyping)}
+                className={`px-2 py-0.5 rounded-lg text-[10px] font-black border transition cursor-pointer select-none ${
+                  isTeluguTyping
+                    ? "bg-amber-500/90 border-amber-300 text-white shadow-xs"
+                    : "bg-white/10 border-white/20 text-zinc-300 hover:text-white"
+                }`}
+                title={
+                  isTeluguTyping
+                    ? "తెలుగు టైపింగ్ ఆన్ (raithu + Space = రైతు). ఇంగ్లీష్ కోసం క్లిక్ చేయండి"
+                    : "English typing. Click for Telugu"
+                }
               >
-                <X className="size-3.5" />
+                {isTeluguTyping ? "తె" : "En"}
               </button>
-            ) : null}
+
+              {isSearching ? (
+                <RefreshCw className="size-4 text-indigo-400 animate-spin" />
+              ) : query ? (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="text-zinc-400 hover:text-white p-1 rounded-full cursor-pointer"
+                  title="Clear text"
+                >
+                  <X className="size-3.5" />
+                </button>
+              ) : null}
+            </div>
           </div>
 
           {/* Autocomplete Suggestions Dropdown */}

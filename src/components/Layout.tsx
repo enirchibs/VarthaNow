@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { detectGPSLocation } from "@/lib/location-detector";
 import { CreatePostModal } from "@/components/CreatePostModal";
 import { SmartChatbotWidget } from "@/components/SmartChatbotWidget";
+import { TeluguTypingWidget } from "@/components/TeluguTypingWidget";
 import { HeaderFlowTicker } from "@/components/HeaderFlowTicker";
 import { UserProfileModal } from "@/components/UserProfileModal";
 import { UserProfile, getStoredUserProfile, PROFILE_EVENT_NAME } from "@/lib/user-profile";
@@ -1033,6 +1034,9 @@ export function Layout() {
 
       {/* 💬 Floating Smart Assistant Chatbot Widget */}
       <SmartChatbotWidget />
+
+      {/* ⌨️ Global Telugu Typing Engine & Quick Toggle Assistant */}
+      <TeluguTypingWidget />
     </div>
   );
 }

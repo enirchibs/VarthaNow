@@ -16,6 +16,11 @@ import {
   convertAreaToTelugu,
   DetailedAreaResult
 } from "@/lib/location-detector";
+import { 
+  isTeluguTypingActive, 
+  setTeluguTypingActive, 
+  TELUGU_TYPING_EVENT 
+} from "@/lib/telugu-typing";
 
 export interface UnifiedCategorySearchHeaderProps {
   moduleName: string;
@@ -96,9 +101,20 @@ export function UnifiedCategorySearchHeader({
   const [isAreaDropdownOpen, setIsAreaDropdownOpen] = useState(false);
   const [areaSuggestions, setAreaSuggestions] = useState<string[]>([]);
   const [isGPSDetecting, setIsGPSDetecting] = useState(false);
+  const [isTeluguTyping, setIsTeluguTyping] = useState<boolean>(isTeluguTypingActive);
 
   const cityDropdownRef = useRef<HTMLDivElement>(null);
   const areaDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Sync Telugu typing state with global event
+  useEffect(() => {
+    const handleToggle = (e: Event) => {
+      const customEvent = e as CustomEvent<boolean>;
+      setIsTeluguTyping(customEvent.detail);
+    };
+    window.addEventListener(TELUGU_TYPING_EVENT, handleToggle);
+    return () => window.removeEventListener(TELUGU_TYPING_EVENT, handleToggle);
+  }, []);
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -392,7 +408,11 @@ export function UnifiedCategorySearchHeader({
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-indigo-300 pointer-events-none" />
         <input
           type="text"
-          placeholder={searchPlaceholder}
+          placeholder={
+            isTeluguTyping
+              ? "తెలుగులో వెతకండి (ఉదా: raithu + Space = రైతు)..."
+              : searchPlaceholder
+          }
           value={searchQuery}
           onChange={(e) => onSearchQueryChange(e.target.value)}
           onKeyDown={(e) => {
@@ -400,24 +420,46 @@ export function UnifiedCategorySearchHeader({
               onSearchSubmit();
             }
           }}
-          className="w-full h-10 pl-9 pr-24 rounded-2xl bg-white/10 hover:bg-white/15 focus:bg-white/20 border border-white/20 text-white placeholder:text-zinc-400 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-inner transition"
+          className="w-full h-10 pl-9 pr-32 rounded-2xl bg-white/10 hover:bg-white/15 focus:bg-white/20 border border-white/20 text-white placeholder:text-zinc-400 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-inner transition"
         />
-        {searchQuery && (
+
+        <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => onSearchQueryChange("")}
+              className="text-zinc-400 hover:text-white p-1 rounded-full cursor-pointer"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
+
+          {/* ⌨️ Telugu / English Typing Switcher Pill */}
           <button
             type="button"
-            onClick={() => onSearchQueryChange("")}
-            className="absolute right-20 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-white p-0.5 rounded-full cursor-pointer"
+            onClick={() => setTeluguTypingActive(!isTeluguTyping)}
+            className={`px-2 py-0.5 rounded-lg text-[10px] font-black border transition cursor-pointer select-none ${
+              isTeluguTyping
+                ? "bg-amber-500/90 border-amber-300 text-white shadow-xs"
+                : "bg-white/10 border-white/20 text-zinc-300 hover:text-white"
+            }`}
+            title={
+              isTeluguTyping
+                ? "తెలుగు టైపింగ్ ఆన్ (ఇంగ్లీష్‌లో టైప్ చేసి స్పేస్ నొక్కండి). ఇంగ్లీష్ కోసం క్లిక్ చేయండి"
+                : "English typing. Click for Telugu"
+            }
           >
-            <X className="size-3.5" />
+            {isTeluguTyping ? "తె ఆన్" : "En"}
           </button>
-        )}
-        <button
-          type="button"
-          onClick={() => onSearchSubmit && onSearchSubmit()}
-          className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[11px] font-black tracking-wide transition active:scale-95 shadow cursor-pointer"
-        >
-          వెతకండి
-        </button>
+
+          <button
+            type="button"
+            onClick={() => onSearchSubmit && onSearchSubmit()}
+            className="h-7 px-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-[11px] font-black tracking-wide transition active:scale-95 shadow cursor-pointer"
+          >
+            వెతకండి
+          </button>
+        </div>
       </div>
 
       {/* Row 4: Distance / Radius Filter Pills (if radius handler provided) */}

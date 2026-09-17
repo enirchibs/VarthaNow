@@ -1,7 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Mic, MicOff, ArrowRight } from "lucide-react";
 import { speechService, type SpeechRecognitionResult } from "@/lib/speech-service";
 import { parseNaturalDealsQuery, type InterpretedDealsQuery } from "@/lib/deals/deals-api";
+import { 
+  isTeluguTypingActive, 
+  setTeluguTypingActive, 
+  TELUGU_TYPING_EVENT 
+} from "@/lib/telugu-typing";
 
 interface DealsSearchSectionProps {
   onSearch: (query: string, category?: string, maxPrice?: number) => void;
@@ -15,6 +20,16 @@ export const DealsSearchSection: React.FC<DealsSearchSectionProps> = ({
   const [inputVal, setInputVal] = useState(currentQuery);
   const [isListening, setIsListening] = useState(false);
   const [interpreted, setInterpreted] = useState<InterpretedDealsQuery | null>(null);
+  const [isTeluguTyping, setIsTeluguTyping] = useState<boolean>(isTeluguTypingActive);
+
+  useEffect(() => {
+    const handleToggle = (e: Event) => {
+      const customEvent = e as CustomEvent<boolean>;
+      setIsTeluguTyping(customEvent.detail);
+    };
+    window.addEventListener(TELUGU_TYPING_EVENT, handleToggle);
+    return () => window.removeEventListener(TELUGU_TYPING_EVENT, handleToggle);
+  }, []);
 
   const handleInputChange = (val: string) => {
     setInputVal(val);
@@ -93,11 +108,33 @@ export const DealsSearchSection: React.FC<DealsSearchSectionProps> = ({
             type="text"
             value={inputVal}
             onChange={(e) => handleInputChange(e.target.value)}
-            placeholder="మొబైల్, బియ్యం, హెడ్ఫోన్, ల్యాప్టాప్..."
-            className="w-full pl-12 pr-24 sm:pr-28 py-3 sm:py-3.5 rounded-2xl bg-transparent text-slate-900 dark:text-white placeholder-slate-400 font-bold text-xs sm:text-sm outline-none"
+            placeholder={
+              isTeluguTyping 
+                ? "తెలుగులో వెతకండి (ఉదా: raithu + Space = రైతు)..." 
+                : "మొబైల్, బియ్యం, హెడ్ఫోన్, ల్యాప్టాప్..."
+            }
+            className="w-full pl-12 pr-32 sm:pr-36 py-3 sm:py-3.5 rounded-2xl bg-transparent text-slate-900 dark:text-white placeholder-slate-400 font-bold text-xs sm:text-sm outline-none"
           />
 
           <div className="absolute right-1.5 flex items-center gap-1">
+            {/* ⌨️ Telugu / English Switcher */}
+            <button
+              type="button"
+              onClick={() => setTeluguTypingActive(!isTeluguTyping)}
+              className={`px-2 py-1 rounded-xl text-[10px] sm:text-xs font-black border transition cursor-pointer select-none ${
+                isTeluguTyping
+                  ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white border-amber-300 shadow-xs"
+                  : "bg-slate-100 dark:bg-zinc-800 border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-slate-300"
+              }`}
+              title={
+                isTeluguTyping
+                  ? "తెలుగు టైపింగ్ ఆన్. ఇంగ్లీష్ కోసం క్లిక్ చేయండి"
+                  : "English typing. Click for Telugu"
+              }
+            >
+              {isTeluguTyping ? "తె ఆన్" : "En"}
+            </button>
+
             <button
               type="button"
               onClick={handleVoiceSearch}
