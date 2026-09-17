@@ -43,6 +43,7 @@ import { HealthPortal } from "@/pages/health/HealthPortal";
 
 import { MaatlaaduAIPage } from "@/pages/tutor/MaatlaaduAIPage";
 import { DailySharePage } from "@/pages/DailySharePage";
+import { MatrimonyPage } from "@/pages/MatrimonyPage";
 
 const router = createBrowserRouter([
   {
@@ -52,6 +53,7 @@ const router = createBrowserRouter([
       { path: "/daily-share", element: <DailySharePage /> },
       { path: "/market", element: <ManaMarketPage /> },
       { path: "/mahila-market", element: <MahilaMarketPage /> },
+      { path: "/matrimony", element: <MatrimonyPage /> },
       { path: "/services", element: <ServicesRentalPage /> },
       { path: "/services-rental", element: <Navigate to="/services" replace /> },
       { path: "/sevalu-addelu", element: <Navigate to="/services" replace /> },

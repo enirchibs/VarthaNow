@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles, Sprout, Wrench, UtensilsCrossed } from "lucide-react";
+import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles, Sprout, Wrench, UtensilsCrossed, HeartHandshake } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
@@ -427,6 +427,21 @@ export function Layout() {
                       <span className="size-2 rounded-full bg-yellow-400 animate-ping" />
                     </div>
                     <div className="grid grid-cols-2 gap-1.5">
+                      <NavLink
+                        to="/matrimony"
+                        onClick={() => setShowMoreCategories(false)}
+                        className={({ isActive }) =>
+                          `flex items-center justify-start gap-1.5 rounded-2xl py-2 px-2 text-[10.5px] font-black border transition ${
+                            isActive 
+                              ? "bg-rose-500 text-white border-rose-600 shadow-sm" 
+                              : "bg-rose-50 dark:bg-rose-950/60 text-rose-950 dark:text-rose-100 border-rose-200 dark:border-rose-900 hover:bg-rose-500 hover:text-white"
+                          }`
+                        }
+                      >
+                        <span className="shrink-0 text-sm">💍</span>
+                        <span className="truncate">మ్యాట్రిమోనీ</span>
+                      </NavLink>
+
                       {categories.map((category) => {
                         const label = (lang === "te" ? (category.short || category.label.te) : category.label[lang]) || category.short;
                         const linkTarget = category.slug === "health" 
@@ -587,6 +602,20 @@ export function Layout() {
             )}
           </NavLink>
 
+          {/* Index 2.5: Matrimony NavLink */}
+          <NavLink
+            to="/matrimony"
+            className={({ isActive }) =>
+              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
+                isActive
+                  ? "bg-gradient-to-r from-rose-600 via-pink-600 to-amber-500 text-white border-yellow-300 shadow-md shadow-rose-600/30 scale-105"
+                  : "bg-[hsl(var(--card))] border-rose-300/70 dark:border-rose-800/70 text-[hsl(var(--foreground))] hover:border-rose-500 hover:text-rose-600 hover:scale-105"
+              }`
+            }
+          >
+            <span>💍 {lang === "te" ? "మ్యాట్రిమోనీ" : "Matrimony"}</span>
+          </NavLink>
+
           {/* Dynamic Categories starting with Bhakti & Jatakamu, Viral Shorts, WhatsApp Status Photo */}
           {categories.map((category, idx) => {
             const itemIndex = 3 + idx;
@@ -648,6 +677,7 @@ export function Layout() {
           </div>
         </div>
         <div className="border-t border-[hsl(var(--border))]/40 mt-6 pt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs font-bold justify-center sm:justify-start">
+          <Link to="/matrimony" className="hover:text-rose-600 transition text-rose-600 dark:text-rose-400 font-extrabold">💍 మన అడ్డా మ్యాట్రిమోనీ</Link>
           <Link to="/about" className="hover:text-[hsl(var(--primary))] transition">About Us</Link>
           <Link to="/contact" className="hover:text-[hsl(var(--primary))] transition">Contact Us</Link>
           <Link to="/privacy" className="hover:text-[hsl(var(--primary))] transition">Privacy Policy</Link>
@@ -837,7 +867,7 @@ export function Layout() {
           <NavLink
             to="/market"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center w-16 h-14 transition-all ${
+              `flex flex-col items-center justify-center flex-1 max-w-[58px] h-14 transition-all ${
                 isActive && !location.search ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
@@ -845,7 +875,7 @@ export function Layout() {
             {({ isActive }) => (
               <>
                 <ShoppingBag className={`size-5 mb-0.5 ${isActive && !location.search ? "stroke-[2.5px]" : ""}`} />
-                <span className="text-[10px] font-black tracking-tight leading-none text-center">
+                <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
                   మన మార్కెట్
                 </span>
               </>
@@ -856,7 +886,7 @@ export function Layout() {
           <NavLink
             to="/raitu-bazar"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center w-16 h-14 transition-all ${
+              `flex flex-col items-center justify-center flex-1 max-w-[58px] h-14 transition-all ${
                 isActive ? "text-emerald-600 dark:text-emerald-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
@@ -864,7 +894,7 @@ export function Layout() {
             {({ isActive }) => (
               <>
                 <Sprout className={`size-5 mb-0.5 text-emerald-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
-                <span className="text-[10px] font-black tracking-tight leading-none text-center">
+                <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
                   రైతు పంటలు
                 </span>
               </>
@@ -874,13 +904,13 @@ export function Layout() {
           {/* 3. + పోస్ట్ (MIDDLE FLOATING BUTTON WITH + SYMBOL) */}
           <button
             onClick={() => setIsPostModalOpen(true)}
-            className="flex flex-col items-center justify-center w-16 h-14 cursor-pointer group"
+            className="flex flex-col items-center justify-center flex-1 max-w-[58px] h-14 cursor-pointer group"
             aria-label="Create local post"
           >
-            <div className="size-11 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg -mt-5 border-2 border-[hsl(var(--card))] group-hover:scale-110 active:scale-95 transition-all duration-200">
-              <Plus className="size-6 stroke-[3px]" />
+            <div className="size-10 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-lg -mt-5 border-2 border-[hsl(var(--card))] group-hover:scale-110 active:scale-95 transition-all duration-200">
+              <Plus className="size-5 stroke-[3px]" />
             </div>
-            <span className="text-[10px] font-black text-blue-600 dark:text-blue-400 tracking-tight leading-none mt-1">
+            <span className="text-[9.5px] font-black text-blue-600 dark:text-blue-400 tracking-tight leading-none mt-1">
               + పోస్ట్
             </span>
           </button>
@@ -889,7 +919,7 @@ export function Layout() {
           <NavLink
             to="/services"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center w-16 h-14 transition-all ${
+              `flex flex-col items-center justify-center flex-1 max-w-[58px] h-14 transition-all ${
                 isActive ? "text-teal-600 dark:text-teal-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
@@ -897,7 +927,7 @@ export function Layout() {
             {({ isActive }) => (
               <>
                 <Wrench className={`size-5 mb-0.5 text-teal-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
-                <span className="text-[10px] font-black tracking-tight leading-none text-center">
+                <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
                   సేవలు & అద్దెలు
                 </span>
               </>
@@ -908,7 +938,7 @@ export function Layout() {
           <NavLink
             to="/mahila-market"
             className={({ isActive }) =>
-              `flex flex-col items-center justify-center w-16 h-14 transition-all ${
+              `flex flex-col items-center justify-center flex-1 max-w-[58px] h-14 transition-all ${
                 isActive ? "text-rose-600 dark:text-rose-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
@@ -916,8 +946,27 @@ export function Layout() {
             {({ isActive }) => (
               <>
                 <Heart className={`size-5 mb-0.5 text-rose-500 ${isActive ? "stroke-[2.5px] fill-rose-500" : ""}`} />
-                <span className="text-[10px] font-black tracking-tight leading-none text-center">
+                <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
                   మహిళా మార్కెట్
+                </span>
+              </>
+            )}
+          </NavLink>
+
+          {/* 6. మ్యాట్రిమోనీ (Right beside Mahila Market) */}
+          <NavLink
+            to="/matrimony"
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center flex-1 max-w-[58px] h-14 transition-all ${
+                isActive ? "text-pink-600 dark:text-pink-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <HeartHandshake className={`size-5 mb-0.5 text-pink-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
+                <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
+                  మ్యాట్రిమోనీ
                 </span>
               </>
             )}
