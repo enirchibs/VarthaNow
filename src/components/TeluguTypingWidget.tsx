@@ -5,6 +5,7 @@ import {
   setTeluguTypingActive, 
   TELUGU_TYPING_EVENT, 
   fetchTeluguTransliteration, 
+  getInstantTransliteration,
   offlinePhoneticTelugu,
   replaceWordInInput, 
   isEligibleInput 
@@ -237,10 +238,27 @@ export const TeluguTypingWidget: React.FC = () => {
       const input = activeEl as HTMLInputElement | HTMLTextAreaElement;
       const { word, endPos } = extractCurrentWord(input);
 
-      // If word contains 2+ English letters, prefetch suggestions and display candidate bar
+      // If word contains 2+ English letters, display suggestions and prefetch
       if (word && word.length >= 2 && /^[a-zA-Z]+$/.test(word)) {
         if (prefetchTimerRef.current) clearTimeout(prefetchTimerRef.current);
 
+        // 1. Instant check for cached/preloaded words (like mla, mp, cm, etc.)
+        const instant = getInstantTransliteration(word);
+        if (instant && instant.length > 0) {
+          const rect = input.getBoundingClientRect();
+          setSuggestionState({
+            visible: true,
+            x: Math.min(window.innerWidth - 320, Math.max(10, rect.left)),
+            y: rect.bottom + window.scrollY + 6,
+            word,
+            candidates: instant,
+            selectedIndex: 0,
+            inputEl: input
+          });
+          return;
+        }
+
+        // 2. Fetch for non-preloaded words
         prefetchTimerRef.current = setTimeout(async () => {
           const candidates = await fetchTeluguTransliteration(word);
           if (candidates.length > 0) {
@@ -248,7 +266,7 @@ export const TeluguTypingWidget: React.FC = () => {
             const rect = input.getBoundingClientRect();
             setSuggestionState({
               visible: true,
-              x: Math.min(window.innerWidth - 300, Math.max(10, rect.left)),
+              x: Math.min(window.innerWidth - 320, Math.max(10, rect.left)),
               y: rect.bottom + window.scrollY + 6,
               word,
               candidates,
@@ -295,7 +313,7 @@ export const TeluguTypingWidget: React.FC = () => {
             <span>తెలుగు:</span>
           </div>
 
-          {suggestionState.candidates.slice(0, 4).map((cand, idx) => (
+          {suggestionState.candidates.slice(0, 5).map((cand, idx) => (
             <button
               key={`${cand}-${idx}`}
               type="button"
@@ -333,11 +351,15 @@ export const TeluguTypingWidget: React.FC = () => {
       <div className="fixed bottom-16 sm:bottom-6 left-3 sm:left-6 z-40 flex flex-col items-start gap-1.5 pointer-events-auto">
         {/* Subtle Input Tip (shown when user focuses any form/search input) */}
         {isInputFocused && isEnabled && (
-          <div className="bg-amber-500/95 dark:bg-amber-600/95 text-white text-[10px] sm:text-[11px] font-extrabold px-2.5 py-1 rounded-full shadow-lg backdrop-blur-xs animate-in slide-in-from-bottom-2 fade-in duration-200 flex items-center gap-1 border border-amber-300/40">
+          <div className="bg-amber-500/95 dark:bg-amber-600/95 text-white text-[10px] sm:text-[11px] font-extrabold px-2.5 py-1 rounded-full shadow-lg backdrop-blur-xs animate-in slide-in-from-bottom-2 fade-in duration-200 flex items-center gap-1.5 border border-amber-300/40">
             <span>💡 టైప్ చేయండి:</span>
-            <span className="bg-black/20 px-1 py-0.5 rounded font-mono">raithu</span>
-            <span>+ Space =</span>
-            <span className="bg-white text-orange-950 px-1 py-0.5 rounded font-black">రైతు</span>
+            <span className="bg-black/20 px-1 py-0.5 rounded font-mono">mla</span>
+            <span>&rarr;</span>
+            <span className="bg-white text-orange-950 px-1 py-0.5 rounded font-black">ఎమ్మెల్యే</span>
+            <span className="opacity-70">|</span>
+            <span className="bg-black/20 px-1 py-0.5 rounded font-mono">mp</span>
+            <span>&rarr;</span>
+            <span className="bg-white text-orange-950 px-1 py-0.5 rounded font-black">ఎంపీ</span>
           </div>
         )}
 
