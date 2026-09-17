@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { 
   ShoppingBag, 
   Smartphone, 
@@ -268,6 +268,13 @@ export function ManaMarketPage() {
         {/* Category Pills Filter Bar with Live Real-Time Counts */}
         <div className="space-y-3">
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            <Link
+              to="/deals"
+              className="rounded-full px-4 py-2.5 text-xs font-black whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 min-h-[44px] touch-manipulation active:scale-95 bg-gradient-to-r from-orange-600 via-amber-500 to-red-500 text-white shadow-md hover:scale-105 shrink-0"
+            >
+              <span>🔥 మన అడ్డా డీల్స్ (Amazon & Flipkart)</span>
+            </Link>
+
             {[
               { id: "all", label: `అన్నీ (${counts.total})`, icon: ShoppingBag, color: "bg-blue-600" },
               { id: "my_ads", label: `My Ads 👤 (${counts.myAds})`, icon: User, color: "bg-amber-500 text-black" },

@@ -44,6 +44,7 @@ import { HealthPortal } from "@/pages/health/HealthPortal";
 import { MaatlaaduAIPage } from "@/pages/tutor/MaatlaaduAIPage";
 import { DailySharePage } from "@/pages/DailySharePage";
 import { MatrimonyPage } from "@/pages/MatrimonyPage";
+import { DealsPage } from "@/pages/DealsPage";
 
 const router = createBrowserRouter([
   {
@@ -52,6 +53,8 @@ const router = createBrowserRouter([
       { path: "/", element: <HomePage /> },
       { path: "/daily-share", element: <DailySharePage /> },
       { path: "/market", element: <ManaMarketPage /> },
+      { path: "/deals", element: <DealsPage /> },
+      { path: "/deals/admin", element: <DealsPage /> },
       { path: "/mahila-market", element: <MahilaMarketPage /> },
       { path: "/matrimony", element: <MatrimonyPage /> },
       { path: "/services", element: <ServicesRentalPage /> },

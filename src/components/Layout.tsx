@@ -427,6 +427,36 @@ export function Layout() {
                       <span className="size-2 rounded-full bg-yellow-400 animate-ping" />
                     </div>
                     <div className="grid grid-cols-2 gap-1.5">
+                      <NavLink
+                        to="/market"
+                        onClick={() => setShowMoreCategories(false)}
+                        className={({ isActive }) =>
+                          `flex items-center justify-start gap-1.5 rounded-2xl py-2 px-2 text-[10.5px] font-black border transition ${
+                            isActive 
+                              ? "bg-blue-600 text-white border-blue-600 shadow-sm" 
+                              : "bg-blue-50 dark:bg-blue-950/60 text-blue-950 dark:text-blue-100 border-blue-200 dark:border-blue-900 hover:bg-blue-600 hover:text-white"
+                          }`
+                        }
+                      >
+                        <span className="shrink-0 text-sm">🛍️</span>
+                        <span className="truncate">మన మార్కెట్</span>
+                      </NavLink>
+
+                      <NavLink
+                        to="/deals"
+                        onClick={() => setShowMoreCategories(false)}
+                        className={({ isActive }) =>
+                          `flex items-center justify-start gap-1.5 rounded-2xl py-2 px-2 text-[10.5px] font-black border transition ${
+                            isActive 
+                              ? "bg-orange-500 text-white border-orange-600 shadow-sm" 
+                              : "bg-orange-50 dark:bg-orange-950/60 text-orange-950 dark:text-orange-100 border-orange-200 dark:border-orange-900 hover:bg-orange-500 hover:text-white"
+                          }`
+                        }
+                      >
+                        <span className="shrink-0 text-sm">🔥</span>
+                        <span className="truncate">మన అడ్డా డీల్స్</span>
+                      </NavLink>
+
                       {categories.map((category) => {
                         const label = (lang === "te" ? (category.short || category.label.te) : category.label[lang]) || category.short;
                         const linkTarget = category.slug === "health" 
@@ -587,6 +617,34 @@ export function Layout() {
             )}
           </NavLink>
 
+          {/* Mana Market */}
+          <NavLink
+            to="/market"
+            className={({ isActive }) =>
+              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
+                isActive && !location.search
+                  ? "bg-blue-600 text-white border-blue-400 shadow-md shadow-blue-600/30 scale-105"
+                  : "bg-[hsl(var(--card))] border-blue-300/70 dark:border-blue-800/70 text-[hsl(var(--foreground))] hover:border-blue-500 hover:text-blue-600 hover:scale-105"
+              }`
+            }
+          >
+            <span>🛍️ {lang === "te" ? "మన మార్కెట్" : "Mana Market"}</span>
+          </NavLink>
+
+          {/* Deals (Directly beside Mana Market) */}
+          <NavLink
+            to="/deals"
+            className={({ isActive }) =>
+              `shrink-0 rounded-full px-3 py-1.5 md:px-4 md:py-2 text-[10px] md:text-sm font-black transition-all duration-500 border-2 relative ${
+                isActive
+                  ? "bg-gradient-to-r from-orange-600 via-amber-500 to-red-500 text-white border-yellow-300 ring-2 ring-orange-400 shadow-md shadow-orange-600/30 scale-105"
+                  : "bg-[hsl(var(--card))] border-orange-300/80 dark:border-orange-800/80 text-[hsl(var(--foreground))] hover:border-orange-500 hover:text-orange-600 hover:scale-105"
+              }`
+            }
+          >
+            <span>🔥 {lang === "te" ? "మన అడ్డా డీల్స్" : "Deals"}</span>
+          </NavLink>
+
           {/* Dynamic Categories starting with Bhakti & Jatakamu, Viral Shorts, WhatsApp Status Photo */}
           {categories.map((category, idx) => {
             const itemIndex = 3 + idx;
@@ -648,6 +706,7 @@ export function Layout() {
           </div>
         </div>
         <div className="border-t border-[hsl(var(--border))]/40 mt-6 pt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs font-bold justify-center sm:justify-start">
+          <Link to="/deals" className="hover:text-orange-500 transition text-orange-600 dark:text-orange-400 font-extrabold">🔥 మన అడ్డా డీల్స్</Link>
           <Link to="/matrimony" className="hover:text-rose-600 transition text-rose-600 dark:text-rose-400 font-extrabold">💍 మన అడ్డా మ్యాట్రిమోనీ</Link>
           <Link to="/about" className="hover:text-[hsl(var(--primary))] transition">About Us</Link>
           <Link to="/contact" className="hover:text-[hsl(var(--primary))] transition">Contact Us</Link>
