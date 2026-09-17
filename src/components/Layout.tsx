@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles, Sprout, Wrench, UtensilsCrossed, HeartHandshake } from "lucide-react";
+import { Moon, Search, Sun, Home, X, Smartphone, Video, User, Bookmark, Heart, MapPin, Navigation, ShoppingBag, Megaphone, Plus, Bot, Sparkles, Sprout, Wrench, UtensilsCrossed, HeartHandshake, Flame } from "lucide-react";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { categories } from "@/lib/categories";
 import { Button } from "@/components/ui";
@@ -893,39 +893,40 @@ export function Layout() {
       <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden border-t border-[hsl(var(--border))] bg-[hsl(var(--card))/95] backdrop-blur-xl shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
         <div className="flex h-16 items-center justify-around px-1">
           
-          {/* 1. మన మార్కెట్ */}
+          {/* 1. హోమ్ (Home) */}
           <NavLink
-            to="/market"
+            to="/"
+            end
             className={({ isActive }) =>
               `flex flex-col items-center justify-center flex-1 max-w-[58px] h-14 transition-all ${
-                isActive && !location.search ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
+                isActive ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <ShoppingBag className={`size-5 mb-0.5 ${isActive && !location.search ? "stroke-[2.5px]" : ""}`} />
+                <Home className={`size-5 mb-0.5 text-blue-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
                 <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
-                  మన మార్కెట్
+                  హోమ్
                 </span>
               </>
             )}
           </NavLink>
 
-          {/* 2. రైతు పంటలు */}
+          {/* 2. డీల్స్ (Deals) */}
           <NavLink
-            to="/raitu-bazar"
+            to="/deals"
             className={({ isActive }) =>
               `flex flex-col items-center justify-center flex-1 max-w-[58px] h-14 transition-all ${
-                isActive ? "text-emerald-600 dark:text-emerald-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
+                isActive ? "text-orange-600 dark:text-orange-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
               }`
             }
           >
             {({ isActive }) => (
               <>
-                <Sprout className={`size-5 mb-0.5 text-emerald-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
+                <Flame className={`size-5 mb-0.5 text-orange-500 ${isActive ? "stroke-[2.5px] fill-orange-500" : ""}`} />
                 <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
-                  రైతు పంటలు
+                  డీల్స్
                 </span>
               </>
             )}
@@ -945,7 +946,26 @@ export function Layout() {
             </span>
           </button>
 
-          {/* 4. సేవలు & అద్దెకు */}
+          {/* 4. మన మార్కెట్ (Mana Market) */}
+          <NavLink
+            to="/market"
+            className={({ isActive }) =>
+              `flex flex-col items-center justify-center flex-1 max-w-[58px] h-14 transition-all ${
+                isActive && !location.search ? "text-blue-600 dark:text-blue-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <ShoppingBag className={`size-5 mb-0.5 text-blue-500 ${isActive && !location.search ? "stroke-[2.5px]" : ""}`} />
+                <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
+                  మన మార్కెట్
+                </span>
+              </>
+            )}
+          </NavLink>
+
+          {/* 5. సేవలు (Services) */}
           <NavLink
             to="/services"
             className={({ isActive }) =>
@@ -958,13 +978,13 @@ export function Layout() {
               <>
                 <Wrench className={`size-5 mb-0.5 text-teal-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
                 <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
-                  సేవలు & అద్దెలు
+                  సేవలు
                 </span>
               </>
             )}
           </NavLink>
 
-          {/* 5. మహిళా మార్కెట్ */}
+          {/* 6. మహిళా మార్కెట్ (Mahila Market) */}
           <NavLink
             to="/mahila-market"
             className={({ isActive }) =>
@@ -978,25 +998,6 @@ export function Layout() {
                 <Heart className={`size-5 mb-0.5 text-rose-500 ${isActive ? "stroke-[2.5px] fill-rose-500" : ""}`} />
                 <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
                   మహిళా మార్కెట్
-                </span>
-              </>
-            )}
-          </NavLink>
-
-          {/* 6. మ్యాట్రిమోనీ (Right beside Mahila Market) */}
-          <NavLink
-            to="/matrimony"
-            className={({ isActive }) =>
-              `flex flex-col items-center justify-center flex-1 max-w-[58px] h-14 transition-all ${
-                isActive ? "text-pink-600 dark:text-pink-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <HeartHandshake className={`size-5 mb-0.5 text-pink-500 ${isActive ? "stroke-[2.5px]" : ""}`} />
-                <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
-                  మ్యాట్రిమోనీ
                 </span>
               </>
             )}
