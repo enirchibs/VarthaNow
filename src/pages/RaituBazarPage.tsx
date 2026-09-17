@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 import { LocationAreaSelector } from "@/components/LocationAreaSelector";
+import { UnifiedCategorySearchHeader } from "@/components/UnifiedCategorySearchHeader";
 
 export interface RaituAgriItem {
   id: string;
@@ -175,6 +176,8 @@ export function RaituBazarPage() {
 
   const [selectedSec, setSelectedSec] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedCity, setSelectedCity] = useState<string>("అన్ని నగరాలు (All Cities)");
+  const [selectedAreaLocality, setSelectedAreaLocality] = useState<string>("");
   const location = useLocation();
   const [isPostModalOpen, setIsPostModalOpen] = useState<boolean>(() => {
     try {
@@ -229,6 +232,14 @@ export function RaituBazarPage() {
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       if (selectedSec !== "all" && item.section !== selectedSec) return false;
+      if (selectedCity && selectedCity !== "అన్ని నగరాలు (All Cities)") {
+        const cityKey = selectedCity.split(" ")[0].toLowerCase();
+        if (!item.village.toLowerCase().includes(cityKey)) return false;
+      }
+      if (selectedAreaLocality.trim()) {
+        const areaKey = selectedAreaLocality.toLowerCase().trim();
+        if (!item.village.toLowerCase().includes(areaKey)) return false;
+      }
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
         const matchesTitle = item.title.toLowerCase().includes(q);
@@ -238,7 +249,7 @@ export function RaituBazarPage() {
       }
       return true;
     });
-  }, [items, selectedSec, searchQuery]);
+  }, [items, selectedSec, searchQuery, selectedCity, selectedAreaLocality]);
 
   // Handle Step 1 Proceed
   const handleProceedToOTP = async (e: React.FormEvent) => {
@@ -374,17 +385,27 @@ export function RaituBazarPage() {
           })}
         </div>
 
-        {/* Search Bar */}
-        <div className="relative w-full">
-          <Search className="absolute left-4 top-3.5 size-4 text-slate-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="వెతకండి (వరి, టమోటా, ట్రాక్టర్, పశువులు, విత్తనాలు, కోల్డ్ స్టోరేజ్, ఆనందపురం)..."
-            className="w-full rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--card))] py-3 pl-11 pr-4 text-xs font-bold text-[hsl(var(--foreground))] placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm min-h-[46px]"
-          />
-        </div>
+        {/* 🌟 Unified Black Box Search Header */}
+        <UnifiedCategorySearchHeader
+          moduleName="మన అడ్డా"
+          moduleBadge="రైతు బజార్"
+          tagline="రైతుల పంటలు & వ్యవసాయ మార్కెట్.. నేరుగా కొనండి / అమ్మండి"
+          selectedCity={selectedCity}
+          onSelectCity={setSelectedCity}
+          selectedAreaLocality={selectedAreaLocality}
+          onSelectAreaLocality={setSelectedAreaLocality}
+          searchQuery={searchQuery}
+          onSearchQueryChange={setSearchQuery}
+          searchPlaceholder="వరి, టమోటా, ట్రాక్టర్, పశువులు, విత్తనాలు లేదా రైతు పేరు వెతకండి..."
+          extraHeaderRight={
+            <button
+              onClick={() => setIsPostModalOpen(true)}
+              className="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-md transition active:scale-95 cursor-pointer whitespace-nowrap"
+            >
+              + పంట / సేవను జోడించండి
+            </button>
+          }
+        />
 
         {/* Listings Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">

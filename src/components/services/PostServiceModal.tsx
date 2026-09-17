@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { SERVICE_CATEGORIES, SERVICE_SUBCATEGORIES, saveCustomService } from "@/lib/services-api";
 import type { ServiceProvider, ServiceMode, PriceType } from "@/types/services";
+import { LocationAreaSelector } from "@/components/LocationAreaSelector";
 
 interface PostServiceModalProps {
   isOpen: boolean;
@@ -330,16 +331,12 @@ export function PostServiceModal({
           {step === 3 && (
             <div className="space-y-3 animate-in fade-in-50">
               <div className="space-y-1">
-                <label className="text-slate-700 dark:text-slate-300 font-black">
-                  ప్రాంతం / ఏరియా (Locality) *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="ఉదా: మధురవాడ / సబ్బవరం"
+                <LocationAreaSelector
                   value={locality}
-                  onChange={(e) => setLocality(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700"
+                  onChange={setLocality}
+                  label="ప్రాంతం / ఏరియా / పట్టణం (Locality / Area)"
+                  placeholder="ఉదా: మధురవాడ, సబ్బవరం, గాజువాక..."
+                  required={true}
                 />
               </div>
 

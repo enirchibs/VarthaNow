@@ -235,9 +235,11 @@ export function ServicesRentalPage() {
   };
 
   // Location Change
-  const handleSelectLocation = (newLoc: string, newRadius: number, lat?: number, lon?: number) => {
+  const handleSelectLocation = (newLoc: string, newRadius?: number, lat?: number, lon?: number) => {
     setLocationName(newLoc);
-    setRadiusKm(newRadius);
+    if (newRadius !== undefined) {
+      setRadiusKm(newRadius);
+    }
     if (lat && lon) {
       setRefCoordinates({ lat, lon });
     }
@@ -272,6 +274,7 @@ export function ServicesRentalPage() {
             onSelectDirectNeed={handleSelectDirectNeed}
             onSearch={handleSearch}
             locationName={locationName}
+            onSelectLocation={handleSelectLocation}
             selectedRadius={radiusKm}
             onSelectRadius={setRadiusKm}
             onOpenLocationPicker={() => setIsLocationPickerOpen(true)}

@@ -37,12 +37,14 @@ import { ClassifiedDetailModal } from "@/components/ClassifiedDetailModal";
 import { SellerLoginModal } from "@/components/SellerLoginModal";
 import { ClassifiedCard } from "@/components/ClassifiedCard";
 import { MarketplaceSeoFooter } from "@/components/MarketplaceSeoFooter";
+import { UnifiedCategorySearchHeader } from "@/components/UnifiedCategorySearchHeader";
 
 export function ManaMarketPage() {
   const { lang } = useLanguage();
   const [allItems, setAllItems] = useState<ClassifiedItem[]>([]);
   const [selectedCat, setSelectedCat] = useState<string>("all");
   const [selectedLocality, setSelectedLocality] = useState<string>("all");
+  const [areaLocality, setAreaLocality] = useState<string>("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -113,6 +115,10 @@ export function ManaMarketPage() {
         const locLower = item.locality.toLowerCase();
         const selLower = selectedLocality.toLowerCase();
         if (!locLower.includes(selLower)) return false;
+      }
+      if (areaLocality.trim()) {
+        const areaLower = areaLocality.toLowerCase().trim();
+        if (!item.locality.toLowerCase().includes(areaLower)) return false;
       }
 
       // Status filter
@@ -310,78 +316,50 @@ export function ManaMarketPage() {
             })}
           </div>
 
-          {/* Real-Time Locality, Status & Search Filter Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-[hsl(var(--card))] p-3.5 rounded-2xl border border-[hsl(var(--border))] shadow-sm">
-            
-            {/* Locality Dropdown Filter */}
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black text-slate-500 flex items-center gap-1">
-                <MapPin className="size-4 text-red-500" />
-                ప్రాంతం:
-              </span>
-              <select
-                value={selectedLocality}
-                onChange={(e) => setSelectedLocality(e.target.value)}
-                className="rounded-full border border-slate-300 bg-slate-50 py-2 px-3 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer min-h-[44px]"
-              >
-                <option value="all">అన్ని ప్రాంతాలు (All Localities)</option>
-                <option value="Madhurawada">మధురవాడ (Madhurawada)</option>
-                <option value="Gajuwaka">గాజువాక (Gajuwaka)</option>
-                <option value="MVP Colony">ఎంవీపీ కాలనీ (MVP Colony)</option>
-                <option value="Visakhapatnam">విశాఖపట్నం (Visakhapatnam)</option>
-                <option value="Gachibowli">గచ్చిబౌలి (Gachibowli)</option>
-                <option value="Hyderabad">హైదరాబాద్ (Hyderabad)</option>
-                <option value="Vijayawada">విజయవాడ (Vijayawada)</option>
-                <option value="Guntur">గుంటూరు (Guntur)</option>
-                <option value="Tirupati">తిరుపతి (Tirupati)</option>
-                <option value="Warangal">వరంగల్ (Warangal)</option>
-              </select>
-            </div>
-
-            {/* Status Filter */}
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-black text-slate-500 flex items-center gap-1">
-                <Filter className="size-3.5" />
-                స్థితి:
-              </span>
-              <button
-                onClick={() => setStatusFilter("all")}
-                className={`px-3.5 py-2 rounded-full text-xs font-bold transition cursor-pointer min-h-[44px] ${
-                  statusFilter === "all" ? "bg-blue-600 text-white" : "bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                అన్నీ
-              </button>
-              <button
-                onClick={() => setStatusFilter("available")}
-                className={`px-3.5 py-2 rounded-full text-xs font-bold transition cursor-pointer min-h-[44px] ${
-                  statusFilter === "available" ? "bg-emerald-600 text-white" : "bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                🟢 అందుబాటులో ఉన్నాయి
-              </button>
-              <button
-                onClick={() => setStatusFilter("sold")}
-                className={`px-3.5 py-2 rounded-full text-xs font-bold transition cursor-pointer min-h-[44px] ${
-                  statusFilter === "sold" ? "bg-red-600 text-white" : "bg-slate-100 border border-slate-200 text-slate-600 hover:bg-slate-200"
-                }`}
-              >
-                🔴 అమ్మేసాము
-              </button>
-            </div>
-
-            {/* Live Real-Time Search Bar */}
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3.5 top-3 size-4 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="వెతకండి (Search title, seller, area)..."
-                className="w-full rounded-full border border-[#1f2937] bg-[#030712] py-2.5 pl-10 pr-4 text-xs font-bold text-white focus:outline-none focus:ring-2 focus:ring-[#2563eb] min-h-[44px]"
-              />
-            </div>
-          </div>
+          {/* 🌟 Unified Black Box Search Header */}
+          <UnifiedCategorySearchHeader
+            moduleName="మన అడ్డా"
+            moduleBadge="మన మార్కెట్"
+            tagline="కొనండి లేదా అమ్మండి.. మన ఊరి వాళ్లతో నేరుగా"
+            selectedCity={selectedLocality === "all" ? "అన్ని నగరాలు (All Cities)" : selectedLocality}
+            onSelectCity={(city) => {
+              if (city.includes("అన్ని")) {
+                setSelectedLocality("all");
+              } else {
+                setSelectedLocality(city.split(" ")[0]);
+              }
+            }}
+            selectedAreaLocality={areaLocality}
+            onSelectAreaLocality={(area) => {
+              setAreaLocality(area);
+              if (area) {
+                setSelectedLocality(area);
+              }
+            }}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
+            searchPlaceholder="వస్తువు పేరు, వర్గం లేదా అమ్మకందారుని పేరు వెతకండి..."
+            extraHeaderRight={
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => setStatusFilter("all")}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${
+                    statusFilter === "all" ? "bg-blue-600 text-white shadow-xs" : "bg-white/10 text-zinc-300 hover:bg-white/20"
+                  }`}
+                >
+                  అన్నీ
+                </button>
+                <button
+                  onClick={() => setStatusFilter("available")}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition cursor-pointer ${
+                    statusFilter === "available" ? "bg-emerald-600 text-white shadow-xs" : "bg-white/10 text-zinc-300 hover:bg-white/20"
+                  }`}
+                >
+                  🟢 అందుబాటులో ఉన్నాయి
+                </button>
+              </div>
+            }
+          />
         </div>
 
         {/* OLX-Style Hyperlocal Responsive Grid (3 Desktop, 2 Tablet, 1 Mobile) */}
