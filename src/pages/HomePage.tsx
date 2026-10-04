@@ -14,7 +14,7 @@ import {
   Briefcase
 } from "lucide-react";
 import { BreakingTicker } from "@/components/BreakingTicker";
-import { VerticalSnapFeed } from "@/components/VerticalSnapFeed";
+import { NewsGrid } from "@/components/NewsGrid";
 import { Button } from "@/components/ui";
 import { setMeta } from "@/lib/seo";
 import { useHomeData, useInfinitePosts } from "@/hooks/usePosts";
@@ -447,14 +447,49 @@ export function HomePage() {
         </div>
       </div>
 
-      {/* Vertical snap / paginated news feed (replaces 2-column grid) */}
-      <section className="mt-1">
-        <VerticalSnapFeed
-          posts={displayGridPosts}
-          loading={feed.loading}
-          hasMore={feed.hasMore}
-          onLoadMore={feed.loadMore}
-        />
+      {/* Classic 2-column news card grid */}
+      <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
+        <div className="space-y-4">
+          <NewsGrid posts={displayGridPosts} loading={feed.loading} />
+
+          {feed.hasMore && (
+            <div className="flex justify-center">
+              <Button onClick={feed.loadMore} disabled={feed.loading} className="rounded-full px-6 font-black">
+                {feed.loading
+                  ? lang === "te"
+                    ? "లోడ్ అవుతోంది..."
+                    : "Loading..."
+                  : lang === "te"
+                    ? "మరిన్ని వార్తలు"
+                    : "More News"}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <aside className="space-y-4">
+          <div className="rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
+            <h3 className="mb-3 flex items-center gap-2 font-black">
+              <TrendingUp className="size-4 text-emerald-500" />
+              {lang === "te" && "ట్రెండింగ్"}
+              {lang === "en" && "Trending"}
+              {lang === "hi" && "ट्रेंडिंग"}
+              {lang === "ta" && "டிரெண்டிங்"}
+              {lang === "kn" && "ಟ್ರೆಂಡಿಂಗ್"}
+            </h3>
+            <div className="space-y-3">
+              {trending.map((post) => (
+                <Link
+                  key={post.slug}
+                  to={`/news/${post.slug}`}
+                  className="block border-b border-[hsl(var(--border))] pb-3 last:border-0 last:pb-0"
+                >
+                  <div className="line-clamp-2 text-sm font-black">{post.title}</div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </aside>
       </section>
 
     </main>
