@@ -12,7 +12,7 @@ import {
   ThumbsDown,
   ThumbsUp,
 } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useLanguage, type Language } from "@/hooks/useLanguage";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { markArticleAsRead } from "@/lib/read-tracker";
 import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
@@ -89,7 +89,7 @@ function SnapCard({
   index: number;
   total: number;
   isActive: boolean;
-  lang: string;
+  lang: Language;
 }) {
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const bookmarked = isBookmarked(post.slug);
