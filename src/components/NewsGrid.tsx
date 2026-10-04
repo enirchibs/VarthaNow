@@ -61,6 +61,7 @@ export function NewsGrid({ posts, loading }: { posts: BlogPost[]; loading?: bool
             post={post} 
             priority={index === 0} 
             isSpotlight={index === spotlightIndex}
+            feedPosts={displayPosts}
           />
         </div>
       ))}

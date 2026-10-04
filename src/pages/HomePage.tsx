@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   Newspaper, 
   TrendingUp, 
@@ -11,7 +11,8 @@ import {
   Filter,
   RefreshCw,
   BookmarkCheck,
-  Briefcase
+  Briefcase,
+  ChevronsUpDown
 } from "lucide-react";
 import { BreakingTicker } from "@/components/BreakingTicker";
 import { NewsGrid } from "@/components/NewsGrid";
@@ -19,7 +20,7 @@ import { Button } from "@/components/ui";
 import { setMeta } from "@/lib/seo";
 import { useHomeData, useInfinitePosts } from "@/hooks/usePosts";
 import { useLanguage } from "@/hooks/useLanguage";
-import { Way2NewsSwiper } from "@/components/Way2NewsSwiper";
+import { saveSwipeFeed } from "@/components/Way2NewsSwiper";
 import { detectGPSLocation, getCachedGPSLocation } from "@/lib/location-detector";
 import { getUserInterests } from "@/lib/interest-tracker";
 import { recordUserVisit } from "@/lib/read-tracker";
@@ -48,6 +49,7 @@ const CITIES = [
 ];
 
 export function HomePage() {
+  const navigate = useNavigate();
   const { lang } = useLanguage();
   const { featured, trending } = useHomeData();
   const { bookmarks } = useBookmarks();
@@ -86,8 +88,6 @@ export function HomePage() {
     userBookmarks: bookmarks,
     feedMode: feedMode
   });
-
-  const [isSwiperOpen, setIsSwiperOpen] = useState(false);
 
   const numSlides = useMemo(() => Math.floor(Math.random() * 3) + 4, []); // 4 to 6 slides
   const [activeSlide, setActiveSlide] = useState(0);
@@ -150,6 +150,14 @@ export function HomePage() {
     setTimeout(() => {
       setIsRefreshing(false);
     }, 600);
+  };
+
+  const openVerticalSwipeFeed = (startSlug?: string) => {
+    const deck = displayGridPosts.length ? displayGridPosts : effectivePosts;
+    if (!deck.length) return;
+    const slug = startSlug && deck.some((p) => p.slug === startSlug) ? startSlug : deck[0].slug;
+    saveSwipeFeed(deck, slug);
+    navigate(`/news/${slug}`, { state: { swipeFeed: true } });
   };
 
   // Handle GPS location detection
@@ -452,6 +460,25 @@ export function HomePage() {
 
       <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-4">
+          <button
+            onClick={() => openVerticalSwipeFeed()}
+            className="flex w-full items-center justify-between gap-3 rounded-2xl border-2 border-red-500/40 bg-gradient-to-r from-red-600 to-rose-600 px-4 py-3 text-left text-white shadow-[0_10px_24px_rgba(220,38,38,0.28)] transition active:scale-[0.99]"
+          >
+            <div>
+              <div className="text-sm font-black">
+                {lang === "te" ? "వర్టికల్ స్వైప్ ఫీడ్" : "Vertical Swipe Feed"}
+              </div>
+              <div className="text-[11px] font-semibold text-white/90">
+                {lang === "te"
+                  ? "కార్డ్ తెరిచి పైకి/కిందికి స్వైప్ చేసి వార్తలు చదవండి"
+                  : "Open cards and swipe up/down like Way2News"}
+              </div>
+            </div>
+            <span className="grid size-10 place-items-center rounded-full bg-white/15 ring-1 ring-white/30">
+              <ChevronsUpDown className="size-5" />
+            </span>
+          </button>
+
           <NewsGrid posts={displayGridPosts} loading={feed.loading} />
           
           {feed.hasMore && (
@@ -488,13 +515,6 @@ export function HomePage() {
         </aside>
       </section>
 
-      {/* Way2News style Swiper Cards Deck Overlay */}
-      {isSwiperOpen && (
-        <Way2NewsSwiper 
-          posts={feed.posts} 
-          onClose={() => setIsSwiperOpen(false)} 
-        />
-      )}
     </main>
   );
 }

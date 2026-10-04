@@ -203,8 +203,14 @@ export function validateAndSanitizeFullName(input: string): { isValid: boolean; 
     return { isValid: false, sanitized, error: "దయచేసి కనీసం 2 అక్షరాలతో కూడిన చెల్లుబాటు అయ్యే పేరును ఇవ్వండి" };
   }
 
-  // Reject obvious junk / spam patterns like numbers-only or random special chars
-  if (/^[\d\W_]+$/.test(sanitized)) {
+  // Reject junk with no real letters. Use Unicode \p{L} so Telugu/Hindi/etc. are valid
+  // (ASCII \W wrongly treats Telugu as "special chars" and rejected names like మజ్జి చాందిని)
+  if (!/\p{L}/u.test(sanitized)) {
+    return { isValid: false, sanitized, error: "చెల్లుబాటు అయ్యే పేరును ఇవ్వండి (Please enter a valid human name)" };
+  }
+
+  // Allow letters (any script), combining marks, spaces, and common name punctuation only
+  if (!/^[\p{L}\p{M}\s.'’.-]+$/u.test(sanitized)) {
     return { isValid: false, sanitized, error: "చెల్లుబాటు అయ్యే పేరును ఇవ్వండి (Please enter a valid human name)" };
   }
 

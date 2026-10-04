@@ -1,11 +1,11 @@
-import { Bookmark, BookmarkCheck, Send, Share2, Clock, ExternalLink } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Bookmark, BookmarkCheck, Share2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
 import { timeAgo } from "@/lib/format";
 import type { BlogPost } from "@/types/news";
-import { Badge, Button } from "@/components/ui";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { isArticleRead, markArticleAsRead } from "@/lib/read-tracker";
+import { saveSwipeFeed } from "@/components/Way2NewsSwiper";
 
 // ─── Helpers ────────────────────────────────────────────────────
 const CATEGORY_STYLES: Record<string, string> = {
@@ -43,12 +43,16 @@ function isRealPublisherUrl(url?: string | null): boolean {
 export function NewsCard({ 
   post, 
   priority = false,
-  isSpotlight = false
+  isSpotlight = false,
+  feedPosts,
 }: { 
   post: BlogPost & { source_article_url?: string | null }; 
   priority?: boolean;
   isSpotlight?: boolean;
+  /** Full list used for vertical swipe feed after opening this card */
+  feedPosts?: BlogPost[];
 }) {
+  const navigate = useNavigate();
   const accurateCategory = detectCategoryFromTitleAndContent(post);
   const isRead = isArticleRead(post.slug);
   const { isBookmarked, toggleBookmark } = useBookmarks();
@@ -78,18 +82,27 @@ export function NewsCard({
     return null;
   })();
 
-  const handleCardClick = () => {
+  const openSwipeFeed = () => {
     markArticleAsRead(post.slug);
+    const deck = feedPosts?.length ? feedPosts : [post];
+    // Keep clicked card in feed order so swipe up/down continues the grid
+    const ordered = deck.some((p) => p.slug === post.slug)
+      ? deck
+      : [post, ...deck];
+    saveSwipeFeed(ordered, post.slug);
+    navigate(`/news/${post.slug}`, { state: { swipeFeed: true } });
   };
 
   return (
-    <article className={`group flex flex-col overflow-hidden rounded-[1.2rem] border bg-[hsl(var(--card))] transition-all duration-500 cursor-pointer relative ${
+    <article
+      onClick={openSwipeFeed}
+      className={`group flex flex-col overflow-hidden rounded-[1.2rem] border bg-[hsl(var(--card))] transition-all duration-500 cursor-pointer relative ${
       isSpotlight 
         ? "border-red-500 ring-2 ring-red-500/60 scale-[1.02] -translate-y-1 shadow-[0_12px_28px_rgba(239,68,68,0.35)]" 
         : "border-[hsl(var(--border))] shadow-sm hover:shadow-[0_12px_28px_rgba(239,68,68,0.18)] hover:border-red-500/60 hover:ring-2 hover:ring-red-500/20 hover:-translate-y-1 active:scale-[0.98]"
     }`}>
       {/* 1 ── Banner Image */}
-      <Link to={`/news/${post.slug}`} onClick={handleCardClick} className="relative aspect-[20/9] w-full overflow-hidden bg-[hsl(var(--muted))] block">
+      <div className="relative aspect-[20/9] w-full overflow-hidden bg-[hsl(var(--muted))] block">
         {post.og_image ? (
           <img
             src={post.og_image}
@@ -136,16 +149,16 @@ export function NewsCard({
             </span>
           </div>
         )}
-      </Link>
+      </div>
 
       {/* 2 ── Content: Headline Title + Publisher/Time Footer */}
       <div className="flex flex-col flex-1 p-2 sm:p-2.5 space-y-1.5">
-        <Link to={`/news/${post.slug}`} onClick={handleCardClick} className="block flex-1">
+        <div className="block flex-1">
           <h2 className="text-[11px] sm:text-xs font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors flex items-center justify-between gap-1">
             <span>{post.title}</span>
             <span className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-red-600 dark:text-red-400 shrink-0 text-[10px]">➔</span>
           </h2>
-        </Link>
+        </div>
 
         {/* Footer: Publisher & Date */}
         <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-1.5 text-[9px] sm:text-[10px] font-bold text-[hsl(var(--muted-foreground))]">
@@ -166,7 +179,7 @@ export function NewsCard({
           <div className="flex items-center gap-0.5 shrink-0">
             <button
               aria-label="Save bookmark"
-              onClick={(e) => { e.preventDefault(); toggleBookmark(post.slug); }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleBookmark(post.slug); }}
               className="p-0.5 hover:text-amber-500 transition"
             >
               {bookmarked ? <BookmarkCheck className="size-3 fill-amber-500 text-amber-500" /> : <Bookmark className="size-3" />}
