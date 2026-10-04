@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { SearchBox } from "@/components/SearchBox";
-import { NewsGrid } from "@/components/NewsGrid";
+import { VerticalSnapFeed } from "@/components/VerticalSnapFeed";
 import { Button } from "@/components/ui";
 import { categories, categoryLabel } from "@/lib/categories";
 import { setMeta } from "@/lib/seo";
@@ -56,12 +56,12 @@ export function SearchPage() {
           </button>
         ))}
       </section>
-      <NewsGrid posts={feed.posts} loading={feed.loading} />
-      {feed.hasMore && (
-        <Button onClick={feed.loadMore}>
-          {lang === "te" ? "మరిన్ని ఫలితాలు" : lang === "en" ? "More Results" : lang === "hi" ? "और परिणाम" : lang === "ta" ? "மேலும் முடிவுகள்" : "ಹೆಚ್ಚಿನ ಫಲಿತಾಂಶಗಳು"}
-        </Button>
-      )}
+      <VerticalSnapFeed
+        posts={feed.posts}
+        loading={feed.loading}
+        hasMore={feed.hasMore}
+        onLoadMore={feed.loadMore}
+      />
     </main>
   );
 }

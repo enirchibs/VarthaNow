@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { 
   Newspaper, 
   TrendingUp, 
@@ -11,16 +11,14 @@ import {
   Filter,
   RefreshCw,
   BookmarkCheck,
-  Briefcase,
-  ChevronsUpDown
+  Briefcase
 } from "lucide-react";
 import { BreakingTicker } from "@/components/BreakingTicker";
-import { NewsGrid } from "@/components/NewsGrid";
+import { VerticalSnapFeed } from "@/components/VerticalSnapFeed";
 import { Button } from "@/components/ui";
 import { setMeta } from "@/lib/seo";
 import { useHomeData, useInfinitePosts } from "@/hooks/usePosts";
 import { useLanguage } from "@/hooks/useLanguage";
-import { saveSwipeFeed } from "@/components/Way2NewsSwiper";
 import { detectGPSLocation, getCachedGPSLocation } from "@/lib/location-detector";
 import { getUserInterests } from "@/lib/interest-tracker";
 import { recordUserVisit } from "@/lib/read-tracker";
@@ -49,7 +47,6 @@ const CITIES = [
 ];
 
 export function HomePage() {
-  const navigate = useNavigate();
   const { lang } = useLanguage();
   const { featured, trending } = useHomeData();
   const { bookmarks } = useBookmarks();
@@ -150,14 +147,6 @@ export function HomePage() {
     setTimeout(() => {
       setIsRefreshing(false);
     }, 600);
-  };
-
-  const openVerticalSwipeFeed = (startSlug?: string) => {
-    const deck = displayGridPosts.length ? displayGridPosts : effectivePosts;
-    if (!deck.length) return;
-    const slug = startSlug && deck.some((p) => p.slug === startSlug) ? startSlug : deck[0].slug;
-    saveSwipeFeed(deck, slug);
-    navigate(`/news/${slug}`, { state: { swipeFeed: true } });
   };
 
   // Handle GPS location detection
@@ -458,61 +447,14 @@ export function HomePage() {
         </div>
       </div>
 
-      <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
-        <div className="space-y-4">
-          <button
-            onClick={() => openVerticalSwipeFeed()}
-            className="flex w-full items-center justify-between gap-3 rounded-2xl border-2 border-red-500/40 bg-gradient-to-r from-red-600 to-rose-600 px-4 py-3 text-left text-white shadow-[0_10px_24px_rgba(220,38,38,0.28)] transition active:scale-[0.99]"
-          >
-            <div>
-              <div className="text-sm font-black">
-                {lang === "te" ? "వర్టికల్ స్వైప్ ఫీడ్" : "Vertical Swipe Feed"}
-              </div>
-              <div className="text-[11px] font-semibold text-white/90">
-                {lang === "te"
-                  ? "కార్డ్ తెరిచి పైకి/కిందికి స్వైప్ చేసి వార్తలు చదవండి"
-                  : "Open cards and swipe up/down like Way2News"}
-              </div>
-            </div>
-            <span className="grid size-10 place-items-center rounded-full bg-white/15 ring-1 ring-white/30">
-              <ChevronsUpDown className="size-5" />
-            </span>
-          </button>
-
-          <NewsGrid posts={displayGridPosts} loading={feed.loading} />
-          
-          {feed.hasMore && (
-            <div className="flex justify-center">
-              <Button onClick={feed.loadMore} disabled={feed.loading} className="rounded-full px-6 font-black">
-                {feed.loading ? (
-                  lang === "te" ? "లోడ్ అవుతోంది..." : lang === "en" ? "Loading..." : lang === "hi" ? "लोड हो रहा है..." : lang === "ta" ? "ஏற்றப்படுகிறது..." : "ಲೋಡ್ ಆಗುತ್ತಿದೆ..."
-                ) : (
-                  lang === "te" ? "మరిన్ని వార్తలు" : lang === "en" ? "More News" : lang === "hi" ? "और खबरें" : lang === "ta" ? "மேலும் செய்திகள்" : "ಹೆಚ್ಚಿನ ಸುದ್ದಿ"
-                )}
-              </Button>
-            </div>
-          )}
-        </div>
-        
-        <aside className="space-y-4">
-          <div className="rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4">
-            <h3 className="mb-3 flex items-center gap-2 font-black">
-              <TrendingUp className="size-4 text-emerald-500" />
-              {lang === "te" && "ట్రెండింగ్"}
-              {lang === "en" && "Trending"}
-              {lang === "hi" && "ट्रेंडिंग"}
-              {lang === "ta" && "டிரெண்டிங்"}
-              {lang === "kn" && "ಟ್ರೆಂಡಿಂಗ್"}
-            </h3>
-            <div className="space-y-3">
-              {trending.map((post) => (
-                <Link key={post.slug} to={`/news/${post.slug}`} className="block border-b border-[hsl(var(--border))] pb-3 last:border-0 last:pb-0">
-                  <div className="line-clamp-2 text-sm font-black">{post.title}</div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </aside>
+      {/* Vertical snap / paginated news feed (replaces 2-column grid) */}
+      <section className="mt-1">
+        <VerticalSnapFeed
+          posts={displayGridPosts}
+          loading={feed.loading}
+          hasMore={feed.hasMore}
+          onLoadMore={feed.loadMore}
+        />
       </section>
 
     </main>

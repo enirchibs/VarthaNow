@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { NewsGrid } from "@/components/NewsGrid";
+import { VerticalSnapFeed } from "@/components/VerticalSnapFeed";
 import { Button } from "@/components/ui";
 import { categoryLabel } from "@/lib/categories";
 import { setMeta } from "@/lib/seo";
@@ -413,15 +413,12 @@ export function CategoryPage() {
         <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
         {/* News Feed Cards column */}
         <div className="space-y-4">
-          <NewsGrid posts={feed.posts} loading={feed.loading} />
-          
-          {feed.hasMore && (
-            <div className="flex justify-center">
-              <Button onClick={feed.loadMore} disabled={feed.loading}>
-                {lang === "te" ? "మరిన్ని వార్తలు" : lang === "en" ? "More News" : lang === "hi" ? "और खबरें" : lang === "ta" ? "மேலும் செய்திகள்" : "ಹೆಚ್ಚಿನ ಸುದ್ದಿ"}
-              </Button>
-            </div>
-          )}
+          <VerticalSnapFeed
+            posts={feed.posts}
+            loading={feed.loading}
+            hasMore={feed.hasMore}
+            onLoadMore={feed.loadMore}
+          />
         </div>
 
         {/* Sidebar Widgets column */}

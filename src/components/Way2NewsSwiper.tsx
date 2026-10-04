@@ -33,15 +33,48 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-function plainBody(post: BlogPost): string {
-  const raw = stripFAQ(post.content || post.excerpt || "");
-  return raw
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+/** Short news flip body: keep ~70–80 words (Way2News-style brief) */
+const FLIP_MIN_WORDS = 70;
+const FLIP_MAX_WORDS = 80;
+const FLIP_TARGET_WORDS = 75;
+
+function cleanFlipText(input: string): string {
+  return stripFAQ(input || "")
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
     .replace(/^#{1,6}\s+/gm, "")
-    .replace(/[*_`>~]/g, "")
-    .replace(/\n{2,}/g, "\n\n")
+    .replace(/[*_`>~|#]/g, " ")
+    .replace(/<\/?[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
+}
+
+function shortNewsFlipBody(post: BlogPost): string {
+  // Prefer excerpt first, then fill from content so flips stay concise
+  const excerpt = cleanFlipText(post.excerpt || "");
+  const content = cleanFlipText(post.content || "");
+  let source = excerpt;
+  if (excerpt.split(/\s+/).filter(Boolean).length < FLIP_MIN_WORDS && content) {
+    // Merge unique content after excerpt to reach 70–80 words
+    const rest = content.startsWith(excerpt) ? content.slice(excerpt.length) : content;
+    source = `${excerpt} ${rest}`.replace(/\s+/g, " ").trim();
+  }
+  if (!source) source = content;
+
+  const words = source.split(/\s+/).filter(Boolean);
+  if (words.length <= FLIP_MAX_WORDS) return words.join(" ");
+
+  // Cut near 75 words; prefer a sentence end between 70–80 when possible
+  let cut = FLIP_TARGET_WORDS;
+  for (let i = FLIP_MIN_WORDS - 1; i < Math.min(FLIP_MAX_WORDS, words.length); i++) {
+    if (/[।.!?…]["'”’)]?$/.test(words[i])) {
+      cut = i + 1;
+      break;
+    }
+  }
+  cut = Math.min(Math.max(cut, FLIP_MIN_WORDS), FLIP_MAX_WORDS, words.length);
+  const clipped = words.slice(0, cut).join(" ");
+  return words.length > cut ? `${clipped}…` : clipped;
 }
 
 function formatClock(dateStr: string): string {
@@ -163,7 +196,7 @@ function NewsSwipeCard({
   };
 
   const avatar = publisherAvatar(post);
-  const body = plainBody(post);
+  const body = shortNewsFlipBody(post);
   const shortCode = post.slug.slice(0, 8);
 
   return (
@@ -241,14 +274,14 @@ function NewsSwipeCard({
         </div>
       </div>
 
-      {/* Story text */}
+      {/* Story text — short news flip (~70–80 words) */}
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-2 pt-4">
         <h1 className="text-[1.15rem] font-black leading-snug tracking-tight text-[#1f2937] sm:text-[1.35rem]">
           {post.title}
         </h1>
-        <div className="mt-3 whitespace-pre-wrap text-[0.95rem] font-medium leading-[1.7] text-[#334155] sm:text-[1.02rem]">
+        <p className="mt-3 text-[0.98rem] font-medium leading-[1.75] text-[#334155] sm:text-[1.05rem]">
           {body || post.excerpt}
-        </div>
+        </p>
       </div>
 
       {/* Actions */}
