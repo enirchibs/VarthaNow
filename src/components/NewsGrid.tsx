@@ -36,32 +36,38 @@ export function NewsGrid({
     );
   }
 
-  // Ensure AT LEAST 9 articles on home/category feeds (not bookmarks)
+  // Ensure AT LEAST 9 articles on home/category feeds (not bookmarks).
+  // When the feed is already category-scoped, only pad with the same category.
   let displayPosts = [...posts];
   if (fillMinimum && displayPosts.length < 9) {
+    const categoriesInFeed = new Set(displayPosts.map((p) => p.category).filter(Boolean));
+    const singleCategory = categoriesInFeed.size === 1 ? [...categoriesInFeed][0] : null;
+
     for (const dp of demoPosts) {
       if (displayPosts.length >= 9) break;
+      if (singleCategory && dp.category !== singleCategory) continue;
       if (!displayPosts.some((p) => p.slug === dp.slug)) {
         displayPosts.push(dp);
       }
     }
     let i = 0;
     while (displayPosts.length > 0 && displayPosts.length < 9) {
+      // Keep the real slug so clicking opens the correct article
       const p = displayPosts[i % displayPosts.length];
-      displayPosts.push({ ...p, slug: `${p.slug}-dup-${displayPosts.length}` });
+      displayPosts.push({ ...p });
       i++;
     }
   }
 
   return (
     <div 
-      className="grid grid-cols-2 gap-3 sm:gap-4"
+      className="grid grid-cols-2 gap-2.5 sm:gap-4"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {displayPosts.map((post, index) => (
         <div 
-          key={post.slug} 
+          key={`${post.slug}-${index}`} 
           className="animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
           style={{ animationDelay: `${(index % 8) * 70}ms` }}
         >

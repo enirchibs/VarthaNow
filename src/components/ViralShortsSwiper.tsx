@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Play, MapPin, Sparkles } from "lucide-react";
 import { useViralVideos } from "@/hooks/useViralVideos";
 import { useLanguage } from "@/hooks/useLanguage";
+import { resolveViralPlayUrl } from "@/lib/shorts-api";
 
 export function ViralShortsSwiper() {
   const { videos, loading } = useViralVideos(8);
@@ -54,7 +55,10 @@ export function ViralShortsSwiper() {
           <div 
             key={video.id}
             className="relative flex-none w-[140px] md:w-[180px] aspect-[9/16] rounded-2xl overflow-hidden snap-center bg-black group cursor-pointer border border-[hsl(var(--border))]/50 shadow-md hover:shadow-lg transition-all duration-300"
-            onClick={() => window.open(video.video_url, '_blank')}
+            onClick={() => {
+              const url = resolveViralPlayUrl(video);
+              if (url) window.open(url, "_blank", "noopener,noreferrer");
+            }}
           >
             {/* Thumbnail */}
             <img 

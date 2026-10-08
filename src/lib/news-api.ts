@@ -3,6 +3,7 @@ import { demoPosts } from "@/lib/demo-data";
 import { supabase } from "@/lib/supabase";
 import { getActiveLanguage, type Language } from "@/hooks/useLanguage";
 import { isArticleRead, getArticleAgeHours } from "@/lib/read-tracker";
+import { expandCategorySlugs, postMatchesCategory } from "@/lib/categories";
 
 export const PAGE_SIZE = 25;
 
@@ -183,7 +184,10 @@ export async function getPosts(
     .order("published_at", { ascending: false })
     .range(0, 100); // Fetch top 100 to rank & shuffle dynamically
 
-  if (filters?.category && filters.category !== "all") query = query.eq("category", filters.category);
+  if (filters?.category && filters.category !== "all") {
+    const slugs = expandCategorySlugs(filters.category);
+    query = slugs.length === 1 ? query.eq("category", slugs[0]) : query.in("category", slugs);
+  }
   if (filters?.query) {
     const value = `%${filters.query}%`;
     query = query.or(`title.ilike.${value},excerpt.ilike.${value},content.ilike.${value}`);
@@ -197,8 +201,19 @@ export async function getPosts(
     const ranked = rankAndPersonalizePosts(filtered, options);
     return ranked.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   }
-  
-  const ranked = rankAndPersonalizePosts(data as BlogPost[], options);
+
+  const categoryScoped =
+    filters?.category && filters.category !== "all"
+      ? (data as BlogPost[]).filter((post) => postMatchesCategory(post, filters.category))
+      : (data as BlogPost[]);
+
+  if (categoryScoped.length === 0 && filters?.category && filters.category !== "all") {
+    const filtered = filterPosts(demoPosts, { ...filters, language: activeLang });
+    const ranked = rankAndPersonalizePosts(filtered, options);
+    return ranked.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  }
+
+  const ranked = rankAndPersonalizePosts(categoryScoped, options);
   return ranked.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 }
 
@@ -217,7 +232,10 @@ export async function getAdminPosts(page = 0, filters?: Partial<SearchFilters>) 
     .order("published_at", { ascending: false })
     .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
-  if (filters?.category && filters.category !== "all") query = query.eq("category", filters.category);
+  if (filters?.category && filters.category !== "all") {
+    const slugs = expandCategorySlugs(filters.category);
+    query = slugs.length === 1 ? query.eq("category", slugs[0]) : query.in("category", slugs);
+  }
   if (filters?.query) {
     const value = `%${filters.query}%`;
     query = query.or(`title.ilike.${value},excerpt.ilike.${value},content.ilike.${value}`);
@@ -230,8 +248,13 @@ export async function getAdminPosts(page = 0, filters?: Partial<SearchFilters>) 
     const filtered = filterPosts(demoPosts, { ...filters, language: activeLang });
     return sortPublished(filtered).slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   }
-  
-  return data as BlogPost[];
+
+  const scoped =
+    filters?.category && filters.category !== "all"
+      ? (data as BlogPost[]).filter((post) => postMatchesCategory(post, filters.category))
+      : (data as BlogPost[]);
+
+  return scoped;
 }
 
 export async function getPostBySlug(slug: string) {
@@ -358,7 +381,9 @@ function filterPosts(posts: BlogPost[], filters?: Partial<SearchFilters>) {
   const activeLang = filters?.language ?? getActiveLanguage();
   return posts.filter((post) => {
     if (post.language !== activeLang) return false;
-    if (filters?.category && filters.category !== "all" && post.category !== filters.category) return false;
+    if (filters?.category && filters.category !== "all" && !postMatchesCategory(post, filters.category)) {
+      return false;
+    }
     if (!filters?.query) return true;
     const search = filters.query.toLowerCase();
     return [post.title, post.excerpt, post.content, post.category, post.tags.join(" ")]

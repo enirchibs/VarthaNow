@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Keyboard, Check, X, Sparkles, Globe } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { 
   isTeluguTypingActive, 
   setTeluguTypingActive, 
@@ -23,8 +23,6 @@ interface SuggestionBoxState {
 
 export const TeluguTypingWidget: React.FC = () => {
   const [isEnabled, setIsEnabled] = useState<boolean>(isTeluguTypingActive);
-  const [isInputFocused, setIsInputFocused] = useState<boolean>(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [suggestionState, setSuggestionState] = useState<SuggestionBoxState>({
     visible: false,
     x: 0,
@@ -42,7 +40,6 @@ export const TeluguTypingWidget: React.FC = () => {
     endPos: number;
   } | null>(null);
 
-  const toastTimerRef = useRef<NodeJS.Timeout | null>(null);
   const prefetchTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sync state with storage / external toggle events
@@ -50,24 +47,11 @@ export const TeluguTypingWidget: React.FC = () => {
     const handleToggle = (e: Event) => {
       const customEvent = e as CustomEvent<boolean>;
       setIsEnabled(customEvent.detail);
-      showToast(
-        customEvent.detail 
-          ? "తెలుగు టైపింగ్ ఆన్ చేయబడింది (Telugu Typing ON)" 
-          : "ఇంగ్లీష్ టైపింగ్ (English Typing ON)"
-      );
     };
 
     window.addEventListener(TELUGU_TYPING_EVENT, handleToggle);
     return () => window.removeEventListener(TELUGU_TYPING_EVENT, handleToggle);
   }, []);
-
-  const showToast = (msg: string) => {
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-    setToastMessage(msg);
-    toastTimerRef.current = setTimeout(() => {
-      setToastMessage(null);
-    }, 2400);
-  };
 
   const toggleTyping = useCallback(() => {
     const next = !isEnabled;
@@ -112,15 +96,8 @@ export const TeluguTypingWidget: React.FC = () => {
 
   // Global KeyDown & Input Interceptor
   useEffect(() => {
-    const handleFocusIn = (e: FocusEvent) => {
-      if (isEligibleInput(e.target as Element)) {
-        setIsInputFocused(true);
-      }
-    };
-
     const handleFocusOut = (e: FocusEvent) => {
       if (isEligibleInput(e.target as Element)) {
-        setIsInputFocused(false);
         // Small delay to allow clicking on candidate suggestions
         setTimeout(() => {
           setSuggestionState((prev) => ({ ...prev, visible: false }));
@@ -280,24 +257,21 @@ export const TeluguTypingWidget: React.FC = () => {
       }
     };
 
-    document.addEventListener("focusin", handleFocusIn);
     document.addEventListener("focusout", handleFocusOut);
     document.addEventListener("keydown", handleKeyDown, true);
     document.addEventListener("input", handleInput, true);
 
     return () => {
-      document.removeEventListener("focusin", handleFocusIn);
       document.removeEventListener("focusout", handleFocusOut);
       document.removeEventListener("keydown", handleKeyDown, true);
       document.removeEventListener("input", handleInput, true);
       if (prefetchTimerRef.current) clearTimeout(prefetchTimerRef.current);
-      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     };
   }, [isEnabled, toggleTyping, suggestionState, applyCandidate]);
 
   return (
     <>
-      {/* 1. Floating Candidate Suggestions Popover (Appears right under active input when typing) */}
+      {/* Floating Candidate Suggestions Popover (under active input when typing) */}
       {suggestionState.visible && suggestionState.candidates.length > 0 && (
         <div
           style={{
@@ -344,60 +318,6 @@ export const TeluguTypingWidget: React.FC = () => {
           >
             [En: {suggestionState.word}]
           </button>
-        </div>
-      )}
-
-      {/* 2. Floating Language Switcher Pill (Always visible, docked gracefully at bottom left) */}
-      <div className="fixed bottom-16 sm:bottom-6 left-3 sm:left-6 z-40 flex flex-col items-start gap-1.5 pointer-events-auto">
-        {/* Subtle Input Tip (shown when user focuses any form/search input) */}
-        {isInputFocused && isEnabled && (
-          <div className="bg-amber-500/95 dark:bg-amber-600/95 text-white text-[10px] sm:text-[11px] font-extrabold px-2.5 py-1 rounded-full shadow-lg backdrop-blur-xs animate-in slide-in-from-bottom-2 fade-in duration-200 flex items-center gap-1.5 border border-amber-300/40">
-            <span>💡 టైప్ చేయండి:</span>
-            <span className="bg-black/20 px-1 py-0.5 rounded font-mono">mla</span>
-            <span>&rarr;</span>
-            <span className="bg-white text-orange-950 px-1 py-0.5 rounded font-black">ఎమ్మెల్యే</span>
-            <span className="opacity-70">|</span>
-            <span className="bg-black/20 px-1 py-0.5 rounded font-mono">mp</span>
-            <span>&rarr;</span>
-            <span className="bg-white text-orange-950 px-1 py-0.5 rounded font-black">ఎంపీ</span>
-          </div>
-        )}
-
-        {/* The Toggle Button */}
-        <button
-          type="button"
-          onClick={toggleTyping}
-          className={`flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-full shadow-lg border transition-all duration-200 active:scale-95 cursor-pointer backdrop-blur-md select-none ${
-            isEnabled
-              ? "bg-gradient-to-r from-orange-600 via-amber-500 to-orange-600 text-white border-amber-300/60 ring-2 ring-orange-400/40 shadow-orange-500/30 font-black text-xs"
-              : "bg-slate-800/90 text-slate-300 border-slate-700 hover:bg-slate-750 font-bold text-xs"
-          }`}
-          title="తెలుగు టైపింగ్ ఆన్/ఆఫ్ (Ctrl + G)"
-          aria-label="Toggle Telugu Typing"
-        >
-          <Keyboard className={`size-3.5 sm:size-4 ${isEnabled ? "text-white animate-pulse" : "text-slate-400"}`} />
-          <div className="flex items-center gap-1">
-            <span className="leading-none">
-              {isEnabled ? "తెలుగు టైపింగ్" : "English Typing"}
-            </span>
-            <span
-              className={`text-[9px] px-1.5 py-0.5 rounded-full font-black ${
-                isEnabled
-                  ? "bg-white text-orange-900 shadow-xs"
-                  : "bg-slate-700 text-slate-300"
-              }`}
-            >
-              {isEnabled ? "ఆన్" : "Off"}
-            </span>
-          </div>
-        </button>
-      </div>
-
-      {/* 3. Toast Alert on Language Toggle */}
-      {toastMessage && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 text-white border border-amber-400/60 px-4 py-2 rounded-2xl shadow-2xl text-xs font-black flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-200">
-          <Keyboard className="size-4 text-amber-400" />
-          <span>{toastMessage}</span>
         </div>
       )}
     </>

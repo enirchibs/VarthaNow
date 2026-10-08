@@ -10,7 +10,10 @@ export type NewsCategory =
   | "politics"
   | "health"
   | "business"
-  | "devotional";
+  | "devotional"
+  | "national"
+  | "education"
+  | "daily-share";
 
 export type BlogPost = {
   id?: string;
@@ -23,6 +26,8 @@ export type BlogPost = {
   meta_title: string;
   meta_description: string;
   og_image: string | null;
+  /** Optional video URL (mp4 / YouTube). Play button only shows when set. */
+  video_url?: string | null;
   author_name: string;
   source_logo?: string | null;
   language: "te" | "en" | "hi" | "ta" | "kn";

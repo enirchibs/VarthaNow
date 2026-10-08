@@ -158,7 +158,7 @@ const basePosts: BlogPost[] = [
     tags: ["AP News", "Welfare", "Telugu News"],
     meta_title: "ఏపీ కొత్త సంక్షేమ పథకం 2026 - పూర్తి వివరాలు",
     meta_description: "ఏపీ ప్రభుత్వ కొత్త సంక్షేమ పథకం వివరాలు, అర్హత, దరఖాస్తు విధానం, తాజా తెలుగు వార్తలు.",
-    og_image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80",
+    og_image: "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=1200&q=80",
     author_name: "VaartaNow AI Desk",
     language: "te",
     published: true,
@@ -176,7 +176,7 @@ const basePosts: BlogPost[] = [
     tags: ["Vizag", "Real Estate", "Local News"],
     meta_title: "విశాఖ రియల్ ఎస్టేట్ తాజా ట్రెండ్స్",
     meta_description: "విశాఖలో రియల్ ఎస్టేట్ డిమాండ్, కొత్త ప్రాజెక్టులు, ప్రాంతాల వారీ తాజా సమాచారం.",
-    og_image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
+    og_image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
     author_name: "VaartaNow Local Desk",
     language: "te",
     published: true,
@@ -283,7 +283,7 @@ const basePosts: BlogPost[] = [
     tags: ["Vijayawada", "Amaravati", "AP Capital", "Highways"],
     meta_title: "విజయవాడ అమరావతి గ్రీన్ ఎక్స్‌ప్రెస్‌వే వివరాలు",
     meta_description: "విజయవాడ నుండి అమరావతి వరకు 6 లేన్ రహదారి నిర్మాణం మరియు అభివృద్ధి పనుల వివరాలు.",
-    og_image: "https://images.unsplash.com/photo-1519817650390-64a93db51149?auto=format&fit=crop&w=1200&q=80",
+    og_image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=1200&q=80",
     author_name: "VaartaNow AP Desk",
     language: "te",
     published: true,
@@ -412,22 +412,26 @@ const basePosts: BlogPost[] = [
   }
 ];
 
-const mockImages: Record<NewsCategory, string> = {
+/** Category-matched cover images (used when a story has no specific photo). */
+export const categoryCoverImages: Record<NewsCategory, string> = {
   viralshorts: "https://images.unsplash.com/photo-1598257006458-087169a1f08d?auto=format&fit=crop&w=1200&q=80",
-  "andhra-pradesh": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80",
-  "telangana": "https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=80",
+  "andhra-pradesh": "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=1200&q=80",
+  telangana: "https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=1200&q=80",
   cinema: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=1200&q=80",
-  vizag: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
-  technology: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
+  vizag: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+  technology: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80",
   jobs: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=1200&q=80",
   cricket: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?auto=format&fit=crop&w=1200&q=80",
-  politics: "https://images.unsplash.com/photo-1540910419892-4a36d2c3266c?auto=format&fit=crop&w=1200&q=80",
+  politics: "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=1200&q=80",
   health: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=1200&q=80",
   business: "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=1200&q=80",
-  devotional: "https://images.unsplash.com/photo-1608976328267-e673d3ec06ce?auto=format&fit=crop&w=1200&q=80"
+  devotional: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80",
+  national: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=1200&q=80",
+  education: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1200&q=80",
+  "daily-share": "https://images.unsplash.com/photo-1611162617474-5b21e764f988?auto=format&fit=crop&w=1200&q=80",
 };
 
-const templates: Record<Language, Record<NewsCategory, { title: string; excerpt: string; content: string; tags: string[] }>> = {
+const templates: Record<Language, Partial<Record<NewsCategory, { title: string; excerpt: string; content: string; tags: string[] }>>> = {
   te: {
     viralshorts: {
       title: "ట్రెండింగ్ వైరల్ షార్ట్స్ వార్తలు",
@@ -822,6 +826,7 @@ langList.forEach((lang) => {
     const exists = basePosts.some((p) => p.category === cat && p.language === lang);
     if (!exists) {
       const template = templates[lang][cat];
+      if (!template) return;
       generatedPosts.push({
         slug: `${cat}-news-${lang}`,
         title: template.title,
@@ -831,7 +836,7 @@ langList.forEach((lang) => {
         tags: template.tags,
         meta_title: template.title,
         meta_description: template.excerpt,
-        og_image: mockImages[cat],
+        og_image: categoryCoverImages[cat],
         author_name: "VaartaNow AI Editor",
         language: lang,
         published: true,

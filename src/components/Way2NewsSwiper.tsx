@@ -12,6 +12,7 @@ import {
   ThumbsUp,
 } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { categoryCoverImages } from "@/lib/demo-data";
 import { markArticleAsRead } from "@/lib/read-tracker";
 import { stripFAQ, timeAgo } from "@/lib/format";
 import type { BlogPost } from "@/types/news";
@@ -198,116 +199,135 @@ function NewsSwipeCard({
   const avatar = publisherAvatar(post);
   const body = shortNewsFlipBody(post);
   const shortCode = post.slug.slice(0, 8);
+  const hasVideo = Boolean(post.video_url?.trim());
 
   return (
     <section
       data-swipe-index={index}
-      className="relative mx-auto flex h-[100dvh] w-full max-w-[480px] shrink-0 snap-start snap-always flex-col overflow-hidden bg-white"
+      className="relative mx-auto flex h-screen w-full max-w-[480px] shrink-0 snap-start snap-always flex-col overflow-hidden bg-white supports-[height:100svh]:h-[100svh]"
     >
-      {/* Media */}
-      <div className="relative h-[38%] min-h-[200px] w-full shrink-0 overflow-hidden bg-slate-900">
-        {post.og_image ? (
-          <img
-            src={post.og_image}
-            alt={post.title}
-            referrerPolicy="no-referrer"
-            className="size-full object-cover"
-            draggable={false}
-          />
-        ) : (
-          <div className="flex size-full items-center justify-center bg-gradient-to-br from-slate-700 to-slate-900 text-2xl font-black text-white">
-            VaartaNow
-          </div>
-        )}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/35" />
+      {/* Media — shorter on small phones so Telugu title + body stay readable */}
+      <div className="relative h-[32%] min-h-[160px] max-h-[280px] w-full shrink-0 overflow-hidden bg-slate-900 sm:h-[38%] sm:min-h-[200px] sm:max-h-none">
+        <img
+          src={
+            post.og_image ||
+            categoryCoverImages[post.category] ||
+            categoryCoverImages["andhra-pradesh"]
+          }
+          alt={post.title}
+          referrerPolicy="no-referrer"
+          className="size-full object-cover"
+          draggable={false}
+          onError={(e) => {
+            const el = e.currentTarget;
+            const fallback =
+              categoryCoverImages[post.category] || categoryCoverImages["andhra-pradesh"];
+            if (el.src !== fallback) el.src = fallback;
+          }}
+        />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-black/40" />
 
         {showBack && (
           <button
             onClick={onClose}
-            className="absolute left-3 top-3 z-20 flex size-9 items-center justify-center rounded-full bg-black/45 text-white backdrop-blur-md active:scale-95"
+            className="absolute left-3 z-20 flex size-10 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-md active:scale-95"
+            style={{ top: "max(0.75rem, env(safe-area-inset-top))" }}
             aria-label="Back"
           >
             <ArrowLeft className="size-5" />
           </button>
         )}
 
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="flex size-14 items-center justify-center rounded-full bg-black/35 ring-2 ring-white/70 backdrop-blur-sm">
-            <Play className="ml-0.5 size-7 fill-white text-white" />
-          </div>
-        </div>
+        {hasVideo && (
+          <button
+            type="button"
+            onClick={() => {
+              const url = post.video_url!.trim();
+              window.open(url, "_blank", "noopener,noreferrer");
+            }}
+            className="absolute inset-0 z-[5] flex items-center justify-center"
+            aria-label={lang === "te" ? "వీడియో ప్లే చేయండి" : "Play video"}
+          >
+            <span className="flex size-14 items-center justify-center rounded-full bg-black/45 ring-2 ring-white/70 backdrop-blur-sm active:scale-95">
+              <Play className="ml-0.5 size-7 fill-white text-white" />
+            </span>
+          </button>
+        )}
 
-        <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-2 p-3">
-          <div className="flex min-w-0 items-center gap-2">
+        <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-2 p-3 sm:p-3.5">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
             {avatar ? (
               <img
                 src={avatar}
                 alt=""
-                className="size-10 shrink-0 rounded-full border-2 border-white object-cover shadow"
+                className="size-9 shrink-0 rounded-full border-2 border-white object-cover shadow sm:size-10"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).style.display = "none";
                 }}
               />
             ) : (
-              <span className="grid size-10 shrink-0 place-items-center rounded-full border-2 border-white bg-red-600 text-sm font-black text-white shadow">
+              <span className="grid size-9 shrink-0 place-items-center rounded-full border-2 border-white bg-red-600 text-sm font-black text-white shadow sm:size-10">
                 {(post.author_name || "V").charAt(0)}
               </span>
             )}
             <div className="min-w-0">
-              <p className="truncate text-sm font-black text-white drop-shadow">
+              <p className="truncate text-[13px] font-black text-white drop-shadow sm:text-sm">
                 {post.author_name || "VaartaNow"}
               </p>
-              <p className="truncate text-[11px] font-semibold text-white/85">
+              <p className="truncate text-[10px] font-semibold text-white/90 sm:text-[11px]">
                 {lang === "te" ? "రిపోర్టర్ · VaartaNow" : "Reporter · VaartaNow"}
               </p>
             </div>
           </div>
-          <div className="flex max-w-[46%] flex-col items-end gap-1">
-            <span className="rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-bold text-white backdrop-blur-sm">
+          <div className="flex max-w-[42%] shrink-0 flex-col items-end gap-1">
+            <span className="max-w-full truncate rounded-full bg-black/55 px-2 py-1 text-[9px] font-bold text-white backdrop-blur-sm sm:px-2.5 sm:text-[10px]">
               vn.now/{shortCode}
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-black/45 px-2 py-0.5 text-[10px] font-semibold text-white/90">
-              <MapPin className="size-3" />
-              {lang === "te" ? "తెలుగు న్యూస్" : "Telugu News"}
+            <span className="inline-flex max-w-full items-center gap-1 truncate rounded-full bg-black/45 px-2 py-0.5 text-[9px] font-semibold text-white/95 sm:text-[10px]">
+              <MapPin className="size-3 shrink-0" />
+              <span className="truncate">{lang === "te" ? "తెలుగు న్యూస్" : "Telugu News"}</span>
             </span>
           </div>
         </div>
       </div>
 
-      {/* Story text — short news flip (~70–80 words) */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-2 pt-4">
-        <h1 className="text-[1.15rem] font-black leading-snug tracking-tight text-[#1f2937] sm:text-[1.35rem]">
+      {/* Story text — readable Telugu on phone; no nested scroll so swipe works */}
+      <div className="min-h-0 flex-1 overflow-hidden px-4 pb-3 pt-3.5 sm:px-5 sm:pt-4">
+        <h1 className="text-[1.2rem] font-black leading-[1.35] tracking-tight text-[#111827] sm:text-[1.35rem]">
           {post.title}
         </h1>
-        <p className="mt-3 text-[0.98rem] font-medium leading-[1.75] text-[#334155] sm:text-[1.05rem]">
+        <p className="mt-2.5 text-[1.02rem] font-medium leading-[1.7] text-[#1e293b] sm:mt-3 sm:text-[1.08rem] sm:leading-[1.75]">
           {body || post.excerpt}
         </p>
       </div>
 
-      {/* Actions */}
-      <div className="shrink-0 border-t border-slate-200 bg-white px-3 pb-[max(0.45rem,env(safe-area-inset-bottom))] pt-2">
-        <div className="mb-2 flex items-center justify-between text-[11px] font-semibold text-slate-500">
+      {/* Actions — clear tap targets + home-indicator safe area */}
+      <div
+        className="shrink-0 border-t border-slate-200 bg-white px-3 pt-2"
+        style={{ paddingBottom: "max(0.65rem, env(safe-area-inset-bottom))" }}
+      >
+        <div className="mb-2 flex items-center justify-between text-[11px] font-semibold text-slate-500 sm:text-xs">
           <span className="inline-flex items-center gap-1.5">
             <Clock className="size-3.5" />
             {formatClock(post.published_at)}
           </span>
-          <span>
-            {index + 1} of {total} Pages
+          <span className="tabular-nums">
+            {index + 1} / {total}
           </span>
         </div>
 
         <div className="flex items-center justify-between gap-1">
-          <div className="flex items-center gap-4 pl-1 text-slate-600">
+          <div className="flex items-center gap-3 pl-0.5 text-slate-600 sm:gap-4 sm:pl-1">
             <button
               onClick={toggleLike}
-              className={`flex flex-col items-center gap-0.5 active:scale-95 ${liked ? "text-blue-600" : ""}`}
+              className={`flex min-w-[40px] flex-col items-center gap-0.5 py-1 active:scale-95 ${liked ? "text-blue-600" : ""}`}
             >
               <ThumbsUp className={`size-5 ${liked ? "fill-current" : ""}`} />
               <span className="text-[11px] font-bold">{likeCount}</span>
             </button>
             <button
               onClick={toggleDislike}
-              className={`flex flex-col items-center gap-0.5 active:scale-95 ${disliked ? "text-rose-600" : ""}`}
+              className={`flex min-w-[40px] flex-col items-center gap-0.5 py-1 active:scale-95 ${disliked ? "text-rose-600" : ""}`}
             >
               <ThumbsDown className={`size-5 ${disliked ? "fill-current" : ""}`} />
               <span className="text-[11px] font-bold">{dislikeCount}</span>
@@ -316,7 +336,7 @@ function NewsSwipeCard({
 
           <button
             onClick={shareWhatsApp}
-            className="flex -translate-y-1 flex-col items-center gap-0.5 active:scale-95"
+            className="flex -translate-y-0.5 flex-col items-center gap-0.5 active:scale-95"
             aria-label="Share on WhatsApp"
           >
             <span className="grid size-12 place-items-center rounded-full bg-[#25D366] text-white shadow-[0_6px_16px_rgba(37,211,102,0.45)] ring-4 ring-white">
@@ -325,15 +345,19 @@ function NewsSwipeCard({
             <span className="text-[10px] font-black tracking-wide text-slate-700">SHARE</span>
           </button>
 
-          <div className="flex items-center gap-4 pr-1 text-slate-600">
-            <button className="flex flex-col items-center gap-0.5 active:scale-95" aria-label="Comments">
+          <div className="flex items-center gap-3 pr-0.5 text-slate-600 sm:gap-4 sm:pr-1">
+            <button className="flex min-w-[40px] flex-col items-center gap-0.5 py-1 active:scale-95" aria-label="Comments">
               <MessageSquare className="size-5" />
               <span className="text-[11px] font-bold">{commentCount}</span>
             </button>
-            <button className="active:scale-95" aria-label="More">
+            <button className="flex size-10 items-center justify-center active:scale-95" aria-label="More">
               <MoreVertical className="size-5" />
             </button>
-            <button onClick={shareNative} className="active:scale-95" aria-label="Share">
+            <button
+              onClick={shareNative}
+              className="flex size-10 items-center justify-center active:scale-95"
+              aria-label="Share"
+            >
               <Share2 className="size-5" />
             </button>
           </div>
@@ -351,7 +375,9 @@ export function Way2NewsSwiper({
 }: Way2NewsSwiperProps) {
   const { lang } = useLanguage();
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const lastReportedSlug = useRef<string>("");
+  const lastReportedSlug = useRef<string>(initialSlug || "");
+  // Block URL sync until we have scrolled to the clicked article
+  const trackingReadyRef = useRef(false);
   const startIndex = useMemo(() => {
     if (!initialSlug) return 0;
     const idx = posts.findIndex((p) => p.slug === initialSlug);
@@ -369,24 +395,52 @@ export function Way2NewsSwiper({
     };
   }, []);
 
-  // Jump to starting card once
+  // Jump to the clicked article before the observer can rewrite the URL
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el || posts.length === 0) return;
-    const target = el.querySelector<HTMLElement>(`[data-swipe-index="${startIndex}"]`);
-    if (target) {
-      el.scrollTo({ top: target.offsetTop, behavior: "auto" });
-      setActiveIndex(startIndex);
-    }
-  }, [startIndex, posts.length]);
 
-  // Track which card is in view
+    // URL already matches the card the user swiped to — don't re-jump
+    if (trackingReadyRef.current && lastReportedSlug.current === initialSlug) {
+      return;
+    }
+
+    trackingReadyRef.current = false;
+    const openedSlug = posts[startIndex]?.slug || initialSlug || "";
+    lastReportedSlug.current = openedSlug;
+    setActiveIndex(startIndex);
+
+    const jumpToStart = () => {
+      const target = el.querySelector<HTMLElement>(`[data-swipe-index="${startIndex}"]`);
+      if (target) {
+        el.scrollTo({ top: target.offsetTop, behavior: "auto" });
+      }
+    };
+
+    jumpToStart();
+
+    // Wait for layout + IntersectionObserver to settle on the correct card
+    let cancelled = false;
+    const readyTimer = window.setTimeout(() => {
+      if (cancelled) return;
+      jumpToStart();
+      trackingReadyRef.current = true;
+    }, 120);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(readyTimer);
+    };
+  }, [startIndex, posts, initialSlug]);
+
+  // Track which card is in view (only after initial positioning)
   useEffect(() => {
     const root = scrollerRef.current;
     if (!root) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
+        if (!trackingReadyRef.current) return;
         const visible = entries
           .filter((e) => e.isIntersecting && e.intersectionRatio >= 0.55)
           .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
@@ -447,7 +501,7 @@ export function Way2NewsSwiper({
     <div className="fixed inset-0 z-[80] bg-[#0f172a]">
       <div
         ref={scrollerRef}
-        className="h-[100dvh] w-full snap-y snap-mandatory overflow-y-auto overscroll-y-contain scroll-smooth"
+        className="h-screen w-full touch-pan-y snap-y snap-mandatory overflow-y-auto overscroll-y-contain scroll-smooth supports-[height:100svh]:h-[100svh]"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
         {posts.map((post, index) => (
@@ -464,16 +518,22 @@ export function Way2NewsSwiper({
         ))}
       </div>
 
-      {/* Swipe hint */}
+      {/* Tap or swipe to open the next article — sits above action bar on phones */}
       {activeIndex < posts.length - 1 && (
-        <div className="pointer-events-none absolute bottom-24 left-1/2 z-30 -translate-x-1/2 animate-bounce text-white/70 sm:bottom-28">
-          <div className="flex flex-col items-center gap-0.5 rounded-full bg-black/35 px-3 py-1.5 backdrop-blur-md">
+        <button
+          type="button"
+          onClick={() => scrollToIndex(activeIndex + 1)}
+          className="absolute left-1/2 z-30 -translate-x-1/2 text-white"
+          style={{ bottom: "max(5.5rem, calc(4.75rem + env(safe-area-inset-bottom)))" }}
+          aria-label={lang === "te" ? "తర్వాతి వార్త" : "Next article"}
+        >
+          <div className="flex animate-bounce flex-col items-center gap-0.5 rounded-full bg-black/55 px-3.5 py-2 shadow-lg backdrop-blur-md active:scale-95">
             <ChevronDown className="size-4" />
-            <span className="text-[9px] font-black uppercase tracking-wider">
+            <span className="text-[10px] font-black uppercase tracking-wider">
               {lang === "te" ? "స్వైప్" : "Swipe"}
             </span>
           </div>
-        </div>
+        </button>
       )}
     </div>
   );
@@ -496,6 +556,7 @@ export function saveSwipeFeed(posts: BlogPost[], startSlug: string) {
           meta_title: p.meta_title,
           meta_description: p.meta_description,
           og_image: p.og_image,
+          video_url: p.video_url,
           author_name: p.author_name,
           source_logo: p.source_logo,
           language: p.language,

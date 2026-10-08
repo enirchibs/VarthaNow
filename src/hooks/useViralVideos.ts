@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useBookmarks } from "@/hooks/useBookmarks";
-import { getShortVideos, generateDailyViralShorts } from "@/lib/shorts-api";
+import {
+  getShortVideos,
+  generateDailyViralShorts,
+  getYoutubeVideoId,
+  isPlayableYoutubeUrl,
+} from "@/lib/shorts-api";
 
 export interface ViralVideo {
   id: string;
@@ -39,7 +44,26 @@ export function useViralVideos(limit = 10) {
               .limit(50);
 
             if (!error && data && data.length > 0) {
-              fetchedVideos = data as ViralVideo[];
+              // Keep only playable YouTube ids or real MP4 clips (skip fake /shorts/slug links)
+              const playable = (data as ViralVideo[])
+                .map((v) => {
+                  const url = v.video_url || "";
+                  const ytId = getYoutubeVideoId(url);
+                  const playUrl = isPlayableYoutubeUrl(url)
+                    ? url
+                    : v.clip && /^https?:\/\//i.test(v.clip)
+                      ? v.clip
+                      : "";
+                  return {
+                    ...v,
+                    video_url: playUrl,
+                    thumbnail_url:
+                      v.thumbnail_url ||
+                      (ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : v.thumbnail_url),
+                  };
+                })
+                .filter((v) => Boolean(v.video_url));
+              if (playable.length > 0) fetchedVideos = playable;
             }
           } catch (e) {
             console.warn("Supabase viral_videos query failed, using daily catalog fallback:", e);

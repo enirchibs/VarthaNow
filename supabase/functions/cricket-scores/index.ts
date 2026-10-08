@@ -40,6 +40,65 @@ function mapType(format?: string, series?: string) {
   return "regular";
 }
 
+const FLAG: Record<string, string> = {
+  IND: "🇮🇳",
+  WI: "🇧🇧",
+  AUS: "🇦🇺",
+  ENG: "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+  PAK: "🇵🇰",
+  SL: "🇱🇰",
+  BAN: "🇧🇩",
+  NZ: "🇳🇿",
+  SA: "🇿🇦",
+  AFG: "🇦🇫",
+  IRE: "🇮🇪",
+  ZIM: "🇿🇼",
+  NED: "🇳🇱",
+  SCO: "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+  UAE: "🇦🇪",
+  USA: "🇺🇸",
+  RCB: "🔴",
+  GT: "🔵",
+  CSK: "🟡",
+  MI: "💙",
+  KKR: "🟣",
+  SRH: "🟠",
+  RR: "🩷",
+  DC: "🔷",
+  PBKS: "❤️",
+  LSG: "🩵",
+};
+
+function resolveTeam(shortName?: string, fullName?: string) {
+  const cleanedFull = String(fullName || shortName || "")
+    .replace(/\bChampions?\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  let code = String(shortName || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g, "");
+  if (code.length >= 4 && code.endsWith("CH") && code !== "CSK") {
+    code = code.slice(0, -2);
+  }
+  const lower = cleanedFull.toLowerCase();
+  if (!FLAG[code]) {
+    if (lower.includes("west ind")) code = "WI";
+    else if (lower.includes("england")) code = "ENG";
+    else if (lower.includes("india")) code = "IND";
+    else if (lower.includes("australia")) code = "AUS";
+    else if (lower.includes("pakistan")) code = "PAK";
+    else if (lower.includes("sri lanka")) code = "SL";
+    else if (lower.includes("bangladesh")) code = "BAN";
+    else if (lower.includes("new zealand")) code = "NZ";
+    else if (lower.includes("south africa")) code = "SA";
+  }
+  return {
+    name: code || cleanedFull || "TBD",
+    fullName: cleanedFull || code || "TBD",
+    logo: FLAG[code] || "🏏",
+  };
+}
+
 function normalize(payload: any) {
   const rows = Array.isArray(payload?.matches) ? payload.matches : [];
   return rows
@@ -47,8 +106,8 @@ function normalize(payload: any) {
       const info = row?.match?.matchInfo;
       if (!info?.matchId) return null;
       const status = mapStatus(info.state, info.status);
-      const t1 = info.team1?.teamSName || info.team1?.teamName || "T1";
-      const t2 = info.team2?.teamSName || info.team2?.teamName || "T2";
+      const t1 = resolveTeam(info.team1?.teamSName, info.team1?.teamName);
+      const t2 = resolveTeam(info.team2?.teamSName, info.team2?.teamName);
       const t1Score = formatInnings(row?.match?.matchScore?.team1Score);
       const t2Score = formatInnings(row?.match?.matchScore?.team2Score);
       const startMs = info.startDate ? Number(info.startDate) : undefined;
@@ -73,16 +132,16 @@ function normalize(payload: any) {
         series: info.seriesName || "Cricket",
         matchDesc: info.matchDesc || info.matchFormat || "",
         team1: {
-          name: t1,
-          fullName: info.team1?.teamName || t1,
-          logo: (t1 || "?").charAt(0),
+          name: t1.name,
+          fullName: t1.fullName,
+          logo: t1.logo,
           score: t1Score.score,
           overs: t1Score.overs,
         },
         team2: {
-          name: t2,
-          fullName: info.team2?.teamName || t2,
-          logo: (t2 || "?").charAt(0),
+          name: t2.name,
+          fullName: t2.fullName,
+          logo: t2.logo,
           score: t2Score.score,
           overs: t2Score.overs,
         },

@@ -27,7 +27,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     rssQuery: "viral news shorts trending video clips"
   },
   {
-    slug: "daily-share" as any,
+    slug: "daily-share",
     label: {
       te: "వాట్సాప్ స్టేటస్ ఫోటో",
       en: "WhatsApp Status Photo",
@@ -135,7 +135,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     rssQuery: "stock market sensex gold silver investment"
   },
   {
-    slug: "national" as any,
+    slug: "national",
     label: {
       te: "జాతీయ వార్తలు",
       en: "National News",
@@ -147,7 +147,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     rssQuery: "national news india"
   },
   {
-    slug: "vizag" as any,
+    slug: "vizag",
     label: {
       te: "విశాఖ",
       en: "Visakhapatnam",
@@ -159,7 +159,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     rssQuery: "visakhapatnam vizag"
   },
   {
-    slug: "jobs" as any,
+    slug: "jobs",
     label: {
       te: "స్థానిక ఉద్యోగాలు",
       en: "Local Jobs",
@@ -171,7 +171,7 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     rssQuery: "jobs recruitment notification"
   },
   {
-    slug: "education" as any,
+    slug: "education",
     label: {
       te: "విద్య",
       en: "Education",
@@ -279,9 +279,9 @@ export function detectCategoryFromTitleAndContent(post: {
     return "cinema";
   }
 
-  // 3. Technology / Gadgets / Google / Apps / Online Devices
+  // 3. Technology / Gadgets
   if (
-    /technology|tech|gadgets|tv device|టీవీ డివైజ్|ఆన్‌లైన్|స్మార్ట్‌ఫోన్|గూగుల్|యాప్|సాంకేతికత|ఆండ్రాయిడ్|ఐఫోన్|వాట్సాప్|ఫేస్‌బుక్|AI|ఆర్డర్|పార్శిల్|అమజాన్|ఫ్లిప్‌కార్ట్|చిప్‌సెట్|సాఫ్ట్‌వేర్/i.test(
+    /technology|tech|gadgets|టీవీ డివైజ్|ఆన్‌లైన్|స్మార్ట్‌ఫోన్|గూగుల్|యాప్|సాంకేతికత|ఆండ్రాయిడ్|ఐఫోన్|వాట్సాప్|ఫేస్‌బుక్|ఆర్డర్|పార్శిల్|అమజాన్|ఫ్లిప్‌కార్ట్|చిప్‌సెట్|సాఫ్ట్‌వేర్/i.test(
       text
     )
   ) {
@@ -306,29 +306,29 @@ export function detectCategoryFromTitleAndContent(post: {
     return "politics";
   }
 
-  // 6. Vizag
+  // 6. Devotional / Astrology
+  if (/devotional|temple|puja|bhakti|astrology|తిరుమల|శ్రీవారి|స్వామి|దేవాలయం|పూజ|వ్రతం|ఏకాదశి|పంచాంగం|రాశి ఫలాలు|భక్తి/i.test(text)) {
+    return "devotional";
+  }
+
+  // 7. Vizag
   if (/vizag|visakhapatnam|విశాఖ|విశాఖపట్నం|గాజువాక|మధురవాడ|రుషికొండ/i.test(text)) {
     return "vizag";
   }
 
-  // 7. Telangana
+  // 8. Telangana
   if (/telangana|hyderabad|తెలంగాణ|హైదరాబాద్|సికింద్రాబాద్|వరంగల్|ఖమ్మం|నల్గొండ|కరీంనగర్/i.test(text)) {
     return "telangana";
   }
 
-  // 8. Andhra Pradesh
+  // 9. Andhra Pradesh
   if (/andhra|amravati|vijayawada|ఆంధ్రప్రదేశ్|అమరావతి|విజయవాడ|గుంటూరు|తిరుపతి|కర్నూలు|నెల్లూరు|ఏపీ/i.test(text)) {
     return "andhra-pradesh";
   }
 
-  // 9. Health
+  // 10. Health
   if (/health|doctor|hospital|disease|ఆరోగ్యం|బిపి|షుగర్|డాక్టర్|మందులు|హాస్పిటల్|వ్యాధి|కరోనా|డయాబెటిస్|ఒత్తిడి/i.test(text)) {
     return "health";
-  }
-
-  // 10. Devotional / Astrology
-  if (/devotional|temple|puja|bhakti|astrology|తిరుమల|శ్రీవారి|స్వామి|దేవాలయం|పూజ|వ్రతం|ఏకాదశి|పంచాంగం|రాశి ఫలాలు|భక్తి/i.test(text)) {
-    return "devotional";
   }
 
   // 11. Jobs
@@ -342,6 +342,102 @@ export function detectCategoryFromTitleAndContent(post: {
   }
 
   return "national" as NewsCategory;
+}
+
+/** Map URL / user-facing aliases → canonical NewsCategory slug */
+const CATEGORY_CANONICAL: Record<string, NewsCategory> = {
+  sports: "cricket",
+  sport: "cricket",
+  cricket: "cricket",
+  entertainment: "cinema",
+  movies: "cinema",
+  movie: "cinema",
+  cinema: "cinema",
+  tech: "technology",
+  technology: "technology",
+  gadgets: "technology",
+  world: "national",
+  india: "national",
+  national: "national",
+  jathakam: "devotional",
+  astrology: "devotional",
+  bhakti: "devotional",
+  spiritual: "devotional",
+  "whatsapp-status": "daily-share",
+  "daily-share": "daily-share",
+};
+
+/**
+ * Canonical category for routing / filtering.
+ * e.g. "sports" → "cricket", "entertainment" → "cinema"
+ */
+export function canonicalizeCategory(slug: string | undefined | null): NewsCategory | "all" {
+  if (!slug || slug === "all") return "all";
+  const key = slug.trim().toLowerCase();
+  if (CATEGORY_CANONICAL[key]) return CATEGORY_CANONICAL[key];
+  return key as NewsCategory;
+}
+
+/**
+ * All DB / post.category values that belong under a nav category.
+ * Used with Supabase `.in()` and client-side filters.
+ */
+export function expandCategorySlugs(slug: string | undefined | null): string[] {
+  const canonical = canonicalizeCategory(slug);
+  if (canonical === "all") return [];
+
+  const groups: Record<string, string[]> = {
+    cricket: ["cricket", "sports", "sport"],
+    cinema: ["cinema", "entertainment", "movies", "movie"],
+    technology: ["technology", "tech", "gadgets"],
+    national: ["national", "world", "india"],
+    devotional: ["devotional", "jathakam", "astrology", "bhakti", "spiritual"],
+    "daily-share": ["daily-share", "whatsapp-status"],
+    politics: ["politics"],
+    business: ["business"],
+    health: ["health"],
+    jobs: ["jobs"],
+    education: ["education"],
+    "andhra-pradesh": ["andhra-pradesh"],
+    telangana: ["telangana"],
+    vizag: ["vizag", "visakhapatnam"],
+    viralshorts: ["viralshorts"],
+  };
+
+  return groups[canonical] ?? [canonical];
+}
+
+/** Unassigned tags only — content detection may place these. Specific tags (incl. national) stay put. */
+const GENERIC_STORED_CATEGORIES = new Set(["", "all", "general", "news", "misc", "other"]);
+
+/** True when a post belongs to the selected category (stored slug first; content only for generic tags). */
+export function postMatchesCategory(
+  post: { category?: string; title?: string; excerpt?: string; content?: string },
+  categorySlug: string | undefined | null
+): boolean {
+  const canonical = canonicalizeCategory(categorySlug);
+  if (canonical === "all") return true;
+
+  const allowed = new Set(expandCategorySlugs(canonical).map((s) => s.toLowerCase()));
+  const stored = (post.category || "").toLowerCase().trim();
+
+  // Authoritative: respect the post's stored category (and aliases).
+  // Never pull cinema/politics/etc. into another feed via keyword guesses.
+  if (stored && allowed.has(stored)) return true;
+  if (stored && !GENERIC_STORED_CATEGORIES.has(stored)) return false;
+
+  // Only for missing/generic tags: place by content keywords
+  try {
+    const detected = detectCategoryFromTitleAndContent({
+      title: post.title || "",
+      excerpt: post.excerpt,
+      content: post.content,
+      category: post.category,
+    });
+    return allowed.has(detected.toLowerCase()) || detected === canonical;
+  } catch {
+    return false;
+  }
 }
 
 export const trendingSearches: Record<Language, string[]> = {

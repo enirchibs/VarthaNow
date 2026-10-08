@@ -43,7 +43,9 @@ export function DailyShareCard({ item, compact = false }: DailyShareCardProps) {
 
   return (
     <>
-      <div className={`group relative overflow-hidden rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] shadow-sm hover:shadow-xl hover:border-red-500/40 transition-all duration-300 flex flex-col justify-between ${
+      <div
+        onClick={() => setIsPersonalizerOpen(true)}
+        className={`group relative overflow-hidden rounded-2xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--card))] shadow-sm hover:shadow-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between cursor-pointer ${
         compact ? "min-w-[240px] max-w-[260px] shrink-0" : "w-full"
       }`}>
         {/* Top Image or Video Preview & Quote Overlay */}
@@ -127,11 +129,14 @@ export function DailyShareCard({ item, compact = false }: DailyShareCardProps) {
           {/* Primary Action Buttons */}
           <div className="flex items-center gap-1.5 pt-1">
             <button
-              onClick={() => setIsPersonalizerOpen(true)}
-              className="flex-1 py-1.5 px-2 rounded-xl bg-gradient-to-r from-red-600 to-amber-600 hover:from-red-700 hover:to-amber-700 text-white font-black text-[10px] sm:text-xs shadow-xs active:scale-95 transition flex items-center justify-center gap-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsPersonalizerOpen(true);
+              }}
+              className="flex-1 py-1.5 px-2 rounded-xl bg-gradient-to-r from-pink-600 to-amber-500 hover:from-pink-700 hover:to-amber-600 text-white font-black text-[10px] sm:text-xs shadow-xs active:scale-95 transition flex items-center justify-center gap-1"
             >
               <Edit3 className="size-3.5" />
-              <span>{lang === "te" ? "మీ పేరు & ఫోటో ✏️" : "Name & Photo ✏️"}</span>
+              <span>{lang === "te" ? "షేర్ టెంప్లేట్ ✏️" : "Open Template ✏️"}</span>
             </button>
 
             <button

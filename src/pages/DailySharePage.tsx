@@ -1,10 +1,12 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Sparkles, Search, Flame, Heart, Share2, Download, UserCheck, Plus, Filter, Building2, BookOpen } from "lucide-react";
+import { Search, UserCheck, Building2 } from "lucide-react";
 import { DAILY_SHARE_CATEGORIES, getDailyShareItems, getUserCreations } from "@/lib/daily-share-api";
 import { DailyShareCard } from "@/components/DailyShareCard";
+import { WhatsAppStatusTemplate } from "@/components/WhatsAppStatusTemplate";
 import { useLanguage } from "@/hooks/useLanguage";
 import { setMeta } from "@/lib/seo";
+import type { DailyShareItem } from "@/types/daily-share";
 
 export function DailySharePage() {
   const { lang } = useLanguage();
@@ -14,72 +16,67 @@ export function DailySharePage() {
   const [activeTab, setActiveTab] = useState<"all" | "my_creations" | "business">("all");
   const [selectedCategory, setSelectedCategory] = useState<string>(categoryParam || "all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [featured, setFeatured] = useState<DailyShareItem | null>(null);
 
   useEffect(() => {
-    if (categoryParam) {
-      setSelectedCategory(categoryParam);
-    }
+    if (categoryParam) setSelectedCategory(categoryParam);
   }, [categoryParam]);
 
   const creations = useMemo(() => getUserCreations(), [activeTab]);
-
-  React.useEffect(() => {
-    setMeta({
-      title: "ఈరోజు షేర్ (Daily Share) | VaartaNow - Personalized Statuses & Quotes",
-      description: "రోజువారీ శుభోదయం, మోటివేషన్, భక్తి మరియు పండుగ శుభాకాంక్షలను మీ పేరు మరియు ఫోటోతో పర్సనలైజ్ చేసుకోండి.",
-      canonical: "/daily-share"
-    });
-  }, []);
 
   const items = useMemo(() => {
     let list = getDailyShareItems(selectedCategory);
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      list = list.filter(i => 
-        i.title.toLowerCase().includes(q) || 
-        (i.quote_te && i.quote_te.toLowerCase().includes(q)) ||
-        i.category.toLowerCase().includes(q)
+      list = list.filter(
+        (i) =>
+          i.title.toLowerCase().includes(q) ||
+          (i.quote_te && i.quote_te.toLowerCase().includes(q)) ||
+          i.category.toLowerCase().includes(q)
       );
     }
     return list;
   }, [selectedCategory, searchQuery]);
 
+  // Keep the WhatsApp status template (Shiva / video) as the featured maker on this page
+  useEffect(() => {
+    const pool = items.length ? items : getDailyShareItems("all");
+    const preferred =
+      pool.find((i) => i.id === "ds-shiva-001") ||
+      pool.find((i) => i.id === "ds-video-gemini-001") ||
+      pool.find((i) => i.personalization_enabled) ||
+      pool[0] ||
+      null;
+    setFeatured(preferred);
+  }, [items]);
+
+  useEffect(() => {
+    setMeta({
+      title: "వాట్సాప్ స్టేటస్ ఫోటో | VaartaNow Daily Share",
+      description: "మీ ఫోటో & పేరుతో WhatsApp status template — upload image/video and share.",
+      canonical: "/daily-share",
+    });
+  }, []);
+
   return (
     <main className="container-shell space-y-4 py-3 pb-20">
-      {/* 🌟 Hero Header Banner */}
-      <section className="rounded-3xl border border-red-500/30 bg-gradient-to-br from-red-600 via-rose-600 to-amber-600 p-5 text-white shadow-xl space-y-3 relative overflow-hidden">
-        <div className="absolute -right-10 -bottom-10 size-48 rounded-full bg-white/10 blur-2xl pointer-events-none" />
-
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 relative z-10">
-          <div className="space-y-1">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/20 text-[10px] font-black uppercase tracking-widest border border-white/30">
-              ✨ ఈరోజు షేర్ • DAILY SHARE
-            </span>
-            <h1 className="text-xl sm:text-2xl font-black leading-tight">
-              {lang === "te" ? "మీ పేరు & ఫోటోతో రోజూ కొత్త వాట్సాప్ స్టేటస్!" : "Personalized Daily WhatsApp Statuses & Quotes"}
+      {/* Featured WhatsApp template — always on this page */}
+      {featured && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2 px-0.5">
+            <h1 className="text-sm sm:text-base font-black text-[hsl(var(--foreground))]">
+              {lang === "te" ? "📱 వాట్సాప్ స్టేటస్ టెంప్లేట్" : "📱 WhatsApp Status Template"}
             </h1>
-            <p className="text-xs font-bold text-red-100 max-w-xl">
-              {lang === "te" 
-                ? "శుభోదయం, మోటివేషన్, ఆధ్యాత్మికం, జోకులు మరియు పండుగ శుభాకాంక్షలను 15 సెకన్లలో పర్సనలైజ్ చేసి షేర్ చేయండి." 
-                : "Create & share high-resolution daily quotes, devotional greetings & business status cards."}
-            </p>
+            <span className="text-[10px] font-black text-pink-600 dark:text-pink-400">
+              {lang === "te" ? "ఫోటో / వీడియో అప్‌లోడ్ చేయండి" : "Upload photo / video"}
+            </span>
           </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => setActiveTab("my_creations")}
-              className="px-4 py-2 rounded-xl bg-white text-red-600 font-black text-xs shadow-md hover:bg-yellow-100 active:scale-95 transition flex items-center gap-1.5"
-            >
-              <UserCheck className="size-4" />
-              <span>{lang === "te" ? "నా కార్డ్స్ (My History)" : "My Creations"}</span>
-            </button>
-          </div>
+          <WhatsAppStatusTemplate key={featured.id} item={featured} />
         </div>
-      </section>
+      )}
 
-      {/* Navigation Tabs & Search Bar */}
+      {/* Tabs */}
       <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 border-b border-[hsl(var(--border))] pb-3">
-        {/* Main Tabs */}
         <div className="flex items-center gap-1.5 border border-amber-500/30 bg-[hsl(var(--muted))]/40 p-1 rounded-xl text-xs font-black">
           <button
             onClick={() => setActiveTab("all")}
@@ -87,7 +84,7 @@ export function DailySharePage() {
               activeTab === "all" ? "bg-red-600 text-white shadow-xs" : "text-[hsl(var(--muted-foreground))]"
             }`}
           >
-            🔥 {lang === "te" ? "ట్రెండింగ్ షేర్స్" : "Trending Shares"}
+            🔥 {lang === "te" ? "ట్రెండింగ్" : "Trending"}
           </button>
           <button
             onClick={() => setActiveTab("my_creations")}
@@ -103,69 +100,110 @@ export function DailySharePage() {
               activeTab === "business" ? "bg-slate-800 text-white shadow-xs" : "text-[hsl(var(--muted-foreground))]"
             }`}
           >
-            💼 {lang === "te" ? "బిజినెస్ మోడ్" : "Business Mode"}
+            💼 {lang === "te" ? "బిజినెస్" : "Business"}
           </button>
         </div>
 
-        {/* Search Bar */}
         <div className="relative flex-1 max-w-sm">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder={lang === "te" ? "సూక్తులు లేదా కాటగిరీ ద్వారా వెతకండి..." : "Search quotes or categories..."}
+            placeholder={lang === "te" ? "సూక్తులు వెతకండి..." : "Search quotes..."}
             className="w-full text-xs font-bold pl-9 pr-3 py-2 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--input))] text-[hsl(var(--foreground))] focus:ring-2 focus:ring-red-500 focus:outline-none"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[hsl(var(--muted-foreground))]" />
         </div>
       </div>
 
-      {/* 30 Configurable Categories Grid Bar */}
+      {/* Category pills */}
       {activeTab === "all" && (
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-          <button
-            onClick={() => setSelectedCategory("all")}
-            className={`px-3 py-1 rounded-full text-xs font-black transition shrink-0 border ${
-              selectedCategory === "all"
-                ? "bg-red-600 text-white border-red-600 shadow-xs"
-                : "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]/70 hover:border-red-500"
-            }`}
-          >
-            ✨ {lang === "te" ? "అన్నీ (All 30 Categories)" : "All Categories"}
-          </button>
-
-          {DAILY_SHARE_CATEGORIES.map((cat) => (
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
             <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.slug)}
-              className={`px-3 py-1 rounded-full text-xs font-black transition shrink-0 border ${
-                selectedCategory === cat.slug
-                  ? "bg-red-600 text-white border-red-600 shadow-xs"
-                  : "bg-[hsl(var(--card))] text-[hsl(var(--foreground))] border-[hsl(var(--border))]/70 hover:border-red-500"
+              onClick={() => setSelectedCategory("all")}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-black transition shrink-0 border ${
+                selectedCategory === "all"
+                  ? "bg-zinc-900 text-white border-zinc-900"
+                  : "bg-zinc-100 text-zinc-800 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:border-zinc-700"
               }`}
             >
-              <span>{cat.emoji} {cat.title_te}</span>
+              ✨ {lang === "te" ? "మీ కోసం" : "For You"}
             </button>
-          ))}
+            {[
+              { slug: "devotional", emoji: "🙏", te: "భక్తి", en: "Bhakti" },
+              { slug: "good-night", emoji: "😴", te: "గుడ్ నైట్", en: "Good Night" },
+              { slug: "good-morning", emoji: "☀️", te: "గుడ్ మార్నింగ్", en: "Good Morning" },
+              { slug: "motivational", emoji: "💪", te: "మోటివేషన్", en: "Motivation" },
+              { slug: "life-quotes", emoji: "🌱", te: "జీవిత సత్యం", en: "Life Truth" },
+              { slug: "trending-telugu", emoji: "🎥", te: "వీడియో", en: "Video" },
+            ].map((cat) => (
+              <button
+                key={cat.slug}
+                onClick={() => {
+                  setSelectedCategory(cat.slug);
+                  const next = getDailyShareItems(cat.slug)[0];
+                  if (next) setFeatured(next);
+                }}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-black transition shrink-0 border ${
+                  selectedCategory === cat.slug
+                    ? "bg-zinc-900 text-white border-zinc-900"
+                    : "bg-zinc-100 text-zinc-800 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-100 dark:border-zinc-700"
+                }`}
+              >
+                {cat.emoji} {lang === "te" ? cat.te : cat.en}
+              </button>
+            ))}
+          </div>
+
+          <details className="text-xs font-black text-[hsl(var(--muted-foreground))]">
+            <summary className="cursor-pointer select-none px-1 py-1 hover:text-red-600">
+              {lang === "te" ? "మరిన్ని కేటగిరీలు ▾" : "More Categories ▾"}
+            </summary>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {DAILY_SHARE_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.slug)}
+                  className={`px-3 py-1 rounded-full text-xs font-black transition border ${
+                    selectedCategory === cat.slug
+                      ? "bg-red-600 text-white border-red-600"
+                      : "bg-[hsl(var(--card))] border-[hsl(var(--border))]/70"
+                  }`}
+                >
+                  {cat.emoji} {cat.title_te}
+                </button>
+              ))}
+            </div>
+          </details>
         </div>
       )}
 
-      {/* Tab Content 1: Main Trending Daily Share Grid */}
       {activeTab === "all" && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {items.map((item) => (
-            <DailyShareCard key={item.id} item={item} />
-          ))}
+        <div className="space-y-3">
+          <h2 className="text-xs font-black uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+            {lang === "te" ? "మరిన్ని టెంప్లేట్లు" : "More templates"}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {items.map((item) => (
+              <DailyShareCard
+                key={item.id}
+                item={item}
+              />
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Tab Content 2: My Creations History */}
       {activeTab === "my_creations" && (
         <div className="space-y-4">
           {creations.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {creations.map((c) => (
-                <div key={c.id} className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-3 space-y-2 shadow-sm">
+                <div
+                  key={c.id}
+                  className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-3 space-y-2 shadow-sm"
+                >
                   <div className="aspect-[9/16] rounded-xl overflow-hidden bg-black">
                     <img src={c.renderedDataUrl} alt={c.title} className="size-full object-cover" />
                   </div>
@@ -178,7 +216,7 @@ export function DailySharePage() {
                   <a
                     href={c.renderedDataUrl}
                     download={`my-status-${c.id}.png`}
-                    className="w-full py-1.5 rounded-lg bg-red-600 text-white text-xs font-black block text-center shadow-xs"
+                    className="w-full py-1.5 rounded-lg bg-red-600 text-white text-xs font-black block text-center"
                   >
                     డౌన్‌లోడ్ ⬇️
                   </a>
@@ -186,40 +224,43 @@ export function DailySharePage() {
               ))}
             </div>
           ) : (
-            <div className="py-16 text-center space-y-3 rounded-2xl border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--card))]">
-              <div className="size-12 rounded-2xl bg-red-500/10 text-red-600 flex items-center justify-center mx-auto">
-                <UserCheck className="size-6" />
+            <div className="space-y-4">
+              <div className="py-8 text-center space-y-2 rounded-2xl border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--card))]">
+                <div className="size-12 rounded-2xl bg-red-500/10 text-red-600 flex items-center justify-center mx-auto">
+                  <UserCheck className="size-6" />
+                </div>
+                <h3 className="text-sm font-black">
+                  {lang === "te" ? "ఇంకా సేవ్ చేసిన స్టేటస్ లేదు" : "No saved statuses yet"}
+                </h3>
+                <p className="text-xs font-bold text-[hsl(var(--muted-foreground))] max-w-sm mx-auto">
+                  {lang === "te"
+                    ? "పైన ఉన్న టెంప్లేట్‌లో ఫోటో అప్‌లోడ్ చేసి Share / Download నొక్కండి."
+                    : "Use the template above — upload your photo, then Share or Download."}
+                </p>
+                <button
+                  onClick={() => {
+                    setActiveTab("all");
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-black"
+                >
+                  {lang === "te" ? "టెంప్లేట్‌కు వెళ్ళండి" : "Go to template"}
+                </button>
               </div>
-              <h3 className="text-sm font-black">{lang === "te" ? "మీరు ఇంకా ఏ స్టేటస్ పర్సనలైజ్ చేయలేదు" : "No Creations Found Yet"}</h3>
-              <p className="text-xs font-bold text-[hsl(var(--muted-foreground))] max-w-sm mx-auto">
-                {lang === "te" ? "ట్రెండింగ్ షేర్స్ నుండి ఏదైనా కార్డ్ ఎంచుకుని 'పర్సనలైజ్' నొక్కండి." : "Pick any status card and tap 'Personalize' to create your status."}
-              </p>
-              <button
-                onClick={() => setActiveTab("all")}
-                className="px-4 py-2 rounded-xl bg-red-600 text-white text-xs font-black"
-              >
-                {lang === "te" ? "కార్డ్స్ చూడండి" : "Explore Statuses"}
-              </button>
+              {featured && <WhatsAppStatusTemplate key={`empty-${featured.id}`} item={featured} />}
             </div>
           )}
         </div>
       )}
 
-      {/* Tab Content 3: Business Status Mode */}
       {activeTab === "business" && (
         <div className="space-y-4">
           <div className="rounded-2xl border border-slate-700 bg-gradient-to-br from-slate-900 via-slate-800 to-zinc-900 p-5 text-white space-y-3">
             <h3 className="text-base font-black flex items-center gap-2">
               <Building2 className="size-5 text-amber-400" />
-              <span>{lang === "te" ? "వ్యాపారవేత్తల ప్రత్యేక వాట్సాప్ స్టేటస్ మోడ్" : "Business WhatsApp Status Generator"}</span>
+              <span>{lang === "te" ? "బిజినెస్ వాట్సాప్ స్టేటస్" : "Business WhatsApp Status"}</span>
             </h3>
-            <p className="text-xs font-bold text-slate-300 max-w-xl leading-relaxed">
-              {lang === "te" 
-                ? "మీ వ్యాపారం పేరు, లోగో, ఆఫర్లు మరియు ప్రమోషన్ సందేశాలతో ప్రొఫెషనల్ వాట్సాప్ బిజినెస్ కార్డ్స్ తయారు చేసుకోండి." 
-                : "Create high-converting promotional WhatsApp Status graphics for your store, shop, or agency."}
-            </p>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {getDailyShareItems("business").map((item) => (
               <DailyShareCard key={item.id} item={item} />

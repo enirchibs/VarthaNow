@@ -36,6 +36,52 @@ export const DAILY_SHARE_CATEGORIES: DailyShareCategory[] = [
 
 export const DAILY_SHARE_SEED_ITEMS: DailyShareItem[] = [
   {
+    id: "ds-shiva-001",
+    title: "శివుడి ఆశీస్సులు — వాట్సాప్ స్టేటస్ టెంప్లేట్",
+    slug: "shiva-blessings-whatsapp-status-template",
+    category: "devotional",
+    language: "te",
+    content_type: "video",
+    image_url: "/daily-share/shiva-status-poster.jpg",
+    thumbnail_url: "/daily-share/shiva-status-poster.jpg",
+    video_url: "/daily-share/gemini_generated_video_434b1be3.mp4",
+    quote_te: "శివుడి ఆశీస్సులు నీపై ఎల్లప్పుడూ ఉండాలి...",
+    quote_en: "May Lord Shiva's blessings always be with you...",
+    author: "VaartaNow Bhakti",
+    caption: "మీ ఫోటో & పేరుతో భక్తి వాట్సాప్ స్టేటస్ తయారు చేయండి 🕉️",
+    likes_count: 8640,
+    shares_count: 5120,
+    personalization_enabled: true,
+    template_style: "festival",
+    default_user_name: "Srini",
+    hashtags: ["#భక్తి", "#ShivaBlessings", "#WhatsAppStatus"],
+    priority: 100,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "ds-video-gemini-001",
+    title: "వాట్సాప్ స్టేటస్ వీడియో — Gemini Status Clip",
+    slug: "gemini-generated-whatsapp-status-video",
+    category: "trending-telugu",
+    language: "te",
+    content_type: "video",
+    image_url: "/daily-share/shiva-status-poster.jpg",
+    thumbnail_url: "/daily-share/shiva-status-poster.jpg",
+    video_url: "/daily-share/gemini_generated_video_434b1be3.mp4",
+    quote_te: "శివుడి ఆశీస్సులు నీపై ఎల్లప్పుడూ ఉండాలి...",
+    quote_en: "May Lord Shiva's blessings always be with you...",
+    author: "VaartaNow Daily Share",
+    caption: "🎥 Exact Shiva status video — upload your photo in the circle",
+    likes_count: 4210,
+    shares_count: 2980,
+    personalization_enabled: true,
+    template_style: "modern",
+    default_user_name: "Srini",
+    hashtags: ["#WhatsAppStatus", "#VideoStatus", "#VaartaNow"],
+    priority: 99,
+    created_at: new Date().toISOString()
+  },
+  {
     id: "ds-001",
     title: "ఉదయం లేవగానే ఈ ఒక్కటి గుర్తుపెట్టుకోండి",
     slug: "good-morning-positive-thought-1",
@@ -247,7 +293,9 @@ export function getDailyShareCategories(): DailyShareCategory[] {
 
 export function getDailyShareItems(categorySlug?: string): DailyShareItem[] {
   const customItems = getCustomDailyShareItems();
-  const allItems = [...customItems, ...DAILY_SHARE_SEED_ITEMS];
+  const allItems = [...customItems, ...DAILY_SHARE_SEED_ITEMS].sort(
+    (a, b) => (b.priority || 0) - (a.priority || 0)
+  );
 
   if (!categorySlug || categorySlug === "all") {
     return allItems;

@@ -1,11 +1,26 @@
 import { Bookmark, BookmarkCheck, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
+import { canonicalizeCategory, categoryLabel } from "@/lib/categories";
 import { timeAgo } from "@/lib/format";
 import type { BlogPost } from "@/types/news";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { isArticleRead, markArticleAsRead } from "@/lib/read-tracker";
 import { saveSwipeFeed } from "@/components/Way2NewsSwiper";
+
+/** Keep grid order, unique by slug, start at clicked article then continue with the next cards. */
+function buildSwipeDeck(feedPosts: BlogPost[] | undefined, clicked: BlogPost): BlogPost[] {
+  const raw = feedPosts?.length ? feedPosts : [clicked];
+  const seen = new Set<string>();
+  const unique = raw.filter((p) => {
+    if (!p?.slug || seen.has(p.slug)) return false;
+    seen.add(p.slug);
+    return true;
+  });
+  const start = unique.findIndex((p) => p.slug === clicked.slug);
+  if (start < 0) return [clicked, ...unique];
+  // Clicked story first, then the next ones in the grid, then earlier ones
+  return [...unique.slice(start), ...unique.slice(0, start)];
+}
 
 // ─── Helpers ────────────────────────────────────────────────────
 const CATEGORY_STYLES: Record<string, string> = {
@@ -53,7 +68,10 @@ export function NewsCard({
   feedPosts?: BlogPost[];
 }) {
   const navigate = useNavigate();
-  const accurateCategory = detectCategoryFromTitleAndContent(post);
+  const accurateCategory = (() => {
+    const stored = canonicalizeCategory(post.category);
+    return stored === "all" ? post.category : stored;
+  })();
   const isRead = isArticleRead(post.slug);
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const bookmarked = isBookmarked(post.slug);
@@ -84,12 +102,8 @@ export function NewsCard({
 
   const openSwipeFeed = () => {
     markArticleAsRead(post.slug);
-    const deck = feedPosts?.length ? feedPosts : [post];
-    // Keep clicked card in feed order so swipe up/down continues the grid
-    const ordered = deck.some((p) => p.slug === post.slug)
-      ? deck
-      : [post, ...deck];
-    saveSwipeFeed(ordered, post.slug);
+    const deck = buildSwipeDeck(feedPosts, post);
+    saveSwipeFeed(deck, post.slug);
     navigate(`/news/${post.slug}`, { state: { swipeFeed: true } });
   };
 
@@ -126,7 +140,7 @@ export function NewsCard({
 
         {/* Category Pill Overlay with High-Visibility Beautiful Border */}
         <div className="absolute left-2 top-2 z-10 flex items-center gap-1">
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[9px] sm:text-[10px] font-black uppercase tracking-wider ${categoryStyle(accurateCategory)} backdrop-blur-md transition-transform group-hover:scale-105 shadow-md`}>
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider shadow-md backdrop-blur-md transition-transform group-hover:scale-105 sm:text-[11px] ${categoryStyle(accurateCategory)}`}>
             {categoryLabel(accurateCategory)}
           </span>
         </div>
@@ -152,47 +166,47 @@ export function NewsCard({
       </div>
 
       {/* 2 ── Content: Headline Title + Publisher/Time Footer */}
-      <div className="flex flex-col flex-1 p-2 sm:p-2.5 space-y-1.5">
+      <div className="flex flex-col flex-1 space-y-1.5 p-2.5 sm:p-3">
         <div className="block flex-1">
-          <h2 className="text-[11px] sm:text-xs font-black leading-snug text-[hsl(var(--foreground))] line-clamp-2 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors flex items-center justify-between gap-1">
+          <h2 className="flex items-start justify-between gap-1 text-[13px] font-black leading-snug text-[hsl(var(--foreground))] transition-colors line-clamp-3 group-hover:text-red-600 dark:group-hover:text-red-400 sm:text-sm sm:line-clamp-2">
             <span>{post.title}</span>
-            <span className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-red-600 dark:text-red-400 shrink-0 text-[10px]">➔</span>
+            <span className="hidden shrink-0 text-[10px] text-red-600 opacity-0 transition-all duration-300 -translate-x-1 group-hover:translate-x-0 group-hover:opacity-100 dark:text-red-400 sm:inline">➔</span>
           </h2>
         </div>
 
         {/* Footer: Publisher & Date */}
-        <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-1.5 text-[9px] sm:text-[10px] font-bold text-[hsl(var(--muted-foreground))]">
-          <div className="flex items-center gap-1 min-w-0">
+        <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 pt-1.5 text-[10px] font-bold text-[hsl(var(--muted-foreground))] sm:text-[11px]">
+          <div className="flex min-w-0 items-center gap-1">
             {publisherLogo ? (
               <img
                 src={publisherLogo}
                 alt={post.author_name}
-                className="size-3 rounded-full object-contain shrink-0"
+                className="size-3.5 shrink-0 rounded-full object-contain"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
               />
             ) : null}
             <span className="truncate font-extrabold text-[hsl(var(--foreground))]">{post.author_name}</span>
-            <span>·</span>
+            <span className="shrink-0">·</span>
             <span className="shrink-0">{timeAgo(post.published_at)}</span>
           </div>
 
-          <div className="flex items-center gap-0.5 shrink-0">
+          <div className="flex shrink-0 items-center gap-0.5">
             <button
               aria-label="Save bookmark"
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleBookmark(post.slug); }}
-              className="p-0.5 hover:text-amber-500 transition"
+              className="p-1.5 hover:text-amber-500 transition"
             >
-              {bookmarked ? <BookmarkCheck className="size-3 fill-amber-500 text-amber-500" /> : <Bookmark className="size-3" />}
+              {bookmarked ? <BookmarkCheck className="size-3.5 fill-amber-500 text-amber-500" /> : <Bookmark className="size-3.5" />}
             </button>
             <a
               href={whatsappUrl}
               target="_blank"
               rel="noreferrer"
-              className="p-0.5 text-emerald-600 hover:text-emerald-700 transition"
+              className="p-1.5 text-emerald-600 hover:text-emerald-700 transition"
               aria-label="Share on WhatsApp"
               onClick={(e) => e.stopPropagation()}
             >
-              <Share2 className="size-3" />
+              <Share2 className="size-3.5" />
             </a>
           </div>
         </div>

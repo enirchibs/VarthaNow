@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { VerticalSnapFeed } from "@/components/VerticalSnapFeed";
 import { Button } from "@/components/ui";
-import { categoryLabel } from "@/lib/categories";
+import { canonicalizeCategory, categoryLabel, postMatchesCategory } from "@/lib/categories";
 import { setMeta } from "@/lib/seo";
 import { useInfinitePosts } from "@/hooks/usePosts";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -342,11 +342,18 @@ function HealthInteractiveTool() {
 }
 
 export function CategoryPage() {
-  const { category = "andhra-pradesh" } = useParams();
-  const typedCategory = category as NewsCategory;
-  const feed = useInfinitePosts({ category: typedCategory });
+  const { category: rawCategory = "andhra-pradesh" } = useParams();
+  const typedCategory = canonicalizeCategory(rawCategory);
+  const categorySlug = typedCategory === "all" ? "andhra-pradesh" : typedCategory;
+  const feed = useInfinitePosts({ category: categorySlug as NewsCategory });
   const { lang } = useLanguage();
-  const label = categoryLabel(category, lang);
+  const label = categoryLabel(categorySlug, lang);
+
+  // Hard client-side gate: only articles for this category
+  const categoryPosts = useMemo(
+    () => feed.posts.filter((post) => postMatchesCategory(post, categorySlug)),
+    [feed.posts, categorySlug]
+  );
 
   useEffect(() => {
     const titles: Record<string, string> = {
@@ -366,8 +373,8 @@ export function CategoryPage() {
     setMeta({
       title: titles[lang] || titles.te,
       description: descriptions[lang] || descriptions.te,
-      canonical: `/category/${category}`,
-      structuredData: category === "health" ? {
+      canonical: `/category/${categorySlug}`,
+      structuredData: categorySlug === "health" ? {
         "@context": "https://schema.org",
         "@type": "HealthArticle",
         "headline": titles[lang] || titles.te,
@@ -379,7 +386,7 @@ export function CategoryPage() {
         },
         "publisher": {
           "@type": "Organization",
-          "name": "VarthaNow",
+          "name": "VaartaNow",
           "logo": {
             "@type": "ImageObject",
             "url": `${import.meta.env.VITE_SITE_URL ?? "http://localhost:3000"}/icons/icon-192.svg`
@@ -392,55 +399,77 @@ export function CategoryPage() {
         "mainEntityOfPage": `${import.meta.env.VITE_SITE_URL ?? "http://localhost:3000"}/category/health`
       } : undefined
     });
-  }, [category, label, lang]);
+  }, [categorySlug, label, lang]);
 
   return (
     <main className="container-shell space-y-3 py-2 px-1 sm:px-4">
-      {category === "health" && <HealthAssistant />}
+      <header className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-red-600">
+            {lang === "te" ? "వర్గం వార్తలు" : "Category News"}
+          </p>
+          <h1 className="text-lg sm:text-xl font-black text-[hsl(var(--foreground))]">{label}</h1>
+        </div>
+        <span className="text-[11px] font-black rounded-full bg-red-600/10 text-red-700 dark:text-red-300 px-3 py-1 border border-red-500/20">
+          {feed.loading
+            ? lang === "te"
+              ? "లోడ్ అవుతోంది…"
+              : "Loading…"
+            : lang === "te"
+              ? `${categoryPosts.length}+ కథనాలు`
+              : `${categoryPosts.length}+ stories`}
+        </span>
+      </header>
 
-      {(category === "devotional" || category === "jathakam") && <DevotionalHub />}
+      {categorySlug === "health" && <HealthAssistant />}
 
-      {category === "cricket" && <CricketLiveScoreHub />}
+      {(categorySlug === "devotional" || rawCategory === "jathakam") && <DevotionalHub />}
 
-      {category === "viralshorts" && (
+      {categorySlug === "cricket" && <CricketLiveScoreHub />}
+
+      {categorySlug === "viralshorts" && (
         <div className="space-y-4">
           <ShortsReel />
         </div>
       )}
 
-      {/* Double column grid representing Sidebar for competitive visual widgets */}
-      {category !== "viralshorts" && (
+      {categorySlug !== "viralshorts" && (
         <section className="grid gap-4 lg:grid-cols-[1fr_20rem]">
-        {/* News Feed Cards column */}
         <div className="space-y-4">
-          <VerticalSnapFeed
-            posts={feed.posts}
-            loading={feed.loading}
-            hasMore={feed.hasMore}
-            onLoadMore={feed.loadMore}
-          />
+          {!feed.loading && categoryPosts.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-[hsl(var(--border))] bg-[hsl(var(--card))] py-16 text-center space-y-2">
+              <p className="text-sm font-black">
+                {lang === "te" ? `${label} వార్తలు ఇంకా లేవు` : `No ${label} stories yet`}
+              </p>
+              <p className="text-xs font-bold text-[hsl(var(--muted-foreground))]">
+                {lang === "te"
+                  ? "ఈ వర్గానికి సంబంధించిన కథనాలు మాత్రమే ఇక్కడ కనిపిస్తాయి."
+                  : "Only articles in this category appear here."}
+              </p>
+            </div>
+          ) : (
+            <VerticalSnapFeed
+              posts={categoryPosts}
+              loading={feed.loading}
+              hasMore={feed.hasMore}
+              onLoadMore={feed.loadMore}
+            />
+          )}
         </div>
 
-        {/* Sidebar Widgets column */}
         <aside className="space-y-4">
-          {/* AP or Telangana tools */}
-          {(category === "andhra-pradesh" || category === "telangana") && (
-            <LocalInteractiveTool category={category} lang={lang} />
+          {(categorySlug === "andhra-pradesh" || categorySlug === "telangana") && (
+            <LocalInteractiveTool category={categorySlug} lang={lang} />
           )}
 
-          {/* Jobs tools */}
-          {category === "jobs" && (
+          {categorySlug === "jobs" && (
             <JobsInteractiveTool lang={lang} />
           )}
 
-          {/* Politics tools */}
-          {category === "politics" && (
+          {categorySlug === "politics" && (
             <PoliticsInteractiveTool />
           )}
 
-
-
-          {/* Live Viral Videos Sidebar Widget */}
           <SidebarViralVideosWidget limit={4} />
         </aside>
       </section>

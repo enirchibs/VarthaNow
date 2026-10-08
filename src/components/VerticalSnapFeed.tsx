@@ -15,7 +15,8 @@ import {
 import { useLanguage, type Language } from "@/hooks/useLanguage";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { markArticleAsRead } from "@/lib/read-tracker";
-import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
+import { canonicalizeCategory, categoryLabel } from "@/lib/categories";
+import { categoryCoverImages } from "@/lib/demo-data";
 import { stripFAQ, timeAgo } from "@/lib/format";
 import type { BlogPost } from "@/types/news";
 import { Skeleton } from "@/components/ui";
@@ -97,8 +98,10 @@ function SnapCard({
   const [disliked, setDisliked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [dislikeCount, setDislikeCount] = useState(0);
-  const category = detectCategoryFromTitleAndContent(post);
+  const canonical = canonicalizeCategory(post.category);
+  const category = canonical === "all" ? post.category : canonical;
   const body = shortNewsFlipBody(post);
+  const hasVideo = Boolean(post.video_url?.trim());
 
   useEffect(() => {
     if (!isActive) return;
@@ -157,19 +160,23 @@ function SnapCard({
       className="relative mx-auto flex h-full w-full max-w-[520px] flex-col overflow-hidden rounded-none bg-white shadow-sm sm:rounded-2xl sm:border sm:border-slate-200"
     >
       <div className="relative h-[36%] min-h-[180px] w-full shrink-0 overflow-hidden bg-slate-900">
-        {post.og_image ? (
-          <img
-            src={post.og_image}
-            alt={post.title}
-            referrerPolicy="no-referrer"
-            className="size-full object-cover"
-            draggable={false}
-          />
-        ) : (
-          <div className="flex size-full items-center justify-center bg-gradient-to-br from-slate-700 to-slate-900 text-2xl font-black text-white">
-            VaartaNow
-          </div>
-        )}
+        <img
+          src={
+            post.og_image ||
+            categoryCoverImages[post.category] ||
+            categoryCoverImages["andhra-pradesh"]
+          }
+          alt={post.title}
+          referrerPolicy="no-referrer"
+          className="size-full object-cover"
+          draggable={false}
+          onError={(e) => {
+            const el = e.currentTarget;
+            const fallback =
+              categoryCoverImages[post.category] || categoryCoverImages["andhra-pradesh"];
+            if (el.src !== fallback) el.src = fallback;
+          }}
+        />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/25" />
 
         <div className="absolute left-3 top-3 z-10 flex items-center gap-1.5">
@@ -178,11 +185,21 @@ function SnapCard({
           </span>
         </div>
 
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="flex size-12 items-center justify-center rounded-full bg-black/35 ring-2 ring-white/70">
-            <Play className="ml-0.5 size-6 fill-white text-white" />
-          </div>
-        </div>
+        {hasVideo && (
+          <button
+            type="button"
+            onClick={() => {
+              const url = post.video_url!.trim();
+              window.open(url, "_blank", "noopener,noreferrer");
+            }}
+            className="absolute inset-0 z-[5] flex items-center justify-center"
+            aria-label={lang === "te" ? "వీడియో ప్లే చేయండి" : "Play video"}
+          >
+            <span className="flex size-12 items-center justify-center rounded-full bg-black/45 ring-2 ring-white/70 backdrop-blur-sm active:scale-95">
+              <Play className="ml-0.5 size-6 fill-white text-white" />
+            </span>
+          </button>
+        )}
 
         <div className="absolute bottom-3 left-3 right-3 z-10 flex items-end justify-between gap-2">
           <div className="min-w-0">

@@ -13,9 +13,16 @@ export function NewsPage() {
   const { lang } = useLanguage();
   const { slug = "" } = useParams();
   const [post, setPost] = useState<BlogPost | null>(null);
-  const [deck, setDeck] = useState<BlogPost[]>([]);
+  // Hydrate deck immediately from sessionStorage so swipe feed is ready on first paint
+  const [deck, setDeck] = useState<BlogPost[]>(() => {
+    const cached = loadSwipeFeed();
+    if (cached?.posts?.length) return cached.posts;
+    return [];
+  });
   const [loading, setLoading] = useState(true);
   const skipFetchRef = useRef(false);
+  const deckRef = useRef<BlogPost[]>(deck);
+  deckRef.current = deck;
 
   useEffect(() => {
     if (skipFetchRef.current) {
@@ -27,19 +34,26 @@ export function NewsPage() {
     setLoading(true);
 
     const cached = loadSwipeFeed();
-    const cachedDeck =
-      cached?.posts?.length && cached.posts.some((p) => p.slug === slug)
-        ? cached.posts
-        : null;
+    const cachedDeck = cached?.posts?.length ? cached.posts : null;
+
+    // Show full feed right away while network fetch resolves
+    if (cachedDeck?.length) setDeck(cachedDeck);
 
     Promise.all([getPostBySlug(slug), getTrendingPosts(30, lang)])
       .then(([item, trending]) => {
         if (!mounted) return;
         setPost(item);
 
-        if (cachedDeck) {
-          // Prefer the grid feed so swipe order matches the cards the user saw
-          setDeck(cachedDeck);
+        // Never collapse to a single article — keep grid/trending deck for swipe
+        const existing = deckRef.current;
+        if (cachedDeck?.length) {
+          if (item && !cachedDeck.some((p) => p.slug === item.slug)) {
+            setDeck([item, ...cachedDeck]);
+          } else {
+            setDeck(cachedDeck);
+          }
+        } else if (existing.length > 1) {
+          setDeck(existing);
         } else if (item) {
           const others = trending.filter((entry) => entry.slug !== item.slug);
           setDeck([item, ...others]);
@@ -77,8 +91,10 @@ export function NewsPage() {
 
   const handleActiveChange = useCallback(
     (active: BlogPost) => {
-      if (active.slug === slug) return;
+      // Only update URL after a real user swipe — never replace the opened article
+      if (!active?.slug || active.slug === slug) return;
       skipFetchRef.current = true;
+      setPost(active);
       navigate(`/news/${active.slug}`, { replace: true });
       setMeta({
         title: active.meta_title || active.title,
