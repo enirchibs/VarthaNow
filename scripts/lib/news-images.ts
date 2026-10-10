@@ -286,6 +286,20 @@ export async function storyImage(
   } catch (e: any) {
     console.warn(`  library image failed: ${e.message?.slice(0, 120)}`);
   }
-  const url = await generatedCategoryImage(supabase, opts.category, opts.apiKey);
-  return url ? { url, path: `categories/${opts.category}.webp`, kind: "category", credits: [] } : { url: null, path: null, kind: "none", credits: [] };
+  const illustration = await generatedCategoryImage(supabase, opts.category, opts.apiKey);
+  if (!illustration) return { url: null, path: null, kind: "none", credits: [] };
+  // put the headline on the shared category illustration, like every other story image
+  try {
+    const photo: LibraryPhoto = {
+      id: `category:${opts.category}`, kind: "category", label: opts.category, tags: [opts.category],
+      public_url: illustration, storage_path: `categories/${opts.category}.webp`, credit: "VaartaNow AI",
+      focus: "centre", times_used: 0, is_ai_generated: true,
+    };
+    const path = `stories/${new Date().toISOString().slice(0, 7)}/${opts.slug}.webp`;
+    const url = await uploadWebp(supabase, path, await compose([photo], opts.title));
+    return { url, path, kind: "category", credits: ["VaartaNow AI"] };
+  } catch (e: any) {
+    console.warn(`  category compose failed: ${e.message?.slice(0, 120)}`);
+    return { url: illustration, path: `categories/${opts.category}.webp`, kind: "category", credits: [] };
+  }
 }
