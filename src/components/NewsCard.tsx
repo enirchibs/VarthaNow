@@ -79,26 +79,8 @@ export function NewsCard({
   const shareUrl = `${window.location.origin}/news/${post.slug}`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${post.title} ${shareUrl}`)}`;
 
-  const publisherLogo = (() => {
-    if (post.source_logo) return post.source_logo;
-    const url = (post as any).source_article_url;
-    if (url) {
-      try {
-        const hostname = new URL(url).hostname;
-        if (hostname && !hostname.includes("google.com")) {
-          return `https://www.google.com/s2/favicons?domain=${hostname}&sz=64`;
-        }
-      } catch {}
-    }
-    const name = (post.author_name || "").toLowerCase();
-    if (name.includes("tv9")) return "https://www.google.com/s2/favicons?domain=tv9telugu.com&sz=64";
-    if (name.includes("ntv")) return "https://www.google.com/s2/favicons?domain=ntvtelugu.com&sz=64";
-    if (name.includes("sakshi")) return "https://www.google.com/s2/favicons?domain=sakshi.com&sz=64";
-    if (name.includes("eenadu")) return "https://www.google.com/s2/favicons?domain=eenadu.net&sz=64";
-    if (name.includes("way2news")) return "https://www.google.com/s2/favicons?domain=way2news.co&sz=64";
-    if (name.includes("disha")) return "https://www.google.com/s2/favicons?domain=dishanews.in&sz=64";
-    return null;
-  })();
+  // Stories are written by VaartaNow from several reports, so never show a source outlet's logo.
+  const publisherLogo = post.source_logo ?? null;
 
   const openSwipeFeed = () => {
     markArticleAsRead(post.slug);

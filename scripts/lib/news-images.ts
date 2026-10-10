@@ -59,10 +59,28 @@ async function uploadWebp(supabase: SupabaseClient, path: string, webp: Buffer):
 }
 
 // ── library ──────────────────────────────────────────────────────────
-/** All active tags, so Gemini can pick keywords that actually exist in the library. */
-export async function libraryTags(supabase: SupabaseClient): Promise<string[]> {
+// Tags that say nothing about a story ("people", or "andhra pradesh" which every photo carries)
+// would match almost any photo, e.g. a farmer picture on a film story. They are never used to pick.
+const GENERIC_TAGS = new Set(["people", "person", "persons", "man", "woman", "men", "women", "public", "citizens", "news", "general", "places", "place", "india", "indian"]);
+const GENERIC_SHARE = 0.2;
+let genericCache: { at: number; tags: Set<string> } | null = null;
+
+async function genericTags(supabase: SupabaseClient): Promise<Set<string>> {
+  if (genericCache && Date.now() - genericCache.at < 10 * 60_000) return genericCache.tags;
   const { data } = await supabase.from("image_library").select("tags").eq("active", true);
-  return [...new Set((data ?? []).flatMap((r) => r.tags as string[]))].sort();
+  const rows = data ?? [];
+  const counts = new Map<string, number>();
+  for (const r of rows) for (const t of new Set((r.tags as string[]).map(norm))) counts.set(t, (counts.get(t) ?? 0) + 1);
+  const tags = new Set(GENERIC_TAGS);
+  for (const [t, n] of counts) if (rows.length >= 20 && n / rows.length > GENERIC_SHARE) tags.add(t);
+  genericCache = { at: Date.now(), tags };
+  return tags;
+}
+
+/** Specific active tags, so Gemini picks keywords that exist in the library and actually distinguish photos. */
+export async function libraryTags(supabase: SupabaseClient): Promise<string[]> {
+  const [{ data }, generic] = await Promise.all([supabase.from("image_library").select("tags").eq("active", true), genericTags(supabase)]);
+  return [...new Set((data ?? []).flatMap((r) => r.tags as string[]))].filter((t) => !generic.has(norm(t))).sort();
 }
 
 function best(rows: LibraryPhoto[], kinds: LibraryPhoto["kind"][], wanted: string[], preferReal = false): LibraryPhoto | undefined {
@@ -81,8 +99,11 @@ function best(rows: LibraryPhoto[], kinds: LibraryPhoto["kind"][], wanted: strin
   return candidates[0];
 }
 
-async function pickPhotos(supabase: SupabaseClient, kw: ImageKeywords): Promise<LibraryPhoto[]> {
-  const all = [...(kw.people ?? []), ...(kw.places ?? []), ...(kw.topics ?? [])].map(norm).filter(Boolean);
+export async function pickPhotos(supabase: SupabaseClient, kw: ImageKeywords): Promise<LibraryPhoto[]> {
+  const generic = await genericTags(supabase);
+  const specific = (list?: string[]) => (list ?? []).map(norm).filter((t) => t && !generic.has(t));
+  kw = { people: specific(kw.people), places: specific(kw.places), topics: specific(kw.topics) };
+  const all = [...kw.people!, ...kw.places!, ...kw.topics!];
   if (!all.length) return [];
   const { data, error } = await supabase
     .from("image_library")
@@ -96,7 +117,9 @@ async function pickPhotos(supabase: SupabaseClient, kw: ImageKeywords): Promise<
   // 1. Prefer licensed real person photo
   const person = best(rows, ["person"], kw.people ?? [], true);
   const place = best(rows, ["place"], kw.places ?? []);
-  const topic = best(rows, ["topic", "category"], kw.topics ?? []);
+  // a topic ("health") may be illustrated by any kind of photo (e.g. a doctor filed as "person")
+  const topic = best(rows, ["topic", "category"], kw.topics ?? []) ??
+    best(rows.filter((r) => r.id !== person?.id && r.id !== place?.id), ["person", "place"], kw.topics ?? []);
 
   // Selection precedence:
   // 1. Person (licensed real) + Place or Topic
@@ -120,12 +143,28 @@ async function markUsed(supabase: SupabaseClient, photos: LibraryPhoto[]) {
 const fetchImage = async (url: string) => Buffer.from(await (await fetch(url, { signal: AbortSignal.timeout(20_000) })).arrayBuffer());
 const position = (focus: string) => ({ left: "left", right: "right", top: "top" } as Record<string, string>)[focus] ?? "centre";
 
-/** Wrap a Telugu headline into at most 2 lines (approximate width by character count). */
-function wrap(title: string, maxChars = 44): string[] {
+/** Approximate rendered width in em: Telugu combining signs are narrow, base letters wide. */
+function emWidth(text: string): number {
+  let w = 0;
+  for (const ch of text) {
+    const c = ch.codePointAt(0)!;
+    if ((c >= 0x0c00 && c <= 0x0c04) || (c >= 0x0c3c && c <= 0x0c56) || c === 0x0c62 || c === 0x0c63) w += 0.25;
+    else if (c >= 0x0c05 && c <= 0x0c7f) w += 0.78;
+    else if (ch === " ") w += 0.3;
+    else w += 0.58;
+  }
+  return w;
+}
+
+const TEXT_WIDTH = W - 96;
+
+/** Wrap a headline into at most 2 lines that fit the image width at the given font size. */
+function wrap(title: string, fontSize = 46): string[] {
+  const maxEm = TEXT_WIDTH / fontSize;
   const lines: string[] = [];
   let line = "";
   for (const word of title.split(/\s+/)) {
-    if ((line + " " + word).trim().length > maxChars && line) { lines.push(line); line = word; }
+    if (emWidth((line + " " + word).trim()) > maxEm && line) { lines.push(line); line = word; }
     else line = (line + " " + word).trim();
   }
   if (line) lines.push(line);
@@ -133,8 +172,10 @@ function wrap(title: string, maxChars = 44): string[] {
 }
 
 function overlaySvg(title: string, credits: string[], split: boolean, hasAi: boolean): Buffer {
-  const lines = wrap(title);
-  const fontSize = lines.length > 1 ? 46 : 52;
+  // one line at 52px if it fits, otherwise up to two lines at 46px
+  const one = wrap(title, 52);
+  const fontSize = one.length === 1 ? 52 : 46;
+  const lines = one.length === 1 ? one : wrap(title, 46);
   const font = "Noto Sans Telugu, Nirmala UI, Gautami, sans-serif";
   const text = lines.map((l, i) => `<text x="48" y="${H - BAND + 78 + i * (fontSize + 14)}" font-size="${fontSize}" font-weight="700" fill="#fff" font-family="${font}">${escapeXml(l)}</text>`).join("");
 
@@ -202,8 +243,9 @@ async function generatedCategoryImage(supabase: SupabaseClient, category: string
   const path = `categories/${category}.webp`;
   const { data: existing } = await supabase.storage.from(BUCKET).list("categories", { search: `${category}.webp` });
   if (existing?.some((f) => f.name === `${category}.webp`)) return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-  const model = process.env.GEMINI_IMAGE_MODEL;
-  if (!model) return null; // only generate when an image model is configured
+  // Nano Banana 2 by default; set GEMINI_IMAGE_MODEL=off to disable generated category illustrations
+  const model = process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-image";
+  if (model === "off") return null;
   try {
     const res = await fetch(`${API}/models/${model}:generateContent?key=${apiKey}`, {
       method: "POST",

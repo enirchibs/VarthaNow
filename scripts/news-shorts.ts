@@ -10,13 +10,15 @@ import { ensureBucket, libraryTags, storyImage, type ImageKeywords } from "./lib
 // ═══════════════════════════════════════════════════════════════════
 //  VaartaNow — 60-word news shorts (replaces ingest + ai-queue)
 //
-//  Each run picks a few fresh, distinct stories from the RSS feeds, reads the
-//  source article and has Gemini write an original Telugu headline + ~60-word
-//  summary. Nothing is published unless the summary passes every check:
-//  45–80 words, mostly Telugu script, and no copied phrasing from the source.
-//  Source is credited via publisher + source_article_url (shown on the article
-//  page). Publisher images are NOT reused: each story image is composed from our own
-//  tagged photo library on aapstack.tech (scripts/lib/news-images.ts).
+//  Each run asks Gemini to pair fresh headlines from two DIFFERENT outlets that
+//  report the same event, reads both articles and writes ONE original Telugu
+//  article of 60–100 words from the combined facts (details the sources disagree
+//  on are left out). Stories covered by only one outlet fill any remaining slots.
+//  Nothing is published unless it passes every check: 60–100 words, mostly
+//  Telugu, no copied phrasing from either source, and no outlet names. Articles
+//  are bylined "VaartaNow Desk"; source links are stored for fact-checking but
+//  not shown. Publisher images are NOT reused: each story image is composed from
+//  our own tagged photo library on aapstack.tech (scripts/lib/news-images.ts).
 //
 //    npx tsx scripts/news-shorts.ts --dry-run --max=3   # preview, writes nothing
 //    npx tsx scripts/news-shorts.ts                     # publish up to 5 shorts
@@ -59,6 +61,20 @@ const CATEGORIES = ["andhra-pradesh", "telangana", "national", "politics", "cine
 type Feed = { url: string; category: string; publisher: string; priority_tier: number | null };
 type Candidate = { title: string; link: string; publishedAt: number; feed: Feed };
 type Short = { title: string; summary: string; category: string; tags: string[]; image_keywords?: ImageKeywords };
+type Job = { sources: Candidate[] }; // 2 outlets on the same event, or 1 when no pair was found
+
+const MIN_WORDS = 60, MAX_WORDS = 100;
+
+// Outlet names must never appear in our articles (English and Telugu spellings).
+const OUTLETS = ["tv9", "tv 9", "etv", "ntv", "sakshi", "eenadu", "andhra jyothy", "andhrajyothy", "abn", "hmtv", "v6", "10tv", "10 tv",
+  "abp", "way2news", "disha", "namasthe telangana", "prajasakti", "mana telangana", "big tv", "bigtv", "idream", "mahaa", "raj news", "tv5", "t news",
+  "టీవీ9", "టీవీ 9", "ఈటీవీ", "ఎన్టీవీ", "సాక్షి", "ఈనాడు", "ఆంధ్రజ్యోతి", "ఏబీఎన్", "వీ6", "ఏబీపీ", "దిశ", "నమస్తే తెలంగాణ", "ప్రజాశక్తి", "టీవీ5", "హెచ్ఎంటీవీ"];
+
+// Horoscopes, astrology and recipe/beauty filler are not news.
+const SKIP_TOPICS = /రాశి|రాశుల|వారఫల|దినఫల|జాతకం|పంచాంగం|horoscope|astrolog|zodiac|rashi|recipe|beauty tips/i;
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const mentions = (text: string, name: string) => new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(name)}($|[^\\p{L}\\p{N}])`, "u").test(text);
 
 // ── text helpers ─────────────────────────────────────────────────────
 const words = (s: string) => s.split(/\s+/).filter(Boolean);
@@ -106,9 +122,9 @@ async function collectCandidates(feeds: Feed[]): Promise<Candidate[]> {
 
 async function dropKnown(candidates: Candidate[]): Promise<Candidate[]> {
   const since = new Date(Date.now() - 48 * 3_600_000).toISOString();
-  const { data, error } = await supabase.from("blog_posts").select("title, source_article_url").gte("published_at", since);
+  const { data, error } = await supabase.from("blog_posts").select("title, source_article_url, source_url").gte("published_at", since);
   if (error) throw new Error(`load recent posts: ${error.message}`);
-  const knownLinks = new Set(data.map((p) => p.source_article_url));
+  const knownLinks = new Set(data.flatMap((p: any) => [p.source_article_url, p.source_url]).filter(Boolean));
   const knownTitles = data.map((p) => p.title as string);
   return candidates.filter((c) => !knownLinks.has(c.link) && !knownTitles.some((t) => similarity(t, c.title) > 0.6));
 }
@@ -138,41 +154,75 @@ async function readArticle(url: string): Promise<string | null> {
   return text && text.length > 300 ? text.slice(0, 6000) : null;
 }
 
-async function writeShort(source: string, c: Candidate, knownTags: string[]): Promise<Short> {
-  const prompt = `You are a news editor at VaartaNow, a Telugu news app like Inshorts.
-Read the source article and write ONE short news item in Telugu.
+/** "NTV AP" and "NTV Sports" are one newsroom: compare outlets by their first word. */
+const outletOf = (publisher: string) => publisher.toLowerCase().trim().split(/\s+/)[0];
+
+/** Ask Gemini which fresh headlines from different outlets report the same event. */
+async function pairStories(candidates: Candidate[], maxPairs: number): Promise<[Candidate, Candidate][]> {
+  const list = [...candidates].sort((a, b) => b.publishedAt - a.publishedAt).slice(0, 150);
+  if (list.length < 2) return [];
+  const prompt = `Below are recent Telugu/English news headlines, one per line as "index | outlet | headline".
+Find pairs of headlines from DIFFERENT outlets (different first word in the outlet name) that report the SAME specific event (same people, place and happening).
+Prefer important news (government, Andhra Pradesh, Telangana, national, business, sports, cinema).
+Skip horoscopes, astrology, recipes, beauty tips, quizzes, ads and gossip.
+Return only JSON {"pairs": [[i, j], ...]} with at most ${maxPairs} pairs, most newsworthy first; use each index at most once.
+
+${list.map((c, i) => `${i} | ${c.feed.publisher} | ${c.title}`).join("\n")}`;
+  const r = await gemini.generateContent({
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    generationConfig: { temperature: 0.1, maxOutputTokens: 1024, responseMimeType: "application/json" },
+  });
+  const used = new Set<number>();
+  const pairs: [Candidate, Candidate][] = [];
+  for (const [i, j] of (JSON.parse(r.response.text()).pairs ?? []) as number[][]) {
+    const a = list[i], b = list[j];
+    if (!a || !b || i === j || used.has(i) || used.has(j) || outletOf(a.feed.publisher) === outletOf(b.feed.publisher)) continue;
+    used.add(i); used.add(j); pairs.push([a, b]);
+  }
+  return pairs;
+}
+
+async function writeArticle(sources: { headline: string; text: string }[], knownTags: string[], feedback?: string): Promise<Short> {
+  const many = sources.length > 1;
+  const prompt = `You are a news editor at VaartaNow, a Telugu news app.
+${many ? `Below are ${sources.length} reports about the same event from different outlets. Combine their facts and write ONE` : "Read the report below and write ONE"} original news article in Telugu.
 
 Rules:
-- "summary": 55 to 65 words, natural modern Telugu, entirely in your own words. Do not copy sentences or phrases from the source.
-- Only facts stated in the source. No opinions, no speculation, no clickbait, no emojis.
-- Answer who, what, where and when. Keep names, numbers and places exactly right.
+- "summary": ${MIN_WORDS} to ${MAX_WORDS} words (aim for about 80), natural modern Telugu, entirely in your own words. Do not copy sentences or phrases from any report; rephrase every fact.
+- Only facts stated in the report${many ? "s. If the reports disagree on a detail (a number, name or date), leave that detail out" : ""}. No opinions, no speculation, no clickbait, no emojis.
+- Answer who, what, where, when and why it matters. Keep names, numbers and places exactly right.
+- Never mention any TV channel, newspaper, website or news agency (for example TV9, ETV, NTV, Sakshi, Eenadu), and never write "according to reports".
 - "title": a clear Telugu headline, at most 12 words, no clickbait.
 - "category": one of ${CATEGORIES.join(", ")}.
 - "tags": 3 short Telugu or English keywords.
 - "image_keywords": lowercase English keywords for choosing photos from our library:
-  "people" = the main people in the story, "places" = city/district/landmark, "topics" = subject (e.g. farmers, it, beach, budget).
+  "people" = named people in the story (never generic words like "people"), "places" = city/district/landmark, "topics" = subject (e.g. farmers, it, beach, budget).
   Prefer these existing library tags when they fit: ${knownTags.length ? knownTags.join(", ") : "(library is empty)"}.
 Return only JSON: {"title": "...", "summary": "...", "category": "...", "tags": ["...", "...", "..."],
   "image_keywords": {"people": ["..."], "places": ["..."], "topics": ["..."]}}
 
-Source headline: ${c.title}
-Source article:
-${source}`;
+${sources.map((src, i) => `Report ${i + 1} headline: ${src.headline}\nReport ${i + 1}:\n${src.text.slice(0, 4000)}`).join("\n\n")}${feedback ? `\n\nYour previous attempt was rejected: ${feedback}. Fix that and return the full JSON again.` : ""}`;
   const result = await gemini.generateContent({
     contents: [{ role: "user", parts: [{ text: prompt }] }],
-    generationConfig: { temperature: 0.3, maxOutputTokens: 1024, responseMimeType: "application/json" },
+    generationConfig: { temperature: 0.3, maxOutputTokens: 1536, responseMimeType: "application/json" },
   });
   return JSON.parse(result.response.text()) as Short;
 }
 
-function checkShort(s: Short, source: string): string | null {
+function checkArticle(s: Short, sourceTexts: string[]): string | null {
   if (!s?.title || !s?.summary) return "missing title/summary";
   const n = words(s.summary).length;
-  if (n < 45 || n > 80) return `summary has ${n} words`;
+  if (n < MIN_WORDS || n > MAX_WORDS) return `summary has ${n} words`;
   if (words(s.title).length > 14) return "headline too long";
+  if (SKIP_TOPICS.test(s.title)) return "astrology/filler topic";
   if (teluguRatio(s.summary) < 0.6 || teluguRatio(s.title) < 0.4) return "not mainly Telugu";
-  const copied = copiedShare(s.summary, source);
-  if (copied > 0.15) return `copies ${(copied * 100).toFixed(0)}% of phrasing from source`;
+  for (const src of sourceTexts) {
+    const copied = copiedShare(s.summary, src);
+    if (copied > 0.15) return `copies ${(copied * 100).toFixed(0)}% of phrasing from a source`;
+  }
+  const text = `${s.title} ${s.summary}`.toLowerCase();
+  const outlet = OUTLETS.find((o) => mentions(text, o));
+  if (outlet) return `mentions outlet "${outlet}"`;
   return null;
 }
 
@@ -180,24 +230,37 @@ async function main() {
   const { data: feeds, error } = await supabase.from("rss_feeds").select("url, category, publisher, priority_tier");
   if (error) throw new Error(`load feeds: ${error.message}`);
   const fresh = await dropKnown(await collectCandidates(feeds as Feed[]));
-  const shortlist = pick(fresh, MAX_PER_RUN);
-  console.log(`${feeds.length} feeds, ${fresh.length} new stories, trying ${shortlist.length} for ${MAX_PER_RUN} slots${DRY_RUN ? " (dry run)" : ""}`);
+  const pairs = await pairStories(fresh, MAX_PER_RUN * 2);
+  const paired = new Set(pairs.flat().map((c) => c.link));
+  const singles = pick(fresh.filter((c) => !paired.has(c.link) && !SKIP_TOPICS.test(c.title)), MAX_PER_RUN);
+  const jobs: Job[] = [...pairs.map((p) => ({ sources: p })), ...singles.map((c) => ({ sources: [c] }))];
+  console.log(`${feeds.length} feeds, ${fresh.length} new stories, ${pairs.length} same-event pairs, trying ${jobs.length} for ${MAX_PER_RUN} slots${DRY_RUN ? " (dry run)" : ""}`);
   if (!DRY_RUN) await ensureBucket(supabase);
   const knownTags = await libraryTags(supabase);
 
   let published = 0;
-  for (const c of shortlist) {
+  for (const job of jobs) {
     if (published >= MAX_PER_RUN) break;
+    const lead = job.sources[0];
     try {
-      const source = await readArticle(c.link);
-      if (!source) { console.log(`  skip (source unreadable): ${c.title.slice(0, 60)}`); continue; }
-      const s = await writeShort(source, c, knownTags);
-      const problem = checkShort(s, source);
-      if (problem) { console.log(`  reject (${problem}): ${c.title.slice(0, 60)}`); continue; }
+      const read = (await Promise.all(job.sources.map(async (c) => ({ c, text: await readArticle(c.link).catch(() => null) })))).filter((r) => r.text);
+      if (!read.length) { console.log(`  skip (sources unreadable): ${lead.title.slice(0, 60)}`); continue; }
+      const inputs = read.map((r) => ({ headline: r.c.title, text: r.text! }));
+      const texts = read.map((r) => r.text!);
+      let s = await writeArticle(inputs, knownTags);
+      let problem = checkArticle(s, texts);
+      if (problem && /words|copies/.test(problem)) {
+        const reason = problem.includes("words") ? `the summary had ${words(s.summary ?? "").length} words but must have ${MIN_WORDS}-${MAX_WORDS}` : `it ${problem}; use completely different wording`;
+        s = await writeArticle(inputs, knownTags, reason);
+        problem = checkArticle(s, texts);
+        if (!problem) console.log(`  (fixed on retry: ${reason})`);
+      }
+      if (problem) { console.log(`  reject (${problem}): ${lead.title.slice(0, 60)}`); continue; }
 
-      const category = CATEGORIES.includes(s.category) ? s.category : c.feed.category;
+      const links = read.map((r) => r.c.link);
+      const category = CATEGORIES.includes(s.category) ? s.category : lead.feed.category;
       const post = {
-        slug: `${category}-${new Date().toISOString().slice(0, 10)}-${createHash("sha1").update(c.link).digest("hex").slice(0, 8)}`,
+        slug: `${category}-${new Date().toISOString().slice(0, 10)}-${createHash("sha1").update(links.join("|")).digest("hex").slice(0, 8)}`,
         title: s.title.trim(),
         excerpt: s.summary.trim(),
         content: s.summary.trim(),
@@ -206,9 +269,10 @@ async function main() {
         meta_title: s.title.trim(),
         meta_description: s.summary.trim().slice(0, 160),
         author_name: "VaartaNow Desk",
-        publisher: c.feed.publisher,
-        source_article_url: c.link,
-        source_url: c.link,
+        publisher: "VaartaNow",
+        // kept for fact-checking and corrections; never shown on the site
+        source_article_url: links[0],
+        source_url: links[1] ?? links[0],
         language: "te",
         published: true,
         featured: false,
@@ -216,7 +280,8 @@ async function main() {
         word_count: words(s.summary).length,
         ai_queue_status: "completed",
       };
-      if (DRY_RUN) console.log(`\n  ✔ [${category}] ${post.title}\n    ${post.excerpt}\n    (${post.word_count} words · source: ${c.feed.publisher})\n    image keywords: ${JSON.stringify(s.image_keywords ?? {})}`);
+      const basis = read.length > 1 ? `${read.length} sources: ${read.map((r) => r.c.feed.publisher).join(" + ")}` : `1 source: ${read[0].c.feed.publisher}`;
+      if (DRY_RUN) console.log(`\n  ✔ [${category}] ${post.title}\n    ${post.excerpt}\n    (${post.word_count} words · ${basis})\n    image keywords: ${JSON.stringify(s.image_keywords ?? {})}`);
       else {
         const image = await storyImage(supabase, { slug: post.slug, title: post.title, category, keywords: s.image_keywords ?? {}, apiKey: geminiKey! });
         const { error: insertError } = await supabase.from("blog_posts").insert({
@@ -226,17 +291,19 @@ async function main() {
           image_validation_status: image.kind,
         });
         if (insertError) throw new Error(insertError.message);
-        console.log(`  published [${category}] ${post.title} (image: ${image.kind})`);
+        console.log(`  published [${category}] ${post.title} (${post.word_count} words, ${basis}, image: ${image.kind})`);
       }
       published++;
     } catch (e: any) {
-      console.log(`  error: ${e.message?.slice(0, 100)} — ${c.title.slice(0, 50)}`);
+      console.log(`  error: ${e.message?.slice(0, 100)} — ${lead.title.slice(0, 50)}`);
     }
   }
   console.log(`\nDone: ${published} short(s) ${DRY_RUN ? "ready (not saved)" : "published"}`);
 }
 
-main().catch((e) => {
-  console.error(e.message);
-  process.exit(1);
-});
+main()
+  .then(() => process.exit(0)) // open keep-alive sockets would otherwise keep the run (and the CI job) alive
+  .catch((e) => {
+    console.error(e.message);
+    process.exit(1);
+  });
