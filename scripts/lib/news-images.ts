@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import sharp from "sharp";
+import { createHash } from "node:crypto";
 
 // ═══════════════════════════════════════════════════════════════════
 //  VaartaNow — news images built from our own tagged photo library
@@ -33,7 +34,7 @@ export type LibraryPhoto = {
   asset_code?: string;
   editorial_label?: string;
 };
-export type StoryImage = { url: string | null; path: string | null; kind: "library" | "category" | "none"; credits: string[] };
+export type StoryImage = { url: string | null; path: string | null; kind: "library" | "generated" | "category" | "none"; credits: string[] };
 
 const norm = (s: string) => s.toLowerCase().normalize("NFC").replace(/\s+/g, " ").trim();
 const escapeXml = (s: string) => s.replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c]!);
@@ -238,25 +239,120 @@ const CATEGORY_SCENES: Record<string, string> = {
 };
 const STYLE = "Editorial news illustration, modern flat vector style, warm Indian palette, 16:9. No text, no logos, no real person's face.";
 
-/** One-time AI illustration per category, used only when the library has nothing for the story. */
-async function generatedCategoryImage(supabase: SupabaseClient, category: string, apiKey: string): Promise<string | null> {
-  const path = `categories/${category}.webp`;
-  const { data: existing } = await supabase.storage.from(BUCKET).list("categories", { search: `${category}.webp` });
-  if (existing?.some((f) => f.name === `${category}.webp`)) return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-  // Nano Banana 2 by default; set GEMINI_IMAGE_MODEL=off to disable generated category illustrations
-  const model = process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-image";
-  if (model === "off") return null;
+const PHOTO_STYLE = "Realistic editorial news photograph, natural light, Indian setting, 16:9. Generic people only, no identifiable real person, no text, no logos, no watermark.";
+const EDITORIAL_LABEL = "ప్రతీకాత్మక చిత్రం (AI)";
+const imageModel = () => process.env.GEMINI_IMAGE_MODEL || "gemini-3.1-flash-image"; // Nano Banana 2; "off" disables generation
+const MAX_GENERATED = Number(process.env.MAX_GENERATED_IMAGES ?? 3); // new images per run, to bound cost
+let generatedThisRun = 0;
+
+async function generateWebp(prompt: string, apiKey: string): Promise<Buffer> {
+  const res = await fetch(`${API}/models/${imageModel()}:generateContent?key=${apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseModalities: ["IMAGE"] } }),
+    signal: AbortSignal.timeout(90_000),
+  });
+  const json = (await res.json()) as any;
+  const data = json.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData?.data)?.inlineData?.data;
+  if (!data) throw new Error(json.error?.message ?? "no image returned");
+  return sharp(Buffer.from(data, "base64")).resize(W, H, { fit: "cover" }).webp({ quality: 78 }).toBuffer();
+}
+
+type NewLibraryImage = {
+  asset_code: string; kind: LibraryPhoto["kind"]; label: string; category: string;
+  tags: string[]; topic_tags: string[]; location_tags: string[]; prompt: string; storage_path: string; public_url: string;
+};
+
+/** Record a generated image in image_library with its keywords, so later stories find and reuse it. */
+async function saveToLibrary(supabase: SupabaseClient, img: NewLibraryImage): Promise<LibraryPhoto> {
+  const tags = [...new Set(img.tags.map(norm).filter(Boolean))];
+  const { data, error } = await supabase.from("image_library").upsert({
+    asset_code: img.asset_code,
+    kind: img.kind,
+    label: img.label,
+    title: img.label,
+    category: img.category,
+    description: img.prompt,
+    prompt: img.prompt,
+    tags,
+    keywords_en: tags,
+    topic_tags: img.topic_tags.map(norm),
+    location_tags: img.location_tags.map(norm),
+    storage_path: img.storage_path,
+    public_url: img.public_url,
+    credit: "VaartaNow AI",
+    license: "ai-generated",
+    rights_status: "commercial-editorial",
+    focus: "center",
+    image_style: "editorial-ai",
+    aspect_ratio: "16:9",
+    generation_provider: "gemini",
+    generation_model: imageModel(),
+    generation_status: "uploaded",
+    is_ai_generated: true,
+    editorial_label: EDITORIAL_LABEL,
+    prompt_hash: createHash("sha256").update(img.prompt.toLowerCase().trim()).digest("hex").slice(0, 16),
+    width: W,
+    height: H,
+    active: true,
+    updated_at: new Date().toISOString(),
+  }, { onConflict: "asset_code" })
+    .select("id, kind, label, tags, public_url, storage_path, credit, focus, times_used, is_ai_generated, asset_code, editorial_label")
+    .single();
+  if (error) throw new Error(`image_library: ${error.message}`);
+  return data as LibraryPhoto;
+}
+
+/**
+ * No library photo fits the story: generate one for its topics/places (never for named people)
+ * and keep it in the library under those keywords. The asset code is derived from the sorted
+ * keywords, so the same combination is generated once and reused afterwards.
+ */
+async function generatedKeywordPhoto(supabase: SupabaseClient, category: string, kw: ImageKeywords, apiKey: string): Promise<LibraryPhoto | null> {
+  if (imageModel() === "off") return null;
+  const generic = await genericTags(supabase);
+  const specific = (list?: string[]) => [...new Set((list ?? []).map(norm).filter((t) => t && !generic.has(t)))];
+  const topics = specific(kw.topics), places = specific(kw.places);
+  if (!topics.length && !places.length) return null;
+
+  const keys = [...topics, ...places].sort();
+  const asset_code = `gen-${createHash("sha1").update(keys.join("|")).digest("hex").slice(0, 12)}`;
+  const { data: existing } = await supabase.from("image_library")
+    .select("id, kind, label, tags, public_url, storage_path, credit, focus, times_used, is_ai_generated, asset_code, editorial_label")
+    .eq("asset_code", asset_code).eq("active", true).maybeSingle();
+  if (existing) return existing as LibraryPhoto;
+  if (generatedThisRun >= MAX_GENERATED) return null;
+  generatedThisRun++;
+
+  const scene = `${topics.join(", ") || category}${places.length ? ` in ${places.join(", ")}` : ""}`;
+  const prompt = `${scene}. Context: ${category} news from Andhra Pradesh and Telangana, India. ${PHOTO_STYLE}`;
+  const storage_path = `library/generated/${asset_code}.webp`;
+  const public_url = await uploadWebp(supabase, storage_path, await generateWebp(prompt, apiKey));
+  console.log(`  generated library image "${scene}" (${asset_code})`);
+  return saveToLibrary(supabase, {
+    asset_code, kind: topics.length ? "topic" : "place", label: scene, category,
+    tags: [...keys, category], topic_tags: topics, location_tags: places, prompt, storage_path, public_url,
+  });
+}
+
+/** One AI illustration per category for stories with no usable keywords; stored in the library under the category. */
+async function generatedCategoryPhoto(supabase: SupabaseClient, category: string, apiKey: string): Promise<LibraryPhoto | null> {
+  const storage_path = `categories/${category}.webp`;
+  const scene = CATEGORY_SCENES[category] ?? CATEGORY_SCENES.national;
+  const prompt = `${scene}. ${STYLE}`;
+  const row = { asset_code: `category-${category}`, kind: "category" as const, label: `${category} category illustration`, category,
+    tags: [category], topic_tags: [category], location_tags: [], prompt, storage_path };
   try {
-    const res = await fetch(`${API}/models/${model}:generateContent?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: `${CATEGORY_SCENES[category] ?? CATEGORY_SCENES.national}. ${STYLE}` }] }], generationConfig: { responseModalities: ["IMAGE"] } }),
-      signal: AbortSignal.timeout(90_000),
-    });
-    const json = (await res.json()) as any;
-    const data = json.candidates?.[0]?.content?.parts?.find((p: any) => p.inlineData?.data)?.inlineData?.data;
-    if (!data) throw new Error(json.error?.message ?? "no image returned");
-    return await uploadWebp(supabase, path, await sharp(Buffer.from(data, "base64")).resize(W, H, { fit: "cover" }).webp({ quality: 78 }).toBuffer());
+    const { data: files } = await supabase.storage.from(BUCKET).list("categories", { search: `${category}.webp` });
+    if (files?.some((f) => f.name === `${category}.webp`)) {
+      // generated earlier (before images were recorded in the library): add the missing library row
+      return await saveToLibrary(supabase, { ...row, public_url: supabase.storage.from(BUCKET).getPublicUrl(storage_path).data.publicUrl });
+    }
+    if (imageModel() === "off" || generatedThisRun >= MAX_GENERATED) return null;
+    generatedThisRun++;
+    const public_url = await uploadWebp(supabase, storage_path, await generateWebp(prompt, apiKey));
+    console.log(`  generated category illustration for ${category}`);
+    return await saveToLibrary(supabase, { ...row, public_url });
   } catch (e: any) {
     console.warn(`  category illustration (${category}) failed: ${e.message?.slice(0, 120)}`);
     return null;
@@ -268,38 +364,31 @@ export async function storyImage(
   supabase: SupabaseClient,
   opts: { slug: string; title: string; category: string; keywords: ImageKeywords; apiKey: string }
 ): Promise<StoryImage> {
+  const path = `stories/${new Date().toISOString().slice(0, 7)}/${opts.slug}.webp`;
+  const render = async (photos: LibraryPhoto[], kind: StoryImage["kind"]): Promise<StoryImage> => {
+    const url = await uploadWebp(supabase, path, await compose(photos, opts.title));
+    await markUsed(supabase, photos);
+    return { url, path, kind, credits: [...new Set(photos.map((p) => p.credit))] };
+  };
   try {
     const photos = await pickPhotos(supabase, opts.keywords);
-    if (photos.length) {
-      const path = `stories/${new Date().toISOString().slice(0, 7)}/${opts.slug}.webp`;
-      const url = await uploadWebp(supabase, path, await compose(photos, opts.title));
-      await markUsed(supabase, photos);
-      return { url, path, kind: "library", credits: [...new Set(photos.map((p) => p.credit))] };
-    }
-    const categoryPhotos = await pickPhotos(supabase, { topics: [opts.category] });
-    if (categoryPhotos.length) {
-      const path = `stories/${new Date().toISOString().slice(0, 7)}/${opts.slug}.webp`;
-      const url = await uploadWebp(supabase, path, await compose(categoryPhotos.slice(0, 1), opts.title));
-      await markUsed(supabase, categoryPhotos.slice(0, 1));
-      return { url, path, kind: "category", credits: [categoryPhotos[0].credit] };
-    }
+    if (photos.length) return await render(photos, "library");
   } catch (e: any) {
     console.warn(`  library image failed: ${e.message?.slice(0, 120)}`);
   }
-  const illustration = await generatedCategoryImage(supabase, opts.category, opts.apiKey);
-  if (!illustration) return { url: null, path: null, kind: "none", credits: [] };
-  // put the headline on the shared category illustration, like every other story image
   try {
-    const photo: LibraryPhoto = {
-      id: `category:${opts.category}`, kind: "category", label: opts.category, tags: [opts.category],
-      public_url: illustration, storage_path: `categories/${opts.category}.webp`, credit: "VaartaNow AI",
-      focus: "centre", times_used: 0, is_ai_generated: true,
-    };
-    const path = `stories/${new Date().toISOString().slice(0, 7)}/${opts.slug}.webp`;
-    const url = await uploadWebp(supabase, path, await compose([photo], opts.title));
-    return { url, path, kind: "category", credits: ["VaartaNow AI"] };
+    const generated = await generatedKeywordPhoto(supabase, opts.category, opts.keywords, opts.apiKey);
+    if (generated) return await render([generated], "generated");
   } catch (e: any) {
-    console.warn(`  category compose failed: ${e.message?.slice(0, 120)}`);
-    return { url: illustration, path: `categories/${opts.category}.webp`, kind: "category", credits: [] };
+    console.warn(`  generated image failed: ${e.message?.slice(0, 120)}`);
   }
+  try {
+    const categoryPhotos = await pickPhotos(supabase, { topics: [opts.category] });
+    if (categoryPhotos.length) return await render(categoryPhotos.slice(0, 1), "category");
+    const illustration = await generatedCategoryPhoto(supabase, opts.category, opts.apiKey);
+    if (illustration) return await render([illustration], "category");
+  } catch (e: any) {
+    console.warn(`  category image failed: ${e.message?.slice(0, 120)}`);
+  }
+  return { url: null, path: null, kind: "none", credits: [] };
 }
