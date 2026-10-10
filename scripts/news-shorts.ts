@@ -12,9 +12,9 @@ import { ensureBucket, libraryTags, storyImage, type ImageKeywords } from "./lib
 //
 //  Each run asks Gemini to pair fresh headlines from two DIFFERENT outlets that
 //  report the same event, reads both articles and writes ONE original Telugu
-//  article of 60–100 words from the combined facts (details the sources disagree
+//  article of 50–100 words from the combined facts (details the sources disagree
 //  on are left out). Stories covered by only one outlet fill any remaining slots.
-//  Nothing is published unless it passes every check: 60–100 words, mostly
+//  Nothing is published unless it passes every check: 50–100 words, mostly
 //  Telugu, no copied phrasing from either source, and no outlet names. Articles
 //  are bylined "VaartaNow Desk"; source links are stored for fact-checking but
 //  not shown. Publisher images are NOT reused: each story image is composed from
@@ -63,15 +63,17 @@ type Candidate = { title: string; link: string; publishedAt: number; feed: Feed 
 type Short = { title: string; summary: string; category: string; tags: string[]; image_keywords?: ImageKeywords };
 type Job = { sources: Candidate[] }; // 2 outlets on the same event, or 1 when no pair was found
 
-const MIN_WORDS = 60, MAX_WORDS = 100;
+const MIN_WORDS = 50, MAX_WORDS = 100;
 
 // Outlet names must never appear in our articles (English and Telugu spellings).
 const OUTLETS = ["tv9", "tv 9", "etv", "ntv", "sakshi", "eenadu", "andhra jyothy", "andhrajyothy", "abn", "hmtv", "v6", "10tv", "10 tv",
-  "abp", "way2news", "disha", "namasthe telangana", "prajasakti", "mana telangana", "big tv", "bigtv", "idream", "mahaa", "raj news", "tv5", "t news",
+  "abp", "abp desam", "way2news", "disha", "namasthe telangana", "ntnews", "prajasakti", "mana telangana", "big tv", "bigtv", "idream", "mahaa", "raj news", "tv5", "t news",
+  "bbc", "oneindia", "telugu360", "telugu 360", "vaartha", "news18", "asianet", "samayam", "hindustan times",
+  "బీబీసీ", "ఏబీపీ దేశం", "వన్ఇండియా", "తెలుగు360",
   "టీవీ9", "టీవీ 9", "ఈటీవీ", "ఎన్టీవీ", "సాక్షి", "ఈనాడు", "ఆంధ్రజ్యోతి", "ఏబీఎన్", "వీ6", "ఏబీపీ", "దిశ", "నమస్తే తెలంగాణ", "ప్రజాశక్తి", "టీవీ5", "హెచ్ఎంటీవీ"];
 
 // Horoscopes, astrology and recipe/beauty filler are not news.
-const SKIP_TOPICS = /రాశి|రాశుల|వారఫల|దినఫల|జాతకం|పంచాంగం|horoscope|astrolog|zodiac|rashi|recipe|beauty tips/i;
+const SKIP_TOPICS = /రాశి|రాశుల|వారఫల|దినఫల|జాతకం|పంచాంగం|రెసిపీ|తయారీ విధానం|ఎలా తయారు|horoscope|astrolog|zodiac|rashi|recipe|beauty tips/i;
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const mentions = (text: string, name: string) => new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(name)}($|[^\\p{L}\\p{N}])`, "u").test(text);
