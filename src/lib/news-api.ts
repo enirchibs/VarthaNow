@@ -1,9 +1,30 @@
 import type { BlogPost, NewsCategory, SearchFilters } from "@/types/news";
-import { demoPosts } from "@/lib/demo-data";
 import { supabase } from "@/lib/supabase";
 import { getActiveLanguage, type Language } from "@/hooks/useLanguage";
 import { isArticleRead, getArticleAgeHours } from "@/lib/read-tracker";
 import { expandCategorySlugs, postMatchesCategory } from "@/lib/categories";
+
+// Ingested titles often carry HTML entities (e.g. "Kohli &#8211; Rohit", "&#8216;Shiva&#8217;").
+// Decode them once here so every page shows clean text.
+const NAMED_ENTITIES: Record<string, string> = { amp: "&", quot: '"', apos: "'", lt: "<", gt: ">", nbsp: " ", ndash: "–", mdash: "—", lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”", hellip: "…" };
+const decodeEntities = (text: string) =>
+  text.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (match, code: string) => {
+    if (code[0] !== "#") return NAMED_ENTITIES[code.toLowerCase()] ?? match;
+    const n = code[1].toLowerCase() === "x" ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
+    return Number.isFinite(n) && n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : match;
+  });
+
+function cleanPost<T extends BlogPost | null>(post: T): T {
+  if (!post) return post;
+  return {
+    ...post,
+    title: post.title && decodeEntities(post.title),
+    excerpt: post.excerpt && decodeEntities(post.excerpt),
+    meta_title: post.meta_title && decodeEntities(post.meta_title),
+    meta_description: post.meta_description && decodeEntities(post.meta_description)
+  };
+}
+const cleanPosts = (posts: BlogPost[]) => posts.map(cleanPost);
 
 export const PAGE_SIZE = 25;
 
@@ -170,11 +191,7 @@ export async function getPosts(
 ) {
   const activeLang = filters?.language ?? getActiveLanguage();
 
-  if (!supabase) {
-    const filtered = filterPosts(demoPosts, { ...filters, language: activeLang });
-    const ranked = rankAndPersonalizePosts(filtered, options);
-    return ranked.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-  }
+  if (!supabase) return [];
 
   let query = supabase
     .from("blog_posts")
@@ -195,23 +212,16 @@ export async function getPosts(
 
   const { data, error } = await query;
   
-  if (error || !data || data.length === 0) {
-    if (error) console.error("Supabase getPosts error:", error);
-    const filtered = filterPosts(demoPosts, { ...filters, language: activeLang });
-    const ranked = rankAndPersonalizePosts(filtered, options);
-    return ranked.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  if (error) {
+    console.error("Supabase getPosts error:", error);
+    return [];
   }
 
+  const cleaned = cleanPosts(data as BlogPost[]);
   const categoryScoped =
     filters?.category && filters.category !== "all"
-      ? (data as BlogPost[]).filter((post) => postMatchesCategory(post, filters.category))
-      : (data as BlogPost[]);
-
-  if (categoryScoped.length === 0 && filters?.category && filters.category !== "all") {
-    const filtered = filterPosts(demoPosts, { ...filters, language: activeLang });
-    const ranked = rankAndPersonalizePosts(filtered, options);
-    return ranked.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-  }
+      ? cleaned.filter((post) => postMatchesCategory(post, filters.category))
+      : cleaned;
 
   const ranked = rankAndPersonalizePosts(categoryScoped, options);
   return ranked.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
@@ -220,10 +230,7 @@ export async function getPosts(
 export async function getAdminPosts(page = 0, filters?: Partial<SearchFilters>) {
   const activeLang = filters?.language ?? getActiveLanguage();
 
-  if (!supabase) {
-    const filtered = filterPosts(demoPosts, { ...filters, language: activeLang });
-    return sortPublished(filtered).slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-  }
+  if (!supabase) return [];
 
   let query = supabase
     .from("blog_posts")
@@ -243,22 +250,19 @@ export async function getAdminPosts(page = 0, filters?: Partial<SearchFilters>) 
 
   const { data, error } = await query;
   
-  if (error || !data || data.length === 0) {
-    if (error) console.error("Supabase getAdminPosts error:", error);
-    const filtered = filterPosts(demoPosts, { ...filters, language: activeLang });
-    return sortPublished(filtered).slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  if (error) {
+    console.error("Supabase getAdminPosts error:", error);
+    return [];
   }
 
-  const scoped =
-    filters?.category && filters.category !== "all"
-      ? (data as BlogPost[]).filter((post) => postMatchesCategory(post, filters.category))
-      : (data as BlogPost[]);
-
-  return scoped;
+  const cleaned = cleanPosts(data as BlogPost[]);
+  return filters?.category && filters.category !== "all"
+    ? cleaned.filter((post) => postMatchesCategory(post, filters.category))
+    : cleaned;
 }
 
 export async function getPostBySlug(slug: string) {
-  if (!supabase) return demoPosts.find((post) => post.slug === slug) ?? null;
+  if (!supabase) return null;
 
   const { data, error } = await supabase
     .from("blog_posts")
@@ -267,20 +271,18 @@ export async function getPostBySlug(slug: string) {
     .eq("published", true)
     .maybeSingle();
 
-  if (error || !data) {
-    if (error) console.error("Supabase getPostBySlug error:", error);
-    return demoPosts.find((post) => post.slug === slug) ?? null;
+  if (error) {
+    console.error("Supabase getPostBySlug error:", error);
+    return null;
   }
   
-  return data as BlogPost | null;
+  return cleanPost(data as BlogPost | null);
 }
 
 export async function getFeaturedPosts(limit = 4, lang?: Language) {
   const activeLang = lang ?? getActiveLanguage();
 
-  if (!supabase) {
-    return sortPublished(demoPosts.filter((post) => post.featured && post.language === activeLang)).slice(0, limit);
-  }
+  if (!supabase) return [];
 
   const { data, error } = await supabase
     .from("blog_posts")
@@ -291,20 +293,18 @@ export async function getFeaturedPosts(limit = 4, lang?: Language) {
     .order("published_at", { ascending: false })
     .limit(limit);
 
-  if (error || !data || data.length === 0) {
-    if (error) console.error("Supabase getFeaturedPosts error:", error);
-    return sortPublished(demoPosts.filter((post) => post.featured && post.language === activeLang)).slice(0, limit);
+  if (error) {
+    console.error("Supabase getFeaturedPosts error:", error);
+    return [];
   }
   
-  return data as BlogPost[];
+  return cleanPosts(data as BlogPost[]);
 }
 
 export async function getTrendingPosts(limit = 6, lang?: Language) {
   const activeLang = lang ?? getActiveLanguage();
 
-  if (!supabase) {
-    return sortPublished(demoPosts.filter((post) => post.language === activeLang)).slice(0, limit);
-  }
+  if (!supabase) return [];
 
   const { data, error } = await supabase
     .from("blog_posts")
@@ -315,12 +315,12 @@ export async function getTrendingPosts(limit = 6, lang?: Language) {
     .order("published_at", { ascending: false })
     .limit(limit);
 
-  if (error || !data || data.length === 0) {
-    if (error) console.error("Supabase getTrendingPosts error:", error);
-    return sortPublished(demoPosts.filter((post) => post.language === activeLang)).slice(0, limit);
+  if (error) {
+    console.error("Supabase getTrendingPosts error:", error);
+    return [];
   }
   
-  return data as BlogPost[];
+  return cleanPosts(data as BlogPost[]);
 }
 
 export async function updatePost(slug: string, patch: Partial<BlogPost>) {
@@ -354,10 +354,7 @@ export async function getFavoritePosts(page = 0, categoriesList: string[], lang?
 
   if (categoriesList.length === 0) return [];
 
-  if (!supabase) {
-    const filtered = demoPosts.filter((post) => post.language === activeLang && categoriesList.includes(post.category));
-    return sortPublished(filtered).slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
-  }
+  if (!supabase) return [];
 
   const { data, error } = await supabase
     .from("blog_posts")
@@ -368,13 +365,12 @@ export async function getFavoritePosts(page = 0, categoriesList: string[], lang?
     .order("published_at", { ascending: false })
     .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
-  if (error || !data || data.length === 0) {
-    if (error) console.error("Supabase getFavoritePosts error:", error);
-    const filtered = demoPosts.filter((post) => post.language === activeLang && categoriesList.includes(post.category));
-    return sortPublished(filtered).slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  if (error) {
+    console.error("Supabase getFavoritePosts error:", error);
+    return [];
   }
 
-  return data as BlogPost[];
+  return cleanPosts(data as BlogPost[]);
 }
 
 function filterPosts(posts: BlogPost[], filters?: Partial<SearchFilters>) {

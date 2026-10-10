@@ -395,10 +395,7 @@ function MedicinePanel({ lang }: { lang: "te" | "en" }) {
                     <span className="text-[10px] font-black text-emerald-600 uppercase tracking-wider">{lang === "te" ? "ఉపయోగాలు" : "Common Uses"}</span>
                     <p className="text-[hsl(var(--foreground))] leading-relaxed">{result.common_uses}</p>
                   </div>
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-wider">{lang === "te" ? "సాధారణ మోతాదు" : "Typical Dosage"}</span>
-                    <p className="text-[hsl(var(--foreground))] leading-relaxed">{result.typical_dosage}</p>
-                  </div>
+                  {/* Dosage is intentionally not shown: dosing must come from a doctor or pharmacist. */}
                   <div className="space-y-1">
                     <span className="text-[10px] font-black text-red-500 uppercase tracking-wider">{lang === "te" ? "దుష్ప్రభావాలు (Side Effects)" : "Common Side Effects"}</span>
                     <p className="text-[hsl(var(--foreground))] leading-relaxed">{result.side_effects}</p>

@@ -101,80 +101,9 @@ const MAHILA_CATEGORIES = [
   }
 ];
 
-const INITIAL_MAHILA_ITEMS: MahilaItem[] = [
-  {
-    id: "m-1",
-    seller_name: "లక్ష్మి దేవి (Lakshmi Devi)",
-    category: "food_catering",
-    title: "స్వచ్ఛమైన కొత్త ఆవకాయ పచ్చడి (Traditional Avakaya Pickle)",
-    description: "అప్పడాలు, వడియాలు, పచ్చళ్లు, కారం పొడులు. నూనె లేకుండా సంప్రదాయ పద్ధతిలో తయారుచేసిన స్వచ్ఛమైన ఆంధ్రా ఆవకాయ పచ్చడి.",
-    price: "₹350 / kg",
-    locality: "మధురవాడ (Madhurawada, Vizag)",
-    contact: "9876543210",
-    image: "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80",
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "m-2",
-    seller_name: "సునీత (Sunitha Home Foods)",
-    category: "food_catering",
-    title: "నల్లకారం, కందిపొడి & ఇంటి పిండి వంటలు (Authentic Karam Podi & Snacks)",
-    description: "కారం పొడులు, పిండి వంటలు, స్నాక్స్, స్వీట్లు. రోటిలో దంచిన ఘుమఘుమలాడే పప్పుల కారం పొడి & ఇడ్లీ కారం పొడి.",
-    price: "₹180 / 500g",
-    locality: "గాజువాక (Gajuwaka, Vizag)",
-    contact: "9876543211",
-    image: "https://images.unsplash.com/photo-1596040033229-a9821ebd058d?auto=format&fit=crop&w=800&q=80",
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "m-3",
-    seller_name: "రాధా కుమారి (Radha Creations)",
-    category: "boutique_handmade",
-    title: "మంగళగిరి పట్టు చీరలు & డ్రెస్సులు (Handcrafted Mangalagiri Sarees)",
-    description: "చీరలు, డ్రెస్సులు, బ్లౌజులు, కుర్తీలు, బుటిక్ ఉత్పత్తులు. నేరుగా చేనేత కార్మికుల వద్ద నుండి స్వచ్ఛమైన పట్టు చీరలు.",
-    price: "₹2,500",
-    locality: "ఎంవీపీ కాలనీ (MVP Colony, Vizag)",
-    contact: "9876543212",
-    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80",
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "m-4",
-    seller_name: "శ్రీలత (Sreelatha Tailors & Embroidery)",
-    category: "boutique_handmade",
-    title: "మహిళల డిజైనర్ బ్లౌజ్ స్టిచింగ్ & ఎంబ్రాయిడరీ (Blouse Stitching)",
-    description: "టైలరింగ్, బ్లౌజ్ స్టిచింగ్, ఎంబ్రాయిడరీ, హ్యాండ్మేడ్ వస్తువులు. మగ్గం వర్క్ & ఫ్యాన్సీ బ్లౌజ్ స్టిచింగ్ తక్కువ ధరలో డోర్ డెలివరీతో.",
-    price: "₹400 ప్రారంభం",
-    locality: "విజయవాడ (Vijayawada)",
-    contact: "9876543213",
-    image: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=800&q=80",
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "m-5",
-    seller_name: "అనురాధ (Anu Beauty & Spa)",
-    category: "beauty_services",
-    title: "హోమ్ బ్యూటీ పార్లర్ & బ్రైడల్ మేకప్ సేవలు (Beauty & Makeup Services)",
-    description: "బ్యూటీ పార్లర్, మేకప్, మెహందీ, హెయిర్ & బ్యూటీ services. మహిళల డోర్‌స్టెప్ బ్యూటీ సర్వీసెస్ & బ్రైడల్ మేకప్.",
-    price: "₹500 ప్రారంభం",
-    locality: "గచ్చిబౌలి (Gachibowli, Hyderabad)",
-    contact: "9876543214",
-    image: "https://images.unsplash.com/photo-1560750588-73207b1ef5b8?auto=format&fit=crop&w=800&q=80",
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "m-6",
-    seller_name: "పద్మావతి (Padma Tuitions & Classes)",
-    category: "services_classes",
-    title: "1 నుండి 10వ తరగతి హోమ్ ట్యూషన్స్ & నైపుణ్య తరగతులు",
-    description: "ట్యూషన్, కుకింగ్ క్లాసులు, క్రాఫ్ట్ క్లాసులు, బ్యూటీ ట్రైనింగ్, ఇతర నైపుణ్య సేవలు. మ్యాథ్స్, సైన్స్ & ఇంగ్లీష్ ప్రత్యేక శ్రద్ధతో.",
-    price: "₹1,500 / month",
-    locality: "హైదరాబాద్ (Hyderabad)",
-    contact: "9876543215",
-    image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
-    created_at: new Date().toISOString()
-  }
-];
+const INITIAL_MAHILA_ITEMS: MahilaItem[] = [];
+// Ids of removed demo listings, filtered out of old localStorage caches.
+const SEED_IDS = new Set(["m-1", "m-2", "m-3", "m-4", "m-5", "m-6"]);
 
 export function MahilaMarketPage() {
   const [items, setItems] = useState<MahilaItem[]>(() => {
@@ -182,7 +111,7 @@ export function MahilaMarketPage() {
       const saved = localStorage.getItem("vaartanow_mahila_items");
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed.filter((it: { id: string }) => !SEED_IDS.has(it.id));
       }
     } catch {}
     return INITIAL_MAHILA_ITEMS;

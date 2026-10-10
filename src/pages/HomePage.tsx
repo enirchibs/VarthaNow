@@ -23,7 +23,6 @@ import { detectGPSLocation, getCachedGPSLocation } from "@/lib/location-detector
 import { getUserInterests } from "@/lib/interest-tracker";
 import { recordUserVisit } from "@/lib/read-tracker";
 import { useBookmarks } from "@/hooks/useBookmarks";
-import { demoPosts } from "@/lib/demo-data";
 import { categoryLabel, detectCategoryFromTitleAndContent } from "@/lib/categories";
 import { getJobsList, formatJobTitleTelugu } from "@/lib/jobs-api";
 import type { VaartanowJob } from "@/types/jobs";
@@ -89,38 +88,17 @@ export function HomePage() {
   const numSlides = useMemo(() => Math.floor(Math.random() * 3) + 4, []); // 4 to 6 slides
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // Safe fallback to demoPosts so the page is NEVER blank while loading or on network issues
-  const effectivePosts = useMemo(() => {
-    if (feed.posts && feed.posts.length > 0) return feed.posts;
-    return demoPosts;
-  }, [feed.posts]);
+  const effectivePosts = feed.posts;
 
-  const slides = useMemo(() => {
-    const list = effectivePosts.length > 0 ? effectivePosts : demoPosts;
-    return list.slice(0, Math.min(list.length, numSlides));
-  }, [effectivePosts, numSlides]);
+  const slides = useMemo(
+    () => effectivePosts.slice(0, Math.min(effectivePosts.length, numSlides)),
+    [effectivePosts, numSlides]
+  );
 
-  // Ensure AT LEAST 9 articles are ALWAYS displayed in the main grid
+  // Grid shows what's left after the slider; if the feed is short, reuse the full list instead of padding with filler.
   const displayGridPosts = useMemo(() => {
-    const source = effectivePosts.length > 0 ? effectivePosts : demoPosts;
-    let gridList = source.slice(numSlides);
-
-    if (gridList.length < 9 && source.length >= 9) {
-      gridList = source;
-    }
-
-    if (gridList.length < 9) {
-      const combined = [...gridList];
-      for (const item of demoPosts) {
-        if (combined.length >= 9) break;
-        if (!combined.some((p) => p.slug === item.slug)) {
-          combined.push(item);
-        }
-      }
-      gridList = combined;
-    }
-
-    return gridList.filter(Boolean);
+    const rest = effectivePosts.slice(numSlides);
+    return rest.length > 0 ? rest : effectivePosts;
   }, [effectivePosts, numSlides]);
 
   useEffect(() => {
@@ -138,7 +116,7 @@ export function HomePage() {
   }, [slides.length]);
 
   const safeIndex = slides.length > 0 ? ((activeSlide % slides.length) + slides.length) % slides.length : 0;
-  const currentSlide = slides[safeIndex] || demoPosts[0];
+  const currentSlide = slides[safeIndex];
 
   // Handle Refresh & Shuffle Feed action
   const handleRefreshShuffle = () => {

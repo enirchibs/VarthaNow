@@ -2,14 +2,12 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useWeather } from "@/hooks/useWeather";
-import { useGoldRate } from "@/hooks/useGoldRate";
 import { calculatePanchangam } from "@/lib/panchangam";
 import { getCachedGPSLocation } from "@/lib/location-detector";
 
 export function HeaderFlowTicker() {
   const { lang } = useLanguage();
   const { weather } = useWeather(lang);
-  const goldRate = useGoldRate();
   const [isPaused, setIsPaused] = useState(false);
 
   // Live Panchangam calculation
@@ -17,15 +15,11 @@ export function HeaderFlowTicker() {
   const panchangam = calculatePanchangam(today);
   const cachedGps = getCachedGPSLocation();
 
-  // Weather location display
-  const weatherCity = cachedGps?.city || weather?.city || (lang === "te" ? "విశాఖపట్నం" : "Visakhapatnam");
-  const weatherTemp = weather?.temp ? `${weather.temp}°C` : "31°C";
-  const weatherCond = weather?.condition || "⛅ పాక్షిక మేఘావృతం";
+  // Weather is shown only when real data has loaded — never a placeholder reading.
+  const weatherCity = cachedGps?.city || weather?.city;
+  const hasWeather = Boolean(weather?.temp && weatherCity);
 
-  // Production Gold Rate formatted strings (OroPocket live BUY prices converted to 10g 24K & 22K)
-  const goldText = `🪙 GOLD 24K: ₹${goldRate.formatted24k}/10g | 22K: ₹${goldRate.formatted22k}/10g · ${goldRate.timeAgo}`;
-
-  // All ticker items requested by the user (GOLD ONLY - SENSEX COMPLETELY REMOVED)
+  // Ticker items
   const tickerItems = [
     {
       id: "breaking",
@@ -35,28 +29,22 @@ export function HeaderFlowTicker() {
       text: "తాజా వార్తలు, తక్షణం: ఆంధ్రప్రదేశ్ & తెలంగాణ ఎప్పటికప్పుడు తాజా సమాచారం!",
       link: "/"
     },
-    {
-      id: "weather",
-      badge: "వాతావరణ సూచన",
-      badgeColor: "bg-sky-600 text-white",
-      icon: "⛅",
-      text: `${weatherCity}: ${weatherTemp} · ${weatherCond}`,
-      link: "/health"
-    },
-    {
-      id: "gold",
-      badge: "GOLD RATE",
-      badgeColor: "bg-amber-500 text-black font-extrabold",
-      icon: "🪙",
-      text: goldText,
-      link: "/category/business"
-    },
+    ...(hasWeather
+      ? [{
+          id: "weather",
+          badge: "వాతావరణ సూచన",
+          badgeColor: "bg-sky-600 text-white",
+          icon: "⛅",
+          text: `${weatherCity}: ${weather!.temp}°C${weather!.condition ? ` · ${weather!.condition}` : ""}`,
+          link: "/health"
+        }]
+      : []),
     {
       id: "jobs",
       badge: "స్థానిక ఉద్యోగాలు",
       badgeColor: "bg-indigo-600 text-white",
       icon: "💼",
-      text: "స్థానిక ఉద్యోగాలు: AP & తెలంగాణలో 100+ తాజా ప్రైవేట్, ఐటీ & ప్రభుత్వ ఉద్యోగాలు!",
+      text: "స్థానిక ఉద్యోగాలు: AP & తెలంగాణలో ప్రైవేట్, ఐటీ & ప్రభుత్వ ఉద్యోగాలు చూడండి",
       link: "/jobs"
     },
     {

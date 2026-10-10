@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { 
   BarChart3, Edit3, Eye, Search, Star, Trash2, Sparkles, Upload, Activity,
   Plus, RefreshCw, Play, CheckCircle2, XCircle, Clock, AlertTriangle, ListFilter,
-  ArrowRight, ShieldCheck, User, LogOut, ChevronRight, Volume2, Briefcase, Globe
+  ArrowRight, ShieldCheck, User, LogOut, ChevronRight, Volume2, Briefcase, Globe,
+  Image as ImageIcon
 } from "lucide-react";
 import type { BlogPost, NewsCategory } from "@/types/news";
 import { createPost, deletePost, getAdminPosts, updatePost } from "@/lib/news-api";
@@ -12,12 +13,14 @@ import { Button, Input } from "@/components/ui";
 import { setMeta } from "@/lib/seo";
 import { useLanguage, type Language } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
+import { isAdminUser } from "@/hooks/useIsAdmin";
 import { TTSAdminDashboard } from "@/components/admin/TTSAdminDashboard";
 import { DailyShareAdminDashboard } from "@/components/admin/DailyShareAdminDashboard";
 import { JobsAdminDashboard } from "@/components/jobs/JobsAdminDashboard";
 import { VideoNewsAdminDashboard } from "@/components/admin/VideoNewsAdminDashboard";
 import { SEOAdminDashboard } from "@/components/admin/SEOAdminDashboard";
 import { AnalyticsAdminDashboard } from "@/components/admin/AnalyticsAdminDashboard";
+import { ImageLibraryAdminDashboard } from "@/components/admin/ImageLibraryAdminDashboard";
 import { compressImage, extensionFor } from "@/lib/image-compression";
 
 interface RssFeed {
@@ -49,7 +52,7 @@ interface PipelineJob {
   created_at: string;
 }
 
-type TabType = "articles" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
+type TabType = "articles" | "images" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
 
 export function AdminPage() {
   const navigate = useNavigate();
@@ -113,11 +116,11 @@ export function AdminPage() {
       return;
     }
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+      setUser(isAdminUser(session?.user) ? session!.user : null);
       setAuthLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
+      setUser(isAdminUser(session?.user) ? session!.user : null);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -253,9 +256,8 @@ export function AdminPage() {
     setErrorMsg("");
     setDraft(null);
 
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-    if (!apiKey) {
-      setErrorMsg("VITE_GEMINI_API_KEY is not configured in .env");
+    if (!supabase) {
+      setErrorMsg("Supabase is not configured");
       setIsGenerating(false);
       return;
     }
@@ -292,27 +294,12 @@ export function AdminPage() {
     `;
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            responseMimeType: "application/json"
-          }
-        })
+      // Gemini key stays server-side in the gemini-proxy edge function.
+      const { data, error } = await supabase.functions.invoke("gemini-proxy", {
+        body: { action: "ai_orchestrator", prompt, preferredModel: "gemini-3.5-flash-lite" }
       });
-
-      if (!response.ok) {
-        if (response.status === 429) {
-          throw new Error("Gemini API rate limit exceeded. Please wait 30 seconds and try again!");
-        }
-        throw new Error(`Gemini failed with status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+      if (error) throw new Error(`AI writer failed: ${error.message}`);
+      const textResponse: string = data?.text ?? "{}";
       const cleanJson = textResponse.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
       const parsed = JSON.parse(cleanJson);
 
@@ -676,6 +663,7 @@ export function AdminPage() {
       <section className="flex border-b border-[hsl(var(--border))] gap-1 pb-px overflow-x-auto no-scrollbar">
         {[
           { id: "articles", label: "Articles & Posts", icon: ListFilter },
+          { id: "images", label: "Image Library", icon: ImageIcon },
           { id: "writer", label: "AI Generator", icon: Sparkles },
           { id: "daily_share", label: "Daily WhatsApp & Media", icon: Upload },
           { id: "jobs", label: "Local Jobs Manager", icon: Briefcase },
@@ -809,6 +797,9 @@ export function AdminPage() {
             </div>
           </div>
         )}
+
+        {/* ==================== TAB: IMAGE LIBRARY ==================== */}
+        {activeTab === "images" && <ImageLibraryAdminDashboard />}
 
         {/* ==================== TAB 2: AI NEWS GENERATOR ==================== */}
         {activeTab === "writer" && (

@@ -15,630 +15,8 @@ const companyLogos = [
   "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=120&h=120&q=80"
 ];
 
-// Seed initial mock jobs catalog with rich Telugu-first bilingual translations
-export const mockJobs: VaartanowJob[] = [
-  {
-    job_id: "local-job-1",
-    title: "TV Mechanic (టీవీ మెకానిక్ - LED / LCD సర్వీస్)",
-    company_name: "MV Electronics (ఎంవీ ఎలక్ట్రానిక్స్)",
-    location: "డాబాగార్డెన్స్, విశాఖపట్నం (5 km)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "LED, LCD టీవీల రిపేర్ మరియు హోమ్ సర్వీస్ అందించగల టెక్నీషియన్ కావలెను.",
-    full_description: "వైజాగ్‌లో లీడింగ్ ఎలక్ట్రానిక్స్ సర్వీస్ సెంటర్‌లో టీవీ రిపేర్ టెక్నీషియన్ కావాలి.\n\n## అర్హతలు:\n- 0 - 2 సంవత్సరాల అనుభవం లేదా ITI ఎలక్ట్రానిక్స్.\n- బైక్ మరియు లైసెన్స్ తప్పనిసరి.\n- ఇన్సెంటివ్స్ మరియు హోమ్ విజిట్ బోనస్ అదనం.",
-    apply_link: "https://wa.me/919876543210?text=TV%20Mechanic%20Job",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 1).toISOString(),
-    salary_range: "₹10,000 / నెల + ఇన్సెంటివ్స్",
-    skills: ["TV Repair", "LED / LCD", "Home Service", "Electronics"],
-    tags: ["టెక్నీషియన్ & స్కిల్డ్", "నా దగ్గర", "Visakhapatnam", "New"],
-    logo_url: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Fresher",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "local-job-2",
-    title: "Sales Executive (సేల్స్ ఎగ్జిక్యూటివ్ - రిటైల్ స్టోర్)",
-    company_name: "Reliance Digital Franchise (రిలయన్స్ డిజిటల్)",
-    location: "విశాఖపట్నం సెంట్రల్ (12 km)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "కస్టమర్లకు ఎలక్ట్రానిక్స్ ప్రొడక్ట్స్ డెమో ఇవ్వడం మరియు అమ్మకాలు నిర్వహించడం.",
-    full_description: "షోరూంలో కస్టమర్లను రిసీవ్ చేసుకుని మొబైల్స్, ల్యాప్‌టాప్స్, గృహోపకరణాల వివరాలు వివరించాలి.\n\n## వివరాలు:\n- అర్హత: ఇంటర్ / డిగ్రీ.\n- మంచి కమ్యూనికేషన్ స్కిల్స్.\n- 0 - 3 సంవత్సరాల రిటైల్ అనుభవం.",
-    apply_link: "https://wa.me/919876543211?text=Sales%20Executive%20Job",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 2).toISOString(),
-    salary_range: "₹15,000 - ₹20,000 / నెల",
-    skills: ["Sales", "Customer Support", "Retail", "Billing"],
-    tags: ["సేల్స్ & రిటైల్", "నా దగ్గర", "Visakhapatnam", "New"],
-    logo_url: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Experienced",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "local-job-3",
-    title: "Computer Operator (కంప్యూటర్ ఆపరేటర్ / డేటా ఎంట్రీ)",
-    company_name: "Sri Sai Enterprises (శ్రీ సాయి ఎంటర్‌ప్రైజెస్)",
-    location: "గాజువాక, విశాఖపట్నం (8 km)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "ఎంఎస్ ఆఫీస్, బిల్లింగ్, డేటా ఎంట్రీ మరియు ప్రింటింగ్ పనులకు ఫ్రెషర్స్ కావలెను.",
-    full_description: "ఆఫీస్ మరియు గోదాం ఇన్వెంటరీ వివరాలు సిస్టంలో ఎంటర్ చేయాలి.\n\n## అర్హత:\n- 10th / ఇంటర్ / డిగ్రీ.\n- తెలుగు & ఇంగ్లీష్ టైపింగ్ అవగాహన.\n- ఫ్రెషర్స్‌కు స్వాగతం (Freshers OK).",
-    apply_link: "https://wa.me/919876543212?text=Computer%20Operator%20Job",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 3).toISOString(),
-    salary_range: "₹12,000 - ₹18,000 / నెల",
-    skills: ["MS Office", "Data Entry", "Typing", "Billing"],
-    tags: ["ఆఫీస్ & అడ్మిన్", "Freshers", "నా దగ్గర", "Visakhapatnam"],
-    logo_url: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Fresher",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "local-job-4",
-    title: "Delivery Associate (డెలివరీ బాయ్స్ / రైడర్స్)",
-    company_name: "Zomato & Blinkit Logistics",
-    location: "మధురవాడ & ఎంవీపీ కాలనీ (3 km)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "రోజువారీ గ్రాసరీ మరియు ఫుడ్ ఆర్డర్లు డెలివరీ చేయడానికి సొంత బైక్ ఉన్న రైడర్లు కావలెను.",
-    full_description: "రోజుకు 4 నుండి 8 గంటల పార్ట్ టైమ్ లేదా ఫుల్ టైమ్ పని చేసే అవకాశం.\n\n## ప్రయోజనాలు:\n- రోజువారీ చెల్లింపులు + పెట్రోల్ అలవెన్స్.\n- డ్రైవింగ్ లైసెన్స్ మరియు స్మార్ట్‌ఫోన్ అవసరం.",
-    apply_link: "https://wa.me/919876543213?text=Delivery%20Job",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 5).toISOString(),
-    salary_range: "₹18,000 - ₹28,000 / నెల",
-    skills: ["Bike Driving", "Navigation", "Delivery", "Flexible Hours"],
-    tags: ["డ్రైవర్ & డెలివరీ", "Part-time", "నా దగ్గర", "Visakhapatnam"],
-    logo_url: "https://images.unsplash.com/photo-1526367790999-0150786686a2?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Fresher",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "local-job-5",
-    title: "Electrician & AC Technician (ఎలక్ట్రీషియన్ & ఏసీ టెక్నీషియన్)",
-    company_name: "CoolCare Solutions (కూల్‌కేర్ సొల్యూషన్స్)",
-    location: "విజయవాడ సెంట్రల్ (Benz Circle)",
-    district: "Vijayawada",
-    state: "Andhra Pradesh",
-    description_snippet: "గృహాలు మరియు ఆఫీసులలో ఏసీ ఇన్‌స్టాలేషన్, వైరింగ్ మరియు జనరల్ సర్వీసింగ్ పనులు.",
-    full_description: "విజయవాడ పరిసర ప్రాంతాల్లో హోమ్ విజిట్ సర్వీస్ పనుల కోసం అనుభవం గల ఎలక్ట్రీషియన్లు కావాలి.\n\n## అర్హతలు:\n- ITI ఎలక్ట్రికల్ లేదా 1+ సంవత్సరం ప్రాక్టికల్ అనుభవం.\n- ప్రతి సర్వీస్‌కు ప్రత్యేక కమిషన్ లభించును.",
-    apply_link: "https://wa.me/919876543214?text=Electrician%20Job",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 6).toISOString(),
-    salary_range: "₹16,000 - ₹24,000 / నెల",
-    skills: ["AC Repair", "Wiring", "Electricals", "Installation"],
-    tags: ["టెక్నీషియన్ & స్కిల్డ్", "Vijayawada", "New"],
-    logo_url: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Experienced",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "local-job-6",
-    title: "Civil Site Supervisor (సివిల్ సైట్ సూపర్‌వైజర్)",
-    company_name: "SV Constructions (ఎస్వీ కన్‌స్ట్రక్షన్స్)",
-    location: "మధురవాడ, విశాఖపట్నం (6 km)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "రెసిడెన్షియల్ అపార్ట్‌మెంట్ ప్రాజెక్ట్ వద్ద లేబర్ మేనేజ్‌మెంట్ మరియు మెటీరియల్ పర్యవేక్షణ.",
-    full_description: "నిర్మాణ సైట్ వద్ద రోజువారీ పనిని పర్యవేక్షించి ప్రోగ్రెస్ రిపోర్ట్ అందించాలి.\n\n## వివరాలు:\n- డిప్లొమా లేదా B.Tech సివిల్ (0-3 సంవత్సరాలు).\n- సైట్ కొలతలు మరియు క్వాలిటీ చెకింగ్.\n- మంచి వేతనం మరియు సైట్ అలవెన్స్.",
-    apply_link: "https://wa.me/919876543215?text=Site%20Supervisor%20Job",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 7).toISOString(),
-    salary_range: "₹18,000 - ₹25,000 / నెల",
-    skills: ["Civil Site", "Supervision", "Site Management", "AutoCAD"],
-    tags: ["కన్‌స్ట్రక్షన్", "నా దగ్గర", "Visakhapatnam", "New"],
-    logo_url: "https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Experienced",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "local-job-7",
-    title: "Chef & Continental Cook (హోటల్ చెఫ్ / కుక్)",
-    company_name: "Grand Swagath Hotel & Restaurant",
-    location: "ద్వారకానగర్, విశాఖపట్నం (4 km)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "సౌత్ ఇండియన్ మరియు చైనీస్ వంటకాల్లో నైపుణ్యం కలిగిన చెఫ్ మరియు హెల్పర్స్ కావలెను.",
-    full_description: "ప్రముఖ రెస్టారెంట్ నందు కిచెన్ నిర్వహణ మరియు రుచికరమైన భోజనం అందించుటకు చెఫ్ కావాలి.\n\n## సౌకర్యాలు:\n- ఉచిత భోజనం మరియు రూమ్ సౌకర్యం కలదు.\n- అనుభవాన్ని బట్టి ఆకర్షణీయమైన జీతం.",
-    apply_link: "https://wa.me/919876543216?text=Hotel%20Cook%20Job",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 8).toISOString(),
-    salary_range: "₹16,000 - ₹22,000 / నెల + భోజనం",
-    skills: ["Cooking", "Food Prep", "Kitchen Safety", "South Indian"],
-    tags: ["హోటల్ & హాస్పిటాలిటీ", "నా దగ్గర", "Visakhapatnam"],
-    logo_url: "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Experienced",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "local-job-8",
-    title: "Staff Nurse & Clinic Assistant (స్టాఫ్ నర్సు / క్లినిక్ అసిస్టెంట్)",
-    company_name: "Apollo Care Clinic (అపోలో క్లినిక్)",
-    location: "సీతమ్మధార, విశాఖపట్నం (2 km)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "ఓపీడీ పేషెంట్ కేర్, ఇంజెక్షన్స్, బీపీ/షుగర్ చెకప్ కోసం అనుభవం లేదా ఫ్రెషర్ నర్సింగ్ స్టాఫ్.",
-    full_description: "క్లినిక్‌లో డాక్టర్‌కు సహాయంగా ఉండడం మరియు రోగులకు ప్రాథమిక చికిత్స అందించడం.\n\n## అర్హత:\n- GNM / B.Sc Nursing / ANM.\n- ఫ్రెషర్స్ కూడా దరఖాస్తు చేసుకోవచ్చు (Freshers OK).",
-    apply_link: "https://wa.me/919876543217?text=Staff%20Nurse%20Job",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 9).toISOString(),
-    salary_range: "₹14,000 - ₹20,000 / నెల",
-    skills: ["Patient Care", "Injections", "First Aid", "Nursing"],
-    tags: ["హెల్త్‌కేర్", "Freshers", "నా దగ్గర", "Visakhapatnam"],
-    logo_url: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Fresher",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "local-job-9",
-    title: "Primary School Teacher (ప్రైమరీ స్కూల్ టీచర్ - గణితం & సైన్స్)",
-    company_name: "Sri Chaitanya High School",
-    location: "పెందుర్తి & గాజువాక, విశాఖపట్నం (5 km)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "1 నుండి 5 వ తరగతి విద్యార్థులకు తెలుగు/ఇంగ్లీష్ మాధ్యమంలో బోధించే ఉపాధ్యాయులు కావలెను.",
-    full_description: "పిల్లలకు ఆహ్లాదకరమైన వాతావరణంలో పాఠాలు బోధించే ఉపాధ్యాయులకు ఆహ్వానం.\n\n## అర్హత:\n- D.Ed / B.Ed లేదా ఏదైనా డిగ్రీ.\n- మహిళా అభ్యర్థులకు ప్రాధాన్యత.",
-    apply_link: "https://wa.me/919876543218?text=Teacher%20Job",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 10).toISOString(),
-    salary_range: "₹15,000 - ₹22,000 / నెల",
-    skills: ["Teaching", "Classroom Management", "Telugu", "Mathematics"],
-    tags: ["టీచింగ్ & ఎడ్యుకేషన్", "నా దగ్గర", "Visakhapatnam"],
-    logo_url: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Experienced",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "local-job-10",
-    title: "Security Guard & Field Supervisor (సెక్యూరిటీ గార్డ్)",
-    company_name: "SIS India Security Services",
-    location: "గాజువాక & ఆటోనగర్ (7 km)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "వాణిజ్య సముదాయాలు మరియు పరిశ్రమల వద్ద 8 గంటల షిఫ్ట్ డ్యూటీ.",
-    full_description: "ఎంట్రీ/ఎగ్జిట్ రిజిస్టర్ నమోదు మరియు సెక్యూరిటీ నిబంధనల అమలు.\n\n## ప్రయోజనాలు:\n- ESI, PF, యూనిఫామ్ ఉచితం.\n- 10వ తరగతి చదివి ఉండాలి. ఫ్రెషర్స్‌కు ట్రైనింగ్ ఇవ్వబడును.",
-    apply_link: "https://wa.me/919876543219?text=Security%20Guard%20Job",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 11).toISOString(),
-    salary_range: "₹13,500 - ₹17,000 / నెల + PF/ESI",
-    skills: ["Security", "Vigilance", "Gate Register", "Patrolling"],
-    tags: ["సెక్యూరిటీ", "Freshers", "నా దగ్గర", "Visakhapatnam"],
-    logo_url: "https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Fresher",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "local-job-11",
-    title: "Junior Web Developer & Designer (జూనియర్ వెబ్ డెవలపర్)",
-    company_name: "TechSoft Innovations",
-    location: "IT SEZ రుషికొండ & మధురవాడ (3 km)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "HTML, CSS, JavaScript మరియు React లో లోకల్ క్లయింట్ వెబ్‌సైట్ల డెవలప్‌మెంట్.",
-    full_description: "వైజాగ్ ఐటీ హబ్‌లో స్టార్టప్ కంపెనీలో వెబ్ డెవలపర్‌గా పని చేసే మంచి అవకాశం.\n\n## వివరాలు:\n- B.Tech / MCA / BCA ఫ్రెషర్స్.\n- ప్రాథమిక ప్రోగ్రామింగ్ నైపుణ్యాలు.",
-    apply_link: "https://wa.me/919876543220?text=Web%20Developer%20Job",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 12).toISOString(),
-    salary_range: "₹18,000 - ₹28,000 / నెల",
-    skills: ["HTML/CSS", "JavaScript", "React", "Web Design"],
-    tags: ["IT & Software", "Freshers", "నా దగ్గర", "Visakhapatnam", "New"],
-    logo_url: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Fresher",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "local-job-12",
-    title: "Digital Marketing & Social Media Intern (మార్కెటింగ్ ఇంటర్న్)",
-    company_name: "LocalBrand Media Agency",
-    location: "డాబాగార్డెన్స్, విశాఖపట్నం (4 km)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "సోషల్ మీడియా పోస్ట్‌లు, రీల్స్ క్రియేషన్ మరియు వాట్సాప్ మార్కెటింగ్ కోసం 3 నెలల ఇంటర్న్‌షిప్.",
-    full_description: "కాలేజ్ విద్యార్థులు లేదా ఫ్రెషర్లకు స్టైపెండ్‌తో కూడిన లైవ్ ప్రాజెక్ట్ అనుభవం.\n\n## ప్రయోజనాలు:\n- నెలవారీ స్టైపెండ్ + ఇంటర్న్‌షిప్ సర్టిఫికెట్.\n- పర్ఫార్మెన్స్ ఆధారంగా పర్మనెంట్ ఉద్యోగం.",
-    apply_link: "https://wa.me/919876543221?text=Marketing%20Internship",
-    source_platform: "మన అడ్డా జాబ్స్ (Mana Adda)",
-    posted_date: new Date(Date.now() - 3600000 * 13).toISOString(),
-    salary_range: "₹8,000 - ₹12,000 / నెల స్టైపెండ్",
-    skills: ["Canva", "Instagram", "Social Media", "Video Editing"],
-    tags: ["ఇంటర్న్‌షిప్స్", "Freshers", "Part-time", "నా దగ్గర", "Visakhapatnam"],
-    logo_url: "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=120&h=120&q=80",
-    experience_level: "Fresher",
-    work_mode: "On-site",
-    contract_type: "Internship",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-1",
-    title: "రిమోట్ రియాక్ట్ & నెక్స్ట్‌జేఎస్ డెవలపర్ (Remote React & Next.js Developer)",
-    company_name: "Ather Energy (ఏథర్ ఎనర్జీ)",
-    location: "బెంగళూరు / హైదరాబాద్ (Remote WFH)",
-    district: "Hyderabad",
-    state: "Telangana",
-    description_snippet: "రియాక్ట్, Next.js మరియు TypeScript ఉపయోగించి రెస్పాన్సివ్ వెబ్ యాప్‌లు తయారుచేసే అనుభవం ఉన్న డెవలపర్లు కావలెను.",
-    full_description: "మా సాఫ్ట్‌వేర్ టీమ్‌లో పనిచేయడానికి టాలెంటెడ్ ఫ్రంటెండ్ డెవలపర్‌లు అవసరం.\n\n## అర్హతలు & నైపుణ్యాలు:\n- React.js, Next.js మరియు TypeScript లో అనుభవం.\n- Tailwind CSS, REST APIs & UI డిజైనింగ్ నైపుణ్యాలు.\n- ఇంటి నుండి పని చేసే (Remote WFH) సౌలభ్యం.",
-    apply_link: "https://careers.atherenergy.com/jobs/react-frontend-dev-1",
-    source_platform: "SerpApi Google Jobs",
-    posted_date: new Date(Date.now() - 3600000 * 4).toISOString(), // 4 hours ago
-    salary_range: "₹12,00,000 - ₹18,00,000 / సంవత్సరం",
-    skills: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
-    tags: ["IT Jobs", "Remote IT", "AI/ML"],
-    logo_url: companyLogos[0],
-    experience_level: "Experienced",
-    work_mode: "Remote",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-2",
-    title: "APPSC గ్రూప్ 2 రిక్రూట్‌మెంట్ (District Coordinator)",
-    company_name: "ఆంధ్రప్రదేశ్ పబ్లిక్ సర్వీస్ కమిషన్ (APPSC)",
-    location: "విశాఖపట్నం & విజయవాడ (AP)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "ఆంధ్రప్రదేశ్ ప్రభుత్వ పరిధిలో గ్రూప్-2 ఎగ్జిక్యూటివ్ మరియు నాన్-ఎగ్జిక్యూటివ్ ఉద్యోగాలకు అధికారిక నోటిఫికేషన్.",
-    full_description: "ఆంధ్రప్రదేశ్ ప్రభుత్వ వివిధ విభాగాలలో గ్రూప్-2 పోస్టుల భర్తీ ప్రక్రియ ప్రారంభమైనది.\n\n## వివరాలు:\n- అర్హత: ఏదైనా డిగ్రీ ఉత్తీర్ణత.\n- వయోపరిమితి: 18 - 42 సంవత్సరాలు (సడలింపు కలదు).\n- ఎంపిక విధానం: ప్రిలిమ్స్, మెయిన్స్ మరియు సర్టిఫికెట్ వెరిఫికేషన్.",
-    apply_link: "https://psc.ap.gov.in/group2-recruitment-2026",
-    source_platform: "Andhra Pradesh Govt Portal",
-    posted_date: new Date(Date.now() - 3600000 * 20).toISOString(),
-    salary_range: "₹45,000 - ₹72,000 / నెలకు",
-    skills: ["General Studies", "Telugu Language", "Public Administration"],
-    tags: ["Government", "AP Jobs"],
-    logo_url: companyLogos[1],
-    experience_level: "Any",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-3",
-    title: "జూనియర్ ఐటీ ట్రైనీ ఇంజనీర్ - ఫ్రెషర్స్ (Junior IT Trainee Engineer)",
-    company_name: "Tech Mahindra (టెక్ మహీంద్రా)",
-    location: "హైదరాబాద్ (హైటెక్ సిటీ, Telangana)",
-    district: "Hyderabad",
-    state: "Telangana",
-    description_snippet: "బీటెక్ / ఎంసీఏ ఫ్రెషర్స్ కోసం సాఫ్ట్‌వేర్ ట్రైనీ ఉద్యోగాలు. క్లౌడ్, కోడింగ్ & వెబ్ డెవలప్‌మెంట్ ట్రైనింగ్ ఇవ్వబడును.",
-    full_description: "హైదరాబాద్ టెక్ మహీంద్రా క్యాంపస్ లో ఫ్రెషర్స్ కొరకు అసోసియేట్ సాఫ్ట్‌వేర్ ఇంజనీర్ ఉద్యోగాలు.\n\n## అర్హతలు:\n- B.Tech (CSE, IT, ECE) / MCA ఉత్తీర్ణత.\n- Java, Python లేదా JavaScript బేసిక్స్ తెలిసి ఉండాలి.\n- మంచి కమ్యూనికేషన్ స్కిల్స్.",
-    apply_link: "https://careers.techmahindra.com/jobs/trainee-fresher-2026",
-    source_platform: "SerpApi Google Jobs",
-    posted_date: new Date(Date.now() - 3600000 * 12).toISOString(),
-    salary_range: "₹4,50,000 - ₹6,00,000 / సంవత్సరం",
-    skills: ["Javascript", "HTML/CSS", "Cloud basics"],
-    tags: ["Freshers", "Startup", "Hyderabad"],
-    logo_url: companyLogos[2],
-    experience_level: "Fresher",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: false,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-4",
-    title: "అప్‌వర్క్ తెలుగు ట్రాన్స్‌లేటర్ & డేటా ఎంట్రీ (Telugu Translator & Data Entry)",
-    company_name: "గ్లోబల్ టెక్ ట్రాన్స్‌లేటర్స్ (Global Tech)",
-    location: "వర్క్ ఫ్రమ్ హోమ్ (Remote WFH)",
-    district: "Hyderabad",
-    state: "Telangana",
-    description_snippet: "ఇంగ్లీష్ నుండి తెలుగులోకి వార్తలు, డాక్యుమెంట్లు మరియు టెక్ సారాంశాలు అనువదించే ఫ్రీలాన్స్ పనులు.",
-    full_description: "ఇంగ్లీష్ ఆర్టికల్స్ మరియు మొబైల్ న్యూస్ సారాంశాలను స్వచ్ఛమైన తెలుగులోకి అనువదించే ట్రాన్స్‌లేటర్స్ కావాలి.\n\n## అవసరమైనవి:\n- తెలుగు మరియు ఇంగ్లీష్ టైపింగ్ స్పీడ్.\n- కంప్యూటర్ లేదా లాప్‌టాప్ మరియు ఇంటర్నెట్ సౌకర్యం.\n- గంటకు ₹500 నుండి ₹900 వరకు చెల్లింపు.",
-    apply_link: "https://www.upwork.com/jobs/telugu-translation-data-entry-1",
-    source_platform: "Upwork RSS",
-    posted_date: new Date(Date.now() - 3600000 * 2).toISOString(),
-    salary_range: "₹500 - ₹900 / గంటకు",
-    skills: ["Telugu Translation", "Data Entry", "Typing"],
-    tags: ["Freelance", "WFH", "Telugu Jobs"],
-    logo_url: companyLogos[3],
-    experience_level: "Any",
-    work_mode: "Remote",
-    contract_type: "Freelance",
-    is_featured: false,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-5",
-    title: "సాఫ్ట్‌వేర్ ట్రైనర్స్ & మెంటార్స్ (Looking for Trainers & Mentors - IT)",
-    company_name: "K-HUB INDIA (కె-హబ్ ఇండియా)",
-    location: "హైదరాబాద్ (మాదాపూర్, Telangana)",
-    district: "Hyderabad",
-    state: "Telangana",
-    description_snippet: "సాఫ్ట్‌వేర్ టెక్నాలజీస్, ఫుల్‌స్టాక్ కోడింగ్ & వెబ్ డెవలప్‌మెంట్‌లో విద్యార్థులకు ట్రైనింగ్ ఇచ్చే కార్పొరేట్ ట్రైనర్లు కావలెను.",
-    full_description: "ఐటీ రంగంలో ప్రముఖ సంస్థలకు కార్పొరేట్ ట్రైనర్స్ మరియు మెంటార్స్ కావలెను.\n\n## బాధ్యతలు & అర్హతలు:\n- Full-Stack, Python, Data Science లేదా React లో శిక్షణ ఇవ్వగలగడం.\n- ఆన్‌లైన్ & ఆఫ్‌లైన్ క్లాసులు నిర్వహించడం.\n- ఆకర్షణీయమైన ప్యాకేజీ & ఫ్రీలాన్స్ ఆప్షన్లు.",
-    apply_link: "https://k-hub.in/careers",
-    source_platform: "SerpApi Google Jobs",
-    posted_date: new Date(Date.now() - 3600000 * 6).toISOString(),
-    salary_range: "ఆకర్షణీయమైన ప్యాకేజీ (Competitive)",
-    skills: ["IT Development", "Software Engineering", "Python", "React"],
-    tags: ["IT Jobs", "Freelance", "Hyderabad"],
-    logo_url: companyLogos[4],
-    experience_level: "Experienced",
-    work_mode: "On-site",
-    contract_type: "Freelance",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-6",
-    title: "పంచాయతీ సెక్రటరీ గ్రేడ్-4 రిక్రూట్‌మెంట్ (Panchayat Secretary TSPSC)",
-    company_name: "తెలంగాణ పబ్లిక్ సర్వీస్ కమిషన్ (TSPSC)",
-    location: "హైదరాబాద్ & అన్ని జిల్లాలు (Telangana)",
-    district: "Hyderabad",
-    state: "Telangana",
-    description_snippet: "తెలంగాణ రాష్ట్ర పంచాయతీరాజ్ మరియు గ్రామీణాభివృద్ధి శాఖలో గ్రేడ్-4 పంచాయతీ కార్యదర్శి ఉద్యోగాలు.",
-    full_description: "గ్రామీణ ప్రాంతాలలో ప్రభుత్వ సంక్షేమ పథకాలు మరియు పరిపాలన నిర్వహణకు పంచాయతీ సెక్రటరీ పోస్టులు.\n\n## ముఖ్య వివరాలు:\n- విద్యార్హత: గుర్తింపు పొందిన యూనివర్సిటీ నుండి ఏదైనా డిగ్రీ.\n- అధికారిక వెబ్‌సైట్ ద్వారా ఆన్‌లైన్‌లో దరఖాస్తు చేసుకోండి.",
-    apply_link: "https://websitenew.tspsc.gov.in/panchayat-secretary-recruit-2026",
-    source_platform: "TSPSC Govt Portal",
-    posted_date: new Date(Date.now() - 3600000 * 48).toISOString(),
-    salary_range: "₹38,000 - ₹55,000 / నెలకు",
-    skills: ["Rural Development", "General Studies"],
-    tags: ["Government", "Telangana Jobs"],
-    logo_url: companyLogos[1],
-    experience_level: "Any",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: false,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-7",
-    title: "విశాఖ స్టీల్ ప్లాంట్ గ్రాడ్యుయేట్ & డిప్లొమా అప్రెంటిస్ (Vizag Steel Plant Apprentice 2026)",
-    company_name: "రాష్ట్రీయ ఇస్పాత్ నిగమ్ లిమిటెడ్ (RINL - Vizag Steel)",
-    location: "విశాఖపట్నం (Visakhapatnam, AP)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "విశాఖపట్నం స్టీల్ ప్లాంట్‌లో ఇంజనీరింగ్ గ్రాడ్యుయేట్ మరియు డిప్లొమా అభ్యర్థులకు 1 సంవత్సరం అప్రెంటిస్‌షిప్ శిక్షణ.",
-    full_description: "వైజాగ్ స్టీల్ ప్లాంట్ లో 2026 విద్యా సంవత్సరానికి గానూ గ్రాడ్యుయేట్ మరియు డిప్లొమా అప్రెంటిస్ పోస్టులకు ప్రకటన విడుదలైనది.\n\n## వివరాలు:\n- విభాగాలు: Mechanical, Electrical, CSE, ECE, Civil.\n- నెలవారీ స్టైపెండ్: ₹12,500 - ₹15,000 / నెలకు.\n- గడువు: ఆన్‌లైన్ దరఖాస్తులు ప్రారంభమైనవి.",
-    apply_link: "https://www.vizagsteel.com/code/careers/job-apprentice-2026",
-    source_platform: "Vizag Steel Official Portal",
-    posted_date: new Date(Date.now() - 3600000 * 5).toISOString(),
-    salary_range: "₹12,500 - ₹15,000 / నెల స్టైపెండ్",
-    skills: ["Engineering", "Technical Training", "Apprenticeship"],
-    tags: ["Apprenticeship", "AP Jobs", "Visakhapatnam"],
-    logo_url: companyLogos[0],
-    experience_level: "Fresher",
-    work_mode: "On-site",
-    contract_type: "Apprenticeship",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-8",
-    title: "AI ప్రాంప్ట్ ఇంజనీర్ & పైథాన్ డెవలపర్ (AI Prompt Engineer & Python Dev)",
-    company_name: "NexGen AI Labs (నెక్స్‌జెన్ ఏఐ ల్యాబ్స్)",
-    location: "హైదరాబాద్ / వర్క్ ఫ్రమ్ హోమ్ (Remote WFH)",
-    district: "Hyderabad",
-    state: "Telangana",
-    description_snippet: "ఆర్టిఫిషియల్ ఇంటెలిజెన్స్, LLMs, Python & OpenAI APIs పై పనిచేసే అనుభవం ఉన్న ఏఐ ప్రాంప్ట్ ఇంజనీర్లు కావలెను.",
-    full_description: "ఫాస్ట్ గ్రోయింగ్ ఏఐ స్టార్టప్‌లో ప్రాంప్ట్ ఇంజనీరింగ్ మరియు LLM ఇంటిగ్రేషన్ పనుల కోసం డెవలపర్లు కావాలి.\n\n## నైపుణ్యాలు:\n- Python, OpenAI API, LangChain.\n- Prompt Engineering & Fine-tuning.\n- 100% రిమోట్ / WFH సౌలభ్యం.",
-    apply_link: "https://nexgenai.io/careers/prompt-engineer",
-    source_platform: "SerpApi Google Jobs",
-    posted_date: new Date(Date.now() - 3600000 * 3).toISOString(),
-    salary_range: "₹10,000,00 - ₹16,00,000 / సంవత్సరం",
-    skills: ["Python", "OpenAI", "Prompt Engineering", "TypeScript"],
-    tags: ["Startup", "Remote IT", "AI Jobs", "WFH"],
-    logo_url: companyLogos[2],
-    experience_level: "Experienced",
-    work_mode: "Remote",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-9",
-    title: "రైల్వే రిక్రూట్‌మెంట్ బోర్డు (RRB) టెక్నీషియన్ అప్రెంటిస్ (RRB Technician Apprentice)",
-    company_name: "సౌత్ సెంట్రల్ రైల్వే (South Central Railway Vijayawada)",
-    location: "విజయవాడ (Vijayawada, AP)",
-    district: "Vijayawada",
-    state: "Andhra Pradesh",
-    description_snippet: "విజయవాడ రైల్వే డివిజన్ పరిధిలో 10వ తరగతి & ITI అర్హత గల అభ్యర్థులకు 2026 టెక్నీషియన్ అప్రెంటిస్ రిక్రూట్‌మెంట్.",
-    full_description: "సౌత్ సెంట్రల్ రైల్వే వర్క్‌షాప్‌లో ఐటీఐ ట్రేడ్ వర్కర్ల కోసం 1 సంవత్సరం అప్రెంటిస్‌షిప్ శిక్షణ.\n\n## అర్హత:\n- 10th Class + ITI (Fitter, Electrician, Machinist, Welder).\n- స్టైపెండ్: ₹9,000 - ₹11,500 / నెలకు.",
-    apply_link: "https://scr.indianrailways.gov.in/apprentice-2026",
-    source_platform: "Indian Railways Portal",
-    posted_date: new Date(Date.now() - 3600000 * 18).toISOString(),
-    salary_range: "₹9,000 - ₹11,500 / నెల స్టైపెండ్",
-    skills: ["ITI Trade", "Railway Technical", "Apprenticeship"],
-    tags: ["Apprenticeship", "Government", "AP Jobs"],
-    logo_url: companyLogos[1],
-    experience_level: "Fresher",
-    work_mode: "On-site",
-    contract_type: "Apprenticeship",
-    is_featured: false,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-10",
-    title: "డిజిటల్ మార్కెటింగ్ & సోషల్ మీడియా ఇంటర్న్‌షిప్ (Digital Marketing Intern)",
-    company_name: "MediaVarta Solutions (మీడియా వార్త)",
-    location: "తిరుపతి / వర్క్ ఫ్రమ్ హోమ్ (Remote WFH)",
-    district: "Tirupati",
-    state: "Andhra Pradesh",
-    description_snippet: "సోషల్ మీడియా కంటెంట్ మేనేజ్‌మెంట్, SEO మరియు కాపీరైటింగ్‌లో ప్రాక్టికల్ ట్రైనింగ్ ఇంటర్న్‌షిప్.",
-    full_description: "మీడియా & డిజిటల్ మార్కెటింగ్ విభాగంలో పనిచేయడానికి ఆసక్తి ఉన్న కాలేజ్ విద్యార్థులు & ఫ్రెషర్స్ కోసం 3 నెలల ఇంటర్న్‌షిప్.\n\n## ప్రయోజనాలు:\n- నెలవారీ స్టైపెండ్ ₹8,000.\n- ఇంటర్న్‌షిప్ సర్టిఫికెట్ మరియు జాబ్ ఆఫర్ లెటర్ (PPO).",
-    apply_link: "https://mediavarta.com/internships/digital-marketing",
-    source_platform: "SerpApi Google Jobs",
-    posted_date: new Date(Date.now() - 3600000 * 8).toISOString(),
-    salary_range: "₹8,000 / నెల స్టైపెండ్",
-    skills: ["Social Media", "SEO", "Content Writing", "Canva"],
-    tags: ["Internships", "Freshers", "WFH"],
-    logo_url: companyLogos[3],
-    experience_level: "Fresher",
-    work_mode: "Remote",
-    contract_type: "Internship",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-11",
-    title: "AP గ్రామ/వార్డు సచివాలయం డిజిటల్ అసిస్టెంట్ (AP Sachivalayam Digital Assistant)",
-    company_name: "ఆంధ్రప్రదేశ్ ప్రభుత్వం (AP Government)",
-    location: "రాజమండ్రి & కాకినాడ (Godavari, AP)",
-    district: "Rajahmundry",
-    state: "Andhra Pradesh",
-    description_snippet: "గ్రామీణ ప్రాంతాలలో డిజిటల్ సేవలు అందించడానికి డిజిటల్ అసిస్టెంట్ పోస్టుల భర్తీ నోటిఫికేషన్.",
-    full_description: "ఆంధ్రప్రదేశ్ గ్రామ సచివాలయాల పరిధిలో కంప్యూటర్ / ఐటీ సర్టిఫికెట్ ఉన్న గ్రాడ్యుయేట్లకు ప్రభుత్వ ఉద్యోగాలు.\n\n## వివరాలు:\n- అర్హత: B.Sc Computer Science / B.Tech / BCA / Diploma in IT.\n- జీతం: ₹22,500 - ₹35,000 / నెలకు.",
-    apply_link: "https://gramasachivalayam.ap.gov.in/digital-assistant-2026",
-    source_platform: "AP Govt Sachivalayam Portal",
-    posted_date: new Date(Date.now() - 3600000 * 30).toISOString(),
-    salary_range: "₹22,500 - ₹35,000 / నెలకు",
-    skills: ["Computer Literacy", "Telugu Office Work", "Data Entry"],
-    tags: ["Government", "AP Jobs"],
-    logo_url: companyLogos[1],
-    experience_level: "Any",
-    work_mode: "On-site",
-    contract_type: "Full-time",
-    is_featured: false,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-12",
-    title: "సీనియర్ జావా ఫుల్‌స్టాక్ డెవలపర్ (Senior Java Full Stack Engineer)",
-    company_name: "Infosys Technologies (ఇన్ఫోసిస్)",
-    location: "హైదరాబాద్ (Gachibowli, TG)",
-    district: "Hyderabad",
-    state: "Telangana",
-    description_snippet: "Enterprise Cloud Systems కోసం Java, Spring Boot, Microservices & Angular డెవలపర్లు కావలెను.",
-    full_description: "ఇన్ఫోసిస్ హైదరాబాద్ గచ్చిబౌలి క్యాంపస్ లో సీనియర్ సాఫ్ట్‌వేర్ ఇంజనీర్ల కోసం రిక్రూట్‌మెంట్ డిజిటల్ డ్రైవ్.\n\n## అర్హత & అనుభవం:\n- 3+ సంవత్సరాల Java, Spring Boot, REST APIs అనుభవం.\n- AWS Cloud & SQL నైపుణ్యం.",
-    apply_link: "https://careers.infosys.com/jobs/senior-java-fullstack-hyd",
-    source_platform: "SerpApi Google Jobs",
-    posted_date: new Date(Date.now() - 3600000 * 10).toISOString(),
-    salary_range: "₹14,000,00 - ₹22,00,000 / సంవత్సరం",
-    skills: ["Java", "Spring Boot", "Microservices", "Angular", "SQL"],
-    tags: ["Remote IT", "Experienced", "Hyderabad"],
-    logo_url: companyLogos[4],
-    experience_level: "Experienced",
-    work_mode: "Hybrid",
-    contract_type: "Full-time",
-    is_featured: true,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-13",
-    title: "యుఐ/యుఎక్స్ డిజైనర్ & గ్రాఫిక్ నిపుణుడు (Freelance UI/UX Designer)",
-    company_name: "CreativePixel Studio (క్రియేటివ్ పిక్సెల్)",
-    location: "వర్క్ ఫ్రమ్ హోమ్ (Remote WFH)",
-    district: "Nellore",
-    state: "Andhra Pradesh",
-    description_snippet: "మొబైల్ యాప్‌లు మరియు వెబ్‌సైట్ డాష్‌బోర్డుల UI/UX వైర్‌ఫ్రేమ్ డిజైన్ చేసే ఫ్రీలాన్స్ డిజైనర్లు కావలెను.",
-    full_description: "Figma, Adobe XD మరియు Illustrator లో అనుభవం ఉన్న ఫ్రీలాన్స్ క్రియేటివ్ డిజైనర్లు కావలెను.\n\n## వివరాలు:\n- ప్రాజెక్ట్ ఆధారంగా లేదా గంటకు ₹600 - ₹1,200 చెల్లింపు.\n- 100% ఆన్‌లైన్ ఫ్రీలాన్స్ వర్క్.",
-    apply_link: "https://creativepixel.design/freelance-uiux",
-    source_platform: "Upwork RSS",
-    posted_date: new Date(Date.now() - 3600000 * 14).toISOString(),
-    salary_range: "₹600 - ₹1,200 / గంటకు",
-    skills: ["Figma", "UI/UX Design", "Adobe XD", "Prototyping"],
-    tags: ["Freelance", "Startup", "WFH"],
-    logo_url: companyLogos[0],
-    experience_level: "Experienced",
-    work_mode: "Remote",
-    contract_type: "Freelance",
-    is_featured: false,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-14",
-    title: "కస్టమర్ సపోర్ట్ అసోసియేట్ - ఫ్రెషర్స్ (Customer Support Associate)",
-    company_name: "Swiggy / Zomato Support (స్విగ్గీ సపోర్ట్)",
-    location: "గుంటూరు / వర్క్ ఫ్రమ్ హోమ్ (Remote WFH)",
-    district: "Guntur",
-    state: "Andhra Pradesh",
-    description_snippet: "తెలుగు మరియు ఇంగ్లీష్ సంభాషణ నైపుణ్యాలు కలిగిన ఫ్రెషర్స్ కొరకు కస్టమర్ సపోర్ట్ ఎగ్జిక్యూటివ్ ఉద్యోగాలు.",
-    full_description: "కస్టమర్ల సందేహాలు నివారించడానికి వాయిస్ / చాట్ సపోర్ట్ ఎగ్జిక్యూటివ్‌లు కావలెను.\n\n## అర్హత:\n- 10+2 / ఇంటర్మీడియట్ / డిగ్రీ उत्तीर्णత.\n- తెలుగు మాట్లాడే నైపుణ్యం.\n- జీతం: ₹18,000 - ₹24,000 / నెలకు.",
-    apply_link: "https://careers.swiggy.com/support-executive-guntur",
-    source_platform: "SerpApi Google Jobs",
-    posted_date: new Date(Date.now() - 3600000 * 16).toISOString(),
-    salary_range: "₹18,000 - ₹24,000 / నెలకు",
-    skills: ["Telugu Communication", "Customer Service", "Chat Support"],
-    tags: ["Freshers", "WFH", "AP Jobs"],
-    logo_url: companyLogos[2],
-    experience_level: "Fresher",
-    work_mode: "Remote",
-    contract_type: "Full-time",
-    is_featured: false,
-    is_approved: true,
-    is_active: true
-  },
-  {
-    job_id: "job-15",
-    title: "వెబ్ డెవలప్‌మెంట్ సమ్మర్ ఇంటర్న్ (Web Development Summer Intern)",
-    company_name: "CodeWave Academy (కోడ్‌వేవ్ అకాడమీ)",
-    location: "విశాఖపట్నం / వర్క్ ఫ్రమ్ హోమ్ (Remote WFH)",
-    district: "Visakhapatnam",
-    state: "Andhra Pradesh",
-    description_snippet: "HTML, CSS, JavaScript మరియు React నేర్చుకోవడానికి మరియు రియల్ టైమ్ ప్రాజెక్టులలో పనిచేయడానికి ఇంటర్న్‌షిప్.",
-    full_description: "ఇంజనీరింగ్ / బిఎస్సి డిగ్రీ చదువుతున్న విద్యార్థుల కొరకు 2 నెలల లైవ్ ప్రాజెక్ట్ ఇంటర్న్‌షిప్.\n\n## ప్రయోజనాలు:\n- స్టైపెండ్ ₹7,500 / నెలకు.\n- లైవ్ ప్రాజెక్ట్ అనుభవం & సర్టిఫికేషన్.",
-    apply_link: "https://codewave.academy/internships/web-dev",
-    source_platform: "SerpApi Google Jobs",
-    posted_date: new Date(Date.now() - 3600000 * 7).toISOString(),
-    salary_range: "₹7,500 / నెల స్టైపెండ్",
-    skills: ["HTML/CSS", "JavaScript", "React Basics"],
-    tags: ["Internships", "Remote IT", "Freshers"],
-    logo_url: companyLogos[4],
-    experience_level: "Fresher",
-    work_mode: "Remote",
-    contract_type: "Internship",
-    is_featured: false,
-    is_approved: true,
-    is_active: true
-  }
-];
+// Jobs come only from Supabase and the user's own posts; no seeded listings.
+export const mockJobs: VaartanowJob[] = [];
 
 // ====================================================
 // TELUGU TRANSLATION HELPERS
@@ -810,7 +188,8 @@ export function autoDetectContractType(title: string, desc: string): ContractTyp
 // ====================================================
 // DATABASE QUERIES & API INTERFACES
 // ====================================================
-export const LOCAL_STORAGE_KEY = "vaartanow_jobs_db";
+export const JOB_MAX_AGE_DAYS = 30;
+export const LOCAL_STORAGE_KEY = "vaartanow_jobs_db_v2"; // v2: drops cached seed listings
 export const USER_POSTED_JOBS_KEY = "vaartanow_user_posted_jobs";
 export const JOBS_UPDATED_EVENT = "vaartanow_jobs_updated";
 
@@ -869,7 +248,9 @@ export async function getJobsList(filters?: JobFilters): Promise<VaartanowJob[]>
   // If Supabase client exists, fetch dynamically from Remote PostgreSQL table
   if (supabase) {
     try {
-      let query = supabase.from("vaartanow_jobs").select("*").eq("is_active", true).eq("is_approved", true);
+      // Only jobs posted in the last 30 days: older listings are very likely filled or expired.
+      const freshSince = new Date(Date.now() - JOB_MAX_AGE_DAYS * 86_400_000).toISOString();
+      let query = supabase.from("vaartanow_jobs").select("*").eq("is_active", true).eq("is_approved", true).gte("posted_date", freshSince);
 
       if (filters?.query) {
         query = query.or(`title.ilike.%${filters.query}%,company_name.ilike.%${filters.query}%,description_snippet.ilike.%${filters.query}%`);
@@ -899,7 +280,7 @@ export async function getJobsList(filters?: JobFilters): Promise<VaartanowJob[]>
         fetchedJobs = data as VaartanowJob[];
       }
     } catch (err) {
-      console.warn("Failed to query Supabase, falling back to mock jobs catalog:", err);
+      console.warn("Failed to query Supabase jobs:", err);
     }
   }
 
@@ -921,7 +302,8 @@ export async function getJobsList(filters?: JobFilters): Promise<VaartanowJob[]>
   saveLocalJobs(combined);
 
   // Client-side fallback filtered feed (only active and approved)
-  let result = combined.filter(j => j.is_active && j.is_approved);
+  const freshCutoff = Date.now() - JOB_MAX_AGE_DAYS * 86_400_000;
+  let result = combined.filter(j => j.is_active && (j.is_approved || userJobIds.has(j.job_id)) && (!j.posted_date || new Date(j.posted_date).getTime() >= freshCutoff));
   if (filters?.query) {
     const q = filters.query.toLowerCase();
     result = result.filter(
@@ -1068,91 +450,16 @@ export async function addJob(job: Omit<VaartanowJob, "job_id" | "created_at">): 
 }
 
 // 🏛️ Admin: Trigger Scraper Simulation
-export async function triggerScraperSimulation(query: string): Promise<number> {
-  const scrapedJobs: Omit<VaartanowJob, "job_id">[] = [
-    {
-      title: `${query} Developer (React & Next.js)`,
-      company_name: "Wipro Global Tech",
-      location: "Hyderabad, TG",
-      district: "Hyderabad",
-      state: "Telangana",
-      description_snippet: `Exciting new vacancy for a ${query} engineer. Help construct scalable UI modules and integrate AI APIs.`,
-      full_description: `We are searching for developers with expertise in ${query} and associated modern React methodologies. In this role, you will be deploying code at high volume and collaborating across global tech hubs.\n\nSkills Needed:\n- JavaScript/TypeScript\n- React/Next.js\n- API consumption and state systems`,
-      apply_link: `https://careers.wipro.com/jobs/scraped-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-      source_platform: "SerpApi Google Jobs",
-      posted_date: new Date().toISOString(),
-      salary_range: "₹9,50,000 - ₹15,00,000 / year",
-      skills: [query, "React", "TypeScript", "Tailwind CSS"],
-      tags: ["IT Jobs", "Startup"],
-      logo_url: "https://images.unsplash.com/photo-1516841273335-e39b37888115?auto=format&fit=crop&w=120&h=120&q=80",
-      experience_level: "Fresher",
-      work_mode: "Hybrid",
-      contract_type: "Full-time",
-      is_featured: false,
-      is_approved: false, // Admin approval required!
-      is_active: true
-    } as VaartanowJob,
-    {
-      title: `Freelance Telugu Translator for ${query} documentation`,
-      company_name: "OneForma Solutions",
-      location: "Remote (Work from home)",
-      district: "Visakhapatnam",
-      state: "Andhra Pradesh",
-      description_snippet: `Translate modern technical modules and user-facing dashboards for ${query} into standard literary Telugu.`,
-      full_description: `Seeking freelance translation consultants fluent in English and standard literary Telugu. Background in software systems or IT nomenclature is highly beneficial.\n\nDetails:\n- Project length: 3 months\n- Hours: Flexible remote hours`,
-      apply_link: `https://www.upwork.com/jobs/scraped-transl-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
-      source_platform: "Upwork RSS",
-      posted_date: new Date().toISOString(),
-      salary_range: "₹500 - ₹850 / hour",
-      skills: ["Telugu Translation", query, "Writing"],
-      tags: ["Freelance", "WFH", "Telugu Jobs"],
-      logo_url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=120&h=120&q=80",
-      experience_level: "Any",
-      work_mode: "Remote",
-      contract_type: "Freelance",
-      is_featured: false,
-      is_approved: false, // Admin approval required!
-      is_active: true
-    } as VaartanowJob
-  ];
-
-  if (supabase) {
-    try {
-      let count = 0;
-      for (const job of scrapedJobs) {
-        const { error } = await supabase.from("vaartanow_jobs").upsert(job, { onConflict: "apply_link" });
-        if (!error) count++;
-      }
-      if (count > 0) return count;
-    } catch (e) {
-      console.warn("Supabase upsert error in scraper simulation:", e);
-    }
-  }
-
-  const jobs = getLocalJobs();
-  let count = 0;
-  for (const job of scrapedJobs) {
-    if (!jobs.some(j => j.apply_link === job.apply_link)) {
-      jobs.unshift({
-        ...job,
-        job_id: `job-scraped-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`
-      });
-      count++;
-    }
-  }
-  saveLocalJobs(jobs);
-  return count;
-}
-
 // 💼 Add new user posted job
 export function addLocalJob(jobData: Omit<VaartanowJob, "job_id" | "posted_date">): VaartanowJob {
   const newJob: VaartanowJob = {
     ...jobData,
     job_id: `job-user-${Date.now()}`,
     posted_date: new Date().toISOString(),
-    is_approved: true,
+    // Visitor posts wait for admin approval (enforced by the database too).
+    is_approved: false,
     is_active: true,
-    is_featured: true
+    is_featured: false
   };
 
   // 1. Permanently save to dedicated user-posted store
@@ -1167,8 +474,8 @@ export function addLocalJob(jobData: Omit<VaartanowJob, "job_id" | "posted_date"
   if (supabase) {
     (async () => {
       try {
-        await supabase.from("vaartanow_jobs").insert({
-          job_id: newJob.job_id,
+        // job_id is generated by the database; only columns that exist are sent.
+        const { error } = await supabase.from("vaartanow_jobs").insert({
           title: newJob.title,
           company_name: newJob.company_name,
           location: newJob.location,
@@ -1184,12 +491,11 @@ export function addLocalJob(jobData: Omit<VaartanowJob, "job_id" | "posted_date"
           experience_level: newJob.experience_level,
           work_mode: newJob.work_mode,
           contract_type: newJob.contract_type,
-          is_featured: true,
-          is_approved: true,
-          is_active: true,
-          employer_name: newJob.employer_name,
-          contact_phone: newJob.contact_phone || ""
+          is_featured: false,
+          is_approved: false,
+          is_active: true
         });
+        if (error) console.warn("Job submission failed:", error.message);
       } catch (err) {
         console.warn("Supabase jobs insert notice:", err);
       }

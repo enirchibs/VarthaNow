@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { VerticalSnapFeed } from "@/components/VerticalSnapFeed";
@@ -379,7 +380,7 @@ export function CategoryPage() {
         "@type": "HealthArticle",
         "headline": titles[lang] || titles.te,
         "description": descriptions[lang] || descriptions.te,
-        "image": `${import.meta.env.VITE_SITE_URL ?? "http://localhost:3000"}/icons/icon-192.svg`,
+        "image": `${SITE_URL}/icons/icon-192.svg`,
         "author": {
           "@type": "Organization",
           "name": "VarthaNow AI Health Desk"
@@ -389,14 +390,14 @@ export function CategoryPage() {
           "name": "VaartaNow",
           "logo": {
             "@type": "ImageObject",
-            "url": `${import.meta.env.VITE_SITE_URL ?? "http://localhost:3000"}/icons/icon-192.svg`
+            "url": `${SITE_URL}/icons/icon-192.svg`
           }
         },
         "about": {
           "@type": "MedicalCondition",
           "name": "General Health Information"
         },
-        "mainEntityOfPage": `${import.meta.env.VITE_SITE_URL ?? "http://localhost:3000"}/category/health`
+        "mainEntityOfPage": `${SITE_URL}/category/health`
       } : undefined
     });
   }, [categorySlug, label, lang]);

@@ -1,11 +1,12 @@
 import { useRef } from "react";
 import { Play, MapPin, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useViralVideos } from "@/hooks/useViralVideos";
 import { useLanguage } from "@/hooks/useLanguage";
-import { resolveViralPlayUrl } from "@/lib/shorts-api";
 
 export function ViralShortsSwiper() {
   const { videos, loading } = useViralVideos(8);
+  const navigate = useNavigate();
   const { lang } = useLanguage();
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -55,14 +56,11 @@ export function ViralShortsSwiper() {
           <div 
             key={video.id}
             className="relative flex-none w-[140px] md:w-[180px] aspect-[9/16] rounded-2xl overflow-hidden snap-center bg-black group cursor-pointer border border-[hsl(var(--border))]/50 shadow-md hover:shadow-lg transition-all duration-300"
-            onClick={() => {
-              const url = resolveViralPlayUrl(video);
-              if (url) window.open(url, "_blank", "noopener,noreferrer");
-            }}
+            onClick={() => navigate(`/videos/${video.id}`)}
           >
             {/* Thumbnail */}
             <img 
-              src={video.thumbnail_url} 
+              src={video.thumbnail} 
               alt={video.title} 
               className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
             />
@@ -84,7 +82,7 @@ export function ViralShortsSwiper() {
               </h4>
               <div className="flex items-center gap-1.5 mt-2">
                 <img 
-                  src={video.source_icon} 
+                  src="https://www.google.com/s2/favicons?domain=youtube.com&sz=64" 
                   alt={video.channel} 
                   className="size-4 md:size-5 rounded-full border border-white/40"
                 />

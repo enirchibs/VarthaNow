@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/site";
 import React, { useState } from "react";
 import { 
   X, 
@@ -40,9 +41,9 @@ export function ClassifiedDetailModal({ item, onClose, onStatusUpdated }: Classi
   };
 
   const handleShare = () => {
-    const text = `🛍️ *VaartaNow మన మార్కెట్* 🛍️\n\n📌 *${item.title}*\n💰 *ధర:* ${item.price}\n📍 *ప్రాంతం:* ${item.locality}\n📞 *సంప్రదించండి:* ${item.contact}\n\nవివరాలు చూడటానికి క్లిక్ చేయండి:\nhttps://varthanow.pages.dev/market`;
+    const text = `🛍️ *VaartaNow మన మార్కెట్* 🛍️\n\n📌 *${item.title}*\n💰 *ధర:* ${item.price}\n📍 *ప్రాంతం:* ${item.locality}\n📞 *సంప్రదించండి:* ${item.contact}\n\nవివరాలు చూడటానికి క్లిక్ చేయండి:\n${SITE_URL}/market`;
     if (navigator.share) {
-      navigator.share({ title: item.title, text, url: "https://varthanow.pages.dev/market" }).catch(() => {});
+      navigator.share({ title: item.title, text, url: `${SITE_URL}/market` }).catch(() => {});
     } else {
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
     }

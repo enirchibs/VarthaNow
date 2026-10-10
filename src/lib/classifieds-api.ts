@@ -41,178 +41,7 @@ const LOCAL_STORAGE_PROFILE_KEY = "vaartanow_user_profile";
 const LOCAL_STORAGE_POSTS_KEY = "vaartanow_user_classifieds";
 
 // 📦 RICH SEEDED MOCK FALLBACK DATASET
-export const SEED_CLASSIFIEDS: ClassifiedItem[] = [
-  {
-    id: "cf_fashion1",
-    seller_name: "పట్టుచీరల నిలయం (Pattu Sarees & Women's Fashion)",
-    category: "clothing_fashion",
-    title: "🥻 మంగళగిరి & పట్టు చీరలు, డిజైనర్ బ్లౌజులు & కుర్తీలు",
-    description: "👩 మహిళల దుస్తులు | 🥻 చీరలు & బ్లౌజులు | 💍 ఫ్యాషన్ జ్యువెలరీ | 💄 కాస్మెటిక్స్. స్పెషల్ హ్యాండ్‌లూమ్ పట్టు చీరలు, చుడీదార్లు & డిజైనర్ మగ్గం వర్క్ బ్లౌజులు.",
-    price: "₹1,800 ప్రారంభం",
-    locality: "ఎంవీపీ కాలనీ (MVP Colony, Vizag)",
-    contact: "9876543212",
-    images: ["https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80"],
-    status: "available",
-    offer_discount: "10% ఆఫర్ పండగ సేల్‌లో",
-    free_items: "🚚 ఉచిత హోమ్ డెలివరీ",
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: "cf_fashion2",
-    seller_name: "మెన్స్ ఫ్యాషన్ & జెంట్స్ వేర్ (Men's & Kids Fashion)",
-    category: "clothing_fashion",
-    title: "👨 పురుషుల షర్టులు, ప్యాంట్లు, T-షర్టులు & 🧒 పిల్లల దుస్తులు",
-    description: "👨 పురుషుల దుస్తులు | 🧒 పిల్లల దుస్తులు | 👟 ఫుట్‌వేర్ & బ్యాగులు | 🧵 టైలరింగ్ సేవలు. ప్రీమియం కాటన్ షర్టులు, జీన్స్, T-షర్టులు & కిడ్స్ పార్టీ డ్రెస్సులు.",
-    price: "₹450 ప్రారంభం",
-    locality: "గాజువాక (Gajuwaka, Vizag)",
-    contact: "9876543213",
-    images: ["https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80"],
-    status: "available",
-    offer_discount: "Buy 2 Get 1 Free",
-    free_items: "ఉచిత ఆల్టరేషన్స్ సేవ",
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: "cf_bm1",
-    seller_name: "శ్రీ లక్ష్మి సిమెంట్ & హార్డ్‌వేర్ (Sri Lakshmi Cement & Hardware)",
-    category: "building_materials",
-    title: "🏗️ సిమెంట్, ఇటుకలు, ఇసుక & హార్డ్‌వేర్ సరఫరా",
-    description: "🏖️ ఇసుక ₹3,200/unit | 🧱 ఇటుకలు ₹8,500/1000 | 🏗️ సిమెంట్ ₹380/bag. Ultratech సిమెంట్, ఎర్ర ఇటుకలు, క్వారీ ఇసుక, ఐరన్ స్టీల్ రాడ్లు & హార్డ్‌వేర్ డోర్ డెలివరీ కలదు.",
-    price: "సిమెంట్ ₹380/bag | ఇసుక ₹3,200/unit",
-    locality: "ఆనందపురం (Anandapuram, Vizag)",
-    contact: "9876543210",
-    images: ["https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=800&q=80"],
-    status: "available",
-    offer_discount: "🚚 ఉచిత హోమ్ డెలివరీ (Home Delivery)",
-    free_items: "ఉచిత కోటేషన్ (Get Quote)",
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: "cf_bm2",
-    seller_name: "శ్రీ వెంకటేశ్వర బిల్డింగ్ సప్లైస్ (Sri Venkateswara Building Supplies)",
-    category: "building_materials",
-    title: "🟫 టైల్స్, ఎలక్ట్రికల్, ప్లంబింగ్, పెయింట్లు & బాత్రూమ్ ఫిట్టింగ్స్",
-    description: "⚡ ఎలక్ట్రికల్ సామానులు | 🚰 ప్లంబింగ్ సామానులు | 🟫 టైల్స్ | 🌀 ఫ్యాన్లు | 🪟 విడ్డోస్ | 🚪 డోర్స్ | 🔩 హార్డ్‌వేర్ | 🎨 పెయింట్లు | 🛁 బాత్రూమ్ ఫిట్టింగ్స్ | 🏠 రూఫింగ్ షీట్లు | 🔧 టూల్స్.",
-    price: "టైల్స్ ₹35/sq.ft ప్రారంభం",
-    locality: "గాజువాక (Gajuwaka, Vizag)",
-    contact: "9876543211",
-    images: ["https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=800&q=80"],
-    status: "available",
-    offer_discount: "15% డిస్కౌంట్ బల్క్ ఆర్డర్లపై",
-    free_items: "🚚 డోర్ డెలివరీ సదుపాయం",
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  },
-  {
-    id: "cf_1",
-    seller_name: "శ్రీనివాస్ రావు (Srinivas)",
-    category: "other",
-    title: "రైతు ధరకు సోనా మసూరి కొత్త బియ్యం (25kg బస్తా)",
-    description: "సొంత పొలం నుంచి నేరుగా పండించిన బియ్యం బస్తాలు. కల్తీ లేని శ్రేష్ఠమైన బియ్యం. ఉచిత హోమ్ డెలివరీ కలదు.",
-    price: "₹1,350 / బస్తా",
-    locality: "విశాఖపట్నం (Visakhapatnam)",
-    contact: "9848012345",
-    images: ["https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80"],
-    status: "available",
-    offer_discount: "10% Off on 5+ Bags",
-    free_items: "ఉచిత డెలివరీ",
-    is_active: true,
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString(),
-    updated_at: new Date(Date.now() - 3600000 * 2).toISOString()
-  },
-  {
-    id: "cf_2",
-    seller_name: "అరవింద్ (Aravind)",
-    category: "electronics",
-    title: "iPhone 13 128GB (మింట్ కండిషన్ - 10 నెలలు వాడకం)",
-    description: "100% అసలైన ఐఫోన్. బ్యాటరీ హెల్త్ 89%. ఒరిజినల్ బాక్స్, యాపిల్ సి-టైప్ కేబుల్ మరియు టెంపర్డ్ గ్లాస్ ఉచితం.",
-    price: "₹38,500",
-    locality: "ఎంవీపీ కాలనీ (MVP Colony, Vizag)",
-    contact: "9988776655",
-    images: ["https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80"],
-    status: "available",
-    offer_discount: "నెగోషియబుల్ (Negotiable)",
-    free_items: "కవర్ & టెంపర్డ్ గ్లాస్ ఉచితం",
-    is_active: true,
-    created_at: new Date(Date.now() - 3600000 * 5).toISOString(),
-    updated_at: new Date(Date.now() - 3600000 * 5).toISOString()
-  },
-  {
-    id: "cf_3",
-    seller_name: "సురేష్ రెడ్డి (Suresh Reddy)",
-    category: "vehicles",
-    title: "Hero Splendor Plus 2022 మోడల్ (సింగిల్ హ్యాండ్ ਰన్నింగ్)",
-    description: "ఒకే హ్యాండ్ వాడకం. మైలేజ్ 65+ kmpl. ఇన్సూరెన్స్ రన్నింగ్ లో ఉంది. క్లీన్ ఆర్‌సి మరియు రెండు కీలు కలవు.",
-    price: "₹52,000",
-    locality: "మధురవాడ (Madhurawada, Vizag)",
-    contact: "9123456789",
-    images: ["https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80"],
-    status: "available",
-    offer_discount: "ఫ్రీ హెల్మెట్",
-    free_items: "హెల్మెట్ ఉచితం",
-    is_active: true,
-    created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
-    updated_at: new Date(Date.now() - 3600000 * 12).toISOString()
-  },
-  {
-    id: "cf_4",
-    seller_name: "వెంకటేశ్వర్లు (Venkatesh)",
-    category: "property",
-    title: "2BHK ఫ్లాట్ అద్దెకు (కుటుంబాలకు మాత్రమే)",
-    description: "24/7 మంచినీరు, గ్యాస్ పైప్‌లైన్, లిఫ్ట్, కార్ పార్కింగ్ కలదు. ప్రధాన రోడ్డుకు దగ్గరగా శ్రద్ధగల వాతావరణం.",
-    price: "₹12,000 / నెల",
-    locality: "గచ్చిబౌలి (Gachibowli, Hyderabad)",
-    contact: "9876543210",
-    images: ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80"],
-    status: "available",
-    offer_discount: "మెయింటెనెన్స్ ఉచితం",
-    free_items: "ఉచిత పార్కింగ్",
-    is_active: true,
-    created_at: new Date(Date.now() - 3600000 * 18).toISOString(),
-    updated_at: new Date(Date.now() - 3600000 * 18).toISOString()
-  },
-  {
-    id: "cf_5",
-    seller_name: "రాజేష్ ఎలక్ట్రికల్స్ (Rajesh)",
-    category: "services",
-    title: "ఇంటి వద్దకే ఎలక్ట్రీషియన్ & ప్లంబర్ సేవలు",
-    description: "అన్ని రకాల హౌస్‌హోల్డ్ ఎలక్ట్రికల్ ఐటమ్స్ ఫిక్సింగ్, ప్లంబింగ్, వాటరింగ్ పంప్ వర్క్స్ & ట్యూటర్ సేవలు తక్షణమే.",
-    price: "₹299 విజిటింగ్ ఛార్జ్",
-    locality: "విజయవాడ (Vijayawada)",
-    contact: "9550011223",
-    images: ["https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80"],
-    status: "available",
-    offer_discount: "20% ఆఫర్ మొదటి విజిట్‌పై",
-    free_items: "ఫ్రీ ఇన్‌స్పెక్షన్",
-    is_active: true,
-    created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
-    updated_at: new Date(Date.now() - 3600000 * 24).toISOString()
-  },
-  {
-    id: "cf_6",
-    seller_name: "లక్ష్మి ఫర్నిచర్ (Lakshmi)",
-    category: "furniture",
-    title: "టీక్ వుడ్ 6 సీటర్ సోఫా సెట్ (కొత్తది అసలైన టేకు)",
-    description: "అసలైన టేకు తో చేసిన 6 సీటర్ సోఫా. హై-డెన్సిటీ కుషన్స్. 5 ఏళ్ల వారంటీ.",
-    price: "₹24,500",
-    locality: "గాజువాక (Gajuwaka, Vizag)",
-    contact: "9440156789",
-    images: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80"],
-    status: "available",
-    offer_discount: "15% తగ్గింపు",
-    free_items: "ఉచిత కుషన్ కవర్లు",
-    is_active: true,
-    created_at: new Date(Date.now() - 3600000 * 30).toISOString(),
-    updated_at: new Date(Date.now() - 3600000 * 30).toISOString()
-  }
-];
+export const SEED_CLASSIFIEDS: ClassifiedItem[] = [];
 
 // 👤 PROFILE SESSION HELPERS (LocalStorage: vaartanow_user_profile)
 export function getStoredSellerProfile(): SellerProfile | null {
@@ -230,43 +59,18 @@ export function saveStoredSellerProfile(profile: SellerProfile): void {
   } catch {}
 }
 
-// 📱 SMS 6-DIGIT OTP VERIFICATION WITH SUPABASE AUTH & FALLBACK
-let currentOTPMap: Record<string, string> = {};
-
-export async function sendSMSOTP(phone: string): Promise<{ success: boolean; otpDemo: string }> {
+// 📱 SMS 6-DIGIT OTP VERIFICATION — Supabase Auth phone provider is the only source of truth.
+// otpDemo is kept for UI compatibility but is always empty: OTPs must never be generated or revealed client-side.
+export async function sendSMSOTP(phone: string): Promise<{ success: boolean; otpDemo: string; error?: string }> {
   const cleanPhone = phone.replace(/\D/g, "").slice(-10);
-  const formattedPhone = `+91${cleanPhone}`;
-  
-  // Generate local demo OTP fallback
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  currentOTPMap[cleanPhone] = otp;
+  if (!supabase) return { success: false, otpDemo: "", error: "OTP సేవ అందుబాటులో లేదు (OTP service unavailable)" };
 
-  console.log(`📱 Triggering SMS OTP for ${formattedPhone}...`);
-
-  // 1. Invoke Supabase Auth Phone Provider
-  if (supabase) {
-    try {
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone
-      });
-      if (!error) {
-        console.log(`✅ Supabase Auth SMS sent to ${formattedPhone}`);
-      } else {
-        console.warn("Supabase Auth signInWithOtp notice:", error.message);
-      }
-    } catch (e) {
-      console.warn("Supabase Auth invoke error:", e);
-    }
-
-    // 2. Also invoke Edge Function send-otp proxy if available
-    try {
-      await supabase.functions.invoke("send-otp", {
-        body: { phone: cleanPhone, otp }
-      });
-    } catch {}
+  const { error } = await supabase.auth.signInWithOtp({ phone: `+91${cleanPhone}` });
+  if (error) {
+    console.warn("Supabase Auth signInWithOtp error:", error.message);
+    return { success: false, otpDemo: "", error: "OTP పంపడం విఫలమైంది. మళ్ళీ ప్రయత్నించండి (Failed to send OTP)" };
   }
-
-  return { success: true, otpDemo: otp };
+  return { success: true, otpDemo: "" };
 }
 
 export async function verifySellerOTP(
@@ -275,38 +79,15 @@ export async function verifySellerOTP(
   name: string
 ): Promise<{ success: boolean; profile?: SellerProfile; error?: string }> {
   const cleanPhone = phone.replace(/\D/g, "").slice(-10);
-  const formattedPhone = `+91${cleanPhone}`;
-  const expectedOTP = currentOTPMap[cleanPhone] || "123456";
+  const invalid = { success: false, error: "చెల్లుబాటు కాని 6-అంకెల OTP (Invalid OTP Code)" };
+  if (!supabase) return invalid;
 
-  let isVerified = false;
-
-  // 1. Try verifying via Supabase Auth Phone Provider first
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        phone: formattedPhone,
-        token: enteredOTP.trim(),
-        type: "sms"
-      });
-      if (!error && data?.session) {
-        isVerified = true;
-        console.log("✅ Verified via Supabase Auth Twilio SMS!");
-      }
-    } catch (e) {
-      console.warn("Supabase verifyOtp notice:", e);
-    }
-  }
-
-  // 2. Fallback to expected demo OTP or 123456
-  if (!isVerified) {
-    if (enteredOTP.trim() === expectedOTP || enteredOTP.trim() === "123456") {
-      isVerified = true;
-    }
-  }
-
-  if (!isVerified) {
-    return { success: false, error: "చెల్లుబాటు కాని 6-అంకెల OTP (Invalid OTP Code)" };
-  }
+  const { data, error } = await supabase.auth.verifyOtp({
+    phone: `+91${cleanPhone}`,
+    token: enteredOTP.trim(),
+    type: "sms"
+  });
+  if (error || !data?.session) return invalid;
 
   const profile: SellerProfile = {
     name: name.trim() || "Verified Seller",
@@ -376,10 +157,10 @@ export async function fetchClassifieds(options?: {
     }
   }
 
-  // Merge Supabase data + local user posts + seeded mock dataset
+  // Merge Supabase data + local user posts
   const combinedMap = new Map<string, ClassifiedItem>();
   
-  [...localPosts, ...fetchedData, ...SEED_CLASSIFIEDS].forEach((item) => {
+  [...localPosts, ...fetchedData].forEach((item) => {
     if (!combinedMap.has(item.id)) {
       combinedMap.set(item.id, item);
     }
@@ -453,6 +234,8 @@ export async function addClassifiedItem(
       if (!error && data) {
         return data as ClassifiedItem;
       }
+      // Usually: not signed in by phone OTP, or the contact number isn't the signed-in phone.
+      if (error) console.warn("Listing not published (kept only on this device):", error.message);
     } catch (e) {
       console.warn("Supabase classifieds insert notice:", e);
     }
@@ -462,6 +245,22 @@ export async function addClassifiedItem(
 }
 
 // 🔄 UPDATE CLASSIFIED STATUS (e.g. Mark as Sold)
+
+/**
+ * Run a seller write and report whether it really changed a row. When the signed-in phone
+ * doesn't own the listing, row-level security returns zero rows instead of an error.
+ */
+async function ownerWrite(write: PromiseLike<{ data: unknown[] | null; error: { message: string } | null }>): Promise<boolean> {
+  try {
+    const { data, error } = await write;
+    if (error) console.warn("Listing change refused:", error.message);
+    return !error && (data?.length ?? 0) > 0;
+  } catch (e) {
+    console.warn("Listing change failed:", e);
+    return false;
+  }
+}
+
 export async function updateClassifiedStatus(
   id: string,
   newStatus: ClassifiedStatus
@@ -476,17 +275,10 @@ export async function updateClassifiedStatus(
     }
   } catch {}
 
-  // Update Supabase
-  if (supabase && !id.startsWith("cf_")) {
-    try {
-      await supabase
-        .from("classifieds")
-        .update({ status: newStatus, updated_at: new Date().toISOString() })
-        .eq("id", id);
-    } catch (e) {
-      console.warn("Supabase status update notice:", e);
-    }
-  }
+  // Only the signed-in seller (phone matches the listing) may change it; the database enforces this.
+  if (supabase && !id.startsWith("cf_")) return ownerWrite(
+    supabase.from("classifieds").update({ status: newStatus, updated_at: new Date().toISOString() }).eq("id", id).select("id")
+  );
 
   return true;
 }
@@ -505,16 +297,9 @@ export async function updateClassifiedItem(
     }
   } catch {}
 
-  if (supabase && !id.startsWith("cf_")) {
-    try {
-      await supabase
-        .from("classifieds")
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq("id", id);
-    } catch (e) {
-      console.warn("Supabase item update notice:", e);
-    }
-  }
+  if (supabase && !id.startsWith("cf_")) return ownerWrite(
+    supabase.from("classifieds").update({ ...updates, updated_at: new Date().toISOString() }).eq("id", id).select("id")
+  );
 
   return true;
 }
@@ -530,16 +315,9 @@ export async function deleteClassifiedItem(id: string): Promise<boolean> {
     }
   } catch {}
 
-  if (supabase && !id.startsWith("cf_")) {
-    try {
-      await supabase
-        .from("classifieds")
-        .update({ is_active: false, updated_at: new Date().toISOString() })
-        .eq("id", id);
-    } catch (e) {
-      console.warn("Supabase item deactivate notice:", e);
-    }
-  }
+  if (supabase && !id.startsWith("cf_")) return ownerWrite(
+    supabase.from("classifieds").update({ is_active: false, updated_at: new Date().toISOString() }).eq("id", id).select("id")
+  );
 
   return true;
 }

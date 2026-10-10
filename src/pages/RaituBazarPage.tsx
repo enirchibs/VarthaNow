@@ -95,73 +95,9 @@ const AGRI_SECTIONS = [
   }
 ];
 
-const INITIAL_AGRI_ITEMS: RaituAgriItem[] = [
-  {
-    id: "r-1",
-    seller_name: "అప్పిరెడ్డి (Farmer Appi Reddy)",
-    section: "crops",
-    sub_category: "ధాన్యాలు (వరి/గోధుమ)",
-    title: "BPT 5204 సన్నా వరి ధాన్యం (BPT Fine Rice Paddy Bulk Sale)",
-    description: "స్వచ్ఛమైన ఆర్గానిక్ పద్ధతిలో పండించిన కొత్త సన్నా వరి ధాన్యం 50 బస్తాలు అమ్మకానికి సిద్ధంగా ఉంది.",
-    price_rate: "₹2,150 / 75kg బస్తా",
-    village: "ఆనందపురం (Anandapuram, Vizag)",
-    contact: "9876543210",
-    image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?auto=format&fit=crop&w=800&q=80",
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "r-2",
-    seller_name: "మల్లయ్య ట్రాక్టర్ అద్దె (Mallayya Tractor Rental)",
-    section: "equipment",
-    sub_category: "ట్రాక్టర్ (Tractor)",
-    title: "Mahindra 575 DI ట్రాక్టర్ & రోటావేటర్ అద్దెకు",
-    description: "పొలం దుక్కి దున్నడం, రోటావేటర్ వేయడం మరియు కంబైన్డ్ హార్వెస్టింగ్ అద్దె సేవలు.",
-    price_rate: "₹1,400 / day",
-    village: "తడేపల్లిగూడెం (Tadepalligudem)",
-    contact: "9876543211",
-    image: "https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80",
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "r-3",
-    seller_name: "శ్రీనివాస్ పాడి ఫార్మ్ (Srinivas Dairy Farm)",
-    section: "livestock",
-    sub_category: "పాడి ఆవులు/గేదెలు",
-    title: "ముర్రా జాతి పాలు ఇచ్చే నల్ల గేదె (HF Cross Murrah Buffalo)",
-    description: "రోజుకి 14 లీటర్ల పాలు ఇచ్చే ఈత పశువు. పూర్తి టీకాలు వేయబడినది.",
-    price_rate: "₹68,000",
-    village: "గుంటూరు (Guntur Rural)",
-    contact: "9876543212",
-    image: "https://images.unsplash.com/photo-1546445317-29f4545f9d52?auto=format&fit=crop&w=800&q=80",
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "r-4",
-    seller_name: "రైతు సేవ కేంద్రం (Agri Inputs Center)",
-    section: "inputs",
-    sub_category: "విత్తనాలు (Seeds)",
-    title: "హైబ్రిడ్ టమోటా & మిర్చి విత్తనాలు (Certified Hybrid Seeds)",
-    description: "తెగులు నిరోధక శక్తి కలిగిన అత్యధిక దిగుబడి ఇచ్చే సర్టిఫైడ్ హైబ్రిడ్ విత్తనాలు.",
-    price_rate: "₹450 / Packet",
-    village: "మంగళగిరి (Mangalagiri)",
-    contact: "9876543213",
-    image: "https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?auto=format&fit=crop&w=800&q=80",
-    created_at: new Date().toISOString()
-  },
-  {
-    id: "r-5",
-    seller_name: "లక్ష్మీ వెంకటేశ్వర కోల్డ్ స్టోరేజ్ (LVK Cold Storage)",
-    section: "storage",
-    sub_category: "కోల్డ్ స్టోరేజ్ (Cold Storage)",
-    title: "మిర్చి, చింతపండు & పసుపు నిల్వ కోల్డ్ స్టోరేజ్",
-    description: "రైతుల పంట ఉత్పత్తుల భద్రత కోసం 24/7 ఉష్ణోగ్రత నియంత్రిత కోల్డ్ స్టోరేజ్ సదుపాయం.",
-    price_rate: "₹60 / బస్తా / నెల",
-    village: "మిర్చి యార్డ్ (Guntur Mirchi Yard)",
-    contact: "9876543214",
-    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=800&q=80",
-    created_at: new Date().toISOString()
-  }
-];
+const INITIAL_AGRI_ITEMS: RaituAgriItem[] = [];
+// Ids of removed demo listings, filtered out of old localStorage caches.
+const SEED_IDS = new Set(["r-1", "r-2", "r-3", "r-4", "r-5"]);
 
 export function RaituBazarPage() {
   const [items, setItems] = useState<RaituAgriItem[]>(() => {
@@ -169,7 +105,7 @@ export function RaituBazarPage() {
       const saved = localStorage.getItem("vaartanow_raitu_items");
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed.filter((it: { id: string }) => !SEED_IDS.has(it.id));
       }
     } catch {}
     return INITIAL_AGRI_ITEMS;

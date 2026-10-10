@@ -1,0 +1,19 @@
+{
+  "_note": "Official Telugu news channels only. IDs resolved via the YouTube Data API on 2026-10-09. Add or remove channels here; nothing else needs to change.",
+  "channels": [
+    { "id": "UCumtYpCY26F6Jr3satUgMvA", "name": "NTV Telugu" },
+    { "id": "UCtzYV2L-m8ew93mZb3qhf5w", "name": "NTV Live" },
+    { "id": "UCvdA3riZksba3Mji64PaNQw", "name": "NTV Sports" },
+    { "id": "UC_2irx_BQR7RsBKmUV9fePQ", "name": "ABN Telugu" },
+    { "id": "UC8dMa0NiH--FHTRP64BgUPA", "name": "ABN Amaravati" },
+    { "id": "UCdq1ZFRlO8wg8Re4vONxinQ", "name": "ABN Sports" },
+    { "id": "UCfymZbh17_3T_UhgjkQ9fRQ", "name": "10TV News Telugu" },
+    { "id": "UCZ9m4KOh8Ei60428xeGYDCQ", "name": "Sakshi TV" },
+    { "id": "UCQ_FATLW83q-4xJ2fsi8qAw", "name": "Sakshi TV Live" },
+    { "id": "UCTAG4XZHdAlN2-m4rr9WKoA", "name": "Sakshi TV Digital" },
+    { "id": "UC19Izyf_K31Tpbws9AEippg", "name": "Sakshi TV Cinema" },
+    { "id": "UCg-0bY9vTkEqCRg_aceEKDA", "name": "TV9 iSmart News" },
+    { "id": "UC-PPlFHLfi4wcFOe6DrReCQ", "name": "News18 Telugu" },
+    { "id": "UCVGRzd9YUtXYozquyYcjQOQ", "name": "Raj News Telugu" }
+  ]
+}

@@ -772,7 +772,9 @@ export function Layout() {
         </nav>
       </header>
       <SafeOutletBoundary>
-        <Outlet />
+        <React.Suspense fallback={<div className="container-shell py-16 text-center text-sm text-[hsl(var(--muted-foreground))]">లోడ్ అవుతోంది...</div>}>
+          <Outlet />
+        </React.Suspense>
       </SafeOutletBoundary>
       
       <footer className="container-shell border-t border-[hsl(var(--border))] py-8 text-sm text-[hsl(var(--muted-foreground))]">
@@ -1074,24 +1076,7 @@ export function Layout() {
             )}
           </NavLink>
 
-          {/* 6. మహిళా మార్కెట్ (Mahila Market) */}
-          <NavLink
-            to="/mahila-market"
-            className={({ isActive }) =>
-              `flex flex-col items-center justify-center flex-1 max-w-[58px] h-14 transition-all ${
-                isActive ? "text-rose-600 dark:text-rose-400 font-extrabold" : "text-[hsl(var(--muted-foreground))]"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <Heart className={`size-5 mb-0.5 text-rose-500 ${isActive ? "stroke-[2.5px] fill-rose-500" : ""}`} />
-                <span className="text-[9.5px] font-black tracking-tight leading-none text-center truncate w-full">
-                  మహిళా మార్కెట్
-                </span>
-              </>
-            )}
-          </NavLink>
+
 
         </div>
       </div>

@@ -1,4 +1,13 @@
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /jobs/admin
+Disallow: /deals/admin
+Disallow: /login
+Disallow: /search
+Disallow: /bookmarks
 
-Sitemap: https://varthanow.com/sitemap.xml
+User-agent: Mediapartners-Google
+Allow: /
+
+Sitemap: https://varthanow.pages.dev/sitemap.xml

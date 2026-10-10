@@ -4,7 +4,6 @@ import { setMeta } from "@/lib/seo";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { getPostBySlug } from "@/lib/news-api";
-import { demoPosts } from "@/lib/demo-data";
 import { supabase } from "@/lib/supabase";
 import type { BlogPost } from "@/types/news";
 import { Bookmark } from "lucide-react";
@@ -22,7 +21,7 @@ async function fetchBookmarkedPosts(slugs: string[]): Promise<BlogPost[]> {
       if (!error && data?.length) {
         const bySlug = new Map((data as BlogPost[]).map((p) => [p.slug, p]));
         return slugs
-          .map((slug) => bySlug.get(slug) || demoPosts.find((p) => p.slug === slug) || null)
+          .map((slug) => bySlug.get(slug) || null)
           .filter(Boolean) as BlogPost[];
       }
     } catch (err) {
@@ -32,11 +31,6 @@ async function fetchBookmarkedPosts(slugs: string[]): Promise<BlogPost[]> {
 
   const posts: BlogPost[] = [];
   for (const slug of slugs) {
-    const demo = demoPosts.find((p) => p.slug === slug);
-    if (demo) {
-      posts.push(demo);
-      continue;
-    }
     const remote = await getPostBySlug(slug);
     if (remote) posts.push(remote);
   }

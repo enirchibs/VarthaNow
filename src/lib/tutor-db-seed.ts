@@ -418,27 +418,6 @@ export const SEED_SENTENCES: DBSentenceItem[] = [
 ];
 
 // 🚀 SEED DATABASE TABLE IN SUPABASE IF CONNECTED
-export async function seedTutorSentencesToSupabase(): Promise<void> {
-  if (!supabase) return;
-  try {
-    const { data } = await supabase.from("tutor_sentences").select("id").limit(1);
-    if (!data || data.length === 0) {
-      await supabase.from("tutor_sentences").insert(SEED_SENTENCES.map((s) => ({
-        id: s.id,
-        category: s.category,
-        target_language: s.target_language,
-        title: s.title,
-        target_sentence: s.target_sentence,
-        telugu_translation: s.telugu_translation,
-        grammar_breakdown_te: s.grammar_breakdown_te,
-        example_dialogue: s.example_dialogue
-      })));
-    }
-  } catch (err) {
-    console.warn("Supabase tutor_sentences seed check:", err);
-  }
-}
-
 // 🔍 FETCH SENTENCES FROM SUPABASE DATABASE TABLE (WITH INSTANT MEMORY FALLBACK)
 export async function fetchTutorSentencesFromSupabase(
   category: "basic" | "spoken" | "office" | "interview" | "travel" | "kids",

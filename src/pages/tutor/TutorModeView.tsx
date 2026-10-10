@@ -15,7 +15,7 @@ import {
   Database
 } from "lucide-react";
 import { TargetLanguage, UserLearningProfile, updateStreakAndXP } from "@/lib/tutor-api";
-import { fetchTutorSentencesFromSupabase, DBSentenceItem, seedTutorSentencesToSupabase } from "@/lib/tutor-db-seed";
+import { fetchTutorSentencesFromSupabase, DBSentenceItem } from "@/lib/tutor-db-seed";
 import { speechService } from "@/lib/speech-service";
 
 interface TutorModeViewProps {
@@ -35,10 +35,9 @@ export function TutorModeView({ language, profile, onBack, onOpenVoicePractice }
   const [feedback, setFeedback] = useState<{ isCorrect: boolean; note: string } | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Trigger Supabase Seed Check & Fetch Sentences
+  // Fetch Sentences
   useEffect(() => {
     let isMounted = true;
-    seedTutorSentencesToSupabase();
 
     async function loadSentences() {
       setLoading(true);

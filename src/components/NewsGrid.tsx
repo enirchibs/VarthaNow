@@ -2,16 +2,14 @@ import { useEffect, useState } from "react";
 import type { BlogPost } from "@/types/news";
 import { NewsCard } from "@/components/NewsCard";
 import { Skeleton } from "@/components/ui";
-import { demoPosts } from "@/lib/demo-data";
 
 export function NewsGrid({
   posts,
   loading,
-  fillMinimum = true,
 }: {
   posts: BlogPost[];
   loading?: boolean;
-  /** When false, do not pad the grid with demo/duplicate articles (e.g. bookmarks). */
+  /** Accepted for compatibility; the grid never pads with demo or duplicate articles. */
   fillMinimum?: boolean;
 }) {
   const [spotlightIndex, setSpotlightIndex] = useState(0);
@@ -36,27 +34,12 @@ export function NewsGrid({
     );
   }
 
-  // Ensure AT LEAST 9 articles on home/category feeds (not bookmarks).
-  // When the feed is already category-scoped, only pad with the same category.
-  let displayPosts = [...posts];
-  if (fillMinimum && displayPosts.length < 9) {
-    const categoriesInFeed = new Set(displayPosts.map((p) => p.category).filter(Boolean));
-    const singleCategory = categoriesInFeed.size === 1 ? [...categoriesInFeed][0] : null;
-
-    for (const dp of demoPosts) {
-      if (displayPosts.length >= 9) break;
-      if (singleCategory && dp.category !== singleCategory) continue;
-      if (!displayPosts.some((p) => p.slug === dp.slug)) {
-        displayPosts.push(dp);
-      }
-    }
-    let i = 0;
-    while (displayPosts.length > 0 && displayPosts.length < 9) {
-      // Keep the real slug so clicking opens the correct article
-      const p = displayPosts[i % displayPosts.length];
-      displayPosts.push({ ...p });
-      i++;
-    }
+  if (!posts.length) {
+    return (
+      <div className="rounded-[1.4rem] border border-dashed border-border p-8 text-center text-sm font-bold text-muted-foreground">
+        ప్రస్తుతం వార్తలు అందుబాటులో లేవు. కొద్దిసేపటి తర్వాత మళ్ళీ ప్రయత్నించండి.
+      </div>
+    );
   }
 
   return (
@@ -65,7 +48,7 @@ export function NewsGrid({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {displayPosts.map((post, index) => (
+      {posts.map((post, index) => (
         <div 
           key={`${post.slug}-${index}`} 
           className="animate-in fade-in slide-in-from-bottom-2 duration-500 fill-mode-both"
@@ -75,7 +58,7 @@ export function NewsGrid({
             post={post} 
             priority={index === 0} 
             isSpotlight={index === spotlightIndex}
-            feedPosts={displayPosts}
+            feedPosts={posts}
           />
         </div>
       ))}

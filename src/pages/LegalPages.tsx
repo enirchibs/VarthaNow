@@ -1,3 +1,4 @@
+import { SITE_URL, SITE_HOST } from "@/lib/site";
 import { useState } from "react";
 import { Sparkles, Mail, Phone, MapPin, Send, CheckCircle2, ShieldCheck, FileText, Info } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -187,14 +188,11 @@ export function PrivacyPage() {
           <h1 className="text-3xl font-black md:text-4xl text-[hsl(var(--foreground))]">
             {lang === "te" ? "గోప్యతా విధానం (Privacy Policy)" : "Privacy Policy"}
           </h1>
-          <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">
-            AdSense Compliance Certified
-          </p>
         </div>
 
         <div className="space-y-5 text-xs font-bold text-[hsl(var(--muted-foreground))] leading-relaxed">
           <p>
-            At **VaartaNow**, accessible from **https://vaartanow.in**, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by VaartaNow and how we use it.
+            At VaartaNow, accessible from {SITE_URL}, one of our main priorities is the privacy of our visitors. This Privacy Policy document contains types of information that is collected and recorded by VaartaNow and how we use it.
           </p>
 
           <h3 className="text-sm font-black text-[hsl(var(--foreground))] border-b border-[hsl(var(--border))]/40 pb-1 mt-4">
@@ -229,7 +227,7 @@ export function PrivacyPage() {
             5. Google DoubleClick DART Cookie & AdSense Disclosures
           </h3>
           <p>
-            Google is one of the third-party vendors on our site. It also uses cookies, known as DART cookies, to serve ads to our site visitors based upon their visit to www.website.com and other sites on the internet. However, visitors may choose to decline the use of DART cookies by visiting the Google ad and content network Privacy Policy at the following URL – **https://policies.google.com/technologies/ads**
+            Google is one of the third-party vendors on our site. It also uses cookies, known as DART cookies, to serve ads to our site visitors based upon their visit to {SITE_HOST} and other sites on the internet. However, visitors may choose to decline the use of DART cookies by visiting the Google ad and content network Privacy Policy at the following URL – <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer" className="underline">https://policies.google.com/technologies/ads</a>
           </p>
           <p>
             These third-party ad servers or ad networks use technology in their respective advertisements and links that appear on VaartaNow, which are sent directly to users' browsers. They automatically receive your IP address when this occurs. These technologies are used to measure the effectiveness of their advertising campaigns and/or to personalize the advertising content that you see on websites that you visit. Note that VaartaNow has no access to or control over these cookies that are used by third-party advertisers.
@@ -258,7 +256,7 @@ export function TermsPage() {
 
         <div className="space-y-5 text-xs font-bold text-[hsl(var(--muted-foreground))] leading-relaxed">
           <p>
-            Welcome to **VaartaNow**! These terms and conditions outline the rules and regulations for the use of VaartaNow's Website, located at **https://vaartanow.in**.
+            Welcome to VaartaNow! These terms and conditions outline the rules and regulations for the use of VaartaNow's Website, located at {SITE_URL}.
           </p>
 
           <h3 className="text-sm font-black text-[hsl(var(--foreground))] border-b border-[hsl(var(--border))]/40 pb-1 mt-4">
@@ -308,14 +306,14 @@ export function DisclaimerPage() {
 
         <div className="space-y-5 text-xs font-bold text-[hsl(var(--muted-foreground))] leading-relaxed">
           <p>
-            If you require any more information or have any questions about our site's disclaimer, please feel free to contact us by email at **contact@vaartanow.in**.
+            If you require any more information or have any questions about our site's disclaimer, please feel free to contact us by email at contact@vaartanow.in.
           </p>
 
           <h3 className="text-sm font-black text-[hsl(var(--foreground))] border-b border-[hsl(var(--border))]/40 pb-1 mt-4">
             1. Information Accuracy
           </h3>
           <p>
-            All the information on this website - **https://vaartanow.in** - is published in good faith and for general information purpose only. VaartaNow does not make any warranties about the completeness, reliability and accuracy of this information. Any action you take upon the information you find on this website (VaartaNow), is strictly at your own risk. VaartaNow will not be liable for any losses and/or damages in connection with the use of our website.
+            All the information on this website - {SITE_URL} - is published in good faith and for general information purpose only. VaartaNow does not make any warranties about the completeness, reliability and accuracy of this information. Any action you take upon the information you find on this website (VaartaNow), is strictly at your own risk. VaartaNow will not be liable for any losses and/or damages in connection with the use of our website.
           </p>
 
           <h3 className="text-sm font-black text-[hsl(var(--foreground))] border-b border-[hsl(var(--border))]/40 pb-1 mt-4">

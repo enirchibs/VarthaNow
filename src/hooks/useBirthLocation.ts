@@ -103,7 +103,7 @@ export function useBirthLocation(lang: string = "te") {
         }
 
         // Step 2: Google Places Autocomplete API (Cost-optimized via session tokens)
-        const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || import.meta.env.VITE_YOUTUBE_API_KEY || "";
+        const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
         let googleSuggestions: LocationSuggestion[] = [];
 
         if (googleApiKey) {
@@ -200,7 +200,7 @@ export function useBirthLocation(lang: string = "te") {
 
     try {
       if (suggestion.google_place_id) {
-        const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || import.meta.env.VITE_YOUTUBE_API_KEY || "";
+        const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
         const sessionToken = getSessionToken();
         const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${suggestion.google_place_id}&fields=geometry,address_components&key=${googleApiKey}&sessiontoken=${sessionToken}`;
         
@@ -243,7 +243,7 @@ export function useBirthLocation(lang: string = "te") {
 
       if (resolved.latitude && resolved.longitude && !resolved.timezone) {
         try {
-          const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || import.meta.env.VITE_YOUTUBE_API_KEY || "";
+          const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
           const timestamp = Math.floor(Date.now() / 1000);
           const tzUrl = `https://maps.googleapis.com/maps/api/timezone/json?location=${resolved.latitude},${resolved.longitude}&timestamp=${timestamp}&key=${googleApiKey}`;
           

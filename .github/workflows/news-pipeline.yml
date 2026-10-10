@@ -1,14 +1,14 @@
-name: VarthaNow News Pipeline
+name: VaartaNow News Pipeline
 
 on:
   schedule:
-    - cron: '15,45 * * * *' # Runs every 30 minutes (offset at :15 and :45) 24/7
+    - cron: '20 */2 * * *' # every 2 hours: up to 5 news shorts + 2 videos per run
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:
-  ingest-and-process:
+  news-shorts:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -17,44 +17,34 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        
+
     - name: Install Dependencies
       run: npm ci
 
-    - name: Run News Ingestion
+    # Telugu font so headlines render on the composed news images.
+    - name: Install Telugu Font
+      run: sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-core
+
+    # 60-word Telugu shorts written by Gemini; replaces the old ingest + ai-queue steps.
+    - name: Write News Shorts
       env:
-        VITE_SITE_URL: "https://varthanow.pages.dev"
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
-        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      run: npm run ingest
-      
-    - name: Run AI Processing Queue
-      env:
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
-        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
-      run: npm run ai-queue
-      
-    - name: Run YouTube Viral Shorts Ingestion
+      run: npm run news -- --max=5
+
+    # Short videos from official channels only (scripts/config/video-channels.json), with our Telugu context.
+    - name: Add Short Videos
       env:
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
-        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        VITE_YOUTUBE_API_KEY: ${{ secrets.VITE_YOUTUBE_API_KEY || 'AIzaSyBYtVDlqQ8-12y_HgrjSgfIJikfnb-sflg' }}
-        YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY || 'AIzaSyBYtVDlqQ8-12y_HgrjSgfIJikfnb-sflg' }}
-      run: npm run shorts || true
-      
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+      run: npm run shorts -- --max=2 || true
+
     - name: Generate Sitemap
       env:
-        VITE_SITE_URL: "https://varthanow.pages.dev"
-        VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://xceartahttbkdihteynx.supabase.co' }}
-        VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        SITE_URL: ${{ secrets.SITE_URL || 'https://varthanow.pages.dev' }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       run: npm run sitemap || true

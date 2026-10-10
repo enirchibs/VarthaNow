@@ -23,7 +23,6 @@ import {
   toggleFeaturedJob, 
   deleteJob, 
   addJob, 
-  triggerScraperSimulation 
 } from "@/lib/jobs-api";
 import type { VaartanowJob, ExperienceLevel, WorkMode, ContractType } from "@/types/jobs";
 
@@ -38,10 +37,6 @@ export function JobsAdminDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "approved" | "pending" | "deleted">("all");
 
-  // Scraper Trigger
-  const [scraperKeyword, setScraperKeyword] = useState("React");
-  const [scraperLogs, setScraperLogs] = useState<string[]>([]);
-  const [scraping, setScraping] = useState(false);
 
   // Custom Job Form Modal
   const [showAddModal, setShowAddModal] = useState(false);
@@ -104,27 +99,6 @@ export function JobsAdminDashboard() {
     }
   };
 
-  const handleTriggerScraper = async () => {
-    if (!scraperKeyword.trim()) return;
-    setScraping(true);
-    setScraperLogs(prev => [`[${new Date().toLocaleTimeString()}] Triggering simulated SerpApi & Upwork crawler for keyword "${scraperKeyword}"...`, ...prev]);
-    
-    setTimeout(async () => {
-      try {
-        const count = await triggerScraperSimulation(scraperKeyword);
-        setScraperLogs(prev => [
-          `[${new Date().toLocaleTimeString()}] ✓ Scraper simulation complete!`,
-          `[${new Date().toLocaleTimeString()}]   -> Added ${count} new pending jobs awaiting approval.`,
-          ...prev
-        ]);
-        await loadData();
-      } catch (e) {
-        setScraperLogs(prev => [`[${new Date().toLocaleTimeString()}] ✗ Scraper error: ${e}`, ...prev]);
-      } finally {
-        setScraping(false);
-      }
-    }, 1500);
-  };
 
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -284,7 +258,7 @@ export function JobsAdminDashboard() {
         </div>
       )}
 
-      {/* 🧬 Double Column: Analytical Charts & Scraper Agent Console */}
+      {/* 🧬 Analytical Charts */}
       {metrics && (
         <div className="grid gap-6 md:grid-cols-[1fr_1fr]">
           {/* Analytics Graph Card */}
@@ -335,49 +309,6 @@ export function JobsAdminDashboard() {
             </div>
           </div>
 
-          {/* Scraper Control Console */}
-          <div className="p-6 rounded-[1.6rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] space-y-4 shadow-sm flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 pb-3 border-b border-[hsl(var(--border))]/70">
-                <Sparkles className="size-5 text-amber-500 animate-pulse" />
-                <h3 className="font-black text-sm uppercase tracking-wider text-[hsl(var(--foreground))]">
-                  AI Crawlers Control Deck (SerpApi & Upwork)
-                </h3>
-              </div>
-
-              <p className="text-[11px] leading-relaxed text-[hsl(var(--muted-foreground))] font-semibold mt-2">
-                Simulate your background automated crawler scripts. This operation matches SerpApi Google Jobs scraper configurations and Upwork RSS parser engines to pull records on request, automatically applying auto-detection badge rules (Remote/Contract) before saving to the pending log.
-              </p>
-
-              <div className="pt-4 flex gap-2">
-                <input
-                  type="text"
-                  placeholder="E.g. React, Next.js, Python, Deno..."
-                  value={scraperKeyword}
-                  onChange={(e) => setScraperKeyword(e.target.value)}
-                  className="flex-1 h-10 px-3 rounded-xl bg-[hsl(var(--muted))]/60 border border-[hsl(var(--border))] text-xs font-bold text-[hsl(var(--foreground))] placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                />
-                <button
-                  onClick={handleTriggerScraper}
-                  disabled={scraping}
-                  className="h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-neutral-600 text-white text-[11px] font-black uppercase tracking-wider transition flex items-center justify-center gap-1.5 shadow-md shadow-indigo-500/10"
-                >
-                  {scraping ? <RefreshCw className="size-3.5 animate-spin" /> : "Run Crawler Agent"}
-                </button>
-              </div>
-            </div>
-
-            {/* Scraper logs console */}
-            <div className="h-32 mt-4 bg-neutral-950 text-emerald-400 p-3 rounded-2xl text-[9px] font-mono overflow-y-auto no-scrollbar space-y-1 select-none border border-white/5">
-              {scraperLogs.length === 0 ? (
-                <span className="text-zinc-500 font-bold italic">// Crawler logs: Idle... Ready to launch.</span>
-              ) : (
-                scraperLogs.map((log, index) => (
-                  <p key={index} className="leading-tight">{log}</p>
-                ))
-              )}
-            </div>
-          </div>
         </div>
       )}
 

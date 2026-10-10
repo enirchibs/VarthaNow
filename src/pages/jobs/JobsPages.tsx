@@ -1,3 +1,5 @@
+import { Navigate } from "react-router-dom";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useEffect } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { setMeta } from "@/lib/seo";
@@ -259,6 +261,9 @@ export function JobsRemoteITPage() {
 // 10. Jobs Administrative Dashboard
 export function JobsAdminPage() {
   useJobsSEO("admin", "admin", "/jobs/admin");
+  const { loading, isAdmin } = useIsAdmin();
+  if (loading) return null;
+  if (!isAdmin) return <Navigate to="/login" replace />;
   return (
     <main className="container-shell py-4">
       <JobsAdminDashboard />

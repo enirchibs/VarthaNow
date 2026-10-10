@@ -85,14 +85,6 @@ const POST_CATEGORIES: PostCategoryItem[] = [
     bgColor: "bg-amber-500/10 dark:bg-amber-400/10"
   },
   {
-    id: "agriculture",
-    title: "5. వ్యవసాయం & రైతు పంటలు (రైతు బజార్)",
-    subtitle: "రైతుల పంటలు, బియ్యం, పల్లి, పప్పులు, విత్తనాలు, పశువులు, ఎరువులు రైతు ధరకు కొనండి/అమ్మండి",
-    icon: Sprout,
-    iconColor: "text-green-600 dark:text-green-400",
-    bgColor: "bg-green-500/10 dark:bg-green-400/10"
-  },
-  {
     id: "service",
     title: "6. సేవలు & అద్దెలు (సేవలు & యంత్రాల అద్దె)",
     subtitle: "ట్రాక్టర్, జేసీబీ, ఎలక్ట్రీషియన్, ప్లంబర్, డ్రైవర్, శామియానా, మిషన్ల అద్దె సేవలు పొందండి/అందించండి",

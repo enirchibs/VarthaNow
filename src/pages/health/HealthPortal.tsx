@@ -189,7 +189,7 @@ export function HealthPortal() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [aiQuery, setAiQuery] = useState("");
   const [aiChat, setAiChat] = useState<{ sender: "user" | "ai"; text: string }[]>([
-    { sender: "ai", text: "Hello! I am your VaartaNow AI Health Assistant. How can I help with your symptoms or wellness queries today?" }
+    { sender: "ai", text: "నమస్కారం! జ్వరం, గ్యాస్, దగ్గు వంటి సాధారణ సమస్యలపై సాధారణ ఆరోగ్య చిట్కాలు ఇక్కడ చూడవచ్చు. ఇది వైద్య సలహా కాదు." }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
@@ -197,7 +197,7 @@ export function HealthPortal() {
   const [activeSlide, setActiveSlide] = useState(0);
   const slides = [
     { titleTe: "సహజంగా ఆరోగ్యంగా ఉండాలా?", titleEn: "Want to Stay Healthy Naturally?", descTe: "మీ వంటగదిలోని సహజ మూలికలతో ఆరోగ్య సంరక్షణ చేసుకోండి.", descEn: "Protect your wellness using daily kitchen ingredients.", bg: "from-emerald-950 via-teal-900 to-emerald-900" },
-    { titleTe: "AI ఆరోగ్య సహాయకుడు", titleEn: "AI Health Assistant", descTe: "మీ ఆరోగ్య సందేహాలకు తక్షణ సమాధానాలు పొందండి.", descEn: "Get instant wellness answers in Telugu and English.", bg: "from-blue-950 via-cyan-900 to-indigo-900" },
+    { titleTe: "ఆరోగ్య చిట్కాలు", titleEn: "Health Tips", descTe: "మీ ఆరోగ్య సందేహాలకు తక్షణ సమాధానాలు పొందండి.", descEn: "Get instant wellness answers in Telugu and English.", bg: "from-blue-950 via-cyan-900 to-indigo-900" },
     { titleTe: "పురుషులు & మహిళల ఆరోగ్యం", titleEn: "Men & Women Wellness", descTe: "ప్రత్యేకమైన జీవనశైలి చిట్కాలు, ఆహార ప్రణాళికలు.", descEn: "Specialized fertility guides, diet plans & daily exercises.", bg: "from-rose-950 via-pink-900 to-rose-900" }
   ];
 
@@ -286,6 +286,8 @@ export function HealthPortal() {
         reply = "దగ్గు గొంతు అలర్జీ లేదా ఇన్ఫెక్షన్ వల్ల వస్తుంది. \n\n*చిట్కాలు:* గోరువెచ్చని నీటిలో తేనె కలుపుకుని తాగడం లేదా తులసి రసం తాగడం గొంతుకు ఉపశమనం ఇస్తుంది. \n\n⚠ *హెచ్చరిక:* దగ్గు 2 వారాల కంటే ఎక్కువ ఉంటే క్షయ పరీక్ష చేయించుకోవడం అవసరం.";
       }
 
+      // These are fixed general tips, not AI or diagnosis: always point to a doctor and to 108 for emergencies.
+      reply += "\n\n⚠️ ఇది సాధారణ సమాచారం మాత్రమే, వైద్య సలహా కాదు. లక్షణాలు తగ్గకపోతే వైద్యుడిని సంప్రదించండి. అత్యవసర పరిస్థితిలో 108 కి కాల్ చేయండి.";
       setAiChat(prev => [...prev, { sender: "ai", text: reply }]);
       setIsAiLoading(false);
     }, 1200);
@@ -402,7 +404,7 @@ export function HealthPortal() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end p-6 sm:p-8">
               <div>
                 <h1 className="text-2xl sm:text-4xl font-black text-white">{d.titleTe} ({d.titleEn})</h1>
-                <p className="text-white/80 text-xs sm:text-sm font-bold mt-2">{isTe ? "VaartaNow AI సమాచారం" : "VaartaNow AI Medical Information"}</p>
+                <p className="text-white/80 text-xs sm:text-sm font-bold mt-2">{isTe ? "VaartaNow ఆరోగ్య సమాచారం" : "VaartaNow Health Information"}</p>
               </div>
             </div>
           </div>
@@ -476,7 +478,7 @@ export function HealthPortal() {
               <div className="bg-[hsl(var(--card))] border border-[hsl(var(--border))]/60 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[400px]">
                 <div className="bg-emerald-600 px-4 py-3 flex items-center gap-2">
                   <Sparkles className="size-4.5 text-white animate-pulse" />
-                  <span className="text-xs font-black text-white">{isTe ? "AI ఆరోగ్య సహాయకుడు" : "AI Health Assistant"}</span>
+                  <span className="text-xs font-black text-white">{isTe ? "ఆరోగ్య చిట్కాలు" : "Health Tips"}</span>
                 </div>
 
                 <div className="flex-1 p-4 overflow-y-auto space-y-3 text-xs leading-normal">

@@ -36,6 +36,18 @@ export default defineConfig({
       }
     }
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Vendor code changes rarely; separate chunks stay cached across app deploys.
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          supabase: ["@supabase/supabase-js"],
+          motion: ["framer-motion"]
+        }
+      }
+    }
+  },
   preview: {
     port: 4173,
     host: "0.0.0.0"

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { SearchBox } from "@/components/SearchBox";
 import { VerticalSnapFeed } from "@/components/VerticalSnapFeed";
 import { Button } from "@/components/ui";
@@ -10,7 +11,11 @@ import { useLanguage } from "@/hooks/useLanguage";
 
 export function SearchPage() {
   const { lang } = useLanguage();
-  const [query, setQuery] = useState("");
+  // Honour ?q= so tag links from articles (/search?q=<tag>) open filtered results.
+  const [searchParams] = useSearchParams();
+  const urlQuery = searchParams.get("q") ?? "";
+  const [query, setQuery] = useState(urlQuery);
+  useEffect(() => setQuery(urlQuery), [urlQuery]);
   const [category, setCategory] = useState<NewsCategory | "all">("all");
   const feed = useInfinitePosts({ query, category });
 

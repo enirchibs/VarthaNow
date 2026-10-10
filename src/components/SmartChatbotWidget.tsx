@@ -146,15 +146,6 @@ export function SmartChatbotWidget() {
       return;
     }
 
-    // Intent 3: Mahila Market
-    if (q.includes("mahila") || q.includes("మహిళా") || q.includes("పచ్చళ్ళు") || q.includes("కారం") || q.includes("చీరలు")) {
-      respondAndNavigate(
-        "🌸 మహిళా మార్కెట్ పేజీకి తీసుకెళ్తున్నాను... (Navigating to Mahila Market...)",
-        "మహిళా మార్కెట్‌కి వెళ్లండి ➔",
-        "/mahila-market"
-      );
-      return;
-    }
 
     // Intent 4: Services & Rentals
     if (q.includes("service") || q.includes("సేవలు") || q.includes("అద్దె") || q.includes("ప్లంబర్") || q.includes("ఎలక్ట్రీషియన్") || q.includes("జేసీబీ")) {
@@ -166,15 +157,6 @@ export function SmartChatbotWidget() {
       return;
     }
 
-    // Intent 5: Raitu Bazar / Agriculture
-    if (q.includes("raitu") || q.includes("రైతు") || q.includes("పంటలు") || q.includes("విత్తనాలు") || q.includes("వరి")) {
-      respondAndNavigate(
-        "🌾 రైతు మార్కెట్ పేజీకి తీసుకెళ్తున్నాను... (Navigating to Raitu Bazar...)",
-        "రైతు మార్కెట్‌కి వెళ్లండి ➔",
-        "/raitu-bazar"
-      );
-      return;
-    }
 
     // Intent 6: Shorts
     if (q.includes("short") || q.includes("షార్ట్స్") || q.includes("వీడియో") || q.includes("వైరల్")) {
@@ -366,10 +348,8 @@ export function SmartChatbotWidget() {
                 { title: "💼 ఉద్యోగాలు", path: "/jobs" },
                 { title: "🛍️ కొనడం / అమ్మడం", path: "/market" },
                 { title: "🏗️ బిల్డింగ్ మెటీరియల్స్", path: "/market?cat=building_materials" },
-                { title: "🌸 మహిళా మార్కెట్", path: "/mahila-market" },
                 { title: "🔧 సేవలు & అద్దెకు", path: "/services" },
                 { title: "🏨 హోటల్ & ఫుడ్ సేవలు", path: "/services" },
-                { title: "🌾 రైతు మార్కెట్", path: "/raitu-bazar" },
                 { title: "🍲 సంప్రదాయ వంటలు", path: "/category/devotional" },
                 { title: "🏥 ఆరోగ్యం", path: "/health" }
               ].map((chip, idx) => (

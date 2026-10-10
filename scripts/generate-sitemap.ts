@@ -22,13 +22,15 @@ try {
   }
 } catch {}
 
-const siteUrl = (process.env.VITE_SITE_URL ?? "https://vaartanow.com").replace(/\/$/, "");
+// Never publish a localhost sitemap: SITE_URL wins, and a local VITE_SITE_URL is ignored.
+const siteUrl = [process.env.SITE_URL, process.env.VITE_SITE_URL, "https://varthanow.pages.dev"]
+  .find((u) => u && !/localhost|127\.0\.0\.1/.test(u))!
+  .replace(/\/$/, "");
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.VITE_SUPABASE_ANON_KEY;
 
 const STATIC_ROUTES = [
   { url: "/", changefreq: "always", priority: "1.0" },
-  { url: "/search", changefreq: "hourly", priority: "0.8" },
   { url: "/category/politics", changefreq: "always", priority: "0.95" },
   { url: "/category/andhra-pradesh", changefreq: "always", priority: "0.95" },
   { url: "/category/telangana", changefreq: "always", priority: "0.95" },
@@ -43,7 +45,28 @@ const STATIC_ROUTES = [
   { url: "/category/devotional", changefreq: "daily", priority: "0.7" },
   { url: "/category/viralshorts", changefreq: "hourly", priority: "0.8" },
   { url: "/category/vizag", changefreq: "hourly", priority: "0.8" },
+  { url: "/jobs", changefreq: "daily", priority: "0.7" },
+  { url: "/about", changefreq: "monthly", priority: "0.4" },
+  { url: "/contact", changefreq: "monthly", priority: "0.4" },
+  { url: "/privacy", changefreq: "monthly", priority: "0.3" },
+  { url: "/terms", changefreq: "monthly", priority: "0.3" },
+  { url: "/disclaimer", changefreq: "monthly", priority: "0.3" },
 ];
+
+const ROBOTS_TXT = (base: string) => `User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /jobs/admin
+Disallow: /deals/admin
+Disallow: /login
+Disallow: /search
+Disallow: /bookmarks
+
+User-agent: Mediapartners-Google
+Allow: /
+
+Sitemap: ${base}/sitemap.xml
+`;
 
 function escapeXml(str: string): string {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
@@ -167,6 +190,7 @@ ${articleXml}
 
   // Write sitemap
   await fs.writeFile("public/sitemap.xml", xml, "utf8");
+  await fs.writeFile("public/robots.txt", ROBOTS_TXT(siteUrl), "utf8");
   const sizeKb = Math.round(Buffer.byteLength(xml) / 1024);
   console.log(`  ✅ Sitemap written: public/sitemap.xml (${sizeKb}KB, ${articleCount + STATIC_ROUTES.length} URLs)`);
 

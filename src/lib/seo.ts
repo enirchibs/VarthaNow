@@ -1,7 +1,7 @@
 import type { BlogPost } from "@/types/news";
 
 const siteName = "VarthaNow";
-const siteUrl = import.meta.env.VITE_SITE_URL ?? "http://localhost:3000";
+import { SITE_URL as siteUrl } from "@/lib/site";
 
 export function setMeta({
   title,
@@ -70,6 +70,25 @@ function upsertLink(rel: string, href: string) {
     document.head.appendChild(element);
   }
   element.href = href;
+}
+
+/** schema.org VideoObject for a short-video page, so search engines understand the embedded clip. */
+export function videoStructuredData(video: { id: string; title: string; caption: string; thumbnail: string; publishedAt: string; duration: string; channel: string }) {
+  const [m = "0", s = "0"] = video.duration.split(":");
+  upsertJsonLd({
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: video.title,
+    description: video.caption || video.title,
+    thumbnailUrl: [video.thumbnail],
+    uploadDate: video.publishedAt,
+    ...(video.duration ? { duration: `PT${Number(m)}M${Number(s)}S` } : {}),
+    embedUrl: `https://www.youtube-nocookie.com/embed/${video.id}`,
+    contentUrl: `https://www.youtube.com/watch?v=${video.id}`,
+    url: `${siteUrl}/videos/${video.id}`,
+    publisher: { "@type": "Organization", name: video.channel },
+    inLanguage: "te",
+  });
 }
 
 function upsertJsonLd(data: object) {
