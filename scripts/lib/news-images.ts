@@ -148,7 +148,7 @@ function emWidth(text: string): number {
   let w = 0;
   for (const ch of text) {
     const c = ch.codePointAt(0)!;
-    if ((c >= 0x0c00 && c <= 0x0c04) || (c >= 0x0c3c && c <= 0x0c56) || c === 0x0c62 || c === 0x0c63) w += 0.25;
+    if ((c >= 0x0c00 && c <= 0x0c04) || (c >= 0x0c3c && c <= 0x0c56) || c === 0x0c62 || c === 0x0c63) w += 0.3;
     else if (c >= 0x0c05 && c <= 0x0c7f) w += 0.78;
     else if (ch === " ") w += 0.3;
     else w += 0.58;
@@ -160,7 +160,7 @@ const TEXT_WIDTH = W - 96;
 
 /** Wrap a headline into at most 2 lines that fit the image width at the given font size. */
 function wrap(title: string, fontSize = 46): string[] {
-  const maxEm = TEXT_WIDTH / fontSize;
+  const maxEm = (TEXT_WIDTH / fontSize) * 0.92;
   const lines: string[] = [];
   let line = "";
   for (const word of title.split(/\s+/)) {
