@@ -28,6 +28,7 @@ import {
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 import { LocationAreaSelector } from "@/components/LocationAreaSelector";
 import { UnifiedCategorySearchHeader } from "@/components/UnifiedCategorySearchHeader";
+import { fileToCompressedDataUrl } from "@/lib/image-compression";
 
 export interface RaituAgriItem {
   id: string;
@@ -219,13 +220,7 @@ export function RaituBazarPage() {
     const files = e.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setImageUrl(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
+      void fileToCompressedDataUrl(file).then(setImageUrl);
     }
   };
 

@@ -30,6 +30,7 @@ import {
   saveStoredUserProfile, 
   PROFILE_EVENT_NAME 
 } from "@/lib/user-profile";
+import { fileToCompressedDataUrl } from "@/lib/image-compression";
 
 interface ClassifiedPostModalProps {
   isOpen: boolean;
@@ -102,13 +103,7 @@ export function ClassifiedPostModal({ isOpen, onClose, onPostSuccess }: Classifi
     const files = e.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setImageUrl(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
+      void fileToCompressedDataUrl(file).then(setImageUrl);
     }
   };
 

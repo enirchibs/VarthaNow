@@ -26,6 +26,7 @@ import {
 import { sendSMSOTP, verifySellerOTP } from "@/lib/classifieds-api";
 import { validateAndSanitizeFullName } from "@/lib/safety-compliance";
 import { TeluguTypingBanner } from "@/components/TeluguTypingBanner";
+import { fileToCompressedDataUrl } from "@/lib/image-compression";
 
 interface UserProfileModalProps {
   isOpen: boolean;
@@ -97,14 +98,11 @@ export function UserProfileModal({ isOpen, onClose, onLoginSuccess }: UserProfil
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      if (typeof reader.result === "string") {
-        setAvatarUrl(reader.result);
-        setErrorMsg("");
-      }
-    };
-    reader.readAsDataURL(file);
+    // profile photos are shown small: 512 px is plenty
+    void fileToCompressedDataUrl(file, { maxDimension: 512 }).then((url) => {
+      setAvatarUrl(url);
+      setErrorMsg("");
+    });
   };
 
   // Save profile changes (Logged in)

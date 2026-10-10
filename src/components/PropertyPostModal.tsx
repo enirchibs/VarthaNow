@@ -25,6 +25,7 @@ import {
   saveStoredUserProfile, 
   PROFILE_EVENT_NAME 
 } from "@/lib/user-profile";
+import { fileToCompressedDataUrl } from "@/lib/image-compression";
 
 interface PropertyPostModalProps {
   isOpen: boolean;
@@ -231,13 +232,7 @@ export function PropertyPostModal({ isOpen, onClose, onSuccess }: PropertyPostMo
     const newImages: string[] = [];
     Array.from(files).forEach((file) => {
       if (images.length + newImages.length >= 4) return;
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === "string") {
-          setImages((prev) => [...prev, reader.result as string].slice(0, 4));
-        }
-      };
-      reader.readAsDataURL(file);
+      void fileToCompressedDataUrl(file).then((url) => setImages((prev) => [...prev, url].slice(0, 4)));
     });
   };
 

@@ -12,6 +12,7 @@ import {
 } from "@/lib/daily-share-api";
 import { supabase } from "@/lib/supabase";
 import { Button, Input } from "@/components/ui";
+import { compressImage, extensionFor } from "@/lib/image-compression";
 
 export function DailyShareAdminDashboard() {
   const [items, setItems] = useState<DailyShareItem[]>(() => getDailyShareItems());
@@ -54,9 +55,9 @@ export function DailyShareAdminDashboard() {
 
     try {
       if (supabase) {
-        const fileExt = file.name.split(".").pop();
-        const fileName = `daily-share/img_${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
-        const { error: uploadErr } = await supabase.storage.from("news-images").upload(fileName, file);
+        const image = await compressImage(file);
+        const fileName = `daily-share/img_${Date.now()}_${Math.random().toString(36).substring(2)}.${extensionFor(image)}`;
+        const { error: uploadErr } = await supabase.storage.from("news-images").upload(fileName, image, { contentType: image.type, cacheControl: "31536000" });
 
         if (!uploadErr) {
           const { data } = supabase.storage.from("news-images").getPublicUrl(fileName);

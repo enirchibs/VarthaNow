@@ -12,6 +12,7 @@ import {
 import { DailyShareItem } from "@/types/daily-share";
 import { saveUserCreation } from "@/lib/daily-share-api";
 import { useLanguage } from "@/hooks/useLanguage";
+import { fileToCompressedDataUrl } from "@/lib/image-compression";
 
 interface DailySharePersonalizerModalProps {
   item: DailyShareItem;
@@ -53,9 +54,7 @@ export function DailySharePersonalizerModal({ item, isOpen, onClose }: DailyShar
       alert(lang === "te" ? "దయచేసి ఇమేజ్ ఫైల్ ఎంచుకోండి" : "Please choose an image file");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (event) => setUserPhotoUrl(event.target?.result as string);
-    reader.readAsDataURL(file);
+    void fileToCompressedDataUrl(file, { maxDimension: 1080 }).then(setUserPhotoUrl);
   };
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,13 +62,11 @@ export function DailySharePersonalizerModal({ item, isOpen, onClose }: DailyShar
     if (!file) return;
 
     if (file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setUserPhotoUrl(event.target?.result as string);
+      void fileToCompressedDataUrl(file, { maxDimension: 1080 }).then((url) => {
+        setUserPhotoUrl(url);
         setUserVideoUrl(null);
         setUserVideoFile(null);
-      };
-      reader.readAsDataURL(file);
+      });
       return;
     }
 

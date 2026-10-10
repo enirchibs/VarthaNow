@@ -18,6 +18,7 @@ import { JobsAdminDashboard } from "@/components/jobs/JobsAdminDashboard";
 import { VideoNewsAdminDashboard } from "@/components/admin/VideoNewsAdminDashboard";
 import { SEOAdminDashboard } from "@/components/admin/SEOAdminDashboard";
 import { AnalyticsAdminDashboard } from "@/components/admin/AnalyticsAdminDashboard";
+import { compressImage, extensionFor } from "@/lib/image-compression";
 
 interface RssFeed {
   id: string;
@@ -192,15 +193,15 @@ export function AdminPage() {
       return;
     }
 
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `article-images/${fileName}`;
-
     try {
+      const image = await compressImage(file);
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${extensionFor(image)}`;
+      const filePath = `article-images/${fileName}`;
       const { error: uploadError } = await supabase.storage
         .from("news-images")
-        .upload(filePath, file, {
-          cacheControl: "3600",
+        .upload(filePath, image, {
+          cacheControl: "31536000",
+          contentType: image.type,
           upsert: false
         });
 
