@@ -9,3 +9,5 @@ coverage
 vercel.json
 scratch/
 migration/
+reports/
+__pycache__/
