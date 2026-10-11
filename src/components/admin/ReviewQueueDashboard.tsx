@@ -223,7 +223,7 @@ export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraf
           </div>
           <div ref={promptRef} className="h-64 overflow-y-auto rounded-xl bg-slate-900 p-4 text-[1.15rem] leading-[1.9] text-white">
             <p className="font-black">{draft.title}</p>
-            {draft.content.split(/\n{2,}/).map((p, i) => <p key={i} className="mt-3">{p}</p>)}
+            {draft.content.replace(/^#+\s*/gm, "").replace(/[*_`>]/g, "").split(/\n{2,}/).map((p, i) => <p key={i} className="mt-3">{p}</p>)}
           </div>
         </div>
 
