@@ -21,9 +21,9 @@ jobs:
     - name: Install Dependencies
       run: npm ci
 
-    # Telugu font so headlines render on the composed news images.
-    - name: Install Telugu Font
-      run: sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-core
+    # Telugu font so headlines render on the composed news images; ffmpeg for article audio.
+    - name: Install Telugu Font and ffmpeg
+      run: sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-core ffmpeg
 
     # 150-300 word Telugu article drafts written by Gemini from one or two outlets; editors approve them in the admin Review tab.
     - name: Write News Shorts
@@ -50,6 +50,14 @@ jobs:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       run: npm run shorts -- --max=2 || true
+
+    # "వార్తలు వినండి": Telugu AI-voice MP3 for newly published articles (once per article).
+    - name: Article Audio
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: npm run audio -- --max=8 || true
 
     - name: Generate Sitemap
       env:

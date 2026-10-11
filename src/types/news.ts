@@ -34,6 +34,8 @@ export type BlogPost = {
   audio_url?: string | null;
   /** Name of the editor who read / presented the article. */
   presenter_name?: string | null;
+  /** AI-voiced Telugu reading of the article (MP3), used when no editor recording exists. */
+  tts_audio_url?: string | null;
   /** Exact credits of the photos in og_image, e.g. "Photo: X via Wikimedia Commons / CC BY 2.0". */
   image_credits?: { attribution_text: string; license_url: string | null; source_url: string | null }[] | null;
   /** Written with AI from news reports and reviewed by an editor. */

@@ -72,14 +72,16 @@ export function ArticleSheet({ post, lang, onClose, autoPlayVideo = false }: {
         <div className="space-y-4 px-5 pb-10 pt-5">
           <h1 className="text-[1.35rem] font-black leading-[1.4] text-[#111827]">{post.title}</h1>
 
-          {post.audio_url && (
+          {(post.audio_url || post.tts_audio_url) && (
             <div className="rounded-2xl bg-rose-50 p-3">
               <p className="mb-2 flex items-center gap-1.5 text-xs font-black text-rose-700">
                 <Mic className="size-4" />
-                {te ? "ఈ వార్త వినండి" : "Listen to this story"}
-                {post.presenter_name ? ` · ${te ? "చదివినవారు" : "read by"} ${post.presenter_name}` : ""}
+                {te ? "వార్తలు వినండి" : "Listen to this story"}
+                {post.audio_url
+                  ? (post.presenter_name ? ` · ${te ? "చదివినవారు" : "read by"} ${post.presenter_name}` : "")
+                  : ` · ${te ? "AI వాయిస్" : "AI voice"}`}
               </p>
-              <audio src={post.audio_url} controls preload="none" className="w-full" />
+              <audio src={post.audio_url || post.tts_audio_url!} controls preload="none" className="w-full" />
             </div>
           )}
           {video && post.presenter_name && (

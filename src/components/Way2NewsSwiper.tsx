@@ -132,7 +132,48 @@ function NewsSwipeCard({
   const [disliked, setDisliked] = useState(false);
   const [sheet, setSheet] = useState<null | { video: boolean }>(null);
   const [listening, setListening] = useState(false);
+  const [speechNote, setSpeechNote] = useState("");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  // editor's own voice first, then the AI Telugu voice; otherwise the phone's built-in Telugu voice
+  const audioSrc = post.audio_url || post.tts_audio_url || null;
+  const audioKind: "editor" | "ai" | "device" = post.audio_url ? "editor" : post.tts_audio_url ? "ai" : "device";
+
+  const stopListening = () => {
+    audioRef.current?.pause();
+    if (typeof window !== "undefined" && window.speechSynthesis?.speaking) window.speechSynthesis.cancel();
+    setListening(false);
+  };
+
+  const toggleListen = () => {
+    setSpeechNote("");
+    if (audioSrc) {
+      const a = audioRef.current;
+      if (!a) return;
+      if (a.paused) void a.play(); else a.pause();
+      return;
+    }
+    // no recorded audio: read with the device's Telugu voice if it has one
+    const synth = typeof window !== "undefined" ? window.speechSynthesis : undefined;
+    if (!synth) { setSpeechNote("ఈ పరికరంలో వినే సౌకర్యం లేదు"); return; }
+    if (listening) { stopListening(); return; }
+    const voice = synth.getVoices().find((v) => v.lang?.toLowerCase().startsWith("te"));
+    if (!voice) { setSpeechNote("ఈ వార్త ఆడియో త్వరలో అందుబాటులోకి వస్తుంది"); return; }
+    const u = new SpeechSynthesisUtterance(`${post.title}. ${(post.content || post.excerpt || "").replace(/[#*_>`]/g, "")}`);
+    u.lang = "te-IN";
+    u.voice = voice;
+    u.rate = 0.95;
+    u.onend = () => setListening(false);
+    u.onerror = () => setListening(false);
+    synth.cancel();
+    synth.speak(u);
+    setListening(true);
+  };
+
+  // stop reading when the reader swipes to another story
+  useEffect(() => {
+    if (!isActive) stopListening();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive]);
   const [likeCount, setLikeCount] = useState(0);
   const [dislikeCount, setDislikeCount] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
@@ -256,8 +297,13 @@ function NewsSwipeCard({
             className="absolute inset-0 z-[5] flex items-center justify-center"
             aria-label={lang === "te" ? "వీడియో ప్లే చేయండి" : "Play video"}
           >
-            <span className="flex size-14 items-center justify-center rounded-full bg-black/45 ring-2 ring-white/70 backdrop-blur-sm active:scale-95">
-              <Play className="ml-0.5 size-7 fill-white text-white" />
+            <span className="flex flex-col items-center gap-2 active:scale-95">
+              <span className="flex size-16 items-center justify-center rounded-full bg-red-600/90 shadow-lg ring-4 ring-white/80">
+                <Play className="ml-1 size-8 fill-white text-white" />
+              </span>
+              <span className="rounded-full bg-black/65 px-3 py-1 text-[13px] font-black text-white backdrop-blur-sm">
+                {lang === "te" ? "▶ వీడియో చూడండి" : "▶ Watch video"}
+              </span>
             </span>
           </button>
         )}
@@ -318,34 +364,50 @@ function NewsSwipeCard({
         className="shrink-0 border-t border-slate-200 bg-white px-3 pt-2"
         style={{ paddingBottom: "max(0.65rem, env(safe-area-inset-bottom))" }}
       >
-        {(post.audio_url || (post.content && post.content.trim().length > body.length + 40)) && (
-          <div className="mb-2 flex items-center gap-2">
-            {post.audio_url && (
+        {(
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleListen}
+              className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12.5px] font-black active:scale-95 ${listening ? "bg-rose-600 text-white" : "bg-rose-50 text-rose-700"}`}
+              aria-label={lang === "te" ? "వార్తలు వినండి" : "Listen to this story"}
+            >
+              {listening ? <Pause className="size-3.5 fill-current" /> : <Headphones className="size-3.5" />}
+              {lang === "te" ? (listening ? "ఆపండి" : "వార్తలు వినండి") : listening ? "Pause" : "Listen"}
+              {!listening && audioKind !== "device" && (
+                <span className={`rounded-full px-1.5 py-px text-[9.5px] font-black ${audioKind === "ai" ? "bg-violet-100 text-violet-700" : "bg-emerald-100 text-emerald-700"}`}>
+                  {audioKind === "ai" ? "AI వాయిస్" : "ఎడిటర్ స్వరం"}
+                </span>
+              )}
+            </button>
+            {hasVideo && (
               <button
                 type="button"
                 onClick={() => {
-                  const a = audioRef.current;
-                  if (!a) return;
-                  if (a.paused) void a.play(); else a.pause();
+                  stopListening();
+                  const url = post.video_url!.trim();
+                  if (isOwnMedia(url)) setSheet({ video: true });
+                  else window.open(url, "_blank", "noopener,noreferrer");
                 }}
-                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-black active:scale-95 ${listening ? "bg-rose-600 text-white" : "bg-rose-50 text-rose-700"}`}
+                className="flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-1.5 text-[12px] font-black text-white active:scale-95"
               >
-                {listening ? <Pause className="size-3.5 fill-current" /> : <Headphones className="size-3.5" />}
-                {lang === "te" ? (listening ? "ఆపండి" : "వినండి") : listening ? "Pause" : "Listen"}
+                <Play className="size-3.5 fill-current" />
+                {lang === "te" ? "వీడియో చూడండి" : "Watch video"}
               </button>
             )}
             <button
               type="button"
-              onClick={() => { audioRef.current?.pause(); setSheet({ video: false }); }}
+              onClick={() => { stopListening(); setSheet({ video: false }); }}
               className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-[12px] font-black text-slate-700 active:scale-95"
             >
               <BookOpen className="size-3.5" />
               {lang === "te" ? "పూర్తి కథనం" : "Read full story"}
             </button>
-            {post.audio_url && (
+            {speechNote && <span className="w-full text-[11px] font-semibold text-slate-500">{speechNote}</span>}
+            {audioSrc && (
               <audio
                 ref={audioRef}
-                src={post.audio_url}
+                src={audioSrc}
                 preload="none"
                 onPlay={() => setListening(true)}
                 onPause={() => setListening(false)}
@@ -574,7 +636,7 @@ export function Way2NewsSwiper({
           type="button"
           onClick={() => scrollToIndex(activeIndex + 1)}
           className="absolute left-1/2 z-30 -translate-x-1/2 text-white"
-          style={{ bottom: "max(5.5rem, calc(4.75rem + env(safe-area-inset-bottom)))" }}
+          style={{ bottom: "max(8.75rem, calc(8rem + env(safe-area-inset-bottom)))" }} // above the listen / video / full-story row
           aria-label={lang === "te" ? "తర్వాతి వార్త" : "Next article"}
         >
           <div className="flex animate-bounce flex-col items-center gap-0.5 rounded-full bg-black/55 px-3.5 py-2 shadow-lg backdrop-blur-md active:scale-95">
@@ -608,6 +670,7 @@ export function saveSwipeFeed(posts: BlogPost[], startSlug: string) {
           og_image: p.og_image,
           video_url: p.video_url,
           audio_url: p.audio_url,
+          tts_audio_url: p.tts_audio_url,
           presenter_name: p.presenter_name,
           ai_assisted: p.ai_assisted,
           author_name: p.author_name,
