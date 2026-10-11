@@ -590,7 +590,7 @@ export function AdminPage() {
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "writer", label: "AI News Generator", icon: Wand2 },
     { group: "Newsroom" },
-    { id: "review", label: "Review Queue", icon: CheckCircle2, badge: counts.drafts + counts.reports },
+    { id: "review", label: "Review Queue", icon: CheckCircle2, badge: counts.drafts + counts.reports + counts.applications },
     { id: "articles", label: "Articles & Posts", icon: ListFilter },
     { id: "daily_share", label: "Daily WhatsApp & Media", icon: Upload },
     { group: "Galleries" },

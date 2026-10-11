@@ -395,6 +395,17 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
               {/* ⌨️ Telugu Typing Enabled Helper Banner */}
               <TeluguTypingBanner />
 
+              {/* 📣 invite regular reporters to become citizen journalists */}
+              <button
+                type="button"
+                onClick={() => { onClose(); navigate("/citizen-journalist"); }}
+                className="flex w-full items-center gap-2 rounded-2xl border border-red-500/20 bg-red-500/5 p-3 text-left text-xs font-bold text-red-700 transition hover:bg-red-500/10 dark:text-red-300"
+              >
+                <span className="text-base">📣</span>
+                <span className="flex-1">తరచూ వార్తలు పంపుతారా? సిటిజన్ జర్నలిస్ట్‌గా చేరి మీ పేరుతో బైలైన్ పొందండి</span>
+                <ChevronRight className="size-4 shrink-0" />
+              </button>
+
               {/* 1. ఫోటోలు & వీడియోలు (ఐచ్ఛికం) */}
               <div className="space-y-1.5 rounded-2xl border border-[hsl(var(--border))]/60 bg-[hsl(var(--card))] p-4 shadow-xs">
                 <div className="flex items-center justify-between">

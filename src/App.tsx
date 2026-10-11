@@ -39,6 +39,7 @@ const ProviderTermsPage = lazyNamed(() => import("@/pages/LegalPages"), "Provide
 const ProviderCodeOfConductPage = lazyNamed(() => import("@/pages/LegalPages"), "ProviderCodeOfConductPage");
 const SafetyTipsPage = lazyNamed(() => import("@/pages/LegalPages"), "SafetyTipsPage");
 const GrievancePage = lazyNamed(() => import("@/pages/LegalPages"), "GrievancePage");
+const CitizenJournalistPage = lazyNamed(() => import("@/pages/CitizenJournalistPage"), "CitizenJournalistPage");
 const LegalAgreementsPage = lazyNamed(() => import("@/pages/LegalAgreementsPage"), "LegalAgreementsPage");
 const ReportAbusePage = lazyNamed(() => import("@/components/ReportAbuseModal"), "ReportAbusePage");
 const HealthPortal = lazyNamed(() => import("@/pages/health/HealthPortal"), "HealthPortal");
@@ -102,6 +103,7 @@ const router = createBrowserRouter([
       { path: "/safety", element: <SafetyTipsPage /> },
       { path: "/report-abuse", element: <ReportAbusePage /> },
       { path: "/grievance", element: <GrievancePage /> },
+      { path: "/citizen-journalist", element: <CitizenJournalistPage /> },
       { path: "/legal-agreements", element: <LegalAgreementsPage /> },
       { path: "*", element: <NotFoundPage /> }
     ]

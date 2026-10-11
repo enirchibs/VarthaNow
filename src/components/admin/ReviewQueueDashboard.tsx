@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { Button, Input } from "@/components/ui";
 import { categories } from "@/lib/categories";
 import { CitizenReportsReview } from "@/components/admin/CitizenReportsReview";
+import { JournalistApplicationsReview } from "@/components/admin/JournalistApplicationsReview";
 
 // Editorial review: pipeline articles arrive as drafts. An editor fact-checks against the
 // sources, edits, can record their own voice or video reading the article, then approves
@@ -391,18 +392,20 @@ function AiDraftsReview({ editorEmail }: { editorEmail?: string }) {
 
 /** Review Queue: AI-written drafts and reports sent in by citizen reporters. */
 export function ReviewQueueDashboard({ editorEmail }: { editorEmail?: string }) {
-  const [mode, setMode] = useState<"ai" | "citizen">("ai");
+  const [mode, setMode] = useState<"ai" | "citizen" | "applications">("ai");
   return (
     <div className="space-y-4">
       <div className="inline-flex gap-1 rounded-2xl bg-[hsl(var(--muted))] p-1">
-        {([["ai", "AI drafts"], ["citizen", "Citizen reports"]] as const).map(([id, label]) => (
+        {([["ai", "AI drafts"], ["citizen", "Citizen reports"], ["applications", "Journalist applications"]] as const).map(([id, label]) => (
           <button key={id} onClick={() => setMode(id)}
             className={`rounded-xl px-4 py-2 text-xs font-black ${mode === id ? "bg-white text-[hsl(var(--foreground))] shadow" : "text-[hsl(var(--muted-foreground))]"}`}>
             {label}
           </button>
         ))}
       </div>
-      {mode === "ai" ? <AiDraftsReview editorEmail={editorEmail} /> : <CitizenReportsReview editorEmail={editorEmail} />}
+      {mode === "ai" ? <AiDraftsReview editorEmail={editorEmail} />
+        : mode === "citizen" ? <CitizenReportsReview editorEmail={editorEmail} />
+        : <JournalistApplicationsReview editorEmail={editorEmail} />}
     </div>
   );
 }

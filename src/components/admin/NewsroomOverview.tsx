@@ -19,11 +19,11 @@ type JobStats = { pending: number; processing: number; done: number; failed: num
 type PostRow = { slug: string; title: string; category: string; published: boolean; published_at: string | null; created_at: string; review_status: string | null; ai_assisted: boolean | null; author_name: string | null };
 type ReportRow = { id: string; title: string | null; description: string; kind: string; area: string | null; status: string; created_at: string; reporter_name: string | null };
 
-export type NewsroomCounts = { drafts: number; reports: number; photos: number };
+export type NewsroomCounts = { drafts: number; reports: number; photos: number; applications: number };
 
 /** Counts for the sidebar badges and the overview cards. */
 export function useNewsroomCounts(refreshKey: string | number = 0): NewsroomCounts {
-  const [counts, setCounts] = useState<NewsroomCounts>({ drafts: 0, reports: 0, photos: 0 });
+  const [counts, setCounts] = useState<NewsroomCounts>({ drafts: 0, reports: 0, photos: 0, applications: 0 });
   useEffect(() => {
     if (!supabase) return;
     const db = supabase;
@@ -32,7 +32,8 @@ export function useNewsroomCounts(refreshKey: string | number = 0): NewsroomCoun
       count(db.from("blog_posts").select("id", { count: "exact", head: true }).eq("review_status", "draft")),
       count(db.from("citizen_reports").select("id", { count: "exact", head: true }).eq("status", "pending")),
       count(db.from("image_library").select("id", { count: "exact", head: true }).eq("review_status", "pending")),
-    ]).then(([drafts, reports, photos]) => setCounts({ drafts, reports, photos })).catch(() => {});
+      count(db.from("citizen_journalist_applications").select("id", { count: "exact", head: true }).eq("status", "pending")),
+    ]).then(([drafts, reports, photos, applications]) => setCounts({ drafts, reports, photos, applications })).catch(() => {});
   }, [refreshKey]);
   return counts;
 }
@@ -175,7 +176,7 @@ export function NewsroomOverview({ feeds, jobStats, counts, onNavigate, refreshK
 
   const maxDay = Math.max(1, ...s.days.map((d) => Math.max(d.published, d.drafted)));
   const maxPipe = Math.max(1, ...s.pipeline.map((p) => p.n));
-  const waitingTotal = counts.drafts + counts.reports;
+  const waitingTotal = counts.drafts + counts.reports + counts.applications;
   const healthy = s.failing.length === 0 && jobStats.failed + jobStats.dead === 0;
 
   return (
@@ -183,7 +184,7 @@ export function NewsroomOverview({ feeds, jobStats, counts, onNavigate, refreshK
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
         <Kpi label="Published today" value={s.publishedToday} delta={pct(s.publishedToday, s.publishedYesterday)} sub="vs yesterday" color="#dc2626" icon={Newspaper} onClick={() => onNavigate("articles")} />
-        <Kpi label="Waiting for review" value={waitingTotal} sub={`${counts.drafts} AI drafts · ${counts.reports} citizen`} color="#d97706" icon={Clock} onClick={() => onNavigate("review")} />
+        <Kpi label="Waiting for review" value={waitingTotal} sub={`${counts.drafts} AI drafts · ${counts.reports} citizen${counts.applications ? ` · ${counts.applications} applications` : ""}`} color="#d97706" icon={Clock} onClick={() => onNavigate("review")} />
         <Kpi label="Feeds working" value={`${feeds.length - s.failing.length}/${feeds.length}`} sub={s.failing.length ? `${s.failing.length} failing` : "all healthy"} color={s.failing.length ? "#dc2626" : "#059669"} icon={Rss} onClick={() => onNavigate("feeds")} />
         <Kpi label="Photos to review" value={counts.photos} sub={`${library.licensed} licensed · ${library.total} in library`} color="#2563eb" icon={ImageIcon} onClick={() => onNavigate("images")} />
       </div>

@@ -800,6 +800,7 @@ export function Layout() {
         </div>
         <div className="border-t border-[hsl(var(--border))]/40 mt-6 pt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs font-bold justify-center sm:justify-start">
           <Link to="/deals" className="hover:text-orange-500 transition text-orange-600 dark:text-orange-400 font-extrabold">🔥 మన అడ్డా డీల్స్</Link>
+          <Link to="/citizen-journalist" className="hover:text-red-500 transition text-red-600 dark:text-red-400 font-extrabold">📣 సిటిజన్ జర్నలిస్ట్‌గా చేరండి</Link>
           <Link to="/about" className="hover:text-[hsl(var(--primary))] transition">About Us</Link>
           <Link to="/contact" className="hover:text-[hsl(var(--primary))] transition">Contact Us</Link>
           <Link to="/privacy" className="hover:text-[hsl(var(--primary))] transition">Privacy Policy</Link>

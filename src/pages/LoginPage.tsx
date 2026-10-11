@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { Chrome, Mail, Lock, ShieldCheck, ArrowLeft, Loader2 } from "lucide-react";
 import { Button, Input } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
@@ -9,6 +9,10 @@ import { setMeta } from "@/lib/seo";
 export function LoginPage() {
   const navigate = useNavigate();
   const { lang } = useLanguage();
+  // where to go after signing in, e.g. /login?next=/citizen-journalist (same-site paths only)
+  const [params] = useSearchParams();
+  const requested = params.get("next") ?? "/";
+  const next = /^\/(?!\/)/.test(requested) ? requested : "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,7 +39,7 @@ export function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/`
+          redirectTo: `${window.location.origin}${next}`
         }
       });
       if (error) throw error;
@@ -73,7 +77,7 @@ export function LoginPage() {
           password
         });
         if (error) throw error;
-        navigate("/");
+        navigate(next);
       }
     } catch (err: any) {
       setError(err.message || "Authentication failed.");
