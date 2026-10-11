@@ -4,7 +4,7 @@ import {
   BarChart3, Edit3, Eye, Search, Star, Trash2, Sparkles, Upload, Activity,
   Plus, RefreshCw, Play, CheckCircle2, XCircle, Clock, AlertTriangle, ListFilter,
   ArrowRight, ShieldCheck, User, LogOut, ChevronRight, Volume2, Briefcase, Globe,
-  Image as ImageIcon
+  Image as ImageIcon, LayoutDashboard
 } from "lucide-react";
 import type { BlogPost, NewsCategory } from "@/types/news";
 import { createPost, deletePost, getAdminPosts, updatePost } from "@/lib/news-api";
@@ -22,6 +22,7 @@ import { SEOAdminDashboard } from "@/components/admin/SEOAdminDashboard";
 import { AnalyticsAdminDashboard } from "@/components/admin/AnalyticsAdminDashboard";
 import { ImageLibraryAdminDashboard } from "@/components/admin/ImageLibraryAdminDashboard";
 import { ReviewQueueDashboard } from "@/components/admin/ReviewQueueDashboard";
+import { NewsroomOverview, useNewsroomCounts } from "@/components/admin/NewsroomOverview";
 import { compressImage, extensionFor } from "@/lib/image-compression";
 
 interface RssFeed {
@@ -53,7 +54,7 @@ interface PipelineJob {
   created_at: string;
 }
 
-type TabType = "review" | "articles" | "images" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
+type TabType = "overview" | "review" | "articles" | "images" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
 
 export function AdminPage() {
   const navigate = useNavigate();
@@ -64,7 +65,9 @@ export function AdminPage() {
   const [authLoading, setAuthLoading] = useState(true);
   
   // Dashboard navigation
-  const [activeTab, setActiveTab] = useState<TabType>("review");
+  const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const [refreshKey, setRefreshKey] = useState(0);
+  const counts = useNewsroomCounts(`${refreshKey}-${activeTab}`);
   const [message, setMessage] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -140,6 +143,7 @@ export function AdminPage() {
 
   const refreshAllData = async () => {
     if (!supabase) return;
+    setRefreshKey((k) => k + 1);
     setLoadingData(true);
     setErrorMsg("");
     try {
@@ -579,137 +583,165 @@ export function AdminPage() {
     );
   }
 
+  const navItems: ({ group: string } | { id: TabType; label: string; icon: typeof BarChart3; badge?: number })[] = [
+    { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { group: "Newsroom" },
+    { id: "review", label: "Review Queue", icon: CheckCircle2, badge: counts.drafts + counts.reports },
+    { id: "articles", label: "Articles & Posts", icon: ListFilter },
+    { id: "writer", label: "AI Generator", icon: Sparkles },
+    { id: "video_news", label: "Video News & Shorts", icon: Play },
+    { id: "daily_share", label: "Daily WhatsApp & Media", icon: Upload },
+    { group: "Pipeline" },
+    { id: "feeds", label: "RSS Feeds", icon: Activity, badge: feeds.filter((f) => f.consecutive_failures > 0).length },
+    { id: "queue", label: "Queue Monitor", icon: Clock, badge: jobStats.failed + jobStats.dead },
+    { id: "images", label: "Image Library", icon: ImageIcon, badge: counts.photos },
+    { id: "tts", label: "Telugu TTS Engine", icon: Volume2 },
+    { group: "Growth" },
+    { id: "analytics", label: "Analytics & Traffic", icon: BarChart3 },
+    { id: "seo", label: "SEO & Meta Engine", icon: Globe },
+    { id: "jobs", label: "Local Jobs Manager", icon: Briefcase },
+  ];
+  const tabs = navItems.filter((n): n is Extract<typeof n, { id: TabType }> => "id" in n);
+  const current = tabs.find((t) => t.id === activeTab) ?? tabs[0];
+  const subtitles: Partial<Record<TabType, string>> = {
+    overview: `తెలుగు న్యూస్‌రూమ్ · ${new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}`,
+    review: "AI drafts and citizen reports waiting for an editor",
+    images: "Photo library, licensed photos and review",
+    feeds: "News sources read by the pipeline",
+  };
+  const openTab = (id: TabType) => {
+    setActiveTab(id);
+    setMessage("");
+    setErrorMsg("");
+  };
+
   return (
-    <main className="container-shell space-y-6 py-6 max-w-7xl mx-auto">
-      {/* 🚀 Header */}
-      <header className="rounded-[1.8rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-5 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="size-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
-            <ShieldCheck className="size-7" />
+    <main className="mx-auto max-w-[1480px] px-3 py-4 sm:px-5 lg:py-6">
+      <div className="flex gap-6">
+        {/* 🧭 Sidebar */}
+        <aside className="sticky top-20 hidden max-h-[calc(100vh-6rem)] w-60 shrink-0 flex-col self-start overflow-hidden rounded-2xl bg-zinc-950 text-white shadow-xl lg:flex">
+          <div className="flex items-center gap-2 px-5 pb-3 pt-5">
+            <span className="text-xl font-black tracking-tight">Vaarta<span className="text-red-500">Now</span></span>
+            <span className="rounded border border-zinc-700 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-zinc-400">Admin</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-3xl font-black tracking-tight">Admin Console</h1>
-              <span className="bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">Authorized</span>
+          <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 pb-3">
+            {navItems.map((item) => {
+              if ("group" in item) {
+                return <div key={item.group} className="px-3 pb-1.5 pt-4 text-[10.5px] font-bold uppercase tracking-widest text-zinc-500">{item.group}</div>;
+              }
+              const Icon = item.icon;
+              const on = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => openTab(item.id)}
+                  className={`flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-[13.5px] transition ${on ? "bg-red-600 font-bold text-white" : "font-medium text-zinc-300 hover:bg-zinc-800/70 hover:text-white"}`}
+                >
+                  <Icon className={`size-[17px] shrink-0 ${on ? "text-white" : "text-zinc-500"}`} />
+                  <span className="flex-1 truncate">{item.label}</span>
+                  {!!item.badge && (
+                    <span className={`rounded-full px-1.5 py-px font-mono text-[11px] font-bold ${on ? "bg-white/25" : "bg-red-600"} text-white`}>{item.badge}</span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+          <div className="space-y-2 border-t border-zinc-800 p-3">
+            <div className="flex items-center gap-2.5">
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-amber-400 text-xs font-black text-zinc-950">
+                {(user.email ?? "A").slice(0, 2).toUpperCase()}
+              </span>
+              <div className="min-w-0">
+                <div className="truncate text-xs font-bold">{user.email}</div>
+                <div className="text-[11px] text-zinc-400">Editor · Admin</div>
+              </div>
             </div>
-            <p className="text-sm text-[hsl(var(--muted-foreground))] font-medium mt-1">
-              Active Session: <span className="text-[hsl(var(--foreground))] font-bold">{user.email}</span>
-            </p>
+            <div className="flex gap-1.5">
+              <Link to="/admin/diagnostics" className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-zinc-900 py-1.5 text-[11px] font-bold text-amber-400 hover:bg-zinc-800">
+                <Activity className="size-3.5" /> Diagnostics
+              </Link>
+              <button onClick={() => supabase?.auth.signOut()} className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-zinc-900 py-1.5 text-[11px] font-bold text-zinc-300 hover:bg-zinc-800">
+                <LogOut className="size-3.5" /> Sign out
+              </button>
+            </div>
           </div>
-        </div>
-        
-        <div className="flex flex-wrap gap-2.5">
-          <Link
-            to="/admin/diagnostics"
-            className="flex items-center gap-2 px-4 py-2.5 bg-zinc-900 border border-zinc-800 hover:border-zinc-700 text-amber-500 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 shrink-0"
-          >
-            <Activity className="size-4" />
-            API Diagnostics
-          </Link>
-          <Button 
-            variant="secondary" 
-            onClick={() => supabase?.auth.signOut()} 
-            className="h-10 rounded-xl text-xs font-bold flex items-center gap-1.5"
-          >
-            <LogOut className="size-3.5" />
-            Sign Out
-          </Button>
-        </div>
-      </header>
+        </aside>
 
-      {/* 📊 Aggregate Stats Dashboard */}
-      <section className="grid gap-3 grid-cols-2 md:grid-cols-5">
-        <div className="rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 shadow-sm">
-          <BarChart3 className="mb-3 size-5 text-blue-500" />
-          <div className="text-2xl font-black">{posts.length}</div>
-          <div className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wider mt-1">Articles</div>
-        </div>
-        <div className="rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 shadow-sm">
-          <Play className="mb-3 size-5 text-emerald-500" />
-          <div className="text-2xl font-black">{feeds.length}</div>
-          <div className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wider mt-1">RSS Feeds</div>
-        </div>
-        <div className="rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 shadow-sm">
-          <Clock className="mb-3 size-5 text-yellow-500" />
-          <div className="text-2xl font-black">{jobStats.pending + jobStats.processing}</div>
-          <div className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wider mt-1">Pending Jobs</div>
-        </div>
-        <div className="rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 shadow-sm">
-          <CheckCircle2 className="mb-3 size-5 text-emerald-500" />
-          <div className="text-2xl font-black">{jobStats.done}</div>
-          <div className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wider mt-1">Completed Jobs</div>
-        </div>
-        <div className="rounded-[1.4rem] border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 col-span-2 md:col-span-1 shadow-sm">
-          <AlertTriangle className="mb-3 size-5 text-red-500" />
-          <div className="text-2xl font-black text-red-500">{jobStats.failed + jobStats.dead}</div>
-          <div className="text-xs font-bold text-[hsl(var(--muted-foreground))] uppercase tracking-wider mt-1">Failed Jobs</div>
-        </div>
-      </section>
-
-      {/* ⚠️ Notification Messages */}
-      {message && (
-        <div className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 p-4 text-sm font-bold flex items-start gap-2.5 shadow-sm">
-          <CheckCircle2 className="size-5 shrink-0 mt-0.5" />
-          <div>{message}</div>
-        </div>
-      )}
-      {errorMsg && (
-        <div className="rounded-2xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 p-4 text-sm font-bold flex items-start gap-2.5 shadow-sm">
-          <XCircle className="size-5 shrink-0 mt-0.5" />
-          <div>{errorMsg}</div>
-        </div>
-      )}
-
-      {/* 🎛️ Navigation Tabs */}
-      <section className="flex border-b border-[hsl(var(--border))] gap-1 pb-px overflow-x-auto no-scrollbar">
-        {[
-          { id: "review", label: "Review Queue", icon: CheckCircle2 },
-          { id: "articles", label: "Articles & Posts", icon: ListFilter },
-          { id: "images", label: "Image Library", icon: ImageIcon },
-          { id: "writer", label: "AI Generator", icon: Sparkles },
-          { id: "daily_share", label: "Daily WhatsApp & Media", icon: Upload },
-          { id: "jobs", label: "Local Jobs Manager", icon: Briefcase },
-          { id: "video_news", label: "Video News & Shorts", icon: Play },
-          { id: "seo", label: "SEO & Meta Engine", icon: Globe },
-          { id: "analytics", label: "Analytics & Traffic", icon: BarChart3 },
-          { id: "feeds", label: "RSS Feeds", icon: Activity },
-          { id: "queue", label: "Queue Monitor", icon: Clock },
-          { id: "tts", label: "Telugu TTS Engine", icon: Volume2 },
-        ].map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setActiveTab(tab.id as TabType);
-                setMessage("");
-                setErrorMsg("");
-              }}
-              className={`flex items-center gap-2 px-5 py-3.5 border-b-2 font-bold text-sm transition-all whitespace-nowrap outline-none ${
-                isActive 
-                  ? "border-[hsl(var(--primary))] text-[hsl(var(--foreground))]" 
-                  : "border-transparent text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
-              }`}
+        <div className="min-w-0 flex-1 space-y-5">
+          {/* 🔝 Top bar */}
+          <header className="flex flex-wrap items-center gap-3 rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-5 py-4 shadow-sm">
+            <div className="min-w-0">
+              <h1 className="flex items-center gap-2 text-xl font-black tracking-tight">
+                <current.icon className="size-5 text-red-600" />
+                {current.label}
+              </h1>
+              <p className="mt-0.5 text-[13px] text-[hsl(var(--muted-foreground))]">
+                {subtitles[activeTab] ?? <>Signed in as <span className="font-bold text-[hsl(var(--foreground))]">{user.email}</span></>}
+              </p>
+            </div>
+            <div className="hidden flex-1 sm:block" />
+            <div className="flex w-full gap-2 sm:w-auto [&>*]:whitespace-nowrap">
+            <Button
+              variant="secondary"
+              onClick={refreshAllData}
+              disabled={loadingData}
+              className="h-9 rounded-xl text-xs flex items-center gap-1.5 shadow-sm px-3"
             >
-              <Icon className="size-4" />
-              {tab.label}
-            </button>
-          );
-        })}
-        <Button 
-          variant="secondary" 
-          onClick={refreshAllData} 
-          disabled={loadingData}
-          className="ml-auto h-9 self-center rounded-xl text-xs flex items-center gap-1.5 shadow-sm px-3"
-        >
-          <RefreshCw className={`size-3.5 ${loadingData ? "animate-spin" : ""}`} />
-          Sync Data
-        </Button>
-      </section>
+              <RefreshCw className={`size-3.5 ${loadingData ? "animate-spin" : ""}`} />
+              Sync Data
+            </Button>
+            <Link
+              to="/admin/diagnostics"
+              className="flex h-9 items-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900 px-3 text-xs font-bold text-amber-500 lg:hidden"
+            >
+              <Activity className="size-3.5" /> Diagnostics
+            </Link>
+            <Button variant="secondary" onClick={() => supabase?.auth.signOut()} className="h-9 rounded-xl text-xs font-bold flex items-center gap-1.5 lg:hidden">
+              <LogOut className="size-3.5" /> Sign Out
+            </Button>
+            </div>
+          </header>
+
+          {/* 📱 Tabs on small screens */}
+          <nav className="no-scrollbar -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 lg:hidden">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              const on = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => openTab(tab.id)}
+                  className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-bold whitespace-nowrap ${on ? "border-red-600 bg-red-600 text-white" : "border-[hsl(var(--border))] bg-[hsl(var(--card))] text-[hsl(var(--muted-foreground))]"}`}
+                >
+                  <Icon className="size-3.5" />
+                  {tab.label}
+                  {!!tab.badge && <span className={`rounded-full px-1.5 font-mono text-[10px] ${on ? "bg-white/25" : "bg-red-600 text-white"}`}>{tab.badge}</span>}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* ⚠️ Notification Messages */}
+          {message && (
+            <div className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 p-4 text-sm font-bold flex items-start gap-2.5 shadow-sm">
+              <CheckCircle2 className="size-5 shrink-0 mt-0.5" />
+              <div>{message}</div>
+            </div>
+          )}
+          {errorMsg && (
+            <div className="rounded-2xl bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 p-4 text-sm font-bold flex items-start gap-2.5 shadow-sm">
+              <XCircle className="size-5 shrink-0 mt-0.5" />
+              <div>{errorMsg}</div>
+            </div>
+          )}
 
       {/* 🚀 Tab Contents */}
       <section className="min-h-[400px]">
+        {/* ==================== TAB: OVERVIEW ==================== */}
+        {activeTab === "overview" && (
+          <NewsroomOverview feeds={feeds} jobStats={jobStats} counts={counts} refreshKey={refreshKey} onNavigate={(tab) => openTab(tab)} />
+        )}
+
         {/* ==================== TAB 1: ARTICLES MANAGER ==================== */}
         {activeTab === "articles" && (
           <div className="space-y-4">
@@ -1466,6 +1498,8 @@ export function AdminPage() {
           </div>
         </section>
       )}
+        </div>
+      </div>
     </main>
   );
 }
