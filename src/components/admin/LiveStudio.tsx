@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { categories } from "@/lib/categories";
 import { Button, Input } from "@/components/ui";
-import { NewsStudio, STUDIO_BACKGROUNDS, TICKER_LABELS, backgroundSwatch, type StudioSettings } from "@/lib/news-studio";
+import { NewsStudio, SCROLL_SPEEDS, STUDIO_BACKGROUNDS, TICKER_LABELS, backgroundSwatch, type PresenterSide, type StudioSettings } from "@/lib/news-studio";
 
 /** Latest published VaartaNow headlines, for the studio's headlines ticker. */
 export function useLatestHeadlines(limit = 12) {
@@ -46,7 +46,7 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
   const [status, setStatus] = useState("");
   const [published, setPublished] = useState<{ slug: string; title: string } | null>(null);
   const [studio, setStudio] = useState<StudioSettings>({
-    background: "studio-red", logo: true, clock: true, strap: true, ticker: true, live: true, breaking: false, vnTicker: true,
+    background: "studio-red", logo: true, clock: true, strap: true, ticker: true, live: true, breaking: true, vnTicker: true, desk: true, speed: 0.6,
     tickerLabel: TICKER_LABELS[0], tickerText: "", presenter: "", strapLine: "", breakingText: "",
   });
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -248,17 +248,17 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
             <h3 className="flex items-center gap-1.5 text-sm font-black"><Clapperboard className="size-4 text-red-600" /> Studio</h3>
             <div className="grid grid-cols-4 gap-1.5">
               {STUDIO_BACKGROUNDS.map((b) => (
-                <button key={b.id} type="button" onClick={() => set("background", b.id)} title={b.label}
+                <button key={b.id} type="button" onClick={() => setStudio((st) => ({ ...st, background: b.id, side: b.side ?? st.side ?? "center" }))} title={b.label}
                   className={`overflow-hidden rounded-lg border-2 ${studio.background === b.id ? "border-red-600" : "border-transparent opacity-80 hover:opacity-100"}`}>
                   <div className="aspect-video bg-cover bg-center"
                     style={b.url ? { backgroundImage: `url(${b.url})` } : { background: backgroundSwatch(b) }}>
-                    {!b.url && <span className="flex h-full items-center justify-center text-[9px] font-black text-white">{b.kind === "brand" ? "VaartaNow" : b.kind === "breaking" ? "BREAKING" : b.kind === "blur" ? "Blur" : "Camera"}</span>}
+                    {!b.url && <span className="flex h-full items-center justify-center text-[9px] font-black text-white">{b.kind === "brand" ? "VaartaNow" : b.kind === "breaking" ? "BREAKING" : b.kind === "wall" ? "News wall" : b.kind === "blur" ? "Blur" : "Camera"}</span>}
                   </div>
                 </button>
               ))}
             </div>
             <div className="grid grid-cols-2 gap-1.5 text-xs font-bold">
-              {([["live", "LIVE badge"], ["logo", "VaartaNow logo"], ["clock", "Date & time"], ["strap", "Name strap"], ["breaking", "Big breaking headline"], ["ticker", "News ticker"], ["vnTicker", "VaartaNow headlines"]] as const).map(([k, label]) => (
+              {([["live", "LIVE badge"], ["logo", "VaartaNow logo"], ["clock", "Date & time"], ["strap", "Name strap"], ["desk", "Sit at news desk"], ["breaking", "Breaking (top right)"], ["ticker", "News ticker"], ["vnTicker", "VaartaNow headlines"]] as const).map(([k, label]) => (
                 <label key={k} className="flex items-center gap-1.5"><input type="checkbox" checked={!!studio[k]} onChange={(e) => set(k, e.target.checked)} className="accent-red-600" /> {label}</label>
               ))}
             </div>
@@ -270,7 +270,21 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
                 <Input value={studio.tickerText} onChange={(e) => set("tickerText", e.target.value)} placeholder="Ticker text (default: the headline)" className="h-9 rounded-lg text-xs" />
               </div>
             )}
-            {studio.breaking && <Input value={studio.breakingText ?? ""} onChange={(e) => set("breakingText", e.target.value)} placeholder="Big breaking headline (default: the headline)" className="h-9 rounded-lg text-xs font-bold" />}
+            <label className="flex items-center gap-2 text-xs font-bold">
+              Presenter position
+              <select value={studio.side ?? "center"} onChange={(e) => set("side", e.target.value as PresenterSide)} className="h-8 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 text-xs font-bold">
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+              </select>
+            </label>
+            <label className="flex items-center gap-2 text-xs font-bold">
+              Scroll speed
+              <select value={studio.speed ?? 0.6} onChange={(e) => set("speed", Number(e.target.value))} className="h-8 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 text-xs font-bold">
+                {SCROLL_SPEEDS.map((sp) => <option key={sp.value} value={sp.value}>{sp.label}</option>)}
+              </select>
+            </label>
+            {studio.breaking && <Input value={studio.breakingText ?? ""} onChange={(e) => set("breakingText", e.target.value)} placeholder="Breaking news headline (default: the headline)" className="h-9 rounded-lg text-xs font-bold" />}
             {studio.strap && <Input value={studio.strapLine} onChange={(e) => set("strapLine", e.target.value)} placeholder="Name strap second line (default: the headline)" className="h-9 rounded-lg text-xs" />}
           </div>
         </div>

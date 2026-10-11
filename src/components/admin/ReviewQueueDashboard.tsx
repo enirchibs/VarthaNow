@@ -3,7 +3,7 @@ import {
   CheckCircle2, XCircle, Save, Mic, Video, Square, RotateCcw, Upload, Trash2, ExternalLink,
   ClipboardCheck, RefreshCw, ScrollText, Camera, Clapperboard, X,
 } from "lucide-react";
-import { NewsStudio, STUDIO_BACKGROUNDS, TICKER_LABELS, backgroundSwatch, type StudioSettings } from "@/lib/news-studio";
+import { NewsStudio, SCROLL_SPEEDS, STUDIO_BACKGROUNDS, TICKER_LABELS, backgroundSwatch, type PresenterSide, type StudioSettings } from "@/lib/news-studio";
 import { useLatestHeadlines } from "@/components/admin/LiveStudio";
 import { supabase } from "@/lib/supabase";
 import { Button, Input } from "@/components/ui";
@@ -65,7 +65,7 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
     let saved: Partial<StudioSettings> = {};
     try { saved = JSON.parse(localStorage.getItem("vn-studio") || "{}"); } catch { /* private mode */ }
     return {
-      background: "studio-red", logo: true, clock: true, strap: true, ticker: true, tickerLabel: TICKER_LABELS[0], breaking: false, vnTicker: false,
+      background: "studio-red", logo: true, clock: true, strap: true, ticker: true, tickerLabel: TICKER_LABELS[0], breaking: false, vnTicker: false, desk: false, speed: 0.6,
       ...saved, tickerText: draft.title, strapLine: draft.title, breakingText: draft.title, presenter,
     };
   });
@@ -87,8 +87,8 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
   useEffect(() => { setStudio((st) => ({ ...st, headlines })); }, [headlines]);
   useEffect(() => {
     studioRef.current?.update(studio);
-    const { background, logo, clock, strap, ticker, tickerLabel, breaking, vnTicker } = studio;
-    try { localStorage.setItem("vn-studio", JSON.stringify({ background, logo, clock, strap, ticker, tickerLabel, breaking, vnTicker })); } catch { /* private mode */ }
+    const { background, logo, clock, strap, ticker, tickerLabel, breaking, vnTicker, desk, speed } = studio;
+    try { localStorage.setItem("vn-studio", JSON.stringify({ background, logo, clock, strap, ticker, tickerLabel, breaking, vnTicker, desk, speed })); } catch { /* private mode */ }
   }, [studio]);
 
   // the studio runs while the camera is open in video mode
@@ -289,21 +289,21 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
               <button
                 key={b.id}
                 type="button"
-                onClick={() => setStudioField("background", b.id)}
+                onClick={() => setStudio((st) => ({ ...st, background: b.id, side: b.side ?? st.side ?? "center" }))}
                 className={`w-28 shrink-0 overflow-hidden rounded-lg border-2 text-left transition ${studio.background === b.id ? "border-rose-600" : "border-transparent opacity-80 hover:opacity-100"}`}
               >
                 <div
                   className="aspect-video w-full bg-cover bg-center"
                   style={b.url ? { backgroundImage: `url(${b.url})` } : { background: backgroundSwatch(b) }}
                 >
-                  {!b.url && <span className="flex h-full items-center justify-center text-[10px] font-black text-white/90">{b.kind === "brand" ? "VaartaNow" : b.kind === "breaking" ? "BREAKING" : b.kind === "blur" ? "Blur" : "Camera"}</span>}
+                  {!b.url && <span className="flex h-full items-center justify-center text-[10px] font-black text-white/90">{b.kind === "brand" ? "VaartaNow" : b.kind === "breaking" ? "BREAKING" : b.kind === "wall" ? "News wall" : b.kind === "blur" ? "Blur" : "Camera"}</span>}
                 </div>
                 <span className="block truncate bg-[hsl(var(--card))] px-1.5 py-1 text-[10.5px] font-bold">{b.label}</span>
               </button>
             ))}
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-bold">
-            {([["logo", "VaartaNow logo"], ["clock", "Date & time"], ["strap", "Name strap"], ["breaking", "Big breaking headline"], ["ticker", "Scrolling news ticker"], ["vnTicker", "VaartaNow headlines ticker"]] as const).map(([k, label]) => (
+            {([["logo", "VaartaNow logo"], ["clock", "Date & time"], ["strap", "Name strap"], ["desk", "Sit at news desk"], ["breaking", "Breaking news (top right)"], ["ticker", "Scrolling news ticker"], ["vnTicker", "VaartaNow headlines ticker"]] as const).map(([k, label]) => (
               <label key={k} className="flex items-center gap-1.5">
                 <input type="checkbox" checked={!!studio[k]} onChange={(e) => setStudioField(k, e.target.checked)} className="accent-rose-600" /> {label}
               </label>
@@ -317,8 +317,22 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
               <Input value={studio.tickerText} onChange={(e) => setStudioField("tickerText", e.target.value)} placeholder="Ticker text" className="h-9 rounded-lg text-xs" />
             </div>
           )}
+<label className="flex items-center gap-2 text-xs font-bold">
+            Presenter position
+            <select value={studio.side ?? "center"} onChange={(e) => setStudioField("side", e.target.value as PresenterSide)} className="h-8 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 text-xs font-bold">
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+            </select>
+          </label>
+          <label className="flex items-center gap-2 text-xs font-bold">
+            Scroll speed
+            <select value={studio.speed ?? 0.6} onChange={(e) => setStudioField("speed", Number(e.target.value))} className="h-8 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 text-xs font-bold">
+              {SCROLL_SPEEDS.map((sp) => <option key={sp.value} value={sp.value}>{sp.label}</option>)}
+            </select>
+          </label>
           {studio.breaking && (
-            <Input value={studio.breakingText ?? ""} onChange={(e) => setStudioField("breakingText", e.target.value)} placeholder="Big breaking headline (scrolls in large letters)" className="h-9 rounded-lg text-xs font-bold" />
+            <Input value={studio.breakingText ?? ""} onChange={(e) => setStudioField("breakingText", e.target.value)} placeholder="Breaking news headline (top-right box)" className="h-9 rounded-lg text-xs font-bold" />
           )}
           {studio.strap && (
             <Input value={studio.strapLine} onChange={(e) => setStudioField("strapLine", e.target.value)} placeholder="Second line of the name strap (e.g. the headline)" className="h-9 rounded-lg text-xs" />

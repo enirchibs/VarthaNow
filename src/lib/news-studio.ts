@@ -23,12 +23,17 @@ const MODELS = [
   { url: "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite", personFromBackground: false },
 ];
 
-export type StudioBackground = { id: string; label: string; kind: "camera" | "blur" | "image" | "brand" | "breaking"; url?: string };
+export type PresenterSide = "left" | "center" | "right";
+// side: where the presenter should stand so the landmark on the screen stays visible
+export type StudioBackground = { id: string; label: string; kind: "camera" | "blur" | "image" | "brand" | "breaking" | "wall"; url?: string; side?: PresenterSide };
 export const STUDIO_BACKGROUNDS: StudioBackground[] = [
   { id: "camera", label: "Camera as is", kind: "camera" },
   { id: "blur", label: "Blur my room", kind: "blur" },
   { id: "brand", label: "VaartaNow backdrop", kind: "brand" },
   { id: "breaking", label: "Breaking news backdrop", kind: "breaking" },
+  { id: "news-wall", label: "VaartaNow news wall", kind: "wall" },
+  { id: "studio-charminar", label: "Charminar screen", kind: "image", url: `${STORAGE}/studio-charminar.webp`, side: "right" },
+  { id: "studio-tankbund", label: "Tank Bund screen", kind: "image", url: `${STORAGE}/studio-tankbund.webp`, side: "left" },
   { id: "studio-red", label: "Studio · world map", kind: "image", url: `${STORAGE}/studio-red.webp` },
   { id: "studio-blue", label: "Studio · globe", kind: "image", url: `${STORAGE}/studio-blue.webp` },
   { id: "newsroom", label: "Newsroom", kind: "image", url: `${STORAGE}/newsroom.webp` },
@@ -40,6 +45,7 @@ export const STUDIO_BACKGROUNDS: StudioBackground[] = [
 export const backgroundSwatch = (b: StudioBackground) =>
   b.kind === "brand" ? "linear-gradient(135deg,#7f1d1d,#b91c1c 55%,#0b1020)"
     : b.kind === "breaking" ? "linear-gradient(135deg,#450a0a,#dc2626 50%,#111827)"
+      : b.kind === "wall" ? "repeating-linear-gradient(0deg,#0b1020 0 10px,#1e3a8a 10px 12px)"
       : b.kind === "blur" ? "linear-gradient(135deg,#94a3b8,#cbd5e1,#64748b)" : "#1e293b";
 
 export const TICKER_LABELS = ["బ్రేకింగ్ న్యూస్", "తాజా వార్తలు", "ప్రత్యేక కథనం", "స్థానిక వార్తలు"];
@@ -58,8 +64,17 @@ export type StudioSettings = {
   breaking?: boolean; // big scrolling breaking-news headline band
   breakingText?: string;
   vnTicker?: boolean; // bottom line scrolling the latest VaartaNow headlines
-  headlines?: string[];
+  headlines?: string[]; // latest VaartaNow headlines: mixed into the ticker, the headlines line and the news wall
+  desk?: boolean; // presenter sits behind a VaartaNow news desk
+  speed?: number; // scrolling speed multiplier (0.6 slow · 1 normal · 1.5 fast)
+  side?: PresenterSide; // where the presenter stands when the background is replaced
 };
+
+export const SCROLL_SPEEDS = [
+  { value: 0.6, label: "Slow" },
+  { value: 1, label: "Normal" },
+  { value: 1.5, label: "Fast" },
+];
 
 const TE = "'Noto Sans Telugu', 'Nirmala UI', Gautami, sans-serif";
 
@@ -100,9 +115,12 @@ export class NewsStudio {
   private smooth: Float32Array | null = null; // mask averaged over frames (less flicker)
   private raf = 0;
   private tickerX = STUDIO_W;
-  private breakingX = STUDIO_W;
+  private breakingX = 0;
   private vnX = STUDIO_W;
+  private wallX = [0, 0, 0, 0, 0, 0];
   private lastTs = 0;
+  private lastFrame = 0;
+  private dt = 1 / 30; // seconds since the previous frame
   onStatus?: (text: string) => void;
 
   constructor(canvas: HTMLCanvasElement, video: HTMLVideoElement, settings: StudioSettings) {
@@ -253,6 +271,80 @@ export class NewsStudio {
     ctx.fillRect(0, 0, STUDIO_W, 6);
   }
 
+  /** Dark studio wall with rows of the latest VaartaNow headlines scrolling behind the presenter. */
+  private drawWall() {
+    const { ctx } = this;
+    const g = ctx.createLinearGradient(0, 0, 0, STUDIO_H);
+    g.addColorStop(0, "#0b1020");
+    g.addColorStop(1, "#172554");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, STUDIO_W, STUDIO_H);
+    const items = (this.settings.headlines ?? []).filter(Boolean);
+    const lines = items.length ? items : ["VaartaNow · తాజా తెలుగు వార్తలు"];
+    const rows = this.wallX.length;
+    for (let r = 0; r < rows; r++) {
+      const y = 90 + r * 100;
+      const dir = r % 2 ? 1 : -1;
+      const text = `${[...lines.slice(r % lines.length), ...lines.slice(0, r % lines.length)].join("   ◆   ")}   ◆   `;
+      ctx.font = `800 ${r % 2 ? 34 : 40}px ${TE}`;
+      const tw = Math.max(ctx.measureText(text).width, 400);
+      this.wallX[r] = (this.wallX[r] + dir * (18 + r * 4) * (this.settings.speed ?? 0.6) * this.dt + tw) % tw;
+      ctx.save();
+      ctx.globalAlpha = r % 2 ? 0.16 : 0.24;
+      ctx.fillStyle = r % 3 === 0 ? "#f87171" : "#e2e8f0";
+      for (let x = this.wallX[r] - tw; x < STUDIO_W; x += tw) ctx.fillText(text, x, y);
+      ctx.restore();
+    }
+    // light strips and a large faint logo
+    ctx.fillStyle = "rgba(220,38,38,0.85)";
+    ctx.fillRect(0, 36, STUDIO_W, 4);
+    ctx.fillRect(0, STUDIO_H - 140, STUDIO_W, 3);
+    ctx.save();
+    ctx.globalAlpha = 0.1;
+    ctx.fillStyle = "#fff";
+    ctx.font = "900 170px Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("VaartaNow", STUDIO_W / 2, STUDIO_H / 2 + 60);
+    ctx.restore();
+  }
+
+  /** News desk in front of the presenter (drawn after the person, before the graphics). */
+  private drawDesk() {
+    const { ctx } = this;
+    const top = 470, front = 545;
+    // desk top, in slight perspective
+    const g = ctx.createLinearGradient(0, top, 0, front);
+    g.addColorStop(0, "#334155");
+    g.addColorStop(1, "#0f172a");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(150, top);
+    ctx.lineTo(STUDIO_W - 150, top);
+    ctx.lineTo(STUDIO_W - 40, front);
+    ctx.lineTo(40, front);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.35)";
+    ctx.fillRect(150, top, STUDIO_W - 300, 2);
+    // front panel
+    const f = ctx.createLinearGradient(0, front, 0, STUDIO_H);
+    f.addColorStop(0, "#b91c1c");
+    f.addColorStop(1, "#450a0a");
+    ctx.fillStyle = f;
+    ctx.fillRect(40, front, STUDIO_W - 80, STUDIO_H - front);
+    ctx.fillStyle = "#facc15";
+    ctx.fillRect(40, front, STUDIO_W - 80, 5);
+    ctx.fillStyle = "rgba(255,255,255,0.12)";
+    ctx.fillRect(40, front + 5, STUDIO_W - 80, 18);
+    ctx.textAlign = "right";
+    ctx.font = "900 44px Arial, sans-serif";
+    ctx.fillStyle = "#fff";
+    ctx.fillText("Vaarta", STUDIO_W - 80 - ctx.measureText("Now").width, front + 62);
+    ctx.fillStyle = "#facc15";
+    ctx.fillText("Now", STUDIO_W - 80, front + 62);
+    ctx.textAlign = "left";
+  }
+
   /** Confidence mask → alpha: average over frames, keep only the largest person shape, soft edges. */
   private buildMask(conf: Float32Array, w: number, h: number) {
     const n = w * h;
@@ -302,6 +394,9 @@ export class NewsStudio {
 
   private draw() {
     const { ctx, video } = this;
+    const now = performance.now();
+    this.dt = this.lastFrame ? Math.min(0.1, (now - this.lastFrame) / 1000) : 1 / 30;
+    this.lastFrame = now;
     const bg = this.background();
     const ready = video.readyState >= 2;
     ctx.clearRect(0, 0, STUDIO_W, STUDIO_H);
@@ -309,7 +404,7 @@ export class NewsStudio {
 
     const cutOut = bg.kind !== "camera" && this.segmenter && ready;
     if (!cutOut) {
-      if (!ready) bg.kind === "breaking" ? this.drawBreaking() : this.drawBrand();
+      if (!ready) bg.kind === "breaking" ? this.drawBreaking() : bg.kind === "wall" ? this.drawWall() : this.drawBrand();
       if (ready) {
         const p = this.placement(true);
         ctx.drawImage(video, p.x, p.y, p.w, p.h);
@@ -328,6 +423,8 @@ export class NewsStudio {
         else this.drawBrand();
       } else if (bg.kind === "breaking") {
         this.drawBreaking();
+      } else if (bg.kind === "wall") {
+        this.drawWall();
       } else {
         this.drawBrand();
       }
@@ -339,6 +436,7 @@ export class NewsStudio {
       if (m) {
         this.buildMask(m.getAsFloat32Array(), m.width, m.height);
         const p = this.placement(bg.kind === "blur");
+        if (bg.kind !== "blur") p.x += ({ left: -0.24, center: 0, right: 0.24 } as const)[this.settings.side ?? "center"] * STUDIO_W;
         const pctx = this.person.getContext("2d")!;
         pctx.globalCompositeOperation = "source-over";
         pctx.clearRect(0, 0, STUDIO_W, STUDIO_H);
@@ -352,6 +450,7 @@ export class NewsStudio {
       }
       result.close();
     }
+    if (this.settings.desk) this.drawDesk();
     this.overlays();
   }
 
@@ -360,7 +459,7 @@ export class NewsStudio {
     const { ctx } = this;
     ctx.font = font;
     const tw = Math.max(ctx.measureText(text).width, 200);
-    x -= speed;
+    x -= speed * 60 * (this.settings.speed ?? 0.6) * this.dt; // speed is px per frame at 60 fps, "Normal"
     if (x < left - tw) x += tw;
     ctx.save();
     ctx.beginPath();
@@ -377,10 +476,10 @@ export class NewsStudio {
     const s = this.settings;
     // bottom-up layout: VaartaNow headlines line, news ticker, breaking band, name strap
     let bottom = STUDIO_H;
-    const vnH = 42, tickerH = 58, breakingH = 104;
+    const vnH = 42, tickerH = 58;
     const vnY = s.vnTicker ? (bottom -= vnH) : bottom;
     const tickerY = s.ticker ? (bottom -= tickerH) : bottom;
-    const breakingY = s.breaking ? (bottom -= breakingH + 10) : bottom;
+    const headlines = (s.headlines ?? []).filter((h) => h && h !== s.tickerText);
 
     if (s.logo) {
       ctx.fillStyle = "#dc2626";
@@ -433,24 +532,38 @@ export class NewsStudio {
     }
 
     if (s.breaking) {
-      const y = breakingY;
-      // big white band with the headline scrolling in large letters
-      ctx.fillStyle = "rgba(255,255,255,0.97)";
-      ctx.fillRect(0, y, STUDIO_W, breakingH);
-      const labelW = 250;
-      this.breakingX = this.scroll(`${(s.breakingText || s.tickerText || "VaartaNow").trim()}      ●      `, this.breakingX, labelW, y, breakingH, `900 46px ${TE}`, "#111827", 3, 68);
-      // flashing red/yellow label block
+      // top-right breaking-news box: flashing label over the headline scrolling in large letters
+      // top right; when the presenter stands on the right it moves to the top left so it never covers their face
+      const presenterRight = s.side === "right" && this.background().kind !== "camera";
+      const w = 500, x = presenterRight ? 32 : STUDIO_W - 32 - w, labelH = 44, bodyH = 72;
+      const y = presenterRight ? (s.logo || s.live ? 90 : 32) : s.clock ? 86 : 32;
       const flash = Math.floor(performance.now() / 700) % 2 === 0;
       ctx.fillStyle = flash ? "#dc2626" : "#b91c1c";
-      ctx.fillRect(0, y, labelW, breakingH);
+      ctx.fillRect(x, y, w, labelH);
       ctx.fillStyle = "#facc15";
-      ctx.fillRect(0, y, STUDIO_W, 6);
+      ctx.fillRect(x, y, w, 4);
       ctx.fillStyle = "#fff";
-      ctx.font = "900 26px Arial, sans-serif";
-      ctx.fillText("BREAKING", 26, y + 44);
+      ctx.font = "900 24px Arial, sans-serif";
+      ctx.fillText("BREAKING NEWS", x + 18, y + 32);
       ctx.fillStyle = "#facc15";
-      ctx.font = `900 30px ${TE}`;
-      ctx.fillText("బ్రేకింగ్ న్యూస్", 22, y + 86);
+      ctx.font = `900 24px ${TE}`;
+      ctx.textAlign = "right";
+      ctx.fillText("బ్రేకింగ్ న్యూస్", x + w - 18, y + 32);
+      ctx.textAlign = "left";
+      ctx.fillStyle = "rgba(255,255,255,0.97)";
+      ctx.fillRect(x, y + labelH, w, bodyH);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x, y + labelH, w, bodyH);
+      ctx.clip();
+      ctx.font = `900 40px ${TE}`;
+      const text = `${(s.breakingText || s.tickerText || "VaartaNow").trim()}      ●      `;
+      const tw = Math.max(ctx.measureText(text).width, 200);
+      this.breakingX -= 1.6 * 60 * (s.speed ?? 0.6) * this.dt;
+      if (this.breakingX < -tw) this.breakingX += tw;
+      ctx.fillStyle = "#111827";
+      for (let xx = x + this.breakingX; xx < x + w; xx += tw) ctx.fillText(text, xx, y + labelH + 51);
+      ctx.restore();
     }
 
     if (s.ticker) {
@@ -459,7 +572,8 @@ export class NewsStudio {
       const label = s.tickerLabel || TICKER_LABELS[0];
       ctx.font = `800 24px ${TE}`;
       const labelW = ctx.measureText(label).width + 48;
-      this.tickerX = this.scroll(`${(s.tickerText || "VaartaNow తెలుగు వార్తలు").trim()}     ●     `, this.tickerX, labelW, tickerY, tickerH, `600 25px ${TE}`, "#fff", 2.4, 38);
+      const items = [(s.tickerText || "VaartaNow తెలుగు వార్తలు").trim(), ...headlines.slice(0, 5)];
+      this.tickerX = this.scroll(`${items.join("     ●     ")}     ●     `, this.tickerX, labelW, tickerY, tickerH, `600 25px ${TE}`, "#fff", 2, 38);
       ctx.fillStyle = "#dc2626";
       ctx.fillRect(0, tickerY, labelW, tickerH);
       ctx.fillStyle = "#facc15";
@@ -472,11 +586,11 @@ export class NewsStudio {
     if (s.vnTicker) {
       ctx.fillStyle = "#facc15";
       ctx.fillRect(0, vnY, STUDIO_W, vnH);
-      const items = (s.headlines ?? []).filter(Boolean);
-      const text = `${(items.length ? items : ["VaartaNow · తాజా తెలుగు వార్తలు"]).join("   ◆   ")}   ◆   `;
+      const rest = s.ticker && headlines.length > 8 ? headlines.slice(5) : headlines;
+      const text = `${(rest.length ? rest : ["VaartaNow · తాజా తెలుగు వార్తలు"]).join("   ◆   ")}   ◆   `;
       ctx.font = "900 22px Arial, sans-serif";
       const labelW = ctx.measureText("VaartaNow").width + 40;
-      this.vnX = this.scroll(text, this.vnX, labelW, vnY, vnH, `700 21px ${TE}`, "#111827", 1.8, 29);
+      this.vnX = this.scroll(text, this.vnX, labelW, vnY, vnH, `700 21px ${TE}`, "#111827", 1.5, 29);
       ctx.fillStyle = "#111827";
       ctx.fillRect(0, vnY, labelW, vnH);
       ctx.fillStyle = "#fff";
