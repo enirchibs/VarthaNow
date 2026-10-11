@@ -1,4 +1,4 @@
-name: VaartaNow Article Audio
+name: VaartaNow Article Audio & YouTube
 
 # "వార్తలు వినండి": adds the Telugu AI voice to newly published articles (from the AI News
 # Generator, Live Studio, approved drafts and citizen reports) within about 30 minutes.
@@ -38,3 +38,16 @@ jobs:
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: npm run audio -- --max=6
+
+    # Recorded article videos → VaartaNow YouTube channel; our copy is freed once the video is live there.
+    # Skips quietly until the YOUTUBE_* secrets are added (see scripts/youtube-auth.ts).
+    - name: YouTube Upload
+      if: always()
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+        YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+        YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        SITE_URL: ${{ secrets.SITE_URL || 'https://varthanow.pages.dev' }}
+      run: npm run youtube -- --max=3

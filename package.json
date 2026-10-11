@@ -18,6 +18,7 @@
     "images": "tsx scripts/image-library.ts",
     "photos": "tsx scripts/import-licensed-photos.ts",
     "audio": "tsx scripts/article-audio.ts",
+    "youtube": "tsx scripts/youtube-upload.ts",
     "image-gen": "tsx scripts/generate-image-library.ts",
     "manifest": "tsx scripts/generate-manifest.ts"
   },

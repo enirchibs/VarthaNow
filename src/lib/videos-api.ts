@@ -49,6 +49,12 @@ export async function getVideo(id: string): Promise<VideoItem | null> {
   return data ? toVideo(data) : null;
 }
 
+/** YouTube video id from a watch / youtu.be / shorts / embed link, else null. */
+export function youtubeIdOf(url?: string | null): string | null {
+  const m = url?.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
 /** Privacy-enhanced embed, loaded only after the reader taps play. */
 export const embedUrl = (id: string) => `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&playsinline=1&rel=0&modestbranding=1`;
 

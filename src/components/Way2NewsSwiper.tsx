@@ -14,7 +14,7 @@ import {
   Headphones,
   Pause,
 } from "lucide-react";
-import { ArticleSheet, isOwnMedia } from "@/components/ArticleSheet";
+import { ArticleSheet, isPlayableVideo } from "@/components/ArticleSheet";
 import { useLanguage } from "@/hooks/useLanguage";
 import { categoryCoverImages } from "@/lib/demo-data";
 import { markArticleAsRead } from "@/lib/read-tracker";
@@ -291,7 +291,7 @@ function NewsSwipeCard({
             type="button"
             onClick={() => {
               const url = post.video_url!.trim();
-              if (isOwnMedia(url)) setSheet({ video: true });
+              if (isPlayableVideo(url)) setSheet({ video: true });
               else window.open(url, "_blank", "noopener,noreferrer");
             }}
             className="absolute inset-0 z-[5] flex items-center justify-center"
@@ -386,7 +386,7 @@ function NewsSwipeCard({
                 onClick={() => {
                   stopListening();
                   const url = post.video_url!.trim();
-                  if (isOwnMedia(url)) setSheet({ video: true });
+                  if (isPlayableVideo(url)) setSheet({ video: true });
                   else window.open(url, "_blank", "noopener,noreferrer");
                 }}
                 className="flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-1.5 text-[12px] font-black text-white active:scale-95"

@@ -2,9 +2,12 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Mic, Sparkles } from "lucide-react";
 import type { BlogPost } from "@/types/news";
+import { embedUrl, youtubeIdOf } from "@/lib/videos-api";
 
-/** Our own recordings (news-media bucket) play inline; anything else (e.g. YouTube) opens externally. */
+/** Our own recordings (news-media bucket) play inline. */
 export const isOwnMedia = (url?: string | null) => !!url && /\/news-media\//.test(url);
+/** Videos the site plays itself: our recordings and those moved to the VaartaNow YouTube channel. */
+export const isPlayableVideo = (url?: string | null) => isOwnMedia(url) || !!youtubeIdOf(url);
 
 /** Full article: presenter video or image, presenter voice, every paragraph, and how it was made. */
 export function ArticleSheet({ post, lang, onClose, autoPlayVideo = false }: {
@@ -16,6 +19,7 @@ export function ArticleSheet({ post, lang, onClose, autoPlayVideo = false }: {
   const te = lang === "te";
   const paragraphs = (post.content || post.excerpt || "").split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
   const video = isOwnMedia(post.video_url) ? post.video_url! : null;
+  const youtubeId = video ? null : youtubeIdOf(post.video_url);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -43,6 +47,14 @@ export function ArticleSheet({ post, lang, onClose, autoPlayVideo = false }: {
 
         {video ? (
           <video src={video} controls playsInline autoPlay={autoPlayVideo} poster={post.og_image ?? undefined} className="aspect-video w-full bg-black" />
+        ) : youtubeId ? (
+          <iframe
+            src={autoPlayVideo ? embedUrl(youtubeId) : embedUrl(youtubeId).replace("autoplay=1&", "")}
+            title={post.title}
+            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+            allowFullScreen
+            className="aspect-video w-full bg-black"
+          />
         ) : post.og_image ? (
           <img src={post.og_image} alt={post.title} className="aspect-video w-full object-cover" />
         ) : null}
@@ -84,7 +96,7 @@ export function ArticleSheet({ post, lang, onClose, autoPlayVideo = false }: {
               <audio src={post.audio_url || post.tts_audio_url!} controls preload="none" className="w-full" />
             </div>
           )}
-          {video && post.presenter_name && (
+          {(video || youtubeId) && post.presenter_name && (
             <p className="text-xs font-bold text-slate-500">{te ? "వీడియోలో చదివినవారు" : "Presented by"}: {post.presenter_name}</p>
           )}
 
