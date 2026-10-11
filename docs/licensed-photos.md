@@ -10,7 +10,7 @@ Real photos of politicians, film stars, sportspeople, business leaders and world
 | Public domain, CC0 | Alone or in composed images |
 | CC BY (2.0 – 4.0) | Alone or in composed images; credit the author |
 | CC BY-SA (any version) | **Alone only** (`share_alike = true`). A composed image would have to be CC BY-SA itself; the picker combines these only if `ALLOW_SHARE_ALIKE_COMPOSITES=true` |
-| GODL-India (Government Open Data Licence) | Opt-in with `--allow-godl`; allows commercial use and adaptation with attribution. Most PIB / PMO / ministry photos on Wikimedia Commons use it |
+| GODL-India (Government Open Data Licence) | Accepted (approved 2026-10-11; `--no-godl` to skip); allows commercial use and adaptation with attribution. Most PIB / PMO / ministry photos on Wikimedia Commons use it |
 | Government press material (PIB, I&PR AP / Telangana, Lok Sabha) | Manual import only, after a person checks the reuse terms (`terms_note`) |
 | Party media releases | Manual import only; promotional, use for identification only |
 
@@ -20,13 +20,13 @@ Never take photos from Google Images, news sites or social media posts, and neve
 ## Importing
 
 ```bash
-npm run photos -- fetch --person="N. Chandrababu Naidu" --source=wikimedia --limit=5 --allow-godl
+npm run photos -- fetch --person="N. Chandrababu Naidu" --source=wikimedia --limit=5
 npm run photos -- fetch --group=cinema --source=wikimedia --limit=3      # politics | cinema | sports | business | international | all
 npm run photos -- fetch --person="..." --source=flickr                     # needs FLICKR_API_KEY + scripts/config/flickr-accounts.json
 npm run photos -- report                                                   # photos per person and who has none yet
 ```
 
-Options: `--dry` (list only), `--max-faces=N` (skip group photos, default 4), `--allow-godl`.
+Options: `--dry` (list only), `--max-faces=N` (skip group photos, default 4), `--no-godl`.
 
 - People, Telugu names, aliases and designations live in `scripts/config/public-figures.json`. **Check designations
   before importing**; they are stored with each photo and shown in review.

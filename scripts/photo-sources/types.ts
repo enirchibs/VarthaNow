@@ -39,8 +39,8 @@ const CC_URL: Record<string, string> = {
 
 /**
  * Accept public domain, CC0, CC BY and CC BY-SA. Reject non-commercial, no-derivatives, fair use,
- * all-rights-reserved and anything unknown. Government licences such as GODL-India are not accepted
- * automatically: a person imports those through the manual route after checking the terms.
+ * all-rights-reserved and anything unknown. GODL-India (Indian government open data licence) is accepted
+ * unless PHOTO_ALLOW_GODL=false; other government material goes through the manual route.
  */
 export function classifyLicence(shortName: string | null | undefined, url?: string | null): LicenceVerdict {
   const name = (shortName ?? "").trim();
@@ -54,11 +54,11 @@ export function classifyLicence(shortName: string | null | undefined, url?: stri
     return { ok: true, name: "Public domain", url: url || null, shareAlike: false };
   }
   // Government Open Data Licence – India: use, adaptation and commercial use allowed with attribution.
-  // Opt-in (--allow-godl) because it is a government licence rather than a Creative Commons one.
+  // Accepted by default (approved by the site owner 2026-10-11); --no-godl turns it off.
   if (/godl/i.test(name)) {
-    return process.env.PHOTO_ALLOW_GODL === "true"
+    return process.env.PHOTO_ALLOW_GODL !== "false"
       ? { ok: true, name: "GODL-India", url: url || "https://data.gov.in/government-open-data-license-india", shareAlike: false }
-      : { ok: false, reason: "licence GODL-India (run with --allow-godl to accept)" };
+      : { ok: false, reason: "licence GODL-India (turned off with --no-godl)" };
   }
   const cc = name.match(/^cc[\s-]+(by(?:-sa)?)(?:[\s-]+(\d\.\d))?/i);
   if (cc) {

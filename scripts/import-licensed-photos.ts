@@ -19,7 +19,7 @@ import { findFigure, readFolder, readUrl } from "./photo-sources/manual";
 //  npm run photos -- report
 //  add --dry to see what would be imported without downloading anything;
 //  add --max-faces=N to change the group-photo cut-off (default 4);
-//  add --allow-godl to accept Indian government photos under GODL-India (attribution required).
+//  add --no-godl to skip Indian government photos under GODL-India (accepted by default, attribution required).
 //
 //  Every photo is stored with its source, author, licence and attribution, and starts as
 //  review_status = 'pending': nothing is used on the site until an admin approves it.
@@ -32,7 +32,7 @@ for (const line of fs.existsSync(".env") ? fs.readFileSync(".env", "utf8").split
 const arg = (name: string) => process.argv.find((a) => a.startsWith(`--${name}=`))?.slice(name.length + 3);
 const DRY = process.argv.includes("--dry");
 const MAX_FACES = Number(arg("max-faces") ?? 4);
-if (process.argv.includes("--allow-godl")) process.env.PHOTO_ALLOW_GODL = "true";
+if (process.argv.includes("--no-godl")) process.env.PHOTO_ALLOW_GODL = "false";
 const supabase = createClient(process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
 const GEMINI_KEY = process.env.GEMINI_API_KEY, GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
 const figures: PublicFigure[] = JSON.parse(fs.readFileSync("scripts/config/public-figures.json", "utf8")).people;
