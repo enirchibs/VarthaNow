@@ -47,6 +47,28 @@ export function ArticleSheet({ post, lang, onClose, autoPlayVideo = false }: {
           <img src={post.og_image} alt={post.title} className="aspect-video w-full object-cover" />
         ) : null}
 
+        {post.og_image && !!post.image_credits?.length && (
+          <p className="px-5 pt-2 text-[11px] leading-snug text-slate-500">
+            {post.image_credits.map((c, i) => {
+              // link the licence name ("CC BY-SA 4.0") to its licence page and the rest to the photo's source page
+              const m = c.attribution_text.match(/^(.*?)\s*\/\s*([^/]+)$/);
+              const [who, licence] = m ? [m[1], m[2]] : [c.attribution_text, null];
+              return (
+                <span key={i}>
+                  {i > 0 && " · "}
+                  {c.source_url ? <a href={c.source_url} target="_blank" rel="noopener noreferrer" className="underline-offset-2 hover:underline">{who}</a> : who}
+                  {licence && (
+                    <>
+                      {" / "}
+                      {c.license_url ? <a href={c.license_url} target="_blank" rel="noopener noreferrer license" className="underline">{licence}</a> : licence}
+                    </>
+                  )}
+                </span>
+              );
+            })}
+          </p>
+        )}
+
         <div className="space-y-4 px-5 pb-10 pt-5">
           <h1 className="text-[1.35rem] font-black leading-[1.4] text-[#111827]">{post.title}</h1>
 

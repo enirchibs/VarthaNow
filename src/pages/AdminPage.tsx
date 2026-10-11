@@ -804,7 +804,7 @@ export function AdminPage() {
         {activeTab === "review" && <ReviewQueueDashboard editorEmail={user?.email} />}
 
         {/* ==================== TAB: IMAGE LIBRARY ==================== */}
-        {activeTab === "images" && <ImageLibraryAdminDashboard />}
+        {activeTab === "images" && <ImageLibraryAdminDashboard editorEmail={user?.email} />}
 
         {/* ==================== TAB 2: AI NEWS GENERATOR ==================== */}
         {activeTab === "writer" && (

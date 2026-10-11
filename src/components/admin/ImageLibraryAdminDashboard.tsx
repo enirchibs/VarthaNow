@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { 
   Search, Image as ImageIcon, Sparkles, Filter, Copy, Check, ExternalLink, 
-  Tag, Info, Eye, RefreshCw, Layers, ShieldCheck, MapPin, User, Folder
+  Tag, Info, Eye, RefreshCw, Layers, ShieldCheck, MapPin, User, Folder, AlertTriangle, X
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button, Input } from "@/components/ui";
@@ -37,9 +37,27 @@ export interface ImageLibraryItem {
   width?: number;
   height?: number;
   created_at?: string;
+  // licensed real photos (migration 008)
+  person_name?: string | null;
+  designation?: string | null;
+  party?: string | null;
+  photo_date?: string | null;
+  event_caption?: string | null;
+  source_name?: string | null;
+  source_url?: string | null;
+  author?: string | null;
+  license_name?: string | null;
+  license_url?: string | null;
+  attribution_text?: string | null;
+  share_alike?: boolean;
+  terms_note?: string | null;
+  review_status?: "pending" | "approved" | "rejected";
+  review_notes?: { faces_visible?: number; has_text_or_watermark?: boolean; suitable_for_news_thumbnail?: boolean; reason?: string } | null;
+  reviewed_by?: string | null;
+  reviewed_at?: string | null;
 }
 
-export function ImageLibraryAdminDashboard() {
+export function ImageLibraryAdminDashboard({ editorEmail }: { editorEmail?: string | null } = {}) {
   const [items, setItems] = useState<ImageLibraryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -50,6 +68,9 @@ export function ImageLibraryAdminDashboard() {
   const [selectedKind, setSelectedKind] = useState<string>("all");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedType, setSelectedType] = useState<string>("all"); // all | ai | real
+  const [selectedReview, setSelectedReview] = useState<string>("all"); // all | pending | approved | rejected
+  const [rejectReason, setRejectReason] = useState("");
+  const [savingReview, setSavingReview] = useState(false);
 
   // Selected Detail Modal
   const [activeItem, setActiveItem] = useState<ImageLibraryItem | null>(null);
@@ -77,6 +98,32 @@ export function ImageLibraryAdminDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Approve / reject a licensed photo. RLS lets only admins update the review columns.
+  const review = async (item: ImageLibraryItem, status: "approved" | "rejected") => {
+    if (!supabase) return;
+    if (status === "rejected" && !rejectReason.trim()) {
+      setErrorMsg("Write a reason before rejecting a photo.");
+      return;
+    }
+    setSavingReview(true);
+    setErrorMsg("");
+    const patch = {
+      review_status: status,
+      reviewed_by: editorEmail ?? null,
+      reviewed_at: new Date().toISOString(),
+      ...(status === "rejected" ? { takedown_reason: rejectReason.trim() } : {}),
+    };
+    const { error } = await supabase.from("image_library").update(patch).eq("id", item.id);
+    setSavingReview(false);
+    if (error) {
+      setErrorMsg(`Could not save the review: ${error.message}`);
+      return;
+    }
+    setItems((all) => all.map((i) => (i.id === item.id ? { ...i, ...patch } : i)));
+    setRejectReason("");
+    setActiveItem(null);
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -111,6 +158,9 @@ export function ImageLibraryAdminDashboard() {
         if (selectedType === "ai" && !item.is_ai_generated) return false;
         if (selectedType === "real" && item.is_ai_generated) return false;
 
+        // Filter by review status
+        if (selectedReview !== "all" && (item.review_status ?? "approved") !== selectedReview) return false;
+
         // Search query
         if (!q) return true;
 
@@ -130,13 +180,14 @@ export function ImageLibraryAdminDashboard() {
         const bCodeMatch = (b.asset_code || "").toLowerCase().includes(q) ? 10 : 0;
         return bCodeMatch - aCodeMatch;
       });
-  }, [items, searchQuery, selectedKind, selectedCategory, selectedType]);
+  }, [items, searchQuery, selectedKind, selectedCategory, selectedType, selectedReview]);
 
   const stats = useMemo(() => {
     const total = items.length;
     const aiCount = items.filter((i) => i.is_ai_generated).length;
     const realCount = total - aiCount;
-    return { total, aiCount, realCount };
+    const pendingCount = items.filter((i) => i.review_status === "pending").length;
+    return { total, aiCount, realCount, pendingCount };
   }, [items]);
 
   return (
@@ -243,6 +294,31 @@ export function ImageLibraryAdminDashboard() {
             ))}
           </div>
 
+          {/* Review Filter */}
+          <div className="flex items-center gap-1 bg-[hsl(var(--muted))]/50 p-1 rounded-xl">
+            <span className="text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] px-2">Review:</span>
+            {[
+              { id: "all", label: "All" },
+              { id: "pending", label: `Pending review (${stats.pendingCount})` },
+              { id: "approved", label: "Approved" },
+              { id: "rejected", label: "Rejected" },
+            ].map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setSelectedReview(t.id)}
+                className={`px-2.5 py-1 rounded-lg font-bold transition-all ${
+                  selectedReview === t.id
+                    ? "bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] shadow-xs"
+                    : t.id === "pending" && stats.pendingCount > 0
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
           {/* Category Dropdown */}
           {availableCategories.length > 0 && (
             <select
@@ -259,13 +335,14 @@ export function ImageLibraryAdminDashboard() {
             </select>
           )}
 
-          {(searchQuery || selectedKind !== "all" || selectedCategory !== "all" || selectedType !== "all") && (
+          {(searchQuery || selectedKind !== "all" || selectedCategory !== "all" || selectedType !== "all" || selectedReview !== "all") && (
             <button
               onClick={() => {
                 setSearchQuery("");
                 setSelectedKind("all");
                 setSelectedCategory("all");
                 setSelectedType("all");
+                setSelectedReview("all");
               }}
               className="text-[11px] font-bold text-red-500 hover:underline ml-auto px-2"
             >
@@ -334,6 +411,21 @@ export function ImageLibraryAdminDashboard() {
                     ) : (
                       <span className="px-2 py-0.5 rounded-md text-[9px] font-black tracking-wider bg-emerald-600/90 text-white backdrop-blur-xs">
                         Licensed
+                      </span>
+                    )}
+                    {item.review_status === "pending" && (
+                      <span className="px-2 py-0.5 rounded-md text-[9px] font-black tracking-wider bg-amber-500 text-black">
+                        Pending review
+                      </span>
+                    )}
+                    {item.review_status === "rejected" && (
+                      <span className="px-2 py-0.5 rounded-md text-[9px] font-black tracking-wider bg-red-600 text-white">
+                        Rejected
+                      </span>
+                    )}
+                    {item.share_alike && (
+                      <span className="px-2 py-0.5 rounded-md text-[9px] font-black tracking-wider bg-orange-600 text-white" title="CC BY-SA: cannot be combined with other images">
+                        BY-SA · use alone
                       </span>
                     )}
                   </div>
@@ -456,6 +548,78 @@ export function ImageLibraryAdminDashboard() {
                     ✕
                   </button>
                 </div>
+
+                {/* Licensed photo: provenance and review */}
+                {activeItem.person_name && (
+                  <div className="space-y-3">
+                    <div className="p-3 rounded-xl bg-[hsl(var(--muted))]/50 border border-[hsl(var(--border))] text-xs space-y-1.5">
+                      <div><strong>Person (from source caption):</strong> {activeItem.person_name}</div>
+                      {activeItem.designation && <div><strong>Designation:</strong> {activeItem.designation}{activeItem.party ? ` · ${activeItem.party}` : ""}</div>}
+                      {activeItem.photo_date && <div><strong>Photo date:</strong> {activeItem.photo_date}</div>}
+                      <div>
+                        <strong>Source:</strong>{" "}
+                        {activeItem.source_url ? (
+                          <a href={activeItem.source_url} target="_blank" rel="noreferrer" className="text-[hsl(var(--primary))] font-bold hover:underline">
+                            {activeItem.source_name} <ExternalLink className="inline size-3" />
+                          </a>
+                        ) : activeItem.source_name}
+                        {activeItem.author ? ` · by ${activeItem.author}` : ""}
+                      </div>
+                      <div>
+                        <strong>Licence:</strong>{" "}
+                        {activeItem.license_url ? (
+                          <a href={activeItem.license_url} target="_blank" rel="noreferrer" className="text-[hsl(var(--primary))] font-bold hover:underline">
+                            {activeItem.license_name}
+                          </a>
+                        ) : activeItem.license_name}
+                      </div>
+                      <div><strong>Attribution:</strong> {activeItem.attribution_text}</div>
+                      {activeItem.terms_note && <div><strong>Terms checked:</strong> {activeItem.terms_note}</div>}
+                      {activeItem.event_caption && <div className="text-[hsl(var(--muted-foreground))] line-clamp-4"><strong>Caption:</strong> {activeItem.event_caption}</div>}
+                    </div>
+
+                    {activeItem.share_alike && (
+                      <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/20 text-xs font-bold text-orange-700 dark:text-orange-300 flex items-start gap-2">
+                        <AlertTriangle className="size-4 shrink-0 mt-0.5" />
+                        <span>CC BY-SA: this photo cannot be combined with other images; it is only used on its own.</span>
+                      </div>
+                    )}
+
+                    {activeItem.review_notes && (
+                      <div className={`p-3 rounded-xl border text-xs font-bold ${activeItem.review_notes.suitable_for_news_thumbnail ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-300" : "bg-red-500/10 border-red-500/20 text-red-700 dark:text-red-300"}`}>
+                        Gemini check: {activeItem.review_notes.faces_visible ?? "?"} face(s) ·{" "}
+                        {activeItem.review_notes.suitable_for_news_thumbnail ? "suitable" : "not suitable"} for a thumbnail
+                        {activeItem.review_notes.reason ? ` — ${activeItem.review_notes.reason}` : ""}
+                        <div className="font-medium opacity-80 mt-1">Check yourself that the person named above is the main person in the photo.</div>
+                      </div>
+                    )}
+
+                    {activeItem.review_status === "pending" ? (
+                      <div className="space-y-2">
+                        <Input
+                          value={rejectReason}
+                          onChange={(e) => setRejectReason(e.target.value)}
+                          placeholder="Reason (needed to reject), e.g. wrong person, unflattering, outdated designation"
+                          className="h-10 rounded-xl text-xs"
+                        />
+                        <div className="flex gap-2">
+                          <Button onClick={() => review(activeItem, "approved")} disabled={savingReview} className="flex-1 h-10 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-1.5">
+                            <Check className="size-4" /> Approve
+                          </Button>
+                          <Button onClick={() => review(activeItem, "rejected")} disabled={savingReview} variant="secondary" className="flex-1 h-10 rounded-xl font-bold text-xs text-red-600 flex items-center justify-center gap-1.5">
+                            <X className="size-4" /> Reject
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-[11px] font-bold text-[hsl(var(--muted-foreground))]">
+                        {activeItem.review_status === "rejected" ? "Rejected" : "Approved"}
+                        {activeItem.reviewed_by ? ` by ${activeItem.reviewed_by}` : ""}
+                        {activeItem.reviewed_at ? ` on ${new Date(activeItem.reviewed_at).toLocaleDateString()}` : ""}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Editorial Label info */}
                 {activeItem.is_ai_generated && (

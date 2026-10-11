@@ -16,6 +16,7 @@
     "news": "tsx scripts/news-shorts.ts",
     "shorts": "tsx scripts/ingest-youtube-shorts.ts",
     "images": "tsx scripts/image-library.ts",
+    "photos": "tsx scripts/import-licensed-photos.ts",
     "image-gen": "tsx scripts/generate-image-library.ts",
     "manifest": "tsx scripts/generate-manifest.ts"
   },

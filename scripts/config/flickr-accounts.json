@@ -1,0 +1,4 @@
+{
+  "_note": "Official Flickr accounts whose freely licensed photos may be imported. Add an account only after checking it is the official one, e.g. { \"id\": \"12345678@N00\", \"name\": \"Ministry of ...\", \"note\": \"checked 2026-10-11\" }.",
+  "accounts": []
+}

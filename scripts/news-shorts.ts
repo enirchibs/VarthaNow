@@ -308,6 +308,7 @@ async function main() {
           og_image: image.url,
           image_storage_path: image.path,
           image_validation_status: image.kind,
+          image_credits: image.image_credits.length ? image.image_credits : null,
         });
         if (insertError) throw new Error(insertError.message);
         console.log(`  drafted [${category}] ${post.title} (${post.word_count} words, ${basis}, image: ${image.kind})`);

@@ -18,7 +18,7 @@ import { BUCKET, ensureBucket } from "./lib/news-images";
 //
 //  List / disable:
 //    npx tsx scripts/image-library.ts list [--tag=cbn]
-//    npx tsx scripts/image-library.ts disable --id=<uuid>
+//    npx tsx scripts/image-library.ts disable --id=<uuid> [--reason="takedown request from ..."]
 // ═══════════════════════════════════════════════════════════════════
 
 for (const line of fs.existsSync(".env") ? fs.readFileSync(".env", "utf8").split(/\r?\n/) : []) {
@@ -68,9 +68,12 @@ async function list() {
 async function disable() {
   const id = arg("id");
   if (!id) throw new Error("disable needs --id");
-  const { error } = await supabase.from("image_library").update({ active: false }).or(`id.eq.${id},asset_code.eq.${id}`);
+  const reason = arg("reason");
+  // a rights holder's objection (takedown) is recorded with the photo; the picker stops using it immediately
+  const { error } = await supabase.from("image_library").update({ active: false, ...(reason ? { takedown_reason: reason } : {}) })
+    .or(`${/^[0-9a-f-]{36}$/i.test(id) ? `id.eq.${id},` : ""}asset_code.eq.${id}`);
   if (error) throw new Error(error.message);
-  console.log(`disabled ${id}`);
+  console.log(`disabled ${id}${reason ? ` (reason: ${reason})` : ""}`);
 }
 
 async function search() {

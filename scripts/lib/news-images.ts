@@ -33,8 +33,20 @@ export type LibraryPhoto = {
   is_ai_generated?: boolean;
   asset_code?: string;
   editorial_label?: string;
+  // licensed real photos of public figures (migration 008)
+  person_name?: string | null;
+  photo_date?: string | null;
+  share_alike?: boolean;
+  attribution_text?: string | null;
+  license_url?: string | null;
+  source_url?: string | null;
 };
-export type StoryImage = { url: string | null; path: string | null; kind: "library" | "generated" | "category" | "none"; credits: string[] };
+export type ImageCredit = { attribution_text: string; license_url: string | null; source_url: string | null };
+export type StoryImage = { url: string | null; path: string | null; kind: "library" | "generated" | "category" | "none"; credits: string[]; image_credits: ImageCredit[] };
+
+const PHOTO_COLS = "id, kind, label, tags, public_url, storage_path, credit, focus, times_used, is_ai_generated, asset_code, editorial_label, person_name, photo_date, share_alike, attribution_text, license_url, source_url";
+// A composed image that contains a CC BY-SA photo is an adaptation that would itself have to be CC BY-SA.
+const allowShareAlikeComposites = () => process.env.ALLOW_SHARE_ALIKE_COMPOSITES === "true";
 
 const norm = (s: string) => s.toLowerCase().normalize("NFC").replace(/\s+/g, " ").trim();
 /** "potholes" and "pothole" should match: drop a plain English plural "s" (not "ss", not short words like "news"). */
@@ -73,7 +85,7 @@ let genericCache: { at: number; tags: Set<string> } | null = null;
 
 async function genericTags(supabase: SupabaseClient): Promise<Set<string>> {
   if (genericCache && Date.now() - genericCache.at < 10 * 60_000) return genericCache.tags;
-  const { data } = await supabase.from("image_library").select("tags").eq("active", true);
+  const { data } = await supabase.from("image_library").select("tags").eq("active", true).eq("review_status", "approved");
   const rows = data ?? [];
   const counts = new Map<string, number>();
   for (const r of rows) for (const t of new Set((r.tags as string[]).map(norm))) counts.set(t, (counts.get(t) ?? 0) + 1);
@@ -85,7 +97,7 @@ async function genericTags(supabase: SupabaseClient): Promise<Set<string>> {
 
 /** Specific active tags, so Gemini picks keywords that exist in the library and actually distinguish photos. */
 export async function libraryTags(supabase: SupabaseClient): Promise<string[]> {
-  const [{ data }, generic] = await Promise.all([supabase.from("image_library").select("tags").eq("active", true), genericTags(supabase)]);
+  const [{ data }, generic] = await Promise.all([supabase.from("image_library").select("tags").eq("active", true).eq("review_status", "approved"), genericTags(supabase)]);
   return [...new Set((data ?? []).flatMap((r) => r.tags as string[]))].filter((t) => !generic.has(norm(t))).sort();
 }
 
@@ -102,7 +114,8 @@ function best(rows: LibraryPhoto[], kinds: LibraryPhoto["kind"][], wanted: strin
         const bReal = b.is_ai_generated ? 1 : 0;
         if (aReal !== bReal) return aReal - bReal;
       }
-      return score(b) - score(a) || a.times_used - b.times_used; // best match, then least used
+      // best match, then least used, then the most recent photo (current designation)
+      return score(b) - score(a) || a.times_used - b.times_used || (b.photo_date ?? "").localeCompare(a.photo_date ?? "");
     });
   return candidates[0];
 }
@@ -115,8 +128,9 @@ export async function pickPhotos(supabase: SupabaseClient, kw: ImageKeywords): P
   if (!all.length) return [];
   const { data, error } = await supabase
     .from("image_library")
-    .select("id, kind, label, tags, public_url, storage_path, credit, focus, times_used, is_ai_generated, asset_code, editorial_label")
+    .select(PHOTO_COLS)
     .eq("active", true)
+    .eq("review_status", "approved")
     .overlaps("tags", [...new Set(all.flatMap(variants))]);
 
   if (error || !data?.length) return [];
@@ -125,19 +139,21 @@ export async function pickPhotos(supabase: SupabaseClient, kw: ImageKeywords): P
   // 1. Prefer licensed real person photo
   const person = best(rows, ["person"], kw.people ?? [], true);
   const place = best(rows, ["place"], kw.places ?? []);
-  // a topic ("health") may be illustrated by any kind of photo (e.g. a doctor filed as "person")
+  // a topic ("health") may be illustrated by any kind of photo (e.g. a doctor filed as "person"), but never by a
+  // real public figure: that would suggest they took part in a story they are not named in
   const topic = best(rows, ["topic", "category"], kw.topics ?? []) ??
-    best(rows.filter((r) => r.id !== person?.id && r.id !== place?.id), ["person", "place"], kw.topics ?? []);
+    best(rows.filter((r) => r.id !== person?.id && r.id !== place?.id && !r.person_name), ["person", "place"], kw.topics ?? []);
 
   // Selection precedence:
   // 1. Person (licensed real) + Place or Topic
   // 2. Two scenes (Place + Topic)
   // 3. Single scene (Person or Place or Topic)
+  const combinable = (...ps: LibraryPhoto[]) => allowShareAlikeComposites() || !ps.some((p) => p.share_alike);
   if (person && (place || topic)) {
-    return [person, place || topic!];
+    return combinable(person, place || topic!) ? [person, place || topic!] : [person];
   }
   if (place && topic) {
-    return [place, topic];
+    return combinable(place, topic) ? [place, topic] : [place];
   }
   const single = person || place || topic;
   return single ? [single] : [];
@@ -185,6 +201,8 @@ function overlaySvg(title: string, credits: string[], split: boolean, hasAi: boo
   const fontSize = one.length === 1 ? 52 : 46;
   const lines = one.length === 1 ? one : wrap(title, 46);
   const font = "Noto Sans Telugu, Nirmala UI, Gautami, sans-serif";
+  const creditLine = "ఫోటోలు: " + credits.join(" · ");
+  const creditSize = Math.max(11, Math.min(16, Math.floor((W - 64) / (emWidth(creditLine) * 1.02))));
   const text = lines.map((l, i) => `<text x="48" y="${H - BAND + 78 + i * (fontSize + 14)}" font-size="${fontSize}" font-weight="700" fill="#fff" font-family="${font}">${escapeXml(l)}</text>`).join("");
 
   const aiBadge = hasAi
@@ -202,7 +220,7 @@ function overlaySvg(title: string, credits: string[], split: boolean, hasAi: boo
   <text x="126" y="58" font-size="24" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial, sans-serif">VaartaNow</text>
   ${aiBadge}
   ${text}
-  <text x="${W - 32}" y="${H - 18}" font-size="16" fill="#cbd5e1" text-anchor="end" font-family="${font}">${escapeXml("ఫోటోలు: " + credits.join(", "))}</text>
+  <text x="${W - 32}" y="${H - 18}" font-size="${creditSize}" fill="#cbd5e1" text-anchor="end" font-family="${font}">${escapeXml(creditLine)}</text>
 </svg>`);
 }
 
@@ -217,9 +235,10 @@ export async function compose(photos: LibraryPhoto[], title: string): Promise<Bu
     }))
   );
 
-  const hasAi = photos.some((p) => p.is_ai_generated || p.credit?.toLowerCase().includes("ai"));
-  const creditsList = [...new Set(photos.map((p) => (p.is_ai_generated && !p.credit ? "VaartaNow AI" : p.credit)))];
-  if (hasAi && !creditsList.some((c) => /ai/i.test(c))) {
+  const hasAi = photos.some((p) => p.is_ai_generated);
+  // licensed photos carry their exact attribution ("Photo: X via Wikimedia Commons / CC BY 2.0")
+  const creditsList = [...new Set(photos.map((p) => (p.attribution_text || p.credit || (p.is_ai_generated ? "VaartaNow AI" : "")).replace(/^Photo:\s*/i, "")).filter(Boolean))];
+  if (hasAi && !creditsList.some((c) => /\bAI\b/.test(c))) {
     creditsList.push("VaartaNow AI");
   }
 
@@ -304,7 +323,7 @@ async function saveToLibrary(supabase: SupabaseClient, img: NewLibraryImage): Pr
     active: true,
     updated_at: new Date().toISOString(),
   }, { onConflict: "asset_code" })
-    .select("id, kind, label, tags, public_url, storage_path, credit, focus, times_used, is_ai_generated, asset_code, editorial_label")
+    .select(PHOTO_COLS)
     .single();
   if (error) throw new Error(`image_library: ${error.message}`);
   return data as LibraryPhoto;
@@ -325,7 +344,7 @@ async function generatedKeywordPhoto(supabase: SupabaseClient, category: string,
   const keys = [...topics, ...places].sort();
   const asset_code = `gen-${createHash("sha1").update(keys.join("|")).digest("hex").slice(0, 12)}`;
   const { data: existing } = await supabase.from("image_library")
-    .select("id, kind, label, tags, public_url, storage_path, credit, focus, times_used, is_ai_generated, asset_code, editorial_label")
+    .select(PHOTO_COLS)
     .eq("asset_code", asset_code).eq("active", true).maybeSingle();
   if (existing) return existing as LibraryPhoto;
   if (generatedThisRun >= MAX_GENERATED) return null;
@@ -375,7 +394,8 @@ export async function storyImage(
   const render = async (photos: LibraryPhoto[], kind: StoryImage["kind"]): Promise<StoryImage> => {
     const url = await uploadWebp(supabase, path, await compose(photos, opts.title));
     await markUsed(supabase, photos);
-    return { url, path, kind, credits: [...new Set(photos.map((p) => p.credit))] };
+    const image_credits = photos.map((p) => ({ attribution_text: p.attribution_text || p.credit, license_url: p.license_url ?? null, source_url: p.source_url ?? null }));
+    return { url, path, kind, credits: [...new Set(image_credits.map((c) => c.attribution_text))], image_credits };
   };
   try {
     const photos = await pickPhotos(supabase, opts.keywords);
@@ -397,5 +417,5 @@ export async function storyImage(
   } catch (e: any) {
     console.warn(`  category image failed: ${e.message?.slice(0, 120)}`);
   }
-  return { url: null, path: null, kind: "none", credits: [] };
+  return { url: null, path: null, kind: "none", credits: [], image_credits: [] };
 }
