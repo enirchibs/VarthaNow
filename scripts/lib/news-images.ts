@@ -37,6 +37,11 @@ export type LibraryPhoto = {
 export type StoryImage = { url: string | null; path: string | null; kind: "library" | "generated" | "category" | "none"; credits: string[] };
 
 const norm = (s: string) => s.toLowerCase().normalize("NFC").replace(/\s+/g, " ").trim();
+/** "potholes" and "pothole" should match: drop a plain English plural "s" (not "ss", not short words like "news"). */
+const singular = (t: string) => (/^[a-z ]{4,}[^s]s$/.test(t) && !/(news|ss|us|is)$/.test(t) ? t.slice(0, -1) : t);
+/** A keyword plus its singular/plural twin, for the database "overlaps" query. */
+const variants = (t: string) => [...new Set([t, singular(t), /^[a-z ]+$/.test(t) && !t.endsWith("s") ? `${t}s` : t])];
+
 const escapeXml = (s: string) => s.replace(/[<>&'"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", "'": "&apos;", '"': "&quot;" })[c]!);
 
 // ── bucket ───────────────────────────────────────────────────────────
@@ -85,9 +90,11 @@ export async function libraryTags(supabase: SupabaseClient): Promise<string[]> {
 }
 
 function best(rows: LibraryPhoto[], kinds: LibraryPhoto["kind"][], wanted: string[], preferReal = false): LibraryPhoto | undefined {
-  const keys = new Set(wanted.map(norm));
+  const keys = new Set(wanted.map((w) => singular(norm(w))));
+  // how many of the story's keywords a photo carries: "festival + bathukamma" should beat "festival" alone
+  const score = (r: LibraryPhoto) => new Set(r.tags.map((t) => singular(norm(t))).filter((t) => keys.has(t))).size;
   const candidates = rows
-    .filter((r) => kinds.includes(r.kind) && r.tags.some((t) => keys.has(norm(t))))
+    .filter((r) => kinds.includes(r.kind) && score(r) > 0)
     .sort((a, b) => {
       // If preferReal, rank non-AI assets first
       if (preferReal) {
@@ -95,7 +102,7 @@ function best(rows: LibraryPhoto[], kinds: LibraryPhoto["kind"][], wanted: strin
         const bReal = b.is_ai_generated ? 1 : 0;
         if (aReal !== bReal) return aReal - bReal;
       }
-      return a.times_used - b.times_used; // least used first
+      return score(b) - score(a) || a.times_used - b.times_used; // best match, then least used
     });
   return candidates[0];
 }
@@ -110,7 +117,7 @@ export async function pickPhotos(supabase: SupabaseClient, kw: ImageKeywords): P
     .from("image_library")
     .select("id, kind, label, tags, public_url, storage_path, credit, focus, times_used, is_ai_generated, asset_code, editorial_label")
     .eq("active", true)
-    .overlaps("tags", all);
+    .overlaps("tags", [...new Set(all.flatMap(variants))]);
 
   if (error || !data?.length) return [];
   const rows = data as LibraryPhoto[];
