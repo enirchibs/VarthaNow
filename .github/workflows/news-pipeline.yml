@@ -28,7 +28,7 @@ jobs:
     # 60-word Telugu shorts written by Gemini; replaces the old ingest + ai-queue steps.
     - name: Write News Shorts
       env:
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: npm run news -- --max=5
@@ -36,7 +36,7 @@ jobs:
     # Short videos from official channels only (scripts/config/video-channels.json), with our Telugu context.
     - name: Add Short Videos
       env:
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
@@ -45,6 +45,6 @@ jobs:
     - name: Generate Sitemap
       env:
         SITE_URL: ${{ secrets.SITE_URL || 'https://varthanow.pages.dev' }}
-        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       run: npm run sitemap || true
