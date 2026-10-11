@@ -60,6 +60,11 @@ export function classifyLicence(shortName: string | null | undefined, url?: stri
       ? { ok: true, name: "GODL-India", url: url || "https://data.gov.in/government-open-data-license-india", shareAlike: false }
       : { ok: false, reason: "licence GODL-India (turned off with --no-godl)" };
   }
+  // UK Open Government Licence: commercial use and adaptation allowed with attribution.
+  if (/^ogl|open government licen[cs]e/i.test(name)) {
+    const v = name.match(/(\d(?:\.\d)?)/)?.[1] ?? "3.0";
+    return { ok: true, name: `OGL ${v.includes(".") ? v : `${v}.0`}`, url: url || "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/", shareAlike: false };
+  }
   const cc = name.match(/^cc[\s-]+(by(?:-sa)?)(?:[\s-]+(\d\.\d))?/i);
   if (cc) {
     const kind = cc[1].toLowerCase();
@@ -77,15 +82,21 @@ export const slugify = (s: string) => s.toLowerCase().normalize("NFKD").replace(
 /** "Photo: Jane Doe via Wikimedia Commons / CC BY-SA 4.0", or "Photo: PIB" for press material. */
 export function attribution(author: string | null, sourceName: string, licenseName: string | null): string {
   const who = author && author.toLowerCase() !== sourceName.toLowerCase() ? `${author} via ${sourceName}` : sourceName;
-  return licenseName && /^(cc|public domain|godl)/i.test(licenseName) ? `Photo: ${who} / ${licenseName}` : `Photo: ${who}`;
+  return licenseName && /^(cc|public domain|godl|ogl)/i.test(licenseName) ? `Photo: ${who} / ${licenseName}` : `Photo: ${who}`;
 }
 
-/** Name variants to check against a caption: the full name and aliases of two or more words / 6+ letters. */
+/**
+ * Name variants to check against a caption: the full name and multi-word aliases. A one-word alias
+ * ("venkatesh", "lokesh") also names other people, so it only counts when it is the person's whole name ("Prabhas").
+ */
 export function identityNames(p: PublicFigure): string[] {
-  return [p.name, ...p.aliases].map((n) => n.toLowerCase().replace(/\./g, "").replace(/\s+/g, " ").trim()).filter((n) => n.includes(" ") || n.length >= 6);
+  const clean = (n: string) => n.toLowerCase().replace(/[.\-_]+/g, " ").replace(/\s+/g, " ").trim();
+  const full = clean(p.name);
+  return [full, ...p.aliases.map(clean).filter((n) => n.includes(" "))].filter((n) => n.includes(" ") || (n === full && n.length >= 5));
 }
 
 export function captionNames(p: PublicFigure, caption: string): boolean {
-  const c = caption.toLowerCase().replace(/\./g, "").replace(/[_\s]+/g, " ");
-  return identityNames(p).some((n) => c.includes(n));
+  const c = caption.toLowerCase().replace(/[.\-_\s]+/g, " ");
+  // whole words only: "nani" must not match "Nanibala"
+  return identityNames(p).some((n) => new RegExp(`(^|[^a-z])${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}($|[^a-z])`).test(c));
 }
