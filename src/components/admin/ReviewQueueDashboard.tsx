@@ -44,7 +44,11 @@ const pickMime = (mode: Mode) =>
   ).find((t) => typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(t)) ?? "";
 
 /** Records the editor reading the article, with the text shown as a teleprompter. */
-function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: string; onAttached: (patch: Partial<Draft>) => void }) {
+/** What the recorder needs: a saved draft (with id) is updated directly; an unsaved one gets the links via onAttached. */
+type RecorderDraft = { id?: string; slug: string; title: string; content: string };
+export type RecordingPatch = Partial<Pick<Draft, "video_url" | "audio_url" | "presenter_name">>;
+
+export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraft; presenter: string; onAttached: (patch: RecordingPatch) => void }) {
   const [mode, setMode] = useState<Mode>("audio");
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [recording, setRecording] = useState(false);
@@ -174,13 +178,16 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
     setError("");
     try {
       const ext = blob.type.includes("mp4") ? (mode === "video" ? "mp4" : "m4a") : "webm";
-      const path = `${draft.slug}/${mode}-${Date.now()}.${ext}`;
+      const folder = draft.slug.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "") || "draft";
+      const path = `${folder}/${mode}-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from(MEDIA_BUCKET).upload(path, blob, { contentType: blob.type, cacheControl: "31536000" });
       if (upErr) throw upErr;
       const url = supabase.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl;
-      const patch: Partial<Draft> = mode === "video" ? { video_url: url, presenter_name: presenter } : { audio_url: url, presenter_name: presenter };
-      const { error: dbErr } = await supabase.from("blog_posts").update(patch).eq("id", draft.id);
-      if (dbErr) throw dbErr;
+      const patch: RecordingPatch = mode === "video" ? { video_url: url, presenter_name: presenter } : { audio_url: url, presenter_name: presenter };
+      if (draft.id) {
+        const { error: dbErr } = await supabase.from("blog_posts").update(patch).eq("id", draft.id);
+        if (dbErr) throw dbErr;
+      }
       onAttached(patch);
       setBlob(null);
     } catch (e: any) {

@@ -9,6 +9,7 @@ import {
 import type { BlogPost, NewsCategory } from "@/types/news";
 import { createPost, deletePost, getAdminPosts, updatePost } from "@/lib/news-api";
 import { categories, categoryLabel } from "@/lib/categories";
+import { categoryCoverImages } from "@/lib/demo-data";
 import { Button, Input } from "@/components/ui";
 import { setMeta } from "@/lib/seo";
 import { useLanguage, type Language } from "@/hooks/useLanguage";
@@ -21,7 +22,7 @@ import { DailyShareAdminDashboard } from "@/components/admin/DailyShareAdminDash
 import { JobsAdminDashboard } from "@/components/jobs/JobsAdminDashboard";
 import { SEOAdminDashboard } from "@/components/admin/SEOAdminDashboard";
 import { AnalyticsAdminDashboard } from "@/components/admin/AnalyticsAdminDashboard";
-import { ReviewQueueDashboard } from "@/components/admin/ReviewQueueDashboard";
+import { Recorder, ReviewQueueDashboard } from "@/components/admin/ReviewQueueDashboard";
 import { NewsroomOverview, useNewsroomCounts } from "@/components/admin/NewsroomOverview";
 import { ChatGptGallery, ImageGallery, VideoGallery } from "@/components/admin/MediaGalleries";
 import { compressImage, extensionFor } from "@/lib/image-compression";
@@ -95,6 +96,7 @@ export function AdminPage() {
   const [writerLanguage, setWriterLanguage] = useState<Language>("te");
   const [isGenerating, setIsGenerating] = useState(false);
   const [draft, setDraft] = useState<Omit<BlogPost, "id" | "created_at" | "updated_at"> | null>(null);
+  const [writerPresenter, setWriterPresenter] = useState(() => { try { return localStorage.getItem("vn-presenter-name") || ""; } catch { return ""; } });
   const [currentPrompt, setCurrentPrompt] = useState("");
 
   // RSS Feed Form State
@@ -323,7 +325,8 @@ export function AdminPage() {
         tags: Array.isArray(parsed.tags) ? parsed.tags : [writerCategory, "News"],
         meta_title: parsed.meta_title || parsed.title || subject,
         meta_description: parsed.meta_description || parsed.excerpt || subject,
-        og_image: `/images/${writerCategory}-fallback.jpg`,
+        // category cover photo until an editor uploads one (the old /images/*-fallback.jpg files never existed)
+        og_image: categoryCoverImages[writerCategory as NewsCategory] ?? categoryCoverImages["andhra-pradesh"],
         author_name: "VarthaNow AI Writer",
         language: writerLanguage,
         published: true,
@@ -334,7 +337,7 @@ export function AdminPage() {
 
       setDraft(draftArticle);
       setCurrentPrompt("");
-      setMessage("AI Draft generated successfully! Cover image fallback applied.");
+      setMessage("AI draft ready. Add your voice or video below if you like, then publish.");
     } catch (error: any) {
       setErrorMsg(error.message);
     } finally {
@@ -347,7 +350,9 @@ export function AdminPage() {
     try {
       const created = await createPost(draft);
       setPosts((items) => [created, ...items]);
-      setMessage("Article published successfully!");
+      setMessage(draft.audio_url || draft.video_url
+        ? "Article published with your recording."
+        : "Article published. The AI Telugu voice (వార్తలు వినండి) is added automatically within about 30 minutes.");
       setDraft(null);
       setSubject("");
     } catch (error: any) {
@@ -982,6 +987,41 @@ export function AdminPage() {
                     />
                   </div>
                   
+                  {/* 🎙️ Audio & video for this article */}
+                  <div className="space-y-3 rounded-2xl border border-rose-500/20 bg-rose-500/5 p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h4 className="text-sm font-black">ఆడియో & వీడియో</h4>
+                      {draft.video_url && <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-black text-emerald-700">✓ వీడియో జోడించబడింది</span>}
+                      {draft.audio_url && <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-black text-emerald-700">✓ మీ స్వరం జోడించబడింది</span>}
+                      <span className="rounded-full bg-violet-500/15 px-2 py-0.5 text-[11px] font-black text-violet-700">
+                        {draft.audio_url ? "AI వాయిస్ అవసరం లేదు" : "AI వాయిస్: ప్రచురించాక ఆటోమేటిక్‌గా"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                      Every published article gets a Telugu AI voice for “వార్తలు వినండి” automatically. Record your own voice or a video in the news studio below to attach it instead; readers then see “వీడియో చూడండి”.
+                    </p>
+                    <Input
+                      value={writerPresenter}
+                      onChange={(e) => { setWriterPresenter(e.target.value); try { localStorage.setItem("vn-presenter-name", e.target.value); } catch { /* private mode */ } }}
+                      placeholder="Your name as presenter (shown on the video and the article)"
+                      className="h-10 max-w-md rounded-xl text-sm"
+                    />
+                    <Recorder
+                      draft={{ slug: draft.slug, title: draft.title, content: draft.content }}
+                      presenter={writerPresenter.trim()}
+                      onAttached={(patch) => setDraft((d) => (d ? { ...d, ...patch, presenter_name: patch.presenter_name || null } : d))}
+                    />
+                    {(draft.audio_url || draft.video_url) && (
+                      <button
+                        type="button"
+                        onClick={() => setDraft({ ...draft, audio_url: null, video_url: null, presenter_name: null })}
+                        className="text-xs font-bold text-red-600 hover:underline"
+                      >
+                        Remove attached recording
+                      </button>
+                    )}
+                  </div>
+
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-[hsl(var(--muted-foreground))] block">Tags (Comma separated)</label>
