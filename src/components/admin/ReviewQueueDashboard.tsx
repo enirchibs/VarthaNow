@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CheckCircle2, XCircle, Save, Mic, Video, Square, RotateCcw, Upload, Trash2, ExternalLink,
-  ClipboardCheck, RefreshCw, ScrollText,
+  ClipboardCheck, RefreshCw, ScrollText, Camera, Clapperboard, X,
 } from "lucide-react";
+import { NewsStudio, STUDIO_BACKGROUNDS, TICKER_LABELS, type StudioSettings } from "@/lib/news-studio";
 import { supabase } from "@/lib/supabase";
 import { Button, Input } from "@/components/ui";
 import { categories } from "@/lib/categories";
@@ -55,6 +56,19 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
   const chunksRef = useRef<Blob[]>([]);
   const liveRef = useRef<HTMLVideoElement | null>(null);
   const promptRef = useRef<HTMLDivElement | null>(null);
+  // virtual studio (video mode): background + TV graphics drawn on a canvas that is recorded
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const studioRef = useRef<NewsStudio | null>(null);
+  const [studioStatus, setStudioStatus] = useState("");
+  const [studio, setStudio] = useState<StudioSettings>(() => {
+    let saved: Partial<StudioSettings> = {};
+    try { saved = JSON.parse(localStorage.getItem("vn-studio") || "{}"); } catch { /* private mode */ }
+    return {
+      background: "studio-red", logo: true, clock: true, strap: true, ticker: true, tickerLabel: TICKER_LABELS[0],
+      ...saved, tickerText: draft.title, strapLine: draft.title, presenter,
+    };
+  });
+  const setStudioField = <K extends keyof StudioSettings>(k: K, v: StudioSettings[K]) => setStudio((st) => ({ ...st, [k]: v }));
   const previewUrl = useMemo(() => (blob ? URL.createObjectURL(blob) : null), [blob]);
 
   const stopStream = useCallback(() => {
@@ -65,6 +79,25 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
   useEffect(() => () => { stream?.getTracks().forEach((t) => t.stop()); }, [stream]);
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
   useEffect(() => { if (liveRef.current && stream) liveRef.current.srcObject = stream; }, [stream]);
+
+  // keep the studio in step with the form; remember the look (not the texts) for next time
+  useEffect(() => { setStudio((st) => ({ ...st, presenter })); }, [presenter]);
+  useEffect(() => {
+    studioRef.current?.update(studio);
+    const { background, logo, clock, strap, ticker, tickerLabel } = studio;
+    try { localStorage.setItem("vn-studio", JSON.stringify({ background, logo, clock, strap, ticker, tickerLabel })); } catch { /* private mode */ }
+  }, [studio]);
+
+  // the studio runs while the camera is open in video mode
+  useEffect(() => {
+    if (mode !== "video" || !stream || !canvasRef.current || !liveRef.current) return;
+    const st = new NewsStudio(canvasRef.current, liveRef.current, studio);
+    st.onStatus = setStudioStatus;
+    st.start();
+    studioRef.current = st;
+    return () => { st.stop(); studioRef.current = null; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stream, mode]);
 
   // recording timer + hard stop
   useEffect(() => {
@@ -83,17 +116,32 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
     return () => clearInterval(t);
   }, [recording, autoScroll]);
 
+  const openMedia = () => navigator.mediaDevices.getUserMedia({
+    audio: { echoCancellation: true, noiseSuppression: true },
+    video: mode === "video" ? { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } } : false,
+  });
+
+  /** Video mode: open the camera first so the editor can set up the studio before recording. */
+  async function openCamera() {
+    setError("");
+    setBlob(null);
+    try {
+      setStream(await openMedia());
+    } catch (e: any) {
+      setError(e?.name === "NotAllowedError" ? "Microphone/camera permission was denied." : e?.message || "Could not open the camera.");
+    }
+  }
+
   async function start() {
     setError("");
     setBlob(null);
     try {
-      const media = await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true },
-        video: mode === "video" ? { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } } : false,
-      });
-      setStream(media);
+      const media = stream ?? (await openMedia());
+      if (!stream) setStream(media);
+      // video: record the composed studio picture with the microphone; audio: the microphone
+      const source = mode === "video" && studioRef.current ? studioRef.current.stream(media.getAudioTracks()) : media;
       const mimeType = pickMime(mode);
-      const rec = new MediaRecorder(media, {
+      const rec = new MediaRecorder(source, {
         ...(mimeType ? { mimeType } : {}),
         audioBitsPerSecond: 64_000,
         ...(mode === "video" ? { videoBitsPerSecond: 1_200_000 } : {}),
@@ -147,7 +195,7 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
         <h4 className="font-black text-sm">Record yourself reading this article</h4>
         <div className="flex gap-1 rounded-xl bg-[hsl(var(--muted))] p-1">
           {(["audio", "video"] as Mode[]).map((m) => (
-            <button key={m} disabled={recording} onClick={() => { setMode(m); setBlob(null); }}
+            <button key={m} disabled={recording} onClick={() => { stopStream(); setMode(m); setBlob(null); }}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold ${mode === m ? "bg-white shadow text-[hsl(var(--foreground))]" : "text-[hsl(var(--muted-foreground))]"}`}>
               {m === "audio" ? <Mic className="size-3.5" /> : <Video className="size-3.5" />}
               {m === "audio" ? "Voice" : "Video (face)"}
@@ -171,7 +219,15 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
 
         {/* camera / result */}
         <div className="space-y-2">
-          {mode === "video" && stream && <video ref={liveRef} autoPlay muted playsInline className="aspect-video w-full rounded-xl bg-black object-cover" />}
+          {mode === "video" && stream && (
+            <div className="relative">
+              {/* camera feed for the studio (kept off-screen; the canvas shows the result) */}
+              <video ref={liveRef} autoPlay muted playsInline className="pointer-events-none absolute h-px w-px opacity-0" />
+              <canvas ref={canvasRef} className="aspect-video w-full rounded-xl bg-black" />
+              {recording && <span className="absolute right-3 top-3 flex items-center gap-1 rounded-md bg-rose-600 px-2 py-0.5 text-[11px] font-black text-white"><span className="size-2 animate-pulse rounded-full bg-white" />REC {mmss}</span>}
+            </div>
+          )}
+          {mode === "video" && stream && studioStatus && <p className="text-[11px] font-bold text-amber-600">{studioStatus}</p>}
           {mode === "audio" && recording && (
             <div className="flex h-40 items-center justify-center rounded-xl bg-rose-50 text-rose-600 font-black">
               <Mic className="mr-2 size-6 animate-pulse" /> Recording voice…
@@ -187,9 +243,19 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
           )}
 
           <div className="flex flex-wrap items-center gap-2">
-            {!recording && !blob && (
+            {mode === "video" && !stream && !recording && !blob && (
+              <Button onClick={openCamera} className="h-10 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white">
+                <Camera className="mr-1.5 size-4" /> Open camera & studio
+              </Button>
+            )}
+            {!recording && !blob && (mode === "audio" || stream) && (
               <Button onClick={start} className="h-10 rounded-xl bg-rose-600 px-4 text-xs font-bold text-white hover:bg-rose-700">
                 {mode === "audio" ? <Mic className="mr-1.5 size-4" /> : <Video className="mr-1.5 size-4" />} Start recording
+              </Button>
+            )}
+            {mode === "video" && stream && !recording && (
+              <Button onClick={stopStream} className="h-10 rounded-xl px-3 text-xs font-bold">
+                <X className="mr-1 size-4" /> Close camera
               </Button>
             )}
             {recording && (
@@ -211,6 +277,51 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
           {error && <p className="text-xs font-bold text-rose-600">{error}</p>}
         </div>
       </div>
+
+      {mode === "video" && (
+        <div className="space-y-3 rounded-xl bg-[hsl(var(--muted))]/40 p-3">
+          <p className="flex items-center gap-1.5 text-xs font-black"><Clapperboard className="size-4 text-rose-600" /> News studio · background and TV graphics (can be changed while recording)</p>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {STUDIO_BACKGROUNDS.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => setStudioField("background", b.id)}
+                className={`w-28 shrink-0 overflow-hidden rounded-lg border-2 text-left transition ${studio.background === b.id ? "border-rose-600" : "border-transparent opacity-80 hover:opacity-100"}`}
+              >
+                <div
+                  className="aspect-video w-full bg-cover bg-center"
+                  style={b.url ? { backgroundImage: `url(${b.url})` } : {
+                    background: b.kind === "brand" ? "linear-gradient(135deg,#7f1d1d,#b91c1c 55%,#0b1020)" : b.kind === "blur" ? "linear-gradient(135deg,#94a3b8,#cbd5e1,#64748b)" : "#1e293b",
+                  }}
+                >
+                  {!b.url && <span className="flex h-full items-center justify-center text-[10px] font-black text-white/90">{b.kind === "brand" ? "VaartaNow" : b.kind === "blur" ? "Blur" : "Camera"}</span>}
+                </div>
+                <span className="block truncate bg-[hsl(var(--card))] px-1.5 py-1 text-[10.5px] font-bold">{b.label}</span>
+              </button>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-bold">
+            {([["logo", "VaartaNow logo"], ["clock", "Date & time"], ["strap", "Name strap"], ["ticker", "Scrolling news ticker"]] as const).map(([k, label]) => (
+              <label key={k} className="flex items-center gap-1.5">
+                <input type="checkbox" checked={studio[k]} onChange={(e) => setStudioField(k, e.target.checked)} className="accent-rose-600" /> {label}
+              </label>
+            ))}
+          </div>
+          {studio.ticker && (
+            <div className="grid gap-2 sm:grid-cols-[170px_1fr]">
+              <select value={studio.tickerLabel} onChange={(e) => setStudioField("tickerLabel", e.target.value)} className="h-9 rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 text-xs font-bold">
+                {TICKER_LABELS.map((l) => <option key={l}>{l}</option>)}
+              </select>
+              <Input value={studio.tickerText} onChange={(e) => setStudioField("tickerText", e.target.value)} placeholder="Ticker text" className="h-9 rounded-lg text-xs" />
+            </div>
+          )}
+          {studio.strap && (
+            <Input value={studio.strapLine} onChange={(e) => setStudioField("strapLine", e.target.value)} placeholder="Second line of the name strap (e.g. the headline)" className="h-9 rounded-lg text-xs" />
+          )}
+          <p className="text-[10.5px] text-[hsl(var(--muted-foreground))]">The name strap shows the presenter name entered above. Background replacement works best with good light and a plain wall behind you.</p>
+        </div>
+      )}
     </div>
   );
 }
