@@ -365,11 +365,11 @@ function NewsSwipeCard({
         style={{ paddingBottom: "max(0.65rem, env(safe-area-inset-bottom))" }}
       >
         {(
-          <div className="mb-2 flex flex-wrap items-center gap-2">
+          <div className="no-scrollbar mb-2 flex items-center gap-1.5 overflow-x-auto">
             <button
               type="button"
               onClick={toggleListen}
-              className={`flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12.5px] font-black active:scale-95 ${listening ? "bg-rose-600 text-white" : "bg-rose-50 text-rose-700"}`}
+              className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-black active:scale-95 ${listening ? "bg-rose-600 text-white" : "bg-rose-50 text-rose-700"}`}
               aria-label={lang === "te" ? "వార్తలు వినండి" : "Listen to this story"}
             >
               {listening ? <Pause className="size-3.5 fill-current" /> : <Headphones className="size-3.5" />}
@@ -389,21 +389,22 @@ function NewsSwipeCard({
                   if (isPlayableVideo(url)) setSheet({ video: true });
                   else window.open(url, "_blank", "noopener,noreferrer");
                 }}
-                className="flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-1.5 text-[12px] font-black text-white active:scale-95"
+                className="flex shrink-0 items-center gap-1.5 rounded-full bg-red-600 px-3 py-1.5 text-[12px] font-black text-white active:scale-95"
               >
                 <Play className="size-3.5 fill-current" />
-                {lang === "te" ? "వీడియో చూడండి" : "Watch video"}
+                {/* short here: the banner already says "వీడియో చూడండి" */}
+                {lang === "te" ? "వీడియో" : "Video"}
               </button>
             )}
             <button
               type="button"
               onClick={() => { stopListening(); setSheet({ video: false }); }}
-              className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-[12px] font-black text-slate-700 active:scale-95"
+              className="flex shrink-0 items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-[12px] font-black text-slate-700 active:scale-95"
             >
               <BookOpen className="size-3.5" />
               {lang === "te" ? "పూర్తి కథనం" : "Read full story"}
             </button>
-            {speechNote && <span className="w-full text-[11px] font-semibold text-slate-500">{speechNote}</span>}
+            {speechNote && <span className="shrink-0 text-[11px] font-semibold text-slate-500">{speechNote}</span>}
             {audioSrc && (
               <audio
                 ref={audioRef}

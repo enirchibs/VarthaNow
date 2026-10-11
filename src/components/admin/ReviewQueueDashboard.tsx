@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   CheckCircle2, XCircle, Save, Mic, Video, Square, RotateCcw, Upload, Trash2, ExternalLink,
-  ClipboardCheck, RefreshCw, ScrollText, Camera, Clapperboard, X,
+  ClipboardCheck, RefreshCw, ScrollText, Camera, Clapperboard, X, Download, Youtube,
 } from "lucide-react";
+import { youtubeDetails } from "@/lib/youtube-details";
+import { youtubeIdOf } from "@/lib/videos-api";
 import { NewsStudio, SCROLL_SPEEDS, STUDIO_BACKGROUNDS, TICKER_LABELS, backgroundSwatch, type PresenterSide, type StudioSettings } from "@/lib/news-studio";
 import { useLatestHeadlines } from "@/components/admin/LiveStudio";
 import { supabase } from "@/lib/supabase";
@@ -45,7 +47,7 @@ const pickMime = (mode: Mode) =>
 
 /** Records the editor reading the article, with the text shown as a teleprompter. */
 /** What the recorder needs: a saved draft (with id) is updated directly; an unsaved one gets the links via onAttached. */
-type RecorderDraft = { id?: string; slug: string; title: string; content: string };
+type RecorderDraft = { id?: string; slug: string; title: string; content: string; excerpt?: string | null; category?: string | null; tags?: string[] | null };
 export type RecordingPatch = Partial<Pick<Draft, "video_url" | "audio_url" | "presenter_name">>;
 
 export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraft; presenter: string; onAttached: (patch: RecordingPatch) => void }) {
@@ -75,6 +77,16 @@ export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraf
   });
   const setStudioField = <K extends keyof StudioSettings>(k: K, v: StudioSettings[K]) => setStudio((st) => ({ ...st, [k]: v }));
   const previewUrl = useMemo(() => (blob ? URL.createObjectURL(blob) : null), [blob]);
+  // manual YouTube route: download the recording, upload it yourself, paste the link back
+  const [ytLink, setYtLink] = useState("");
+  const [copied, setCopied] = useState<string | null>(null);
+  const yt = useMemo(() => youtubeDetails({ ...draft, presenter }), [draft, presenter]);
+  const fileSlug = draft.slug.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "") || "vaartanow-news";
+  const copy = (key: string, value: string) => {
+    void navigator.clipboard?.writeText(value);
+    setCopied(key);
+    setTimeout(() => setCopied(null), 1500);
+  };
 
   const stopStream = useCallback(() => {
     stream?.getTracks().forEach((t) => t.stop());
@@ -197,6 +209,26 @@ export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraf
     }
   }
 
+  async function saveYoutubeLink() {
+    const id = youtubeIdOf(ytLink.trim());
+    if (!id) { setError("That is not a YouTube video link (youtu.be/… or youtube.com/watch?v=…)."); return; }
+    setBusy(true);
+    setError("");
+    try {
+      const patch: RecordingPatch = { video_url: `https://www.youtube.com/watch?v=${id}`, presenter_name: presenter };
+      if (draft.id && supabase) {
+        const { error: dbErr } = await supabase.from("blog_posts").update(patch).eq("id", draft.id);
+        if (dbErr) throw dbErr;
+      }
+      onAttached(patch);
+      setYtLink("");
+    } catch (e: any) {
+      setError(`Could not save the link: ${e?.message ?? e}`);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const mmss = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 
   return (
@@ -278,6 +310,13 @@ export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraf
                 <Button onClick={upload} disabled={busy} className="h-10 rounded-xl bg-emerald-600 px-4 text-xs font-bold text-white hover:bg-emerald-700">
                   <Upload className="mr-1.5 size-4" /> {busy ? "Uploading…" : `Attach ${mode} (${(blob.size / 1048576).toFixed(1)} MB)`}
                 </Button>
+                <a
+                  href={previewUrl ?? undefined}
+                  download={`${fileSlug}-${mode}.${blob.type.includes("mp4") ? (mode === "video" ? "mp4" : "m4a") : "webm"}`}
+                  className="inline-flex h-10 items-center rounded-xl bg-slate-900 px-4 text-xs font-bold text-white"
+                >
+                  <Download className="mr-1.5 size-4" /> Download {mode}
+                </a>
                 <Button onClick={() => setBlob(null)} disabled={busy} className="h-10 rounded-xl px-4 text-xs font-bold">
                   <RotateCcw className="mr-1.5 size-4" /> Record again
                 </Button>
@@ -287,6 +326,34 @@ export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraf
           {error && <p className="text-xs font-bold text-rose-600">{error}</p>}
         </div>
       </div>
+
+      {mode === "video" && (
+        <div className="space-y-2.5 rounded-xl border border-red-500/20 bg-red-500/5 p-3">
+          <p className="flex items-center gap-1.5 text-xs font-black"><Youtube className="size-4 text-red-600" /> YouTube ద్వారా (మీరే అప్‌లోడ్ చేయండి)</p>
+          <ol className="list-decimal space-y-0.5 pl-5 text-[11.5px] text-[hsl(var(--muted-foreground))]">
+            <li>రికార్డ్ చేసి <b>Download video</b> నొక్కండి</li>
+            <li><a href="https://studio.youtube.com" target="_blank" rel="noreferrer" className="font-bold text-red-600 underline">YouTube Studio</a>లో VaartaNow ఛానెల్‌కు అప్‌లోడ్ చేయండి; కింద ఉన్న టైటిల్, వివరణ, ట్యాగ్‌లు కాపీ చేసి పెట్టండి</li>
+            <li>YouTube లింక్‌ను ఇక్కడ పేస్ట్ చేసి <b>Save link</b> నొక్కండి. వార్త బ్యానర్‌పై ప్లే బటన్ వస్తుంది</li>
+          </ol>
+          <div className="grid gap-1.5">
+            {([["title", "Title", yt.title], ["description", "Description", yt.description], ["tags", "Tags", yt.tags]] as const).map(([key, label, value]) => (
+              <div key={key} className="flex items-start gap-2 rounded-lg bg-[hsl(var(--card))] p-2">
+                <span className="w-20 shrink-0 text-[11px] font-black text-[hsl(var(--muted-foreground))]">{label}</span>
+                <p className={`min-w-0 flex-1 whitespace-pre-wrap text-[11.5px] ${key === "description" ? "max-h-24 overflow-y-auto" : "line-clamp-2"}`}>{value}</p>
+                <button type="button" onClick={() => copy(key, value)} className="shrink-0 rounded-md bg-[hsl(var(--muted))] px-2 py-1 text-[10.5px] font-bold">
+                  {copied === key ? "Copied ✓" : "Copy"}
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Input value={ytLink} onChange={(e) => setYtLink(e.target.value)} placeholder="https://youtu.be/... లేదా https://www.youtube.com/watch?v=..." className="h-9 min-w-[240px] flex-1 rounded-lg text-xs" />
+            <Button onClick={saveYoutubeLink} disabled={busy || !ytLink.trim()} className="h-9 rounded-lg bg-red-600 px-4 text-xs font-bold text-white hover:bg-red-700">
+              <Youtube className="mr-1.5 size-4" /> Save link
+            </Button>
+          </div>
+        </div>
+      )}
 
       {mode === "video" && (
         <div className="space-y-3 rounded-xl bg-[hsl(var(--muted))]/40 p-3">

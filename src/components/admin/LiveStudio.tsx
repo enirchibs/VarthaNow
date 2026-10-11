@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Camera, CheckCircle2, Clapperboard, ExternalLink, Radio, RotateCcw, Send, Square, X } from "lucide-react";
+import { Camera, CheckCircle2, Clapperboard, Download, ExternalLink, Radio, RotateCcw, Send, Square, X, Youtube } from "lucide-react";
+import { youtubeDetails } from "@/lib/youtube-details";
+import { youtubeIdOf } from "@/lib/videos-api";
 import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { categories } from "@/lib/categories";
@@ -128,21 +130,32 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
     setRecording(true);
   };
 
+  // manual YouTube route: download, upload to the VaartaNow channel yourself, paste the link
+  const [slug, setSlug] = useState(() => slugify(""));
+  const [ytLink, setYtLink] = useState("");
+  const [copied, setCopied] = useState<string | null>(null);
+  const ytId = youtubeIdOf(ytLink.trim());
+  const yt = youtubeDetails({ slug, title: headline || "VaartaNow వార్తలు", excerpt: summary, category, tags: ["live", "video"], presenter });
+  const copy = (key: string, value: string) => {
+    void navigator.clipboard?.writeText(value);
+    setCopied(key);
+    setTimeout(() => setCopied(null), 1500);
+  };
+
   const publish = async () => {
-    if (!supabase || !blob) return;
+    if (!supabase || (!blob && !ytId)) return;
     if (!headline.trim()) return setError("Headline is required.");
     setBusy(true);
     setError("");
     try {
-      const slug = slugify(headline);
-      const ext = blob.type.includes("mp4") ? "mp4" : "webm";
+      const ext = blob?.type.includes("mp4") ? "mp4" : "webm";
       const up = async (path: string, b: Blob) => {
         const { error: e } = await supabase!.storage.from(MEDIA_BUCKET).upload(path, b, { contentType: b.type, cacheControl: "31536000" });
         if (e) throw e;
         return supabase!.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl;
       };
-      const video_url = await up(`live/${slug}.${ext}`, blob);
-      const og_image = poster ? await up(`live/${slug}.jpg`, poster) : null;
+      const video_url = ytId ? `https://www.youtube.com/watch?v=${ytId}` : await up(`live/${slug}.${ext}`, blob!);
+      const og_image = poster ? await up(`live/${slug}.jpg`, poster) : ytId ? `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg` : null;
       const text = summary.trim() || headline.trim();
       const now = new Date().toISOString();
       const { error: e } = await supabase.from("blog_posts").insert({
@@ -155,7 +168,7 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
       });
       if (e) throw e;
       setPublished({ slug, title: headline.trim() });
-      setBlob(null); setPoster(null); setHeadline(""); setSummary("");
+      setBlob(null); setPoster(null); setHeadline(""); setSummary(""); setYtLink(""); setSlug(slugify(""));
       closeCamera();
     } catch (e: any) {
       setError(`Publishing failed: ${e?.message ?? e}`);
@@ -217,13 +230,44 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
             {blob && !recording && (
               <>
                 <Button onClick={publish} disabled={busy} className="h-11 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white hover:bg-emerald-700">
-                  <Send className="mr-1.5 size-4" /> {busy ? "Publishing…" : `Publish now (${(blob.size / 1048576).toFixed(1)} MB)`}
+                  <Send className="mr-1.5 size-4" /> {busy ? "Publishing…" : ytId ? "Publish with YouTube link" : `Publish now (${(blob.size / 1048576).toFixed(1)} MB)`}
                 </Button>
+                <a href={previewUrl ?? undefined} download={`${slug}.${blob.type.includes("mp4") ? "mp4" : "webm"}`}
+                  className="inline-flex h-11 items-center rounded-xl bg-slate-900 px-5 text-sm font-bold text-white">
+                  <Download className="mr-1.5 size-4" /> Download video
+                </a>
                 <Button onClick={() => setBlob(null)} disabled={busy} variant="secondary" className="h-11 rounded-xl px-4 text-sm font-bold"><RotateCcw className="mr-1.5 size-4" /> Discard</Button>
               </>
             )}
           </div>
           {error && <p className="text-sm font-bold text-red-600">{error}</p>}
+
+          {/* YouTube: upload yourself, then publish with the link (nothing stored on our server) */}
+          <div className="space-y-2.5 rounded-xl border border-red-500/20 bg-red-500/5 p-3">
+            <p className="flex items-center gap-1.5 text-xs font-black"><Youtube className="size-4 text-red-600" /> YouTube ద్వారా ప్రచురించండి</p>
+            <ol className="list-decimal space-y-0.5 pl-5 text-[11.5px] text-[hsl(var(--muted-foreground))]">
+              <li>రికార్డ్ చేసి <b>Download video</b> నొక్కండి</li>
+              <li><a href="https://studio.youtube.com" target="_blank" rel="noreferrer" className="font-bold text-red-600 underline">YouTube Studio</a>లో అప్‌లోడ్ చేయండి; కింది టైటిల్, వివరణ, ట్యాగ్‌లు కాపీ చేయండి</li>
+              <li>YouTube లింక్ పేస్ట్ చేసి <b>Publish with YouTube link</b> నొక్కండి. వార్త బ్యానర్‌పై ప్లే బటన్ వస్తుంది</li>
+            </ol>
+            {([["title", "Title", yt.title], ["description", "Description", yt.description], ["tags", "Tags", yt.tags]] as const).map(([key, label, value]) => (
+              <div key={key} className="flex items-start gap-2 rounded-lg bg-[hsl(var(--card))] p-2">
+                <span className="w-20 shrink-0 text-[11px] font-black text-[hsl(var(--muted-foreground))]">{label}</span>
+                <p className={`min-w-0 flex-1 whitespace-pre-wrap text-[11.5px] ${key === "description" ? "max-h-24 overflow-y-auto" : "line-clamp-2"}`}>{value}</p>
+                <button type="button" onClick={() => copy(key, value)} className="shrink-0 rounded-md bg-[hsl(var(--muted))] px-2 py-1 text-[10.5px] font-bold">{copied === key ? "Copied ✓" : "Copy"}</button>
+              </div>
+            ))}
+            <div className="flex flex-wrap gap-2">
+              <Input value={ytLink} onChange={(e) => setYtLink(e.target.value)} placeholder="https://youtu.be/..." className="h-9 min-w-[220px] flex-1 rounded-lg text-xs" />
+              {!blob && (
+                <Button onClick={publish} disabled={busy || !ytId} className="h-9 rounded-lg bg-red-600 px-4 text-xs font-bold text-white hover:bg-red-700">
+                  <Youtube className="mr-1.5 size-4" /> {busy ? "Publishing…" : "Publish with YouTube link"}
+                </Button>
+              )}
+            </div>
+            {ytLink.trim() && !ytId && <p className="text-[11px] font-bold text-red-600">That is not a YouTube video link.</p>}
+          </div>
+
           <p className="text-[11px] text-[hsl(var(--muted-foreground))]">
             Published immediately as a video article, without review. Only say what you have verified; the article shows your name as presenter. Max {MAX_SECONDS / 60} minutes.
           </p>

@@ -1007,7 +1007,7 @@ export function AdminPage() {
                       className="h-10 max-w-md rounded-xl text-sm"
                     />
                     <Recorder
-                      draft={{ slug: draft.slug, title: draft.title, content: draft.content }}
+                      draft={{ slug: draft.slug, title: draft.title, content: draft.content, excerpt: draft.excerpt, category: draft.category, tags: draft.tags }}
                       presenter={writerPresenter.trim()}
                       onAttached={(patch) => setDraft((d) => (d ? { ...d, ...patch, presenter_name: patch.presenter_name || null } : d))}
                     />
