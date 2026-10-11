@@ -4,7 +4,7 @@ import {
   BarChart3, Edit3, Eye, Search, Star, Trash2, Sparkles, Upload, Activity,
   Plus, RefreshCw, Play, CheckCircle2, XCircle, Clock, AlertTriangle, ListFilter,
   ArrowRight, ShieldCheck, User, LogOut, ChevronRight, Volume2, Briefcase, Globe,
-  Image as ImageIcon, LayoutDashboard, Wand2, Clapperboard, Bot
+  Image as ImageIcon, LayoutDashboard, Wand2, Clapperboard, Bot, UsersRound
 } from "lucide-react";
 import type { BlogPost, NewsCategory } from "@/types/news";
 import { createPost, deletePost, getAdminPosts, updatePost } from "@/lib/news-api";
@@ -13,7 +13,8 @@ import { Button, Input } from "@/components/ui";
 import { setMeta } from "@/lib/seo";
 import { useLanguage, type Language } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
-import { isAdminUser } from "@/hooks/useIsAdmin";
+import { fetchMyRole, isAdminUser, type StaffRole } from "@/hooks/useIsAdmin";
+import { UsersRolesDashboard } from "@/components/admin/UsersRolesDashboard";
 import { TTSAdminDashboard } from "@/components/admin/TTSAdminDashboard";
 import { DailyShareAdminDashboard } from "@/components/admin/DailyShareAdminDashboard";
 import { JobsAdminDashboard } from "@/components/jobs/JobsAdminDashboard";
@@ -53,7 +54,7 @@ interface PipelineJob {
   created_at: string;
 }
 
-type TabType = "overview" | "chatgpt" | "review" | "articles" | "images" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
+type TabType = "overview" | "users" | "chatgpt" | "review" | "articles" | "images" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
 
 export function AdminPage() {
   const navigate = useNavigate();
@@ -61,6 +62,7 @@ export function AdminPage() {
   
   // Auth state
   const [user, setUser] = useState<any>(null);
+  const [role, setRole] = useState<StaffRole>(null);
   const [authLoading, setAuthLoading] = useState(true);
   
   // Dashboard navigation
@@ -118,13 +120,15 @@ export function AdminPage() {
       setAuthLoading(false);
       return;
     }
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(isAdminUser(session?.user) ? session!.user : null);
+    // admins and editors get the console; the database decides the role (staff_roles / owner flag)
+    const apply = async (session: any) => {
+      const r = await fetchMyRole(session);
+      setRole(r);
+      setUser(r === "admin" || r === "editor" ? session!.user : null);
       setAuthLoading(false);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(isAdminUser(session?.user) ? session!.user : null);
-    });
+    };
+    supabase.auth.getSession().then(({ data: { session } }) => { apply(session); });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => { apply(session); });
     return () => subscription.unsubscribe();
   }, []);
 
@@ -582,7 +586,7 @@ export function AdminPage() {
     );
   }
 
-  const navItems: ({ group: string } | { id: TabType; label: string; icon: typeof BarChart3; badge?: number })[] = [
+  const allNavItems: ({ group: string } | { id: TabType; label: string; icon: typeof BarChart3; badge?: number; adminOnly?: boolean })[] = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "writer", label: "AI News Generator", icon: Wand2 },
     { group: "Newsroom" },
@@ -594,14 +598,20 @@ export function AdminPage() {
     { id: "chatgpt", label: "ChatGPT Gallery", icon: Bot },
     { id: "video_news", label: "Video Gallery", icon: Clapperboard },
     { group: "Pipeline" },
-    { id: "feeds", label: "RSS Feeds", icon: Activity, badge: feeds.filter((f) => f.consecutive_failures > 0).length },
-    { id: "queue", label: "Queue Monitor", icon: Clock, badge: jobStats.failed + jobStats.dead },
-    { id: "tts", label: "Telugu TTS Engine", icon: Volume2 },
+    { id: "feeds", label: "RSS Feeds", icon: Activity, badge: feeds.filter((f) => f.consecutive_failures > 0).length, adminOnly: true },
+    { id: "queue", label: "Queue Monitor", icon: Clock, badge: jobStats.failed + jobStats.dead, adminOnly: true },
+    { id: "tts", label: "Telugu TTS Engine", icon: Volume2, adminOnly: true },
     { group: "Growth" },
-    { id: "analytics", label: "Analytics & Traffic", icon: BarChart3 },
-    { id: "seo", label: "SEO & Meta Engine", icon: Globe },
-    { id: "jobs", label: "Local Jobs Manager", icon: Briefcase },
+    { id: "analytics", label: "Analytics & Traffic", icon: BarChart3, adminOnly: true },
+    { id: "seo", label: "SEO & Meta Engine", icon: Globe, adminOnly: true },
+    { id: "jobs", label: "Local Jobs Manager", icon: Briefcase, adminOnly: true },
+    { group: "Team" },
+    { id: "users", label: "Users & Roles", icon: UsersRound, adminOnly: true },
   ];
+  // editors see the newsroom and galleries; drop admin-only screens and groups left empty
+  const navItems = allNavItems
+    .filter((n) => "group" in n || role === "admin" || !n.adminOnly)
+    .filter((n, i, list) => !("group" in n) || (i + 1 < list.length && !("group" in list[i + 1])));
   const tabs = navItems.filter((n): n is Extract<typeof n, { id: TabType }> => "id" in n);
   const current = tabs.find((t) => t.id === activeTab) ?? tabs[0];
   const subtitles: Partial<Record<TabType, string>> = {
@@ -612,8 +622,10 @@ export function AdminPage() {
     writer: "Write a full Telugu news article with Gemini from a headline or topic",
     chatgpt: "Images made in ChatGPT, ready for news stories",
     video_news: "Editor recordings, citizen videos and YouTube shorts",
+    users: "Admins, editors and citizen journalists",
   };
   const openTab = (id: TabType) => {
+    if (!tabs.some((t) => t.id === id)) return; // e.g. an editor clicking the feeds card on the overview
     setActiveTab(id);
     setMessage("");
     setErrorMsg("");
@@ -657,13 +669,15 @@ export function AdminPage() {
               </span>
               <div className="min-w-0">
                 <div className="truncate text-xs font-bold">{user.email}</div>
-                <div className="text-[11px] text-zinc-400">Editor · Admin</div>
+                <div className="text-[11px] text-zinc-400">{role === "admin" ? (isAdminUser(user) ? "Owner · Admin" : "Admin") : "Editor"}</div>
               </div>
             </div>
             <div className="flex gap-1.5">
-              <Link to="/admin/diagnostics" className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-zinc-900 py-1.5 text-[11px] font-bold text-amber-400 hover:bg-zinc-800">
-                <Activity className="size-3.5" /> Diagnostics
-              </Link>
+              {role === "admin" && (
+                <Link to="/admin/diagnostics" className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-zinc-900 py-1.5 text-[11px] font-bold text-amber-400 hover:bg-zinc-800">
+                  <Activity className="size-3.5" /> Diagnostics
+                </Link>
+              )}
               <button onClick={() => supabase?.auth.signOut()} className="flex flex-1 items-center justify-center gap-1 rounded-lg bg-zinc-900 py-1.5 text-[11px] font-bold text-zinc-300 hover:bg-zinc-800">
                 <LogOut className="size-3.5" /> Sign out
               </button>
@@ -694,12 +708,14 @@ export function AdminPage() {
               <RefreshCw className={`size-3.5 ${loadingData ? "animate-spin" : ""}`} />
               Sync Data
             </Button>
-            <Link
-              to="/admin/diagnostics"
-              className="flex h-9 items-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900 px-3 text-xs font-bold text-amber-500 lg:hidden"
-            >
-              <Activity className="size-3.5" /> Diagnostics
-            </Link>
+            {role === "admin" && (
+              <Link
+                to="/admin/diagnostics"
+                className="flex h-9 items-center gap-1.5 rounded-xl border border-zinc-800 bg-zinc-900 px-3 text-xs font-bold text-amber-500 lg:hidden"
+              >
+                <Activity className="size-3.5" /> Diagnostics
+              </Link>
+            )}
             <Button variant="secondary" onClick={() => supabase?.auth.signOut()} className="h-9 rounded-xl text-xs font-bold flex items-center gap-1.5 lg:hidden">
               <LogOut className="size-3.5" /> Sign Out
             </Button>
@@ -741,6 +757,16 @@ export function AdminPage() {
 
       {/* 🚀 Tab Contents */}
       <section className="min-h-[400px]">
+        {/* ==================== TAB: USERS & ROLES (admins) ==================== */}
+        {activeTab === "users" && role === "admin" && (
+          <UsersRolesDashboard currentUserId={user?.id} ownerEmail={isAdminUser(user) ? user.email : null} />
+        )}
+
+        {/* an editor never sees admin-only screens, even if one was open before */}
+        {!tabs.some((t) => t.id === activeTab) && (
+          <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-8 text-center text-sm text-[hsl(var(--muted-foreground))]">This screen is for admins only.</div>
+        )}
+
         {/* ==================== TAB: OVERVIEW ==================== */}
         {activeTab === "overview" && (
           <NewsroomOverview feeds={feeds} jobStats={jobStats} counts={counts} refreshKey={refreshKey} onNavigate={(tab) => openTab(tab)} />
