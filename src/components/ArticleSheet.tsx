@@ -1,0 +1,84 @@
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
+import { X, Mic, Sparkles } from "lucide-react";
+import type { BlogPost } from "@/types/news";
+
+/** Our own recordings (news-media bucket) play inline; anything else (e.g. YouTube) opens externally. */
+export const isOwnMedia = (url?: string | null) => !!url && /\/news-media\//.test(url);
+
+/** Full article: presenter video or image, presenter voice, every paragraph, and how it was made. */
+export function ArticleSheet({ post, lang, onClose, autoPlayVideo = false }: {
+  post: BlogPost;
+  lang: string;
+  onClose: () => void;
+  autoPlayVideo?: boolean;
+}) {
+  const te = lang === "te";
+  const paragraphs = (post.content || post.excerpt || "").split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const video = isOwnMedia(post.video_url) ? post.video_url! : null;
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+  }, [onClose]);
+
+  return createPortal(
+    <div className="fixed inset-0 z-[120] flex justify-center bg-black/60" onClick={onClose} role="dialog" aria-modal="true" aria-label={post.title}>
+      <article
+        className="relative h-full w-full max-w-[560px] overflow-y-auto bg-white"
+        onClick={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="fixed z-10 ml-3 mt-3 flex size-10 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur active:scale-95"
+          style={{ top: "env(safe-area-inset-top)" }}
+          aria-label={te ? "మూసివేయి" : "Close"}
+        >
+          <X className="size-5" />
+        </button>
+
+        {video ? (
+          <video src={video} controls playsInline autoPlay={autoPlayVideo} poster={post.og_image ?? undefined} className="aspect-video w-full bg-black" />
+        ) : post.og_image ? (
+          <img src={post.og_image} alt={post.title} className="aspect-video w-full object-cover" />
+        ) : null}
+
+        <div className="space-y-4 px-5 pb-10 pt-5">
+          <h1 className="text-[1.35rem] font-black leading-[1.4] text-[#111827]">{post.title}</h1>
+
+          {post.audio_url && (
+            <div className="rounded-2xl bg-rose-50 p-3">
+              <p className="mb-2 flex items-center gap-1.5 text-xs font-black text-rose-700">
+                <Mic className="size-4" />
+                {te ? "ఈ వార్త వినండి" : "Listen to this story"}
+                {post.presenter_name ? ` · ${te ? "చదివినవారు" : "read by"} ${post.presenter_name}` : ""}
+              </p>
+              <audio src={post.audio_url} controls preload="none" className="w-full" />
+            </div>
+          )}
+          {video && post.presenter_name && (
+            <p className="text-xs font-bold text-slate-500">{te ? "వీడియోలో చదివినవారు" : "Presented by"}: {post.presenter_name}</p>
+          )}
+
+          <div className="space-y-4 text-[1.05rem] leading-[1.85] text-[#1e293b]">
+            {paragraphs.map((p, i) => <p key={i}>{p}</p>)}
+          </div>
+
+          {post.ai_assisted && (
+            <p className="flex items-start gap-2 rounded-xl bg-slate-50 p-3 text-[12px] leading-relaxed text-slate-600">
+              <Sparkles className="mt-0.5 size-4 shrink-0" />
+              {te
+                ? "ఈ కథనాన్ని పలు వార్తా నివేదికల ఆధారంగా AI సహాయంతో రాశాం. ప్రచురణకు ముందు VaartaNow డెస్క్ వాస్తవాలను పరిశీలించి సమీక్షించింది."
+                : "Written with AI assistance from multiple news reports; facts checked and reviewed by the VaartaNow desk before publishing."}
+            </p>
+          )}
+        </div>
+      </article>
+    </div>,
+    document.body
+  );
+}

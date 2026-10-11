@@ -2,7 +2,7 @@ name: VaartaNow News Pipeline
 
 on:
   schedule:
-    - cron: '20 */2 * * *' # every 2 hours: up to 5 news shorts + 2 videos per run
+    - cron: '20 */3 * * *' # every 3 hours: up to 2 article drafts for editorial review + 2 videos
   workflow_dispatch: # Allows manual trigger from GitHub UI
 
 jobs:
@@ -25,7 +25,7 @@ jobs:
     - name: Install Telugu Font
       run: sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-core
 
-    # 50-100 word Telugu articles written by Gemini from one or two outlets.
+    # 150-300 word Telugu article drafts written by Gemini from one or two outlets; editors approve them in the admin Review tab.
     - name: Write News Shorts
       env:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
@@ -33,7 +33,7 @@ jobs:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: |
         set -o pipefail
-        npm run news -- --max=5 2>&1 | tee news.log
+        npm run news -- --max=2 2>&1 | tee news.log
 
     # On failure, surface the last lines as annotations (visible on the run page and via the API;
     # GitHub masks secret values in them).

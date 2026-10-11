@@ -28,6 +28,13 @@ export type BlogPost = {
   og_image: string | null;
   /** Optional video URL (mp4 / YouTube). Play button only shows when set. */
   video_url?: string | null;
+  /** Editor's recorded voice reading the article (news-media bucket). */
+  audio_url?: string | null;
+  /** Name of the editor who read / presented the article. */
+  presenter_name?: string | null;
+  /** Written with AI from news reports and reviewed by an editor. */
+  ai_assisted?: boolean;
+  review_status?: "draft" | "approved" | "rejected";
   author_name: string;
   source_logo?: string | null;
   language: "te" | "en" | "hi" | "ta" | "kn";

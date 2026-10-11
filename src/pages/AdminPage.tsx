@@ -21,6 +21,7 @@ import { VideoNewsAdminDashboard } from "@/components/admin/VideoNewsAdminDashbo
 import { SEOAdminDashboard } from "@/components/admin/SEOAdminDashboard";
 import { AnalyticsAdminDashboard } from "@/components/admin/AnalyticsAdminDashboard";
 import { ImageLibraryAdminDashboard } from "@/components/admin/ImageLibraryAdminDashboard";
+import { ReviewQueueDashboard } from "@/components/admin/ReviewQueueDashboard";
 import { compressImage, extensionFor } from "@/lib/image-compression";
 
 interface RssFeed {
@@ -52,7 +53,7 @@ interface PipelineJob {
   created_at: string;
 }
 
-type TabType = "articles" | "images" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
+type TabType = "review" | "articles" | "images" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
 
 export function AdminPage() {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ export function AdminPage() {
   const [authLoading, setAuthLoading] = useState(true);
   
   // Dashboard navigation
-  const [activeTab, setActiveTab] = useState<TabType>("articles");
+  const [activeTab, setActiveTab] = useState<TabType>("review");
   const [message, setMessage] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -662,6 +663,7 @@ export function AdminPage() {
       {/* 🎛️ Navigation Tabs */}
       <section className="flex border-b border-[hsl(var(--border))] gap-1 pb-px overflow-x-auto no-scrollbar">
         {[
+          { id: "review", label: "Review Queue", icon: CheckCircle2 },
           { id: "articles", label: "Articles & Posts", icon: ListFilter },
           { id: "images", label: "Image Library", icon: ImageIcon },
           { id: "writer", label: "AI Generator", icon: Sparkles },
@@ -797,6 +799,9 @@ export function AdminPage() {
             </div>
           </div>
         )}
+
+        {/* ==================== TAB: EDITORIAL REVIEW ==================== */}
+        {activeTab === "review" && <ReviewQueueDashboard editorEmail={user?.email} />}
 
         {/* ==================== TAB: IMAGE LIBRARY ==================== */}
         {activeTab === "images" && <ImageLibraryAdminDashboard />}

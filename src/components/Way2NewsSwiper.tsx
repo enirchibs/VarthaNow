@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
+  BookOpen,
   ChevronDown,
   Clock,
   MapPin,
@@ -10,7 +11,10 @@ import {
   Share2,
   ThumbsDown,
   ThumbsUp,
+  Headphones,
+  Pause,
 } from "lucide-react";
+import { ArticleSheet, isOwnMedia } from "@/components/ArticleSheet";
 import { useLanguage } from "@/hooks/useLanguage";
 import { categoryCoverImages } from "@/lib/demo-data";
 import { markArticleAsRead } from "@/lib/read-tracker";
@@ -126,6 +130,9 @@ function NewsSwipeCard({
 }) {
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
+  const [sheet, setSheet] = useState<null | { video: boolean }>(null);
+  const [listening, setListening] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [likeCount, setLikeCount] = useState(0);
   const [dislikeCount, setDislikeCount] = useState(0);
   const [commentCount, setCommentCount] = useState(0);
@@ -243,7 +250,8 @@ function NewsSwipeCard({
             type="button"
             onClick={() => {
               const url = post.video_url!.trim();
-              window.open(url, "_blank", "noopener,noreferrer");
+              if (isOwnMedia(url)) setSheet({ video: true });
+              else window.open(url, "_blank", "noopener,noreferrer");
             }}
             className="absolute inset-0 z-[5] flex items-center justify-center"
             aria-label={lang === "te" ? "వీడియో ప్లే చేయండి" : "Play video"}
@@ -275,7 +283,11 @@ function NewsSwipeCard({
                 {post.author_name || "VaartaNow"}
               </p>
               <p className="truncate text-[10px] font-semibold text-white/90 sm:text-[11px]">
-                {lang === "te" ? "రిపోర్టర్ · VaartaNow" : "Reporter · VaartaNow"}
+                {post.presenter_name
+                  ? (lang === "te" ? `చదివినవారు: ${post.presenter_name}` : `Read by ${post.presenter_name}`)
+                  : post.ai_assisted
+                    ? (lang === "te" ? "AI సహాయం · డెస్క్ సమీక్ష" : "AI-assisted · desk reviewed")
+                    : (lang === "te" ? "రిపోర్టర్ · VaartaNow" : "Reporter · VaartaNow")}
               </p>
             </div>
           </div>
@@ -306,6 +318,44 @@ function NewsSwipeCard({
         className="shrink-0 border-t border-slate-200 bg-white px-3 pt-2"
         style={{ paddingBottom: "max(0.65rem, env(safe-area-inset-bottom))" }}
       >
+        {(post.audio_url || (post.content && post.content.trim().length > body.length + 40)) && (
+          <div className="mb-2 flex items-center gap-2">
+            {post.audio_url && (
+              <button
+                type="button"
+                onClick={() => {
+                  const a = audioRef.current;
+                  if (!a) return;
+                  if (a.paused) void a.play(); else a.pause();
+                }}
+                className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-black active:scale-95 ${listening ? "bg-rose-600 text-white" : "bg-rose-50 text-rose-700"}`}
+              >
+                {listening ? <Pause className="size-3.5 fill-current" /> : <Headphones className="size-3.5" />}
+                {lang === "te" ? (listening ? "ఆపండి" : "వినండి") : listening ? "Pause" : "Listen"}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => { audioRef.current?.pause(); setSheet({ video: false }); }}
+              className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5 text-[12px] font-black text-slate-700 active:scale-95"
+            >
+              <BookOpen className="size-3.5" />
+              {lang === "te" ? "పూర్తి కథనం" : "Read full story"}
+            </button>
+            {post.audio_url && (
+              <audio
+                ref={audioRef}
+                src={post.audio_url}
+                preload="none"
+                onPlay={() => setListening(true)}
+                onPause={() => setListening(false)}
+                onEnded={() => setListening(false)}
+              />
+            )}
+          </div>
+        )}
+        {sheet && <ArticleSheet post={post} lang={lang} autoPlayVideo={sheet.video} onClose={() => setSheet(null)} />}
+
         <div className="mb-2 flex items-center justify-between text-[11px] font-semibold text-slate-500 sm:text-xs">
           <span className="inline-flex items-center gap-1.5">
             <Clock className="size-3.5" />
@@ -557,6 +607,9 @@ export function saveSwipeFeed(posts: BlogPost[], startSlug: string) {
           meta_description: p.meta_description,
           og_image: p.og_image,
           video_url: p.video_url,
+          audio_url: p.audio_url,
+          presenter_name: p.presenter_name,
+          ai_assisted: p.ai_assisted,
           author_name: p.author_name,
           source_logo: p.source_logo,
           language: p.language,
