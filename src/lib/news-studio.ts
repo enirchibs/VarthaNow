@@ -113,6 +113,10 @@ export class NewsStudio {
   private personFromBackground = false;
   private segmenterLoading: Promise<void> | null = null;
   private smooth: Float32Array | null = null; // mask averaged over frames (less flicker)
+  private prob: Float32Array | null = null; // person probability for the current frame
+  // One copy of the camera frame per drawn frame: the model and the drawing must use the same
+  // picture, or the video advances while the model runs and the cut-out lags behind movement.
+  private frame = document.createElement("canvas");
   private raf = 0;
   private tickerX = STUDIO_W;
   private breakingX = 0;
@@ -352,47 +356,53 @@ export class NewsStudio {
     ctx.textAlign = "left";
   }
 
-  /** Confidence mask → alpha: average over frames, keep only the largest person shape, soft edges. */
-  private buildMask(conf: Float32Array, w: number, h: number) {
+  /**
+   * Person probability → alpha. Smoothed over frames only where the picture is steady (moving
+   * hands get the new mask at once, so no ghost trail), keeps the body plus any sizeable separate
+   * part such as a raised hand, drops small specks, and softens the edges.
+   */
+  private buildMask(prob: Float32Array, w: number, h: number) {
     const n = w * h;
     if (!this.smooth || this.smooth.length !== n) this.smooth = new Float32Array(n);
     const sm = this.smooth;
     for (let i = 0; i < n; i++) {
-      const p = this.personFromBackground ? 1 - conf[i] : conf[i];
-      sm[i] = sm[i] * 0.45 + p * 0.55;
+      const k = Math.abs(prob[i] - sm[i]) > 0.25 ? 0.9 : 0.55;
+      sm[i] = sm[i] * (1 - k) + prob[i] * k;
     }
-    // largest connected region above 0.4: drops stray patches such as lamps or posters
+    // connected regions above 0.45
+    const T = 0.45;
     const label = new Int32Array(n);
     const queue = new Int32Array(n);
-    let best = 0, bestSize = 0, next = 0;
+    const sizes: number[] = [0];
     for (let i = 0; i < n; i++) {
-      if (label[i] || sm[i] < 0.4) continue;
-      next++;
+      if (label[i] || sm[i] < T) continue;
+      const id = sizes.length;
       let head = 0, tail = 0, size = 0;
       queue[tail++] = i;
-      label[i] = next;
+      label[i] = id;
       while (head < tail) {
-        const k = queue[head++];
+        const q = queue[head++];
         size++;
-        const x = k % w, y = (k - x) / w;
-        if (x > 0 && !label[k - 1] && sm[k - 1] >= 0.4) { label[k - 1] = next; queue[tail++] = k - 1; }
-        if (x < w - 1 && !label[k + 1] && sm[k + 1] >= 0.4) { label[k + 1] = next; queue[tail++] = k + 1; }
-        if (y > 0 && !label[k - w] && sm[k - w] >= 0.4) { label[k - w] = next; queue[tail++] = k - w; }
-        if (y < h - 1 && !label[k + w] && sm[k + w] >= 0.4) { label[k + w] = next; queue[tail++] = k + w; }
+        const x = q % w, y = (q - x) / w;
+        if (x > 0 && !label[q - 1] && sm[q - 1] >= T) { label[q - 1] = id; queue[tail++] = q - 1; }
+        if (x < w - 1 && !label[q + 1] && sm[q + 1] >= T) { label[q + 1] = id; queue[tail++] = q + 1; }
+        if (y > 0 && !label[q - w] && sm[q - w] >= T) { label[q - w] = id; queue[tail++] = q - w; }
+        if (y < h - 1 && !label[q + w] && sm[q + w] >= T) { label[q + w] = id; queue[tail++] = q + w; }
       }
-      if (size > bestSize) { bestSize = size; best = next; }
+      sizes.push(size);
     }
+    const biggest = Math.max(0, ...sizes);
+    const keep = sizes.map((sz) => sz > 0 && sz >= Math.max(biggest * 0.06, 30));
     if (this.mask.width !== w || this.mask.height !== h) { this.mask.width = w; this.mask.height = h; }
     const mctx = this.mask.getContext("2d")!;
     const data = mctx.createImageData(w, h);
     for (let i = 0; i < n; i++) {
-      // inside the main shape: soft ramp; a thin halo just outside it keeps edges smooth
       let a = 0;
-      if (label[i] === best) a = Math.min(1, (sm[i] - 0.4) / 0.3 + 0.35);
-      else if (sm[i] > 0.15 && sm[i] < 0.4) {
+      if (keep[label[i]]) a = Math.min(1, (sm[i] - T) / 0.25 + 0.4);
+      else if (sm[i] > 0.15 && sm[i] < T) {
+        // thin halo just outside a kept shape keeps edges smooth
         const x = i % w;
-        const near = (x > 0 && label[i - 1] === best) || (x < w - 1 && label[i + 1] === best) || label[i - w] === best || label[i + w] === best;
-        if (near) a = sm[i];
+        if ((x > 0 && keep[label[i - 1]]) || (x < w - 1 && keep[label[i + 1]]) || (i >= w && keep[label[i - w]]) || (i + w < n && keep[label[i + w]])) a = sm[i];
       }
       data.data[i * 4 + 3] = a * 255;
     }
@@ -436,18 +446,38 @@ export class NewsStudio {
         this.drawBrand();
       }
       // 2. the presenter, cut out with the segmentation mask
+      const vw = video.videoWidth, vh = video.videoHeight;
+      if (this.frame.width !== vw || this.frame.height !== vh) { this.frame.width = vw; this.frame.height = vh; }
+      this.frame.getContext("2d")!.drawImage(video, 0, 0, vw, vh);
       const ts = Math.max(performance.now(), this.lastTs + 1);
       this.lastTs = ts;
-      const result = this.segmenter!.segmentForVideo(video, ts);
-      const m = result.confidenceMasks?.[0];
+      const result = this.segmenter!.segmentForVideo(this.frame, ts);
+      const masks = result.confidenceMasks ?? [];
+      const m = masks[0];
       if (m) {
-        this.buildMask(m.getAsFloat32Array(), m.width, m.height);
+        const n = m.width * m.height;
+        if (!this.prob || this.prob.length !== n) this.prob = new Float32Array(n);
+        const prob = this.prob;
+        if (this.personFromBackground && masks.length >= 5) {
+          // multi-class model: 0 background, 1 hair, 2 body skin, 3 face skin, 4 clothes, 5 other objects.
+          // Only the person classes count, so lamps and objects ("others") never show through.
+          prob.fill(0);
+          for (const c of [1, 2, 3, 4]) {
+            const arr = masks[c].getAsFloat32Array();
+            for (let i = 0; i < n; i++) prob[i] += arr[i];
+          }
+          for (let i = 0; i < n; i++) if (prob[i] > 1) prob[i] = 1;
+        } else {
+          const arr = m.getAsFloat32Array();
+          for (let i = 0; i < n; i++) prob[i] = this.personFromBackground ? 1 - arr[i] : arr[i];
+        }
+        this.buildMask(prob, m.width, m.height);
         const p = this.placement(bg.kind === "blur");
         if (bg.kind !== "blur") p.x += ({ left: -0.24, center: 0, right: 0.24 } as const)[this.settings.side ?? "center"] * STUDIO_W;
         const pctx = this.person.getContext("2d")!;
         pctx.globalCompositeOperation = "source-over";
         pctx.clearRect(0, 0, STUDIO_W, STUDIO_H);
-        pctx.drawImage(video, p.x, p.y, p.w, p.h);
+        pctx.drawImage(this.frame, p.x, p.y, p.w, p.h);
         pctx.globalCompositeOperation = "destination-in";
         pctx.filter = "blur(2px)"; // feather the upscaled mask edge
         pctx.drawImage(this.mask, p.x, p.y, p.w, p.h);
