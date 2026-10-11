@@ -25,13 +25,22 @@ jobs:
     - name: Install Telugu Font
       run: sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-core
 
-    # 60-word Telugu shorts written by Gemini; replaces the old ingest + ai-queue steps.
+    # 50-100 word Telugu articles written by Gemini from one or two outlets.
     - name: Write News Shorts
       env:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      run: npm run news -- --max=5
+      run: |
+        set -o pipefail
+        npm run news -- --max=5 2>&1 | tee news.log
+
+    # On failure, surface the last lines as annotations (visible on the run page and via the API;
+    # GitHub masks secret values in them).
+    - name: Report news failure
+      if: failure()
+      run: |
+        grep -v "feed failed" news.log | tail -n 8 | sed 's/^/::error::/' || true
 
     # Short videos from official channels only (scripts/config/video-channels.json), with our Telugu context.
     - name: Add Short Videos
