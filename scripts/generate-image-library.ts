@@ -250,6 +250,7 @@ function loadState(): GenerationState {
 }
 
 function saveState(state: GenerationState) {
+  if (isDryRun) return;
   state.last_run_at = new Date().toISOString();
   state.total_uploaded = Object.values(state.assets).filter((a) => a.status === "uploaded").length;
   const dir = path.dirname(STATE_FILE);

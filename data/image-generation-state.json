@@ -1,0 +1,3589 @@
+{
+  "last_run_at": "2026-10-11T07:33:08.081Z",
+  "total_uploaded": 511,
+  "assets": {
+    "EVT-POL-0001": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:14.735Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0001.webp",
+      "image_hash": "0b0f330f8f8e0f0e"
+    },
+    "CAT-TILE-0001": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:14.095Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/andhra-pradesh/CAT-TILE-0001.webp",
+      "image_hash": "bc77dfdffd51e0ff"
+    },
+    "EVT-POL-0003": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:15.807Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0003.webp",
+      "image_hash": "031313b2cecb4dcc"
+    },
+    "EVT-POL-0023": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:20.983Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0023.webp",
+      "image_hash": "2c21332b16b93971"
+    },
+    "GEN-NWS-0001": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:21.901Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0001.webp",
+      "image_hash": "1f37f0f3d3630d9b"
+    },
+    "GEN-NWS-0041": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:22.342Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0041.webp",
+      "image_hash": "3333170f0f0f170b"
+    },
+    "PLC-INF-0001": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:22.732Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0001.webp",
+      "image_hash": "0b0303024a6f0141"
+    },
+    "PLC-INF-0021": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:23.158Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0021.webp",
+      "image_hash": "0b131503c67162b2"
+    },
+    "PLC-INF-0023": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:23.635Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0023.webp",
+      "image_hash": "0d052fa32d6dd962"
+    },
+    "PPL-PRF-0001": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:24.033Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0001.webp",
+      "image_hash": "06244a68b2a2c078"
+    },
+    "PPL-PRF-0011": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:24.555Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0011.webp",
+      "image_hash": "07019391d090b839"
+    },
+    "PPL-PRF-0041": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:24.942Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0041.webp",
+      "image_hash": "cecaccecac9c9c87"
+    },
+    "PPL-PRF-0051": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:25.374Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0051.webp",
+      "image_hash": "313052492f271707"
+    },
+    "SCN-CMB-0021": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:25.803Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0021.webp",
+      "image_hash": "f34bc4b2c7968ede"
+    },
+    "EVT-POL-0002": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:15.384Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0002.webp",
+      "image_hash": "0f4f2b4d0d0f0f0d"
+    },
+    "EVT-POL-0004": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:16.219Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0004.webp",
+      "image_hash": "43647a5b237b565f"
+    },
+    "EVT-POL-0005": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:16.641Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0005.webp",
+      "image_hash": "0405052505071703"
+    },
+    "EVT-POL-0006": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:17.077Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0006.webp",
+      "image_hash": "23479b3b97a5a5b1"
+    },
+    "EVT-POL-0011": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:19.584Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0011.webp",
+      "image_hash": "9df55331b6727363"
+    },
+    "EVT-POL-0021": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:20.124Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0021.webp",
+      "image_hash": "d8194d8b16141823"
+    },
+    "EVT-POL-0022": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:20.579Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0022.webp",
+      "image_hash": "56647834b7af6d6e"
+    },
+    "EVT-POL-0031": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:21.421Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0031.webp",
+      "image_hash": "1070788aaaaba094"
+    },
+    "EVT-POL-0007": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:17.542Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0007.webp",
+      "image_hash": "1e82841c8f8fa9f1"
+    },
+    "EVT-POL-0008": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:17.962Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0008.webp",
+      "image_hash": "034b4d4455570e17"
+    },
+    "EVT-POL-0009": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:18.487Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0009.webp",
+      "image_hash": "2f0e6963498d8e00"
+    },
+    "EVT-POL-0010": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:34:18.905Z",
+      "model": "gemini-3.1-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0010.webp",
+      "image_hash": "4d4f7574741c3d7f"
+    },
+    "EVT-POL-0012": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:56:27.013Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0012.webp",
+      "image_hash": "6d0c4dcd1f4f4f4f"
+    },
+    "EVT-POL-0013": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:59:32.586Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0013.webp",
+      "image_hash": "f3e3f3ffffdfa7cd"
+    },
+    "EVT-POL-0014": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:59:45.687Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0014.webp",
+      "image_hash": "0f8ccd2df25d0f0f"
+    },
+    "EVT-POL-0015": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T09:59:58.485Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0015.webp",
+      "image_hash": "db8fa6ce96337333"
+    },
+    "EVT-POL-0016": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:00:11.366Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0016.webp",
+      "image_hash": "4dca8cccd5c44c4c"
+    },
+    "EVT-POL-0017": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:00:22.968Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0017.webp",
+      "image_hash": "d496163333333331"
+    },
+    "EVT-POL-0018": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:03:12.564Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0018.webp",
+      "image_hash": "5e3bcef3b292928f"
+    },
+    "EVT-POL-0019": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:03:27.397Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0019.webp",
+      "image_hash": "c646466e59da278d"
+    },
+    "EVT-POL-0020": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:03:38.891Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0020.webp",
+      "image_hash": "557b4d49ff1f675b"
+    },
+    "EVT-POL-0024": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:03:50.029Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0024.webp",
+      "image_hash": "6f6f272121d175ac"
+    },
+    "EVT-POL-0025": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:04:01.949Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0025.webp",
+      "image_hash": "2f27062a26322626"
+    },
+    "EVT-POL-0026": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:04:15.386Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0026.webp",
+      "image_hash": "1596b7335929454c"
+    },
+    "EVT-POL-0027": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:04:26.206Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0027.webp",
+      "image_hash": "d8cbc98cc4c676e2"
+    },
+    "EVT-POL-0028": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:04:38.432Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0028.webp",
+      "image_hash": "4f0f8692929e0e04"
+    },
+    "EVT-POL-0029": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:04:51.957Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0029.webp",
+      "image_hash": "b3bfcdcfd22c0d47"
+    },
+    "EVT-POL-0030": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:05:03.739Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0030.webp",
+      "image_hash": "c7d5d43cf2fce7f8"
+    },
+    "EVT-POL-0032": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:05:12.776Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0032.webp",
+      "image_hash": "0f3d2ce4a4c79a1d"
+    },
+    "EVT-POL-0033": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:05:24.251Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0033.webp",
+      "image_hash": "4b4b534fc6c3e262"
+    },
+    "EVT-POL-0034": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:05:35.468Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0034.webp",
+      "image_hash": "54f5e5f10d8bc1e0"
+    },
+    "EVT-POL-0035": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:05:48.006Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0035.webp",
+      "image_hash": "fdaea2e6e2e74100"
+    },
+    "EVT-POL-0036": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:06:00.005Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0036.webp",
+      "image_hash": "4849482c3715c80e"
+    },
+    "EVT-POL-0037": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:06:11.366Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0037.webp",
+      "image_hash": "f0586878d08e8440"
+    },
+    "EVT-POL-0038": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:06:24.255Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0038.webp",
+      "image_hash": "6f67674d4f734b63"
+    },
+    "EVT-POL-0039": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:06:35.141Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0039.webp",
+      "image_hash": "6e436656e7a79810"
+    },
+    "EVT-POL-0040": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:06:46.502Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0040.webp",
+      "image_hash": "644d4c1458106060"
+    },
+    "EVT-POL-0041": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:06:58.406Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0041.webp",
+      "image_hash": "f1f0f072f286ea01"
+    },
+    "EVT-POL-0042": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:07:07.398Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0042.webp",
+      "image_hash": "1bdcb23174734e0f"
+    },
+    "EVT-POL-0043": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:07:18.689Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0043.webp",
+      "image_hash": "0f0bd54d170f8e8d"
+    },
+    "EVT-POL-0044": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:07:29.727Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0044.webp",
+      "image_hash": "c1f79fbbf2c34f55"
+    },
+    "EVT-POL-0045": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:07:41.491Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0045.webp",
+      "image_hash": "01a56970344c4acb"
+    },
+    "EVT-POL-0046": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:07:51.931Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0046.webp",
+      "image_hash": "9312060e0f98080f"
+    },
+    "EVT-POL-0047": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:08:03.192Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0047.webp",
+      "image_hash": "bfff3b3b0b0f1b1f"
+    },
+    "EVT-POL-0048": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:08:15.560Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0048.webp",
+      "image_hash": "6b597cb8fcd90d1e"
+    },
+    "EVT-POL-0049": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:08:29.007Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0049.webp",
+      "image_hash": "d6d6d6f2b3c99111"
+    },
+    "EVT-POL-0050": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:08:42.136Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0050.webp",
+      "image_hash": "cc8cecc8e66626b6"
+    },
+    "EVT-POL-0051": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:08:54.930Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0051.webp",
+      "image_hash": "c654726dd9636307"
+    },
+    "EVT-POL-0052": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:09:05.618Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0052.webp",
+      "image_hash": "3b1b3b3b3b333337"
+    },
+    "EVT-POL-0053": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:09:17.720Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0053.webp",
+      "image_hash": "0f19496f271f1b1b"
+    },
+    "EVT-POL-0054": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:09:29.701Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0054.webp",
+      "image_hash": "faed6e2af9ffffff"
+    },
+    "EVT-POL-0055": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:09:41.077Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0055.webp",
+      "image_hash": "2e879346061e1656"
+    },
+    "EVT-POL-0056": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:09:52.479Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0056.webp",
+      "image_hash": "d45656c7c5cd8700"
+    },
+    "EVT-POL-0057": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:10:06.009Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0057.webp",
+      "image_hash": "3bb3636d7d73ebeb"
+    },
+    "EVT-POL-0058": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:10:17.945Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0058.webp",
+      "image_hash": "12181a5c1878b030"
+    },
+    "EVT-POL-0059": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:10:29.615Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0059.webp",
+      "image_hash": "f9e89bee6379a59f"
+    },
+    "EVT-POL-0060": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:10:42.130Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0060.webp",
+      "image_hash": "084ad3b7c7ee2b81"
+    },
+    "EVT-POL-0061": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:10:56.243Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0061.webp",
+      "image_hash": "0f0d0f0f1bc94f0d"
+    },
+    "EVT-POL-0062": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:11:08.854Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0062.webp",
+      "image_hash": "07cc2d4aeaa88c46"
+    },
+    "EVT-POL-0063": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:11:20.751Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0063.webp",
+      "image_hash": "8339082221430e05"
+    },
+    "EVT-POL-0064": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:11:31.535Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0064.webp",
+      "image_hash": "2b333373676f63e9"
+    },
+    "EVT-POL-0065": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:11:45.223Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0065.webp",
+      "image_hash": "00cc062061032315"
+    },
+    "EVT-POL-0066": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:11:57.930Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0066.webp",
+      "image_hash": "ec6ce4cc8ccc8683"
+    },
+    "EVT-POL-0067": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:12:10.108Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0067.webp",
+      "image_hash": "031333c892b2b2a8"
+    },
+    "EVT-POL-0068": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:12:21.872Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0068.webp",
+      "image_hash": "350c798e8d783f7f"
+    },
+    "EVT-POL-0069": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:12:33.233Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0069.webp",
+      "image_hash": "1ba9b2860a04a079"
+    },
+    "EVT-POL-0070": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:12:45.775Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0070.webp",
+      "image_hash": "7f6d44848c955931"
+    },
+    "EVT-POL-0071": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:12:56.644Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0071.webp",
+      "image_hash": "7fb3166cd6bab91f"
+    },
+    "EVT-POL-0072": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:13:05.637Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0072.webp",
+      "image_hash": "a4a02008150d099a"
+    },
+    "EVT-POL-0073": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:13:16.022Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0073.webp",
+      "image_hash": "cd33f20000000000"
+    },
+    "EVT-POL-0074": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:13:27.724Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0074.webp",
+      "image_hash": "00008e698aca4933"
+    },
+    "EVT-POL-0075": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:13:39.166Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0075.webp",
+      "image_hash": "30314c3d8c0f0701"
+    },
+    "EVT-POL-0076": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:13:50.459Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0076.webp",
+      "image_hash": "919dd2927aea4b95"
+    },
+    "EVT-POL-0077": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:14:01.074Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0077.webp",
+      "image_hash": "3898884c2d19cc50"
+    },
+    "EVT-POL-0078": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:14:11.879Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0078.webp",
+      "image_hash": "9478b312b0c00002"
+    },
+    "EVT-POL-0079": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:14:25.142Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0079.webp",
+      "image_hash": "ce8cc68a8bc0cc8e"
+    },
+    "EVT-POL-0080": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:14:37.802Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0080.webp",
+      "image_hash": "1f2d0f2be85dce32"
+    },
+    "EVT-POL-0081": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:14:49.156Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0081.webp",
+      "image_hash": "b2322b4d8e8e0f00"
+    },
+    "EVT-POL-0082": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:14:57.457Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0082.webp",
+      "image_hash": "d77f7feecc96274f"
+    },
+    "EVT-POL-0083": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:15:08.067Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0083.webp",
+      "image_hash": "fbfb7bd3d3f161cc"
+    },
+    "EVT-POL-0084": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:15:21.238Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0084.webp",
+      "image_hash": "6d2e262c1e0e286c"
+    },
+    "EVT-POL-0085": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:15:33.042Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0085.webp",
+      "image_hash": "96b292d496968eb4"
+    },
+    "EVT-POL-0086": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:15:44.865Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0086.webp",
+      "image_hash": "7377ebcf83173741"
+    },
+    "EVT-POL-0087": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:15:58.038Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0087.webp",
+      "image_hash": "a7e7a7a7c6162703"
+    },
+    "EVT-POL-0088": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:16:09.316Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0088.webp",
+      "image_hash": "64d36361cb635b00"
+    },
+    "EVT-POL-0089": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:16:20.535Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0089.webp",
+      "image_hash": "cc24530a96832300"
+    },
+    "EVT-POL-0090": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:16:30.895Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0090.webp",
+      "image_hash": "7feef6e6d797963b"
+    },
+    "EVT-POL-0091": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:16:42.518Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0091.webp",
+      "image_hash": "aab2d0f0f0960b69"
+    },
+    "EVT-POL-0092": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:16:51.922Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0092.webp",
+      "image_hash": "e969a3aaaaaa6929"
+    },
+    "EVT-POL-0093": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:17:04.774Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0093.webp",
+      "image_hash": "9292d2d2f9dbd8d8"
+    },
+    "EVT-POL-0094": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:17:17.904Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0094.webp",
+      "image_hash": "46de95933371dd4b"
+    },
+    "EVT-POL-0095": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:17:30.965Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0095.webp",
+      "image_hash": "163f17cc86933333"
+    },
+    "EVT-POL-0096": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:17:43.632Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0096.webp",
+      "image_hash": "6d69696bb369ce87"
+    },
+    "EVT-POL-0097": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:17:55.409Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0097.webp",
+      "image_hash": "2307071213535133"
+    },
+    "EVT-POL-0098": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:18:07.045Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0098.webp",
+      "image_hash": "8f9f0f2b0f8e8f0f"
+    },
+    "EVT-POL-0099": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:18:21.116Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0099.webp",
+      "image_hash": "c1632c2c3e3d8b41"
+    },
+    "EVT-POL-0100": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:18:34.015Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/EVT-POL-0100.webp",
+      "image_hash": "4e173b0baf170f0f"
+    },
+    "PPL-PRF-0002": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:18:46.886Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0002.webp",
+      "image_hash": "372f6f63030d138c"
+    },
+    "PPL-PRF-0003": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:18:57.952Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0003.webp",
+      "image_hash": "b954dcfcbd2d2d44"
+    },
+    "PPL-PRF-0004": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:19:10.645Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0004.webp",
+      "image_hash": "0b9b2835a123ad96"
+    },
+    "PPL-PRF-0005": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:19:22.315Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0005.webp",
+      "image_hash": "9954a623b32b3336"
+    },
+    "PPL-PRF-0006": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:19:33.747Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0006.webp",
+      "image_hash": "fe5e5b6269792763"
+    },
+    "PPL-PRF-0007": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:19:45.626Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0007.webp",
+      "image_hash": "aa6d4d5ac49a8a96"
+    },
+    "PPL-PRF-0008": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:19:59.703Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0008.webp",
+      "image_hash": "8b8b2f0b6d743cbc"
+    },
+    "PPL-PRF-0009": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:20:11.806Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0009.webp",
+      "image_hash": "4972131f0f0f1f1f"
+    },
+    "PPL-PRF-0010": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:20:24.446Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0010.webp",
+      "image_hash": "a76fcf4e0d0f0f0f"
+    },
+    "PPL-PRF-0012": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:20:36.245Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0012.webp",
+      "image_hash": "6fff6c607c74746d"
+    },
+    "PPL-PRF-0013": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:20:49.916Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0013.webp",
+      "image_hash": "38b4c4ce9e8e8f9f"
+    },
+    "PPL-PRF-0014": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:20:59.682Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0014.webp",
+      "image_hash": "3ff79d8ea7f3e9e6"
+    },
+    "PPL-PRF-0015": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:21:11.940Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0015.webp",
+      "image_hash": "db3ff3dfd3ffffff"
+    },
+    "PPL-PRF-0016": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:21:24.355Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0016.webp",
+      "image_hash": "3fdfdf5f2f6b2f3f"
+    },
+    "PPL-PRF-0017": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:21:36.452Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0017.webp",
+      "image_hash": "cf9f73595b7b57e4"
+    },
+    "PPL-PRF-0018": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:21:48.780Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0018.webp",
+      "image_hash": "0f0f3fb5aa490707"
+    },
+    "PPL-PRF-0019": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:22:00.244Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0019.webp",
+      "image_hash": "ab844747cfdb1313"
+    },
+    "PPL-PRF-0020": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:22:15.868Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0020.webp",
+      "image_hash": "8782b295add9b973"
+    },
+    "PPL-PRF-0021": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:22:29.792Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0021.webp",
+      "image_hash": "cbcfcfdfddf7e300"
+    },
+    "PPL-PRF-0022": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:22:42.369Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0022.webp",
+      "image_hash": "4b4b5d5c0e0e0e0f"
+    },
+    "PPL-PRF-0023": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:22:53.134Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0023.webp",
+      "image_hash": "d4d559870f1f1f1d"
+    },
+    "PPL-PRF-0024": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:23:02.876Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0024.webp",
+      "image_hash": "f3f3dbdb6fffdfdf"
+    },
+    "PPL-PRF-0025": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:23:13.010Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0025.webp",
+      "image_hash": "d757670f6ffc79bf"
+    },
+    "PPL-PRF-0026": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:23:26.110Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0026.webp",
+      "image_hash": "6569696f6d5d3d1f"
+    },
+    "PPL-PRF-0027": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:23:37.934Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0027.webp",
+      "image_hash": "7777370f1f4f6f17"
+    },
+    "PPL-PRF-0028": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:23:50.479Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0028.webp",
+      "image_hash": "c9851d3d8b070008"
+    },
+    "PPL-PRF-0029": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:24:02.840Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0029.webp",
+      "image_hash": "7e36e6e545c54ecc"
+    },
+    "PPL-PRF-0030": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:24:16.521Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0030.webp",
+      "image_hash": "6a7d59d7bb32f5ed"
+    },
+    "PPL-PRF-0031": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:24:28.898Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0031.webp",
+      "image_hash": "6e7a5a5aab29b901"
+    },
+    "PPL-PRF-0032": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:24:40.787Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0032.webp",
+      "image_hash": "5f5f9dbdd92f1f00"
+    },
+    "PPL-PRF-0033": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:24:52.835Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0033.webp",
+      "image_hash": "cfcec6ddc3b32700"
+    },
+    "PPL-PRF-0034": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:25:02.829Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0034.webp",
+      "image_hash": "54ece88e8eae8c00"
+    },
+    "PPL-PRF-0035": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:25:14.349Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0035.webp",
+      "image_hash": "2e1c0c0d80cc8e04"
+    },
+    "PPL-PRF-0036": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:25:26.635Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0036.webp",
+      "image_hash": "696b71f321000810"
+    },
+    "PPL-PRF-0037": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:25:37.784Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0037.webp",
+      "image_hash": "2b2cac2d13131300"
+    },
+    "PPL-PRF-0038": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:25:51.208Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0038.webp",
+      "image_hash": "6b7337726969e81d"
+    },
+    "PPL-PRF-0039": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:26:05.442Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0039.webp",
+      "image_hash": "252d6c1a1b0b0b0d"
+    },
+    "PPL-PRF-0040": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:26:18.914Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0040.webp",
+      "image_hash": "92f1b3c895969696"
+    },
+    "PPL-PRF-0042": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:26:33.058Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0042.webp",
+      "image_hash": "737e7bf231b98d86"
+    },
+    "PPL-PRF-0043": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:26:44.769Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0043.webp",
+      "image_hash": "98b2ac948c0e1e34"
+    },
+    "PPL-PRF-0044": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:26:56.684Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0044.webp",
+      "image_hash": "b8afaba39e7e7ef8"
+    },
+    "PPL-PRF-0045": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:27:05.106Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0045.webp",
+      "image_hash": "3f7b7b2e2f1b0f4d"
+    },
+    "PPL-PRF-0046": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:27:17.228Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0046.webp",
+      "image_hash": "73343e3415899950"
+    },
+    "PPL-PRF-0047": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:27:29.207Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0047.webp",
+      "image_hash": "6f2f3bad99d97371"
+    },
+    "PPL-PRF-0048": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:27:41.289Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0048.webp",
+      "image_hash": "4c3a271ecee66766"
+    },
+    "PPL-PRF-0049": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:27:51.972Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0049.webp",
+      "image_hash": "6e6c7776773ab080"
+    },
+    "PPL-PRF-0050": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:28:04.744Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0050.webp",
+      "image_hash": "bdbcaccb63e76763"
+    },
+    "PPL-PRF-0052": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:28:17.345Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0052.webp",
+      "image_hash": "d585c5c56124370f"
+    },
+    "PPL-PRF-0053": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:28:29.659Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0053.webp",
+      "image_hash": "fffffff9b9703434"
+    },
+    "PPL-PRF-0054": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:28:41.562Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0054.webp",
+      "image_hash": "e3b2f66a28480107"
+    },
+    "PPL-PRF-0055": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:28:53.963Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0055.webp",
+      "image_hash": "d4476a6b5fcf5f5f"
+    },
+    "PPL-PRF-0056": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:29:05.900Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0056.webp",
+      "image_hash": "a3a6aa2a998cd4c4"
+    },
+    "PPL-PRF-0057": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:29:17.343Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0057.webp",
+      "image_hash": "7868645070604004"
+    },
+    "PPL-PRF-0058": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:29:29.519Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0058.webp",
+      "image_hash": "4b53d0d4dc5c3f07"
+    },
+    "PPL-PRF-0059": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:29:41.823Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0059.webp",
+      "image_hash": "5b6b636361cdc5e0"
+    },
+    "PPL-PRF-0060": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:29:57.175Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0060.webp",
+      "image_hash": "7f6f73756f6d6ded"
+    },
+    "PPL-PRF-0061": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:30:08.599Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0061.webp",
+      "image_hash": "7565627e6c7c7efe"
+    },
+    "PPL-PRF-0062": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:30:19.258Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0062.webp",
+      "image_hash": "fff3d293b3f39301"
+    },
+    "PPL-PRF-0063": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:30:30.410Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0063.webp",
+      "image_hash": "553333332f2b332b"
+    },
+    "PPL-PRF-0064": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:30:41.474Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0064.webp",
+      "image_hash": "fdf5e4adededf7ff"
+    },
+    "PPL-PRF-0065": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:30:54.009Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0065.webp",
+      "image_hash": "0b3f2b3e3e0f350d"
+    },
+    "PPL-PRF-0066": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:31:04.416Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0066.webp",
+      "image_hash": "61a1a4a2a3a32113"
+    },
+    "PPL-PRF-0067": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:31:16.431Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0067.webp",
+      "image_hash": "1d0d0d4d2564458b"
+    },
+    "PPL-PRF-0068": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:31:27.733Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0068.webp",
+      "image_hash": "0f8e8c176ba7555d"
+    },
+    "PPL-PRF-0069": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:31:38.330Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0069.webp",
+      "image_hash": "7dfc7eed6d6def3f"
+    },
+    "PPL-PRF-0070": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:45:13.722Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0070.webp",
+      "image_hash": "c6cccccc18e8f0da"
+    },
+    "PPL-PRF-0071": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:31:54.840Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0071.webp",
+      "image_hash": "7c7434f57357fd7b"
+    },
+    "PPL-PRF-0072": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:32:06.099Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0072.webp",
+      "image_hash": "9c948cb492b8888a"
+    },
+    "PPL-PRF-0073": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:32:16.595Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0073.webp",
+      "image_hash": "e0719cc044608040"
+    },
+    "PPL-PRF-0074": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:32:26.787Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0074.webp",
+      "image_hash": "c7db4303070a0e20"
+    },
+    "PPL-PRF-0075": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:32:38.496Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0075.webp",
+      "image_hash": "9e9eb2a686d20000"
+    },
+    "PPL-PRF-0076": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:32:47.209Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0076.webp",
+      "image_hash": "b6a684a094763217"
+    },
+    "PPL-PRF-0077": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:32:59.356Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0077.webp",
+      "image_hash": "0d0f1727a7233340"
+    },
+    "PPL-PRF-0078": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:33:11.203Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0078.webp",
+      "image_hash": "3a6e3a3b3b3a1b1d"
+    },
+    "PPL-PRF-0079": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:33:22.494Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0079.webp",
+      "image_hash": "fbfffffe0f3b7eef"
+    },
+    "PPL-PRF-0080": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:33:34.674Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0080.webp",
+      "image_hash": "006f4f4f07434100"
+    },
+    "PPL-PRF-0081": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:33:47.513Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0081.webp",
+      "image_hash": "2d694f0b07375997"
+    },
+    "PPL-PRF-0082": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:33:58.336Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0082.webp",
+      "image_hash": "2d232325888c8080"
+    },
+    "PPL-PRF-0083": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:34:11.266Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0083.webp",
+      "image_hash": "051d5d4d1d9c8c03"
+    },
+    "PPL-PRF-0084": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:34:22.811Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0084.webp",
+      "image_hash": "5d65666e5d1d0d4d"
+    },
+    "PPL-PRF-0085": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:34:36.275Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0085.webp",
+      "image_hash": "fafed9d9939ffefa"
+    },
+    "PPL-PRF-0086": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:34:46.892Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0086.webp",
+      "image_hash": "279999091949584c"
+    },
+    "PPL-PRF-0087": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:35:00.205Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0087.webp",
+      "image_hash": "f1f5f7fb33333327"
+    },
+    "PPL-PRF-0088": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:35:13.684Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0088.webp",
+      "image_hash": "3b6b3b8f59b0767d"
+    },
+    "PPL-PRF-0089": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:35:26.914Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0089.webp",
+      "image_hash": "eff67c76f7fefee4"
+    },
+    "PPL-PRF-0090": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:35:37.966Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0090.webp",
+      "image_hash": "2e262e3e361e1f07"
+    },
+    "PPL-PRF-0091": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:35:49.078Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0091.webp",
+      "image_hash": "bf17133333370000"
+    },
+    "PPL-PRF-0092": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:36:01.513Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0092.webp",
+      "image_hash": "294c94d47069ecdc"
+    },
+    "PPL-PRF-0093": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:36:14.341Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0093.webp",
+      "image_hash": "eb2b4f3b78fc5e1e"
+    },
+    "PPL-PRF-0094": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:36:25.190Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0094.webp",
+      "image_hash": "32323a0599137104"
+    },
+    "PPL-PRF-0095": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:36:39.638Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0095.webp",
+      "image_hash": "323333313336262e"
+    },
+    "PPL-PRF-0096": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:36:49.988Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0096.webp",
+      "image_hash": "4d4d545999a79b17"
+    },
+    "PPL-PRF-0097": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:37:03.356Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0097.webp",
+      "image_hash": "47a4272723216171"
+    },
+    "PPL-PRF-0098": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:37:17.519Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0098.webp",
+      "image_hash": "33173732376f1b7b"
+    },
+    "PPL-PRF-0099": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:37:29.418Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0099.webp",
+      "image_hash": "15b53766f66777f5"
+    },
+    "PPL-PRF-0100": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:37:41.676Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/people/PPL-PRF-0100.webp",
+      "image_hash": "3717161292169616"
+    },
+    "PLC-INF-0002": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:37:53.519Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0002.webp",
+      "image_hash": "bf4762d5f0e51dff"
+    },
+    "PLC-INF-0003": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:38:05.419Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0003.webp",
+      "image_hash": "2167ec1efe01050b"
+    },
+    "PLC-INF-0004": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:38:17.607Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0004.webp",
+      "image_hash": "8e8c2fc58497b726"
+    },
+    "PLC-INF-0005": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:38:27.770Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0005.webp",
+      "image_hash": "99b62f3cfefbf2f2"
+    },
+    "PLC-INF-0006": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:38:39.636Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0006.webp",
+      "image_hash": "65c1e9f03030f100"
+    },
+    "PLC-INF-0007": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:38:49.689Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0007.webp",
+      "image_hash": "dcdafaecedf5dd1e"
+    },
+    "PLC-INF-0008": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:39:02.165Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0008.webp",
+      "image_hash": "bdb1f85d5940548b"
+    },
+    "PLC-INF-0009": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:39:14.457Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0009.webp",
+      "image_hash": "67c3f1d0c3c16243"
+    },
+    "PLC-INF-0010": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:39:27.927Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0010.webp",
+      "image_hash": "d6b1fcf090000000"
+    },
+    "PLC-INF-0011": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:39:38.484Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0011.webp",
+      "image_hash": "fffef2eba4310000"
+    },
+    "PLC-INF-0012": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:39:51.811Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0012.webp",
+      "image_hash": "1f1f0f1330582dae"
+    },
+    "PLC-INF-0013": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:40:03.486Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0013.webp",
+      "image_hash": "333333333737333c"
+    },
+    "PLC-INF-0014": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:40:14.030Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0014.webp",
+      "image_hash": "cdcb9d35fcecacf8"
+    },
+    "PLC-INF-0015": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:40:27.963Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0015.webp",
+      "image_hash": "00282e86c5420600"
+    },
+    "PLC-INF-0016": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:40:40.409Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0016.webp",
+      "image_hash": "36464f3af026760e"
+    },
+    "PLC-INF-0017": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:40:50.756Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0017.webp",
+      "image_hash": "37feb667df6a1105"
+    },
+    "PLC-INF-0018": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:41:02.515Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0018.webp",
+      "image_hash": "fc59e53d11810000"
+    },
+    "PLC-INF-0019": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:41:13.225Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0019.webp",
+      "image_hash": "878796c38d0d0d08"
+    },
+    "PLC-INF-0020": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:41:24.831Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0020.webp",
+      "image_hash": "97371753478f2266"
+    },
+    "PLC-INF-0022": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:41:38.361Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0022.webp",
+      "image_hash": "56567252326b6b37"
+    },
+    "PLC-INF-0024": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:41:51.103Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0024.webp",
+      "image_hash": "1d1d9eb1999d9d1f"
+    },
+    "PLC-INF-0025": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:42:02.995Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0025.webp",
+      "image_hash": "0f41c67186f00000"
+    },
+    "PLC-INF-0026": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:42:13.329Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0026.webp",
+      "image_hash": "ff73319010d02c31"
+    },
+    "PLC-INF-0027": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:42:26.691Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0027.webp",
+      "image_hash": "6169616179616169"
+    },
+    "PLC-INF-0028": {
+      "status": "uploaded",
+      "updated_at": "2026-10-10T10:42:39.729Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0028.webp",
+      "image_hash": "cbc3b2d0d210bd2d"
+    },
+    "PLC-INF-0029": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T06:59:43.393Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0029.webp",
+      "image_hash": "4c4d4d4d4c0c4c4d"
+    },
+    "PLC-INF-0031": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:01:36.482Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0031.webp",
+      "image_hash": "c91395d43394b533"
+    },
+    "PLC-INF-0030": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:01:37.043Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0030.webp",
+      "image_hash": "fefbfbeb7d1da189"
+    },
+    "PLC-INF-0033": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:01:46.040Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0033.webp",
+      "image_hash": "3172d6a0aa696d64"
+    },
+    "PLC-INF-0032": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:01:46.973Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0032.webp",
+      "image_hash": "b33696cac3c1162a"
+    },
+    "PLC-INF-0034": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:01:57.689Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0034.webp",
+      "image_hash": "8383a3e470306ca9"
+    },
+    "PLC-INF-0035": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:01:57.739Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0035.webp",
+      "image_hash": "b4909c9c9c98154c"
+    },
+    "PLC-INF-0036": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:06.837Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0036.webp",
+      "image_hash": "cccccce4c88a8c80"
+    },
+    "PLC-INF-0037": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:07.339Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0037.webp",
+      "image_hash": "0e1f3e3f3f969454"
+    },
+    "PLC-INF-0038": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:16.141Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0038.webp",
+      "image_hash": "c0100064749c86a6"
+    },
+    "PLC-INF-0039": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:16.698Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0039.webp",
+      "image_hash": "1b1b3b33332c2d19"
+    },
+    "PLC-INF-0041": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:27.246Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0041.webp",
+      "image_hash": "e7c389706046a320"
+    },
+    "PLC-INF-0040": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:27.314Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0040.webp",
+      "image_hash": "1c284cceb0b48c8c"
+    },
+    "PLC-INF-0042": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:35.892Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0042.webp",
+      "image_hash": "1f8c78d2d464ff1f"
+    },
+    "PLC-INF-0043": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:38.160Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0043.webp",
+      "image_hash": "1396356004840600"
+    },
+    "PLC-INF-0044": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:47.286Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0044.webp",
+      "image_hash": "71f4cccef8f9cc1d"
+    },
+    "PLC-INF-0045": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:47.304Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0045.webp",
+      "image_hash": "61694cc471075e9b"
+    },
+    "PLC-INF-0046": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:57.618Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0046.webp",
+      "image_hash": "050c0ce8f2d40213"
+    },
+    "PLC-INF-0047": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:02:58.315Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0047.webp",
+      "image_hash": "3d023b0d2f232f2f"
+    },
+    "PLC-INF-0049": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:03:07.364Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0049.webp",
+      "image_hash": "9ab3e1d2e48c6640"
+    },
+    "PLC-INF-0048": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:03:08.503Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0048.webp",
+      "image_hash": "464d2c67e0622844"
+    },
+    "PLC-INF-0050": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:03:18.338Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0050.webp",
+      "image_hash": "a68e8f8e8ed44401"
+    },
+    "PLC-INF-0051": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:03:18.485Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0051.webp",
+      "image_hash": "0f0fcf8d16ca662d"
+    },
+    "PLC-INF-0052": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:03:28.394Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0052.webp",
+      "image_hash": "bf9fed9ddbcc8c8d"
+    },
+    "PLC-INF-0053": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:03:29.499Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0053.webp",
+      "image_hash": "b1310d4d4d0d4d0d"
+    },
+    "PLC-INF-0054": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:03:37.771Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0054.webp",
+      "image_hash": "d94e3cfce0378000"
+    },
+    "PLC-INF-0055": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:03:37.855Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0055.webp",
+      "image_hash": "f3f2313910602833"
+    },
+    "PLC-INF-0057": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:03:47.289Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0057.webp",
+      "image_hash": "8be76366a7a79402"
+    },
+    "PLC-INF-0056": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:03:49.893Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0056.webp",
+      "image_hash": "0f0f0e4d4d8d090d"
+    },
+    "PLC-INF-0058": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:03:58.609Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0058.webp",
+      "image_hash": "7571632bcfce75f3"
+    },
+    "PLC-INF-0059": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:04:00.518Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0059.webp",
+      "image_hash": "0f0e4f4f0b6cc9cc"
+    },
+    "PLC-INF-0061": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:04:09.543Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0061.webp",
+      "image_hash": "0f0f0e0f0f0f0f0f"
+    },
+    "PLC-INF-0060": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:04:09.758Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0060.webp",
+      "image_hash": "d5d4ec6b79caf4c4"
+    },
+    "PLC-INF-0063": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:04:18.702Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0063.webp",
+      "image_hash": "c596e0cc980d0dc8"
+    },
+    "PLC-INF-0062": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:04:20.758Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0062.webp",
+      "image_hash": "fffffffcfce4cd2f"
+    },
+    "PLC-INF-0064": {
+      "status": "duplicate",
+      "updated_at": "2026-10-11T07:04:30.089Z",
+      "reason": "Near-duplicate of PLC-INF-0061 (dist=4)",
+      "image_hash": "4f0f0f0f0f4f2f0f"
+    },
+    "PLC-INF-0065": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:04:30.662Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0065.webp",
+      "image_hash": "3f3f2e2f261f030f"
+    },
+    "PLC-INF-0066": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:04:41.210Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0066.webp",
+      "image_hash": "7fffff970f175f3f"
+    },
+    "PLC-INF-0067": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:04:41.647Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0067.webp",
+      "image_hash": "cf4e361b1b070726"
+    },
+    "PLC-INF-0069": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:04:51.059Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0069.webp",
+      "image_hash": "0f77b6bf87930305"
+    },
+    "PLC-INF-0068": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:04:51.105Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0068.webp",
+      "image_hash": "470fa747262c1d1e"
+    },
+    "PLC-INF-0071": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:05:00.217Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0071.webp",
+      "image_hash": "f179e8f0d4cc4cf0"
+    },
+    "PLC-INF-0070": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:05:01.230Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0070.webp",
+      "image_hash": "7276323636767676"
+    },
+    "PLC-INF-0073": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:05:09.540Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0073.webp",
+      "image_hash": "3f89270f3f0f0523"
+    },
+    "PLC-INF-0072": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:05:10.074Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0072.webp",
+      "image_hash": "7fb3b3b3333a0a0c"
+    },
+    "PLC-INF-0074": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:05:17.289Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0074.webp",
+      "image_hash": "21302931a92b2b29"
+    },
+    "PLC-INF-0075": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:05:19.936Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0075.webp",
+      "image_hash": "71294d4d46246d4d"
+    },
+    "PLC-INF-0076": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:05:27.513Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0076.webp",
+      "image_hash": "fbde9ce1c30f0f8a"
+    },
+    "PLC-INF-0077": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:05:30.261Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0077.webp",
+      "image_hash": "b3bb099416971793"
+    },
+    "PLC-INF-0078": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:05:40.686Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0078.webp",
+      "image_hash": "3f250b1b0eadcbff"
+    },
+    "PLC-INF-0079": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:05:43.000Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0079.webp",
+      "image_hash": "11110a3685af5294"
+    },
+    "PLC-INF-0081": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:08:09.692Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0081.webp",
+      "image_hash": "79797939191caf21"
+    },
+    "PLC-INF-0080": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:08:09.725Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0080.webp",
+      "image_hash": "1d1f131f1e9e1e1e"
+    },
+    "PLC-INF-0083": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:08:22.289Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0083.webp",
+      "image_hash": "6406ca96060fa7c0"
+    },
+    "PLC-INF-0082": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:08:22.390Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0082.webp",
+      "image_hash": "80a0a098a2a0a480"
+    },
+    "PLC-INF-0084": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:08:33.919Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0084.webp",
+      "image_hash": "139e93b3079a2c1b"
+    },
+    "PLC-INF-0085": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:08:34.182Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0085.webp",
+      "image_hash": "ca6da78d6dd59a1a"
+    },
+    "PLC-INF-0086": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:08:43.073Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0086.webp",
+      "image_hash": "e3f03c2d8c2cec00"
+    },
+    "PLC-INF-0087": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:08:43.726Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0087.webp",
+      "image_hash": "f8c98d0f1d83301e"
+    },
+    "PLC-INF-0089": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:08:54.629Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0089.webp",
+      "image_hash": "000007c5c6164100"
+    },
+    "PLC-INF-0088": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:08:55.856Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0088.webp",
+      "image_hash": "6763d9497319bdb5"
+    },
+    "PLC-INF-0090": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:09:05.680Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0090.webp",
+      "image_hash": "fdf6e0eaf3730747"
+    },
+    "PLC-INF-0091": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:09:06.799Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0091.webp",
+      "image_hash": "f2f169e8f0d86811"
+    },
+    "PLC-INF-0093": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:09:16.937Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0093.webp",
+      "image_hash": "25231b1cf3e6c793"
+    },
+    "PLC-INF-0092": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:09:17.058Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0092.webp",
+      "image_hash": "307059515b6d4d00"
+    },
+    "PLC-INF-0094": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:09:27.956Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0094.webp",
+      "image_hash": "374d47492c26379b"
+    },
+    "PLC-INF-0095": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:09:28.333Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0095.webp",
+      "image_hash": "a5579b1928060683"
+    },
+    "PLC-INF-0096": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:09:54.243Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0096.webp",
+      "image_hash": "000000a0b1a2a121"
+    },
+    "PLC-INF-0097": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:09:54.371Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0097.webp",
+      "image_hash": "b4b010b034870c80"
+    },
+    "PLC-INF-0099": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:10:10.618Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0099.webp",
+      "image_hash": "012505fcd0072316"
+    },
+    "PLC-INF-0098": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:10:10.926Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0098.webp",
+      "image_hash": "b3b3b3b3b3b1335a"
+    },
+    "SCN-CMB-0001": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:10:20.841Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0001.webp",
+      "image_hash": "f7f727f202058476"
+    },
+    "PLC-INF-0100": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:10:20.877Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/places/PLC-INF-0100.webp",
+      "image_hash": "dfdfd5e94d444e00"
+    },
+    "SCN-CMB-0002": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:10:32.095Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0002.webp",
+      "image_hash": "013e5a1b8e1f2326"
+    },
+    "SCN-CMB-0003": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:10:32.580Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0003.webp",
+      "image_hash": "410e10e66cc08555"
+    },
+    "SCN-CMB-0004": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:10:43.571Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0004.webp",
+      "image_hash": "2f1f0d26c2538b13"
+    },
+    "SCN-CMB-0005": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:10:43.918Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0005.webp",
+      "image_hash": "4b38684859185686"
+    },
+    "SCN-CMB-0007": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:10:53.919Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0007.webp",
+      "image_hash": "0d6e68e4c6cf8f00"
+    },
+    "SCN-CMB-0006": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:10:55.414Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0006.webp",
+      "image_hash": "2b28a87b7b2bacc4"
+    },
+    "SCN-CMB-0008": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:11:03.619Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0008.webp",
+      "image_hash": "0064272603832343"
+    },
+    "SCN-CMB-0009": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:11:06.707Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0009.webp",
+      "image_hash": "bdfdd363c949bb8b"
+    },
+    "SCN-CMB-0010": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:11:15.846Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0010.webp",
+      "image_hash": "4d4d75d75f0f4fb3"
+    },
+    "SCN-CMB-0011": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:11:19.154Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0011.webp",
+      "image_hash": "e76fc9e4f8fffef0"
+    },
+    "SCN-CMB-0012": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:11:26.645Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0012.webp",
+      "image_hash": "fb7ed7a22eb6b7a6"
+    },
+    "SCN-CMB-0013": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:11:28.777Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0013.webp",
+      "image_hash": "73efffade571f4bf"
+    },
+    "SCN-CMB-0014": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:11:49.520Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0014.webp",
+      "image_hash": "1b0849cc16163315"
+    },
+    "SCN-CMB-0015": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:11:49.794Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0015.webp",
+      "image_hash": "6675f1a7c4ce5e06"
+    },
+    "SCN-CMB-0016": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:11:57.806Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0016.webp",
+      "image_hash": "7f5f7f3f3d5b5f7f"
+    },
+    "SCN-CMB-0017": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:11:58.939Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0017.webp",
+      "image_hash": "e5643ca40d09494d"
+    },
+    "SCN-CMB-0018": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:12:09.248Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0018.webp",
+      "image_hash": "ffff1f19fbfbffff"
+    },
+    "SCN-CMB-0019": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:12:10.431Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0019.webp",
+      "image_hash": "28282e32338b3f08"
+    },
+    "SCN-CMB-0020": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:12:20.639Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0020.webp",
+      "image_hash": "595f4f6366257de9"
+    },
+    "SCN-CMB-0022": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:12:21.340Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0022.webp",
+      "image_hash": "677777a3bbf3b100"
+    },
+    "SCN-CMB-0023": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:12:30.198Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0023.webp",
+      "image_hash": "d4d4b69696969e1f"
+    },
+    "SCN-CMB-0024": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:12:31.173Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0024.webp",
+      "image_hash": "392b6cf4354c8e00"
+    },
+    "SCN-CMB-0025": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:12:40.776Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0025.webp",
+      "image_hash": "1fdf8fcc0f8f8e0e"
+    },
+    "SCN-CMB-0026": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:12:44.301Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0026.webp",
+      "image_hash": "e6fae3e78593111b"
+    },
+    "SCN-CMB-0027": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:12:51.300Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0027.webp",
+      "image_hash": "6f8f0e1e961f1f1e"
+    },
+    "SCN-CMB-0028": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:12:54.806Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0028.webp",
+      "image_hash": "3f3b1b1b6b313c8f"
+    },
+    "SCN-CMB-0029": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:12:59.873Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0029.webp",
+      "image_hash": "e5e6e6ccc6e62020"
+    },
+    "SCN-CMB-0030": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:13:03.493Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0030.webp",
+      "image_hash": "694d0f2e074b0d0d"
+    },
+    "SCN-CMB-0032": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:14:30.112Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0032.webp",
+      "image_hash": "acac48859ab2b19a"
+    },
+    "SCN-CMB-0031": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:14:31.799Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0031.webp",
+      "image_hash": "2f61796cf2b30f07"
+    },
+    "SCN-CMB-0034": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:14:40.347Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0034.webp",
+      "image_hash": "7f2b243c78000000"
+    },
+    "SCN-CMB-0033": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:14:41.318Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0033.webp",
+      "image_hash": "759c2c292524242c"
+    },
+    "SCN-CMB-0035": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:14:50.656Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0035.webp",
+      "image_hash": "170f079a9235170f"
+    },
+    "SCN-CMB-0036": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:14:50.834Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0036.webp",
+      "image_hash": "ef9f9f3f2dabb7b6"
+    },
+    "SCN-CMB-0037": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:14:59.267Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0037.webp",
+      "image_hash": "b53d6cdc78787d0f"
+    },
+    "SCN-CMB-0038": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:00.753Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0038.webp",
+      "image_hash": "31313191b3d15913"
+    },
+    "SCN-CMB-0039": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:09.096Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0039.webp",
+      "image_hash": "15a99917b292b210"
+    },
+    "SCN-CMB-0040": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:10.119Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0040.webp",
+      "image_hash": "190d9acb0e808307"
+    },
+    "SCN-CMB-0042": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:21.204Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0042.webp",
+      "image_hash": "d3dbd8f6f66cef6d"
+    },
+    "SCN-CMB-0041": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:21.254Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0041.webp",
+      "image_hash": "2626e4b266a62337"
+    },
+    "SCN-CMB-0044": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:30.959Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0044.webp",
+      "image_hash": "cbcbe6e6e27317b2"
+    },
+    "SCN-CMB-0043": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:31.433Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0043.webp",
+      "image_hash": "775dcf6f4f8f0f00"
+    },
+    "SCN-CMB-0045": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:39.579Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0045.webp",
+      "image_hash": "fdf2efe7d6e7bd08"
+    },
+    "SCN-CMB-0046": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:43.368Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0046.webp",
+      "image_hash": "3b3bafafafad9c33"
+    },
+    "SCN-CMB-0047": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:48.524Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0047.webp",
+      "image_hash": "484b222313492106"
+    },
+    "SCN-CMB-0048": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:52.589Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0048.webp",
+      "image_hash": "0e1c1cdcd8796100"
+    },
+    "SCN-CMB-0049": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:15:57.423Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0049.webp",
+      "image_hash": "7dbccc1a34f90000"
+    },
+    "SCN-CMB-0050": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:16:01.476Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0050.webp",
+      "image_hash": "392d39b9733c9cec"
+    },
+    "SCN-CMB-0052": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:16:09.692Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0052.webp",
+      "image_hash": "67e7f2fefafefb00"
+    },
+    "SCN-CMB-0051": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:16:12.720Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0051.webp",
+      "image_hash": "2abb6f7d3d7d7e3f"
+    },
+    "SCN-CMB-0053": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:16:19.543Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0053.webp",
+      "image_hash": "b123737178783c3c"
+    },
+    "SCN-CMB-0054": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:16:23.105Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0054.webp",
+      "image_hash": "46783a27f9a2b8c0"
+    },
+    "SCN-CMB-0055": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:16:30.383Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0055.webp",
+      "image_hash": "1004305010100000"
+    },
+    "SCN-CMB-0056": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:16:32.679Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0056.webp",
+      "image_hash": "24c363dbc94b3781"
+    },
+    "SCN-CMB-0057": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:16:38.765Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0057.webp",
+      "image_hash": "c68e8ece8e0e0f0f"
+    },
+    "SCN-CMB-0058": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:16:42.508Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0058.webp",
+      "image_hash": "1a1bcb6a9c1b9b9b"
+    },
+    "SCN-CMB-0059": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:16:51.109Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0059.webp",
+      "image_hash": "c16be3d2d89ccc4b"
+    },
+    "SCN-CMB-0060": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:16:51.376Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0060.webp",
+      "image_hash": "6e1d73386e6c7130"
+    },
+    "SCN-CMB-0062": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:00.842Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0062.webp",
+      "image_hash": "3333d37516555555"
+    },
+    "SCN-CMB-0061": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:03.554Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0061.webp",
+      "image_hash": "cccce8cc0f120a0e"
+    },
+    "SCN-CMB-0063": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:10.064Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0063.webp",
+      "image_hash": "00042022067067c0"
+    },
+    "SCN-CMB-0064": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:13.690Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0064.webp",
+      "image_hash": "5e56e38ee8d47104"
+    },
+    "SCN-CMB-0065": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:18.900Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0065.webp",
+      "image_hash": "ff7d6b6bc5cca9a9"
+    },
+    "SCN-CMB-0066": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:23.406Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0066.webp",
+      "image_hash": "17478f2f8c9f0d0f"
+    },
+    "SCN-CMB-0067": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:30.514Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0067.webp",
+      "image_hash": "94d6d2929a9682a0"
+    },
+    "SCN-CMB-0068": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:33.716Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0068.webp",
+      "image_hash": "9bf73167023a0f0f"
+    },
+    "SCN-CMB-0069": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:40.837Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0069.webp",
+      "image_hash": "9094989a98dad9a2"
+    },
+    "SCN-CMB-0070": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:42.369Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0070.webp",
+      "image_hash": "8e26374e8e132323"
+    },
+    "SCN-CMB-0072": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:51.068Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0072.webp",
+      "image_hash": "f2b7b3b3b29696cc"
+    },
+    "SCN-CMB-0071": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:51.355Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0071.webp",
+      "image_hash": "7971f97971ecba1b"
+    },
+    "SCN-CMB-0073": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:17:59.441Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0073.webp",
+      "image_hash": "fbfdcd6666767fee"
+    },
+    "SCN-CMB-0074": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:18:01.085Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0074.webp",
+      "image_hash": "2b2bd256532b3333"
+    },
+    "SCN-CMB-0075": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:18:09.836Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0075.webp",
+      "image_hash": "3e6f6d84ec662dbd"
+    },
+    "SCN-CMB-0076": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:18:13.095Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0076.webp",
+      "image_hash": "4dc46c999e1d6c26"
+    },
+    "SCN-CMB-0077": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:18:20.163Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0077.webp",
+      "image_hash": "7c68401b4d432430"
+    },
+    "SCN-CMB-0078": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:18:21.055Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0078.webp",
+      "image_hash": "60616960f86064e0"
+    },
+    "SCN-CMB-0080": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:18:29.823Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0080.webp",
+      "image_hash": "fc16b12189899032"
+    },
+    "SCN-CMB-0079": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:18:31.409Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0079.webp",
+      "image_hash": "3773753262629230"
+    },
+    "SCN-CMB-0082": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:18:40.727Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0082.webp",
+      "image_hash": "78686ccd6d6c6b69"
+    },
+    "SCN-CMB-0081": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:18:42.354Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0081.webp",
+      "image_hash": "33d823c6c0c0391e"
+    },
+    "SCN-CMB-0083": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:09.225Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0083.webp",
+      "image_hash": "1f9eb9bebf3dbdbf"
+    },
+    "SCN-CMB-0084": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:10.984Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0084.webp",
+      "image_hash": "52d3d777e9b6525a"
+    },
+    "SCN-CMB-0085": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:19.760Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0085.webp",
+      "image_hash": "4eec3633315bc883"
+    },
+    "SCN-CMB-0086": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:20.598Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0086.webp",
+      "image_hash": "06060731b655580b"
+    },
+    "SCN-CMB-0087": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:28.024Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0087.webp",
+      "image_hash": "8bee5c1a7cc86474"
+    },
+    "SCN-CMB-0088": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:28.216Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0088.webp",
+      "image_hash": "f36beb755dda170f"
+    },
+    "SCN-CMB-0089": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:37.556Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0089.webp",
+      "image_hash": "5bcfcbe7c6d696b6"
+    },
+    "SCN-CMB-0090": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:39.135Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0090.webp",
+      "image_hash": "0d1266f44e4e4e4f"
+    },
+    "SCN-CMB-0092": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:47.788Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0092.webp",
+      "image_hash": "232332323216aaa2"
+    },
+    "SCN-CMB-0091": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:47.842Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0091.webp",
+      "image_hash": "7161f96327647074"
+    },
+    "SCN-CMB-0093": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:58.144Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0093.webp",
+      "image_hash": "cfcfcbc5d45614aa"
+    },
+    "SCN-CMB-0094": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:19:59.116Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0094.webp",
+      "image_hash": "f3f8f8dcf8fce87c"
+    },
+    "SCN-CMB-0096": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:07.967Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0096.webp",
+      "image_hash": "d8d2f87979112319"
+    },
+    "SCN-CMB-0095": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:08.113Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0095.webp",
+      "image_hash": "7358667e7e763e3e"
+    },
+    "SCN-CMB-0097": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:17.097Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0097.webp",
+      "image_hash": "37bbbb3f230d3a99"
+    },
+    "SCN-CMB-0098": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:18.298Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0098.webp",
+      "image_hash": "73f0e855ccccf633"
+    },
+    "SCN-CMB-0099": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:26.814Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0099.webp",
+      "image_hash": "4279b1e8e4e00000"
+    },
+    "SCN-CMB-0100": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:27.395Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/scenes/SCN-CMB-0100.webp",
+      "image_hash": "2f2f674e4f0f0f27"
+    },
+    "GEN-NWS-0002": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:36.304Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0002.webp",
+      "image_hash": "7727cf173f1b5959"
+    },
+    "GEN-NWS-0003": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:36.903Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0003.webp",
+      "image_hash": "8e8e8e8e8e9e9600"
+    },
+    "GEN-NWS-0004": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:44.785Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0004.webp",
+      "image_hash": "0f79e1046bc0a607"
+    },
+    "GEN-NWS-0005": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:46.096Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0005.webp",
+      "image_hash": "072d2d391931790a"
+    },
+    "GEN-NWS-0006": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:52.870Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0006.webp",
+      "image_hash": "cf67b6f6e6f63676"
+    },
+    "GEN-NWS-0007": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:20:54.634Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0007.webp",
+      "image_hash": "ceecc58c262e4d6d"
+    },
+    "GEN-NWS-0008": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:02.466Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0008.webp",
+      "image_hash": "2707070727671f1f"
+    },
+    "GEN-NWS-0009": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:04.245Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0009.webp",
+      "image_hash": "13070b33b6162400"
+    },
+    "GEN-NWS-0010": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:11.874Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0010.webp",
+      "image_hash": "07232161700b1b07"
+    },
+    "GEN-NWS-0011": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:12.711Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0011.webp",
+      "image_hash": "999a92848b9a8b00"
+    },
+    "GEN-NWS-0012": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:21.287Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0012.webp",
+      "image_hash": "9fcadaf90e7e5c10"
+    },
+    "GEN-NWS-0013": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:22.330Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0013.webp",
+      "image_hash": "693949cf4b800000"
+    },
+    "GEN-NWS-0015": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:30.510Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0015.webp",
+      "image_hash": "d4cccc92f2f2e292"
+    },
+    "GEN-NWS-0014": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:30.574Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0014.webp",
+      "image_hash": "6ef3b3a3c323170d"
+    },
+    "GEN-NWS-0017": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:40.601Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0017.webp",
+      "image_hash": "bab8b079f89e9b17"
+    },
+    "GEN-NWS-0016": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:40.794Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0016.webp",
+      "image_hash": "b7d9edcce4ccad6d"
+    },
+    "GEN-NWS-0018": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:49.620Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0018.webp",
+      "image_hash": "bb3b2b2b3b2b2f2f"
+    },
+    "GEN-NWS-0019": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:50.914Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0019.webp",
+      "image_hash": "bf9eb73bd584ad8d"
+    },
+    "GEN-NWS-0021": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:21:59.666Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0021.webp",
+      "image_hash": "546a5a1a5655d08e"
+    },
+    "GEN-NWS-0020": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:22:00.801Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0020.webp",
+      "image_hash": "0f8ecc6545e17939"
+    },
+    "GEN-NWS-0022": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:22:09.263Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0022.webp",
+      "image_hash": "5a4858ddcd466600"
+    },
+    "GEN-NWS-0023": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:22:10.254Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0023.webp",
+      "image_hash": "2363c38b0b178727"
+    },
+    "GEN-NWS-0024": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:22:17.474Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0024.webp",
+      "image_hash": "6eeeac1e1d8dbb10"
+    },
+    "GEN-NWS-0025": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:22:19.326Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0025.webp",
+      "image_hash": "3525270f292a0f00"
+    },
+    "GEN-NWS-0027": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:22:28.340Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0027.webp",
+      "image_hash": "1b3b3b9b3b69f8d4"
+    },
+    "GEN-NWS-0026": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:22:30.437Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0026.webp",
+      "image_hash": "4f27253d29656424"
+    },
+    "GEN-NWS-0028": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:22:36.757Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0028.webp",
+      "image_hash": "545c5c9696c8e88e"
+    },
+    "GEN-NWS-0029": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:22:41.691Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0029.webp",
+      "image_hash": "4b4bc9e4baa2ab86"
+    },
+    "GEN-NWS-0030": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:22:47.338Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0030.webp",
+      "image_hash": "1f172fe7efa7e786"
+    },
+    "GEN-NWS-0031": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:22:50.818Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0031.webp",
+      "image_hash": "fffffb9c111ddd5d"
+    },
+    "GEN-NWS-0032": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:26:33.187Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0032.webp",
+      "image_hash": "1e5c4d1c19128c9d"
+    },
+    "GEN-NWS-0033": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:26:35.109Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0033.webp",
+      "image_hash": "cece7d79e4cecece"
+    },
+    "GEN-NWS-0034": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:26:42.690Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0034.webp",
+      "image_hash": "000c0c3443a8f800"
+    },
+    "GEN-NWS-0035": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:26:45.984Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0035.webp",
+      "image_hash": "85e4357a51f1f1ed"
+    },
+    "GEN-NWS-0036": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:26:52.582Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0036.webp",
+      "image_hash": "040006ce575b1bb3"
+    },
+    "GEN-NWS-0037": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:26:55.107Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0037.webp",
+      "image_hash": "16949c9db1339133"
+    },
+    "GEN-NWS-0038": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:02.050Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0038.webp",
+      "image_hash": "07026d6f9471341e"
+    },
+    "GEN-NWS-0039": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:05.525Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0039.webp",
+      "image_hash": "3e3c3a3a7ee5475d"
+    },
+    "GEN-NWS-0040": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:10.199Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0040.webp",
+      "image_hash": "694b4992969292c2"
+    },
+    "GEN-NWS-0042": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:13.306Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0042.webp",
+      "image_hash": "6f7f9c8e171d0f0f"
+    },
+    "GEN-NWS-0043": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:24.779Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0043.webp",
+      "image_hash": "04084e111c9b0107"
+    },
+    "GEN-NWS-0044": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:24.974Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0044.webp",
+      "image_hash": "533706515256030f"
+    },
+    "GEN-NWS-0045": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:33.834Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0045.webp",
+      "image_hash": "5e4fdffeeefefef7"
+    },
+    "GEN-NWS-0046": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:34.994Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0046.webp",
+      "image_hash": "cc5878ccc0b14dcc"
+    },
+    "GEN-NWS-0047": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:43.025Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0047.webp",
+      "image_hash": "5ececf7fbfbb7b5f"
+    },
+    "GEN-NWS-0048": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:44.583Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0048.webp",
+      "image_hash": "8ef0701b0f4f074e"
+    },
+    "GEN-NWS-0049": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:51.816Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0049.webp",
+      "image_hash": "2b1717f0f0f06048"
+    },
+    "GEN-NWS-0050": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:27:53.363Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0050.webp",
+      "image_hash": "2e0d2d8997525272"
+    },
+    "GEN-NWS-0052": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:03.000Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0052.webp",
+      "image_hash": "0809093131350910"
+    },
+    "GEN-NWS-0051": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:03.035Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0051.webp",
+      "image_hash": "070f1d339b1b9f1f"
+    },
+    "GEN-NWS-0054": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:11.096Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0054.webp",
+      "image_hash": "1e1e4d2e2d65e7a7"
+    },
+    "GEN-NWS-0053": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:12.118Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0053.webp",
+      "image_hash": "969617961733968e"
+    },
+    "GEN-NWS-0056": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:21.707Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0056.webp",
+      "image_hash": "95152d2d8d5c0c9c"
+    },
+    "GEN-NWS-0055": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:22.033Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0055.webp",
+      "image_hash": "33339692f0ab4531"
+    },
+    "GEN-NWS-0058": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:32.008Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0058.webp",
+      "image_hash": "0f0f071333330301"
+    },
+    "GEN-NWS-0057": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:32.019Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0057.webp",
+      "image_hash": "0f1717170f170f1f"
+    },
+    "GEN-NWS-0059": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:41.288Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0059.webp",
+      "image_hash": "8c6d0f9b975b5131"
+    },
+    "GEN-NWS-0060": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:43.201Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0060.webp",
+      "image_hash": "0f4f678daf455c1f"
+    },
+    "GEN-NWS-0061": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:50.301Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0061.webp",
+      "image_hash": "96336765c3d3591b"
+    },
+    "GEN-NWS-0062": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:28:51.949Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0062.webp",
+      "image_hash": "7f969b96868e9640"
+    },
+    "GEN-NWS-0064": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:01.932Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0064.webp",
+      "image_hash": "ff9f9784c4f03e8c"
+    },
+    "GEN-NWS-0063": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:02.603Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0063.webp",
+      "image_hash": "e4e424b68def4c00"
+    },
+    "GEN-NWS-0066": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:12.802Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0066.webp",
+      "image_hash": "44028e9986968389"
+    },
+    "GEN-NWS-0065": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:12.822Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0065.webp",
+      "image_hash": "dfd7c7431347072f"
+    },
+    "GEN-NWS-0067": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:21.861Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0067.webp",
+      "image_hash": "5a549676fcf80000"
+    },
+    "GEN-NWS-0068": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:22.759Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0068.webp",
+      "image_hash": "70686c18cdcdcd4d"
+    },
+    "GEN-NWS-0069": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:31.562Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0069.webp",
+      "image_hash": "9f9b95849e973707"
+    },
+    "GEN-NWS-0070": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:33.595Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0070.webp",
+      "image_hash": "9edfd6b634a465e7"
+    },
+    "GEN-NWS-0072": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:42.145Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0072.webp",
+      "image_hash": "3b3b3bbb1b1b333b"
+    },
+    "GEN-NWS-0071": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:42.459Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0071.webp",
+      "image_hash": "b233713114149613"
+    },
+    "GEN-NWS-0073": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:51.054Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0073.webp",
+      "image_hash": "f4fce4e0e8a8ac3e"
+    },
+    "GEN-NWS-0074": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:51.711Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0074.webp",
+      "image_hash": "1f5f5a5e5e376271"
+    },
+    "GEN-NWS-0075": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:29:59.055Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0075.webp",
+      "image_hash": "0f69696969c5b34e"
+    },
+    "GEN-NWS-0076": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:30:01.561Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0076.webp",
+      "image_hash": "36b6a50d4d8d4c00"
+    },
+    "GEN-NWS-0077": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:30:09.240Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0077.webp",
+      "image_hash": "1bab4d6d2d2d1733"
+    },
+    "GEN-NWS-0078": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:30:13.993Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0078.webp",
+      "image_hash": "cede361adedc0000"
+    },
+    "GEN-NWS-0079": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:30:17.851Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0079.webp",
+      "image_hash": "9bd3394cce0f370f"
+    },
+    "GEN-NWS-0080": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:30:24.973Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0080.webp",
+      "image_hash": "496961294f2a610b"
+    },
+    "GEN-NWS-0082": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:30:35.091Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0082.webp",
+      "image_hash": "6e676a6e65293838"
+    },
+    "GEN-NWS-0081": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:30:52.445Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0081.webp",
+      "image_hash": "cf87571315232f0f"
+    },
+    "GEN-NWS-0084": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:01.828Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0084.webp",
+      "image_hash": "7e6c76666c6e7b7f"
+    },
+    "GEN-NWS-0083": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:03.480Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0083.webp",
+      "image_hash": "b0bef34bb3baba80"
+    },
+    "GEN-NWS-0085": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:10.094Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0085.webp",
+      "image_hash": "cc96cacbca513183"
+    },
+    "GEN-NWS-0086": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:12.334Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0086.webp",
+      "image_hash": "ada6b76e72e6c696"
+    },
+    "GEN-NWS-0087": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:19.551Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0087.webp",
+      "image_hash": "59f5118a92fc3838"
+    },
+    "GEN-NWS-0088": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:21.580Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0088.webp",
+      "image_hash": "2c4c4c2c34756065"
+    },
+    "GEN-NWS-0089": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:27.761Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0089.webp",
+      "image_hash": "9d4949c969358000"
+    },
+    "GEN-NWS-0090": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:29.675Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0090.webp",
+      "image_hash": "44c4693c333b0f37"
+    },
+    "GEN-NWS-0091": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:38.033Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0091.webp",
+      "image_hash": "20606060d2d2d293"
+    },
+    "GEN-NWS-0092": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:39.065Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0092.webp",
+      "image_hash": "7c68e0f6e2f2f2f2"
+    },
+    "GEN-NWS-0093": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:47.844Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0093.webp",
+      "image_hash": "272767a319252727"
+    },
+    "GEN-NWS-0094": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:49.136Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0094.webp",
+      "image_hash": "8eedcc9f9f1e1e8f"
+    },
+    "GEN-NWS-0095": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:56.828Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0095.webp",
+      "image_hash": "d8599db22125acb2"
+    },
+    "GEN-NWS-0096": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:31:58.748Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0096.webp",
+      "image_hash": "f77323ecd06ca233"
+    },
+    "GEN-NWS-0097": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:07.027Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0097.webp",
+      "image_hash": "7c309e8e2e2f3d0f"
+    },
+    "GEN-NWS-0098": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:08.093Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0098.webp",
+      "image_hash": "b2b3f36968715a58"
+    },
+    "GEN-NWS-0099": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:16.372Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0099.webp",
+      "image_hash": "4f2f1f1f3d1e1f9f"
+    },
+    "GEN-NWS-0100": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:18.016Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/general/GEN-NWS-0100.webp",
+      "image_hash": "1b1b1b4623270707"
+    },
+    "CAT-TILE-0003": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:26.069Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/vizag/CAT-TILE-0003.webp",
+      "image_hash": "bf9f1f17c7262309"
+    },
+    "CAT-TILE-0002": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:26.143Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/telangana/CAT-TILE-0002.webp",
+      "image_hash": "8e0f0f8f9796968e"
+    },
+    "CAT-TILE-0004": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:35.219Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/national/CAT-TILE-0004.webp",
+      "image_hash": "0f8e8e96b2b2e868"
+    },
+    "CAT-TILE-0005": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:36.802Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/politics/CAT-TILE-0005.webp",
+      "image_hash": "008696eac8d2d000"
+    },
+    "CAT-TILE-0006": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:44.302Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/cinema/CAT-TILE-0006.webp",
+      "image_hash": "ccccccf0f4dcccc4"
+    },
+    "CAT-TILE-0007": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:46.993Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/cricket/CAT-TILE-0007.webp",
+      "image_hash": "8ecccc0f07171186"
+    },
+    "CAT-TILE-0008": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:51.957Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/business/CAT-TILE-0008.webp",
+      "image_hash": "2fd4d4d6c6c4c80b"
+    },
+    "CAT-TILE-0009": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:56.793Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/technology/CAT-TILE-0009.webp",
+      "image_hash": "7ff878f8fae27073"
+    },
+    "CAT-TILE-0010": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:32:59.525Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/health/CAT-TILE-0010.webp",
+      "image_hash": "00040e0aac8c4080"
+    },
+    "CAT-TILE-0011": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:33:05.800Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/jobs/CAT-TILE-0011.webp",
+      "image_hash": "31f0606350408303"
+    },
+    "CAT-TILE-0012": {
+      "status": "uploaded",
+      "updated_at": "2026-10-11T07:33:08.081Z",
+      "model": "gemini-2.5-flash-image",
+      "public_url": "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/library/ai/devotional/CAT-TILE-0012.webp",
+      "image_hash": "f3f3f3f979fca455"
+    }
+  }
+}
