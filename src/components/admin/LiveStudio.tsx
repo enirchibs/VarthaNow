@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { categories } from "@/lib/categories";
 import { Button, Input } from "@/components/ui";
-import { NewsStudio, SCROLL_SPEEDS, STUDIO_BACKGROUNDS, TICKER_LABELS, backgroundSwatch, type PresenterSide, type StudioSettings } from "@/lib/news-studio";
+import { CITIZEN_BACKGROUNDS, NewsStudio, SCROLL_SPEEDS, STUDIO_BACKGROUNDS, TICKER_LABELS, backgroundSwatch, type PresenterSide, type StudioSettings } from "@/lib/news-studio";
 
 /** Latest published VaartaNow headlines, for the studio's headlines ticker. */
 export function useLatestHeadlines(limit = 12) {
@@ -33,11 +33,26 @@ const pickMime = () =>
 
 const slugify = (s: string) => `live-${new Date().toISOString().slice(0, 10)}-${Math.random().toString(36).slice(2, 8)}${s ? "" : ""}`;
 
-export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
+/**
+ * staff:   editors/admins publish straight to the site.
+ * citizen: an appointed citizen journalist records with citizen graphics and sends it as a citizen
+ *          report; an editor reviews it before anything is published.
+ */
+export function LiveStudio({ editorEmail, mode = "staff", reporter }: {
+  editorEmail?: string | null;
+  mode?: "staff" | "citizen";
+  reporter?: { id: string; name: string; area?: string | null };
+}) {
+  const citizen = mode === "citizen";
   const [headline, setHeadline] = useState("");
   const [summary, setSummary] = useState("");
   const [category, setCategory] = useState("local");
-  const [presenter, setPresenter] = useState(() => { try { return localStorage.getItem("vn-presenter-name") || ""; } catch { return ""; } });
+  const [kind, setKind] = useState<"news" | "issue">("news");
+  const [area, setArea] = useState(reporter?.area ?? "");
+  const [presenter, setPresenter] = useState(() => {
+    if (reporter?.name) return reporter.name;
+    try { return localStorage.getItem("vn-presenter-name") || ""; } catch { return ""; }
+  });
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [recording, setRecording] = useState(false);
   const [seconds, setSeconds] = useState(0);
@@ -47,10 +62,11 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
   const [error, setError] = useState("");
   const [status, setStatus] = useState("");
   const [published, setPublished] = useState<{ slug: string; title: string } | null>(null);
-  const [studio, setStudio] = useState<StudioSettings>({
-    background: "studio-red", logo: true, clock: true, strap: true, ticker: true, live: true, breaking: true, vnTicker: true, desk: true, speed: 0.6,
-    tickerLabel: TICKER_LABELS[0], tickerText: "", presenter: "", strapLine: "", breakingText: "",
-  });
+  const [studio, setStudio] = useState<StudioSettings>(citizen
+    ? { background: "vizag-window", logo: true, clock: true, strap: true, ticker: true, live: false, breaking: false, vnTicker: false, desk: false, speed: 0.6,
+        tickerLabel: "సిటిజన్ రిపోర్ట్", tickerText: "", presenter: "", strapLine: "", breakingText: "", citizen: true }
+    : { background: "studio-red", logo: true, clock: true, strap: true, ticker: true, live: true, breaking: true, vnTicker: true, desk: true, speed: 0.6,
+        tickerLabel: TICKER_LABELS[0], tickerText: "", presenter: "", strapLine: "", breakingText: "" });
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const studioRef = useRef<NewsStudio | null>(null);
@@ -63,14 +79,14 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
   // the graphics follow the form: headline on the strap and ticker, presenter on the strap
   const effective: StudioSettings = {
     ...studio,
-    presenter: presenter || "VaartaNow",
-    strapLine: studio.strapLine || headline || "VaartaNow ప్రతినిధి",
+    presenter: presenter || (citizen ? "సిటిజన్ రిపోర్టర్" : "VaartaNow"),
+    strapLine: studio.strapLine || (citizen ? `సిటిజన్ రిపోర్టర్${area ? ` · ${area}` : ""}` : headline || "VaartaNow ప్రతినిధి"),
     tickerText: studio.tickerText || headline || "VaartaNow తెలుగు వార్తలు",
     breakingText: studio.breakingText || headline,
     headlines,
   };
   useEffect(() => { studioRef.current?.update(effective); });
-  useEffect(() => { try { localStorage.setItem("vn-presenter-name", presenter); } catch { /* private mode */ } }, [presenter]);
+  useEffect(() => { if (!citizen) try { localStorage.setItem("vn-presenter-name", presenter); } catch { /* private mode */ } }, [presenter, citizen]);
   useEffect(() => { if (videoRef.current && stream) videoRef.current.srcObject = stream; }, [stream]);
   useEffect(() => () => stream?.getTracks().forEach((t) => t.stop()), [stream]);
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
@@ -142,7 +158,40 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
     setTimeout(() => setCopied(null), 1500);
   };
 
+  /** Citizen: upload the recording (or use the YouTube link) and file it as a citizen report for review. */
+  const sendForReview = async () => {
+    if (!supabase || !reporter || (!blob && !ytId)) return;
+    if (!headline.trim()) return setError("హెడ్‌లైన్ రాయండి.");
+    if (summary.trim().length < 10) return setError("ఏమి జరిగిందో కనీసం ఒక వాక్యం రాయండి.");
+    setBusy(true);
+    setError("");
+    try {
+      const folder = `reports/${reporter.id}/${Date.now()}`;
+      const up = async (path: string, b: Blob) => {
+        const { error: e } = await supabase!.storage.from(MEDIA_BUCKET).upload(path, b, { contentType: b.type, cacheControl: "31536000" });
+        if (e) throw e;
+        return supabase!.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl;
+      };
+      const media: { url: string; type: "image" | "video" }[] = [];
+      media.push({ type: "video", url: ytId ? `https://www.youtube.com/watch?v=${ytId}` : await up(`${folder}/video-0.${blob!.type.includes("mp4") ? "mp4" : "webm"}`, blob!) });
+      if (poster) media.push({ type: "image", url: await up(`${folder}/photo-0.jpg`, poster) });
+      const { error: e } = await supabase.from("citizen_reports").insert({
+        kind, title: headline.trim(), description: summary.trim(), area: area.trim() || null, media,
+        reporter_id: reporter.id, reporter_name: presenter.trim() || reporter.name,
+      });
+      if (e) throw e;
+      setPublished({ slug: "", title: headline.trim() });
+      setBlob(null); setPoster(null); setHeadline(""); setSummary(""); setYtLink(""); setSlug(slugify(""));
+      closeCamera();
+    } catch (e: any) {
+      setError(`పంపడం కుదరలేదు: ${e?.message ?? e}`);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const publish = async () => {
+    if (citizen) return sendForReview();
     if (!supabase || (!blob && !ytId)) return;
     if (!headline.trim()) return setError("Headline is required.");
     setBusy(true);
@@ -184,8 +233,8 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
     <div className="space-y-4">
       {published && (
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm font-bold text-emerald-700">
-          <CheckCircle2 className="size-5" /> Published: {published.title}
-          <Link to={`/news/${published.slug}`} target="_blank" className="flex items-center gap-1 underline">Open <ExternalLink className="size-3.5" /></Link>
+          <CheckCircle2 className="size-5" /> {citizen ? `సమీక్షకు పంపబడింది: ${published.title}. ఎడిటర్ ఆమోదం తర్వాత ప్రచురితమవుతుంది.` : `Published: ${published.title}`}
+          {!citizen && <Link to={`/news/${published.slug}`} target="_blank" className="flex items-center gap-1 underline">Open <ExternalLink className="size-3.5" /></Link>}
           <button onClick={() => setPublished(null)} className="ml-auto text-xs">Record another</button>
         </div>
       )}
@@ -230,7 +279,7 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
             {blob && !recording && (
               <>
                 <Button onClick={publish} disabled={busy} className="h-11 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white hover:bg-emerald-700">
-                  <Send className="mr-1.5 size-4" /> {busy ? "Publishing…" : ytId ? "Publish with YouTube link" : `Publish now (${(blob.size / 1048576).toFixed(1)} MB)`}
+                  <Send className="mr-1.5 size-4" /> {busy ? (citizen ? "పంపుతోంది…" : "Publishing…") : citizen ? "సమీక్షకు పంపండి" : ytId ? "Publish with YouTube link" : `Publish now (${(blob.size / 1048576).toFixed(1)} MB)`}
                 </Button>
                 <a href={previewUrl ?? undefined} download={`${slug}.${blob.type.includes("mp4") ? "mp4" : "webm"}`}
                   className="inline-flex h-11 items-center rounded-xl bg-slate-900 px-5 text-sm font-bold text-white">
@@ -261,7 +310,7 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
               <Input value={ytLink} onChange={(e) => setYtLink(e.target.value)} placeholder="https://youtu.be/..." className="h-9 min-w-[220px] flex-1 rounded-lg text-xs" />
               {!blob && (
                 <Button onClick={publish} disabled={busy || !ytId} className="h-9 rounded-lg bg-red-600 px-4 text-xs font-bold text-white hover:bg-red-700">
-                  <Youtube className="mr-1.5 size-4" /> {busy ? "Publishing…" : "Publish with YouTube link"}
+                  <Youtube className="mr-1.5 size-4" /> {busy ? "…" : citizen ? "YouTube లింక్‌తో సమీక్షకు పంపండి" : "Publish with YouTube link"}
                 </Button>
               )}
             </div>
@@ -269,7 +318,9 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
           </div>
 
           <p className="text-[11px] text-[hsl(var(--muted-foreground))]">
-            Published immediately as a video article, without review. Only say what you have verified; the article shows your name as presenter. Max {MAX_SECONDS / 60} minutes.
+            {citizen
+              ? `మీరు స్వయంగా చూసిన, నిజమైన సమాచారం మాత్రమే చెప్పండి. ఎడిటర్ సమీక్ష తర్వాతే వీడియో ప్రచురితమవుతుంది. గరిష్టం ${MAX_SECONDS / 60} నిమిషాలు.`
+              : `Published immediately as a video article, without review. Only say what you have verified; the article shows your name as presenter. Max ${MAX_SECONDS / 60} minutes.`}
           </p>
         </div>
 
@@ -281,17 +332,25 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
             <textarea value={summary} onChange={(e) => setSummary(e.target.value)} rows={3} placeholder="క్లుప్తంగా వివరణ (ఆర్టికల్‌లో వీడియో కింద చూపిస్తుంది)"
               className="w-full rounded-xl border border-[hsl(var(--border))] bg-transparent p-3 text-[14px] outline-none focus:border-red-500" />
             <div className="grid grid-cols-2 gap-2">
-              <select value={category} onChange={(e) => setCategory(e.target.value)} className="h-10 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/40 px-2 text-sm font-bold">
-                {categories.map((c) => <option key={c.slug} value={c.slug}>{c.label.te}</option>)}
-              </select>
-              <Input value={presenter} onChange={(e) => setPresenter(e.target.value)} placeholder="Presenter name" className="h-10 rounded-xl text-sm" />
+              {citizen ? (
+                <select value={kind} onChange={(e) => setKind(e.target.value as "news" | "issue")} className="h-10 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/40 px-2 text-sm font-bold">
+                  <option value="news">స్థానిక వార్త</option>
+                  <option value="issue">ప్రజా సమస్య</option>
+                </select>
+              ) : (
+                <select value={category} onChange={(e) => setCategory(e.target.value)} className="h-10 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/40 px-2 text-sm font-bold">
+                  {categories.map((c) => <option key={c.slug} value={c.slug}>{c.label.te}</option>)}
+                </select>
+              )}
+              <Input value={presenter} onChange={(e) => setPresenter(e.target.value)} placeholder={citizen ? "మీ పేరు" : "Presenter name"} className="h-10 rounded-xl text-sm" />
+              {citizen && <Input value={area} onChange={(e) => setArea(e.target.value)} placeholder="ప్రాంతం (ఉదా: గాజువాక, విశాఖ)" className="col-span-2 h-10 rounded-xl text-sm" />}
             </div>
           </div>
 
           <div className={`${card} space-y-3`}>
             <h3 className="flex items-center gap-1.5 text-sm font-black"><Clapperboard className="size-4 text-red-600" /> Studio</h3>
             <div className="grid grid-cols-4 gap-1.5">
-              {STUDIO_BACKGROUNDS.map((b) => (
+              {(citizen ? CITIZEN_BACKGROUNDS : STUDIO_BACKGROUNDS).map((b) => (
                 <button key={b.id} type="button" onClick={() => setStudio((st) => ({ ...st, background: b.id, side: b.side ?? st.side ?? "center" }))} title={b.label}
                   className={`overflow-hidden rounded-lg border-2 ${studio.background === b.id ? "border-red-600" : "border-transparent opacity-80 hover:opacity-100"}`}>
                   <div className="aspect-video bg-cover bg-center"
@@ -302,15 +361,18 @@ export function LiveStudio({ editorEmail }: { editorEmail?: string | null }) {
               ))}
             </div>
             <div className="grid grid-cols-2 gap-1.5 text-xs font-bold">
-              {([["live", "LIVE badge"], ["logo", "VaartaNow logo"], ["clock", "Date & time"], ["strap", "Name strap"], ["desk", "Sit at news desk"], ["breaking", "Breaking (top right)"], ["ticker", "News ticker"], ["vnTicker", "VaartaNow headlines"]] as const).map(([k, label]) => (
+              {(citizen
+                ? ([["logo", "సిటిజన్ రిపోర్ట్ బ్యాడ్జ్"], ["clock", "తేదీ & సమయం"], ["strap", "పేరు స్ట్రాప్"], ["desk", "డెస్క్ ముందు"], ["ticker", "స్క్రోలింగ్ టెక్స్ట్"]] as const)
+                : ([["live", "LIVE badge"], ["logo", "VaartaNow logo"], ["clock", "Date & time"], ["strap", "Name strap"], ["desk", "Sit at news desk"], ["breaking", "Breaking (top right)"], ["ticker", "News ticker"], ["vnTicker", "VaartaNow headlines"]] as const)
+              ).map(([k, label]) => (
                 <label key={k} className="flex items-center gap-1.5"><input type="checkbox" checked={!!studio[k]} onChange={(e) => set(k, e.target.checked)} className="accent-red-600" /> {label}</label>
               ))}
             </div>
             {studio.ticker && (
               <div className="space-y-1.5">
-                <select value={studio.tickerLabel} onChange={(e) => set("tickerLabel", e.target.value)} className="h-9 w-full rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 text-xs font-bold">
+                {!citizen && <select value={studio.tickerLabel} onChange={(e) => set("tickerLabel", e.target.value)} className="h-9 w-full rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] px-2 text-xs font-bold">
                   {TICKER_LABELS.map((l) => <option key={l}>{l}</option>)}
-                </select>
+                </select>}
                 <Input value={studio.tickerText} onChange={(e) => set("tickerText", e.target.value)} placeholder="Ticker text (default: the headline)" className="h-9 rounded-lg text-xs" />
               </div>
             )}

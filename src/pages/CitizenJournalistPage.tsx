@@ -140,7 +140,10 @@ export function CitizenJournalistPage() {
           <div>
             <p className="text-lg font-black text-emerald-800 dark:text-emerald-300">మీరు VaartaNow సిటిజన్ జర్నలిస్ట్!</p>
             <p className="mt-1 text-[15px] text-emerald-900/80 dark:text-emerald-200/80">హోమ్ పేజీలో కింద ఉన్న “+ పోస్ట్” బటన్ నొక్కి “స్థానిక వార్త” లేదా “ఫిర్యాదు/సమస్య” ఎంచుకుని మీ రిపోర్ట్ పంపండి. ఎడిటర్ ఆమోదం తర్వాత ప్రచురితమవుతుంది.</p>
-            <Link to="/" className="mt-3 inline-flex h-10 items-center rounded-xl bg-emerald-600 px-4 text-sm font-black text-white">హోమ్‌కు వెళ్లండి</Link>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link to="/citizen-journalist/studio" className="inline-flex h-10 items-center rounded-xl bg-red-600 px-4 text-sm font-black text-white">🎥 వీడియో స్టూడియో తెరవండి</Link>
+              <Link to="/" className="inline-flex h-10 items-center rounded-xl bg-emerald-600 px-4 text-sm font-black text-white">హోమ్‌కు వెళ్లండి</Link>
+            </div>
           </div>
         </div>
       )}

@@ -68,7 +68,13 @@ export type StudioSettings = {
   desk?: boolean; // presenter sits behind a VaartaNow news desk
   speed?: number; // scrolling speed multiplier (0.6 slow · 1 normal · 1.5 fast)
   side?: PresenterSide; // where the presenter stands when the background is replaced
+  // Citizen journalist recording: no VaartaNow logo, LIVE, BREAKING or VaartaNow tickers (the video is
+  // reviewed before publishing and can be downloaded, so it must not look like an official bulletin)
+  citizen?: boolean;
 };
+
+/** Backgrounds a citizen may use: no VaartaNow-branded or breaking-news backdrops. */
+export const CITIZEN_BACKGROUNDS = STUDIO_BACKGROUNDS.filter((b) => !["brand", "breaking", "wall"].includes(b.kind));
 
 export const SCROLL_SPEEDS = [
   { value: 0.6, label: "Slow" },
@@ -347,13 +353,15 @@ export class NewsStudio {
     ctx.fillRect(40, front, STUDIO_W - 80, 5);
     ctx.fillStyle = "rgba(255,255,255,0.12)";
     ctx.fillRect(40, front + 5, STUDIO_W - 80, 18);
-    ctx.textAlign = "right";
-    ctx.font = "900 44px Arial, sans-serif";
-    ctx.fillStyle = "#fff";
-    ctx.fillText("Vaarta", STUDIO_W - 80 - ctx.measureText("Now").width, front + 62);
-    ctx.fillStyle = "#facc15";
-    ctx.fillText("Now", STUDIO_W - 80, front + 62);
-    ctx.textAlign = "left";
+    if (!this.settings.citizen) {
+      ctx.textAlign = "right";
+      ctx.font = "900 44px Arial, sans-serif";
+      ctx.fillStyle = "#fff";
+      ctx.fillText("Vaarta", STUDIO_W - 80 - ctx.measureText("Now").width, front + 62);
+      ctx.fillStyle = "#facc15";
+      ctx.fillText("Now", STUDIO_W - 80, front + 62);
+      ctx.textAlign = "left";
+    }
   }
 
   /**
@@ -510,7 +518,9 @@ export class NewsStudio {
 
   private overlays() {
     const { ctx } = this;
-    const s = this.settings;
+    const s: StudioSettings = this.settings.citizen
+      ? { ...this.settings, live: false, breaking: false, vnTicker: false, tickerLabel: "సిటిజన్ రిపోర్ట్", headlines: [] }
+      : this.settings;
     // bottom-up layout: VaartaNow headlines line, news ticker, breaking band, name strap
     let bottom = STUDIO_H;
     const vnH = 42, tickerH = 58;
@@ -518,7 +528,15 @@ export class NewsStudio {
     const tickerY = s.ticker ? (bottom -= tickerH) : bottom;
     const headlines = (s.headlines ?? []).filter((h) => h && h !== s.tickerText);
 
-    if (s.logo) {
+    if (s.logo && s.citizen) {
+      ctx.font = `800 22px ${TE}`;
+      const w = ctx.measureText("సిటిజన్ రిపోర్ట్").width + 36;
+      ctx.fillStyle = "#d97706";
+      roundRect(ctx, 32, 28, w, 48, 10);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.fillText("సిటిజన్ రిపోర్ట్", 50, 60);
+    } else if (s.logo) {
       ctx.fillStyle = "#dc2626";
       roundRect(ctx, 32, 28, 196, 48, 10);
       ctx.fill();

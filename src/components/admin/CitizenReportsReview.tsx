@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { embedUrl, youtubeIdOf } from "@/lib/videos-api";
 import { CheckCircle2, XCircle, Phone, UserCheck, UserX, RefreshCw, MapPin, Megaphone } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button, Input } from "@/components/ui";
@@ -171,7 +172,9 @@ export function CitizenReportsReview({ editorEmail }: { editorEmail?: string }) 
             {r.media.length > 0 && (
               <div className="grid grid-cols-2 gap-2">
                 {r.media.map((m) => m.type === "video"
-                  ? <video key={m.url} src={m.url} controls playsInline className="w-full rounded-xl bg-black" />
+                  ? (youtubeIdOf(m.url)
+                    ? <iframe key={m.url} src={embedUrl(youtubeIdOf(m.url)!).replace("autoplay=1&", "")} title="YouTube" allow="encrypted-media; picture-in-picture; fullscreen" allowFullScreen className="aspect-video w-full rounded-xl bg-black" />
+                    : <video key={m.url} src={m.url} controls playsInline className="w-full rounded-xl bg-black" />)
                   : <a key={m.url} href={m.url} target="_blank" rel="noreferrer"><img src={m.url} alt="" className="w-full rounded-xl object-cover" /></a>)}
               </div>
             )}
