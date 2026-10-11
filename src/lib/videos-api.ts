@@ -49,9 +49,15 @@ export async function getVideo(id: string): Promise<VideoItem | null> {
   return data ? toVideo(data) : null;
 }
 
-/** YouTube video id from a watch / youtu.be / shorts / embed link, else null. */
+/**
+ * YouTube video id from any usual link, else null: watch?v=, youtu.be/, shorts/, embed/, live/,
+ * m.youtube.com, and YouTube Studio's studio.youtube.com/video/<id>/edit. A bare 11-character id also works.
+ */
 export function youtubeIdOf(url?: string | null): string | null {
-  const m = url?.match(/(?:youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  const u = url?.trim();
+  if (!u) return null;
+  if (/^[A-Za-z0-9_-]{11}$/.test(u)) return u;
+  const m = u.match(/(?:(?:www\.|m\.|music\.)?youtube(?:-nocookie)?\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/|v\/)|studio\.youtube\.com\/video\/|youtu\.be\/)([A-Za-z0-9_-]{11})/);
   return m ? m[1] : null;
 }
 

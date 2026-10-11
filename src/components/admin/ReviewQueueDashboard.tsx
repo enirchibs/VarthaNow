@@ -79,6 +79,7 @@ export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraf
   const previewUrl = useMemo(() => (blob ? URL.createObjectURL(blob) : null), [blob]);
   // manual YouTube route: download the recording, upload it yourself, paste the link back
   const [ytLink, setYtLink] = useState("");
+  const [ytNote, setYtNote] = useState<{ ok: boolean; text: string } | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const yt = useMemo(() => youtubeDetails({ ...draft, presenter }), [draft, presenter]);
   const fileSlug = draft.slug.toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "") || "vaartanow-news";
@@ -210,20 +211,26 @@ export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraf
   }
 
   async function saveYoutubeLink() {
-    const id = youtubeIdOf(ytLink.trim());
-    if (!id) { setError("That is not a YouTube video link (youtu.be/… or youtube.com/watch?v=…)."); return; }
+    const id = youtubeIdOf(ytLink);
+    if (!id) {
+      setYtNote({ ok: false, text: "ఇది YouTube వీడియో లింక్ కాదు. YouTube లో Share → Copy link నొక్కి ఆ లింక్ పేస్ట్ చేయండి." });
+      return;
+    }
     setBusy(true);
-    setError("");
+    setYtNote(null);
     try {
-      const patch: RecordingPatch = { video_url: `https://www.youtube.com/watch?v=${id}`, presenter_name: presenter };
+      const patch: RecordingPatch = { video_url: `https://www.youtube.com/watch?v=${id}`, presenter_name: presenter || null };
       if (draft.id && supabase) {
-        const { error: dbErr } = await supabase.from("blog_posts").update(patch).eq("id", draft.id);
+        // .select() so a save that changed nothing (no permission) is reported instead of looking like success
+        const { data, error: dbErr } = await supabase.from("blog_posts").update(patch).eq("id", draft.id).select("id");
         if (dbErr) throw dbErr;
+        if (!data?.length) throw new Error("the article was not updated (are you signed in as an editor?)");
       }
       onAttached(patch);
-      setYtLink("");
+      setYtLink(`https://youtu.be/${id}`);
+      setYtNote({ ok: true, text: draft.id ? "✓ YouTube లింక్ సేవ్ అయింది. వార్త బ్యానర్‌పై ప్లే బటన్ వస్తుంది." : "✓ YouTube లింక్ జోడించబడింది. ఇప్పుడు ఆర్టికల్ ప్రచురించండి." });
     } catch (e: any) {
-      setError(`Could not save the link: ${e?.message ?? e}`);
+      setYtNote({ ok: false, text: `లింక్ సేవ్ కాలేదు: ${e?.message ?? e}` });
     } finally {
       setBusy(false);
     }
@@ -347,11 +354,18 @@ export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraf
             ))}
           </div>
           <div className="flex flex-wrap gap-2">
-            <Input value={ytLink} onChange={(e) => setYtLink(e.target.value)} placeholder="https://youtu.be/... లేదా https://www.youtube.com/watch?v=..." className="h-9 min-w-[240px] flex-1 rounded-lg text-xs" />
+            <Input
+              value={ytLink}
+              onChange={(e) => { setYtLink(e.target.value); setYtNote(null); }}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void saveYoutubeLink(); } }}
+              placeholder="YouTube లింక్ పేస్ట్ చేయండి (youtu.be/…, youtube.com/watch?v=…, studio.youtube.com/video/…)"
+              className="h-9 min-w-[240px] flex-1 rounded-lg text-xs"
+            />
             <Button onClick={saveYoutubeLink} disabled={busy || !ytLink.trim()} className="h-9 rounded-lg bg-red-600 px-4 text-xs font-bold text-white hover:bg-red-700">
-              <Youtube className="mr-1.5 size-4" /> Save link
+              <Youtube className="mr-1.5 size-4" /> {busy ? "Saving…" : "Save link"}
             </Button>
           </div>
+          {ytNote && <p className={`text-xs font-bold ${ytNote.ok ? "text-emerald-700" : "text-red-600"}`}>{ytNote.text}</p>}
         </div>
       )}
 
@@ -570,7 +584,7 @@ function AiDraftsReview({ editorEmail }: { editorEmail?: string }) {
             </div>
           </div>
 
-          <Recorder draft={edit} presenter={presenter.trim() || editorEmail || "VaartaNow"} onAttached={(patch) => {
+          <Recorder draft={edit} presenter={presenter.trim() || "VaartaNow"} onAttached={(patch) => {
             setEdit({ ...edit, ...patch });
             setDrafts((list) => list.map((d) => (d.id === edit.id ? { ...d, ...patch } : d)));
             setMessage(patch.video_url ? "Video attached" : "Voice attached");
