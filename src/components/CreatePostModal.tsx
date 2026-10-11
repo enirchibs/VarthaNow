@@ -27,6 +27,8 @@ import { JobPostModal } from "./jobs/JobPostModal";
 import { LocationAreaSelector } from "./LocationAreaSelector";
 import { addLocalJob } from "@/lib/jobs-api";
 import { TeluguTypingBanner } from "./TeluguTypingBanner";
+import { MediaPicker, VoiceNoteRecorder } from "./citizen/ReportMediaInputs";
+import { NotSignedInError, submitCitizenReport } from "@/lib/citizen-reports";
 
 interface CreatePostModalProps {
   isOpen: boolean;
@@ -123,6 +125,10 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   const [description, setDescription] = useState<string>("");
   const [price, setPrice] = useState<string>("");
   const [contactNumber, setContactNumber] = useState<string>("");
+  // citizen reports (news / complaint): real media, voice note, honest status
+  const [reportFiles, setReportFiles] = useState<File[]>([]);
+  const [voiceNote, setVoiceNote] = useState<Blob | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [isJobModalOpen, setIsJobModalOpen] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -157,12 +163,49 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   const handleSubmitPost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedCategory === "complaint" || selectedCategory === "news") {
-      if (!description.trim() || submitting) return;
+      if ((!description.trim() && !voiceNote) || submitting) return;
     } else {
       if (!title.trim() || submitting) return;
     }
 
     setSubmitting(true);
+    setSubmitError(null);
+
+    // Local news & public issues go to the editors' review queue (nothing is published directly)
+    if (selectedCategory === "complaint" || selectedCategory === "news") {
+      try {
+        await submitCitizenReport({
+          kind: selectedCategory === "news" ? "news" : "issue",
+          title,
+          description,
+          area: selectedArea,
+          phone: contactNumber,
+          files: reportFiles,
+          voice: voiceNote,
+        });
+        setSuccessMessage("ధన్యవాదాలు! మీ పోస్ట్ ఎడిటర్ సమీక్షకు పంపబడింది. పరిశీలించిన తర్వాత ప్రచురిస్తాం.");
+        setTimeout(() => {
+          setSuccessMessage(null);
+          setSelectedCategory(null);
+          setTitle("");
+          setDescription("");
+          setContactNumber("");
+          setReportFiles([]);
+          setVoiceNote(null);
+          onClose();
+        }, 2500);
+      } catch (err) {
+        if (err instanceof NotSignedInError) {
+          setSubmitError("పోస్ట్ చేయడానికి ముందుగా లాగిన్ అవ్వండి. లాగిన్ పేజీకి తీసుకెళ్తున్నాం...");
+          setTimeout(() => { onClose(); navigate("/login"); }, 1800);
+        } else {
+          setSubmitError(`పంపడం విఫలమైంది. మళ్ళీ ప్రయత్నించండి. (${(err as Error)?.message ?? err})`);
+        }
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
 
     // If job was selected via form, save to Jobs Hub
     if (selectedCategory === "job") {
@@ -209,7 +252,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
       id: `post_${Date.now()}`,
       category: selectedCategory,
       item_type: selectedCategory === "buy_sell_items" ? itemType : undefined,
-      title: title.trim() || (selectedCategory === "complaint" ? "స్థానిక ఫిర్యాదు" : "స్థానిక వార్త"),
+      title: title.trim() || "స్థానిక పోస్ట్",
       description: description.trim(),
       price: price.trim() || undefined,
       contact: contactNumber.trim() || undefined,
@@ -363,18 +406,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                   మొత్తం 3 ఫోటోలు లేదా వీడియోల వరకు జోడించవచ్చు.
                 </p>
                 
-                <div className="pt-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      alert(lang === "te" ? "ఫోటో లేదా వీడియోలను ఎంచుకోండి" : "Select photo or video files");
-                    }}
-                    className="w-full py-3 px-4 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/50 hover:bg-[hsl(var(--muted))] text-xs font-bold text-[hsl(var(--foreground))] transition flex items-center justify-center gap-2"
-                  >
-                    <Camera className="size-4 text-blue-600 dark:text-blue-400" />
-                    <span>ఫోటోలు లేదా వీడియోలు జోడించండి</span>
-                  </button>
-                </div>
+                <MediaPicker files={reportFiles} onChange={setReportFiles} />
               </div>
 
               {/* 2. శీర్షిక (ఐచ్ఛికం) */}
@@ -413,7 +445,6 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                 </p>
 
                 <textarea
-                  required
                   rows={4}
                   value={description}
                   maxLength={5000}
@@ -431,21 +462,10 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                   </label>
                 </div>
                 <p className="text-[11px] font-medium text-[hsl(var(--muted-foreground))] leading-snug">
-                  టైప్ చేయడం కష్టమా? చెప్పండి. 3 వరకు జోడించవచ్చు.
+                  టైప్ చేయడం కష్టమా? చెప్పండి — ఒక వాయిస్ నోట్ (3 నిమిషాల వరకు).
                 </p>
 
-                <div className="pt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      alert(lang === "te" ? "వాయిస్ రికార్డింగ్ ప్రారంభించబడింది..." : "Voice recording started...");
-                    }}
-                    className="w-full py-2.5 px-4 rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--muted))]/50 hover:bg-red-500/10 hover:text-red-600 text-xs font-bold text-[hsl(var(--foreground))] transition flex items-center justify-center gap-2"
-                  >
-                    <Mic className="size-4 text-red-500" />
-                    <span>వాయిస్ నోట్ రికార్డ్ చేయండి</span>
-                  </button>
-                </div>
+                <VoiceNoteRecorder value={voiceNote} onChange={setVoiceNote} />
               </div>
 
               {/* 5. ఇది ఎక్కడ జరిగింది? */}
@@ -481,6 +501,10 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                   className="w-full rounded-xl border border-[hsl(var(--border))]/70 bg-[hsl(var(--muted))]/40 p-3 text-xs font-semibold text-[hsl(var(--foreground))] focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+
+              {submitError && (
+                <p className="rounded-xl bg-red-500/10 p-3 text-xs font-bold text-red-600">{submitError}</p>
+              )}
 
               {/* Action Buttons */}
               <div className="flex items-center gap-3 pt-2">

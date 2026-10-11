@@ -6,6 +6,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { Button, Input } from "@/components/ui";
 import { categories } from "@/lib/categories";
+import { CitizenReportsReview } from "@/components/admin/CitizenReportsReview";
 
 // Editorial review: pipeline articles arrive as drafts. An editor fact-checks against the
 // sources, edits, can record their own voice or video reading the article, then approves
@@ -213,7 +214,7 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
   );
 }
 
-export function ReviewQueueDashboard({ editorEmail }: { editorEmail?: string }) {
+function AiDraftsReview({ editorEmail }: { editorEmail?: string }) {
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -384,6 +385,24 @@ export function ReviewQueueDashboard({ editorEmail }: { editorEmail?: string }) 
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** Review Queue: AI-written drafts and reports sent in by citizen reporters. */
+export function ReviewQueueDashboard({ editorEmail }: { editorEmail?: string }) {
+  const [mode, setMode] = useState<"ai" | "citizen">("ai");
+  return (
+    <div className="space-y-4">
+      <div className="inline-flex gap-1 rounded-2xl bg-[hsl(var(--muted))] p-1">
+        {([["ai", "AI drafts"], ["citizen", "Citizen reports"]] as const).map(([id, label]) => (
+          <button key={id} onClick={() => setMode(id)}
+            className={`rounded-xl px-4 py-2 text-xs font-black ${mode === id ? "bg-white text-[hsl(var(--foreground))] shadow" : "text-[hsl(var(--muted-foreground))]"}`}>
+            {label}
+          </button>
+        ))}
+      </div>
+      {mode === "ai" ? <AiDraftsReview editorEmail={editorEmail} /> : <CitizenReportsReview editorEmail={editorEmail} />}
     </div>
   );
 }

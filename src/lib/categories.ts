@@ -159,6 +159,32 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     rssQuery: "visakhapatnam vizag"
   },
   {
+    // citizen reporters: local news sent in by readers, published after editorial review
+    slug: "local",
+    label: {
+      te: "స్థానిక వార్తలు",
+      en: "Local News",
+      hi: "स्थानीय समाचार",
+      ta: "உள்ளூர் செய்திகள்",
+      kn: "ಸ್ಥಳೀಯ ಸುದ್ದಿ"
+    },
+    short: "స్థానికం",
+    rssQuery: "local news andhra pradesh telangana"
+  },
+  {
+    // citizen reporters: public issues (roads, drainage, power, water) raised by readers
+    slug: "issues",
+    label: {
+      te: "ప్రజా సమస్యలు",
+      en: "Public Issues",
+      hi: "जन समस्याएं",
+      ta: "மக்கள் பிரச்சினைகள்",
+      kn: "ಸಾರ್ವಜನಿಕ ಸಮಸ್ಯೆಗಳು"
+    },
+    short: "సమస్యలు",
+    rssQuery: "civic issues roads drainage water"
+  },
+  {
     slug: "jobs",
     label: {
       te: "స్థానిక ఉద్యోగాలు",

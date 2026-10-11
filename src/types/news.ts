@@ -4,6 +4,8 @@ export type NewsCategory =
   | "telangana"
   | "cinema"
   | "vizag"
+  | "local"
+  | "issues"
   | "technology"
   | "jobs"
   | "cricket"
