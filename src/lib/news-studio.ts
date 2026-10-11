@@ -169,8 +169,15 @@ export class NewsStudio {
     if (bg.kind === "image" && bg.url && !this.images.has(bg.url)) {
       const img = new Image();
       img.crossOrigin = "anonymous"; // keeps the canvas exportable for recording
-      img.src = bg.url;
-      this.images.set(bg.url, img);
+      const url = bg.url;
+      img.onload = () => this.onStatus?.("");
+      img.onerror = () => {
+        this.images.delete(url); // picking the background again retries
+        this.onStatus?.(`Could not load the "${bg.label}" background; showing the VaartaNow backdrop. Pick it again to retry.`);
+      };
+      this.onStatus?.(`Loading "${bg.label}"…`);
+      img.src = url;
+      this.images.set(url, img);
     }
     if (bg.kind !== "camera" && !this.segmenter && !this.segmenterLoading) {
       this.onStatus?.("Loading background cut-out…");
