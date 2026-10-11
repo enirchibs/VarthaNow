@@ -4,7 +4,7 @@ import {
   BarChart3, Edit3, Eye, Search, Star, Trash2, Sparkles, Upload, Activity,
   Plus, RefreshCw, Play, CheckCircle2, XCircle, Clock, AlertTriangle, ListFilter,
   ArrowRight, ShieldCheck, User, LogOut, ChevronRight, Volume2, Briefcase, Globe,
-  Image as ImageIcon, LayoutDashboard, Wand2, Clapperboard, Bot, UsersRound
+  Image as ImageIcon, LayoutDashboard, Wand2, Clapperboard, Bot, UsersRound, Radio
 } from "lucide-react";
 import type { BlogPost, NewsCategory } from "@/types/news";
 import { createPost, deletePost, getAdminPosts, updatePost } from "@/lib/news-api";
@@ -15,6 +15,7 @@ import { useLanguage, type Language } from "@/hooks/useLanguage";
 import { supabase } from "@/lib/supabase";
 import { fetchMyRole, isAdminUser, type StaffRole } from "@/hooks/useIsAdmin";
 import { UsersRolesDashboard } from "@/components/admin/UsersRolesDashboard";
+import { LiveStudio } from "@/components/admin/LiveStudio";
 import { TTSAdminDashboard } from "@/components/admin/TTSAdminDashboard";
 import { DailyShareAdminDashboard } from "@/components/admin/DailyShareAdminDashboard";
 import { JobsAdminDashboard } from "@/components/jobs/JobsAdminDashboard";
@@ -54,7 +55,7 @@ interface PipelineJob {
   created_at: string;
 }
 
-type TabType = "overview" | "users" | "chatgpt" | "review" | "articles" | "images" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
+type TabType = "overview" | "live" | "users" | "chatgpt" | "review" | "articles" | "images" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
 
 export function AdminPage() {
   const navigate = useNavigate();
@@ -589,6 +590,7 @@ export function AdminPage() {
   const allNavItems: ({ group: string } | { id: TabType; label: string; icon: typeof BarChart3; badge?: number; adminOnly?: boolean })[] = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "writer", label: "AI News Generator", icon: Wand2 },
+    { id: "live", label: "Live Studio", icon: Radio },
     { group: "Newsroom" },
     { id: "review", label: "Review Queue", icon: CheckCircle2, badge: counts.drafts + counts.reports + counts.applications },
     { id: "articles", label: "Articles & Posts", icon: ListFilter },
@@ -623,6 +625,7 @@ export function AdminPage() {
     chatgpt: "Images made in ChatGPT, ready for news stories",
     video_news: "Editor recordings, citizen videos and YouTube shorts",
     users: "Admins, editors and citizen journalists",
+    live: "Record a video bulletin in the virtual studio and publish it straight away",
   };
   const openTab = (id: TabType) => {
     if (!tabs.some((t) => t.id === id)) return; // e.g. an editor clicking the feeds card on the overview
@@ -766,6 +769,9 @@ export function AdminPage() {
         {!tabs.some((t) => t.id === activeTab) && (
           <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-8 text-center text-sm text-[hsl(var(--muted-foreground))]">This screen is for admins only.</div>
         )}
+
+        {/* ==================== TAB: LIVE STUDIO ==================== */}
+        {activeTab === "live" && <LiveStudio editorEmail={user?.email} />}
 
         {/* ==================== TAB: OVERVIEW ==================== */}
         {activeTab === "overview" && (

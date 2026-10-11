@@ -1,10 +1,11 @@
 // ═══════════════════════════════════════════════════════════════════
-//  VaartaNow virtual news studio for the editor's video recordings.
+//  VaartaNow virtual news studio for editor recordings and Live Studio.
 //  Draws the camera onto a 1280×720 canvas with a chosen background
-//  (camera as is, blur, a studio set, or a VaartaNow backdrop) and TV
-//  graphics (logo, date-time, name strap, scrolling news ticker).
-//  The person is cut out in the browser with MediaPipe selfie
-//  segmentation, loaded only when a background replacement is used.
+//  (camera as is, blur, a studio set, VaartaNow or breaking-news
+//  backdrop) and TV graphics (logo, LIVE, date-time, name strap, big
+//  breaking-news headline, news ticker, VaartaNow headlines ticker).
+//  The person is cut out in the browser with MediaPipe segmentation,
+//  loaded only when a background replacement is used.
 // ═══════════════════════════════════════════════════════════════════
 
 import type { ImageSegmenter } from "@mediapipe/tasks-vision";
@@ -13,21 +14,33 @@ export const STUDIO_W = 1280;
 export const STUDIO_H = 720;
 
 const STORAGE = "https://aapstack.tech/p/e027be62-50a9-4e4d-9341-afc64689762b/storage/v1/object/public/news-images/studio";
-// MediaPipe runtime + model, pinned to the installed package version
+// MediaPipe runtime + models, pinned to the installed package version. The multi-class model
+// (hair, face, body, clothes vs background) separates a person from room objects much better;
+// the small selfie model is the fallback.
 const WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.35/wasm";
-const MODEL = "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite";
+const MODELS = [
+  { url: "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite", personFromBackground: true },
+  { url: "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite", personFromBackground: false },
+];
 
-export type StudioBackground = { id: string; label: string; kind: "camera" | "blur" | "image" | "brand"; url?: string };
+export type StudioBackground = { id: string; label: string; kind: "camera" | "blur" | "image" | "brand" | "breaking"; url?: string };
 export const STUDIO_BACKGROUNDS: StudioBackground[] = [
   { id: "camera", label: "Camera as is", kind: "camera" },
   { id: "blur", label: "Blur my room", kind: "blur" },
   { id: "brand", label: "VaartaNow backdrop", kind: "brand" },
+  { id: "breaking", label: "Breaking news backdrop", kind: "breaking" },
   { id: "studio-red", label: "Studio · world map", kind: "image", url: `${STORAGE}/studio-red.webp` },
   { id: "studio-blue", label: "Studio · globe", kind: "image", url: `${STORAGE}/studio-blue.webp` },
   { id: "newsroom", label: "Newsroom", kind: "image", url: `${STORAGE}/newsroom.webp` },
   { id: "vizag-window", label: "Vizag beach view", kind: "image", url: `${STORAGE}/vizag-window.webp` },
   { id: "hyderabad-night", label: "Hyderabad skyline", kind: "image", url: `${STORAGE}/hyderabad-night.webp` },
 ];
+
+/** Swatch for backgrounds drawn in code (shown in the pickers). */
+export const backgroundSwatch = (b: StudioBackground) =>
+  b.kind === "brand" ? "linear-gradient(135deg,#7f1d1d,#b91c1c 55%,#0b1020)"
+    : b.kind === "breaking" ? "linear-gradient(135deg,#450a0a,#dc2626 50%,#111827)"
+      : b.kind === "blur" ? "linear-gradient(135deg,#94a3b8,#cbd5e1,#64748b)" : "#1e293b";
 
 export const TICKER_LABELS = ["బ్రేకింగ్ న్యూస్", "తాజా వార్తలు", "ప్రత్యేక కథనం", "స్థానిక వార్తలు"];
 
@@ -41,6 +54,11 @@ export type StudioSettings = {
   tickerText: string;
   presenter: string;
   strapLine: string; // second line of the name strap, e.g. the story headline
+  live?: boolean; // red LIVE badge (Live Studio only)
+  breaking?: boolean; // big scrolling breaking-news headline band
+  breakingText?: string;
+  vnTicker?: boolean; // bottom line scrolling the latest VaartaNow headlines
+  headlines?: string[];
 };
 
 const TE = "'Noto Sans Telugu', 'Nirmala UI', Gautami, sans-serif";
@@ -65,6 +83,9 @@ function fitText(ctx: CanvasRenderingContext2D, text: string, maxW: number, size
   return t;
 }
 
+/** An email is not a name to show on air. */
+const displayName = (p: string) => (p && !p.includes("@") ? p : "VaartaNow ప్రతినిధి");
+
 export class NewsStudio {
   readonly canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -74,9 +95,13 @@ export class NewsStudio {
   private settings: StudioSettings;
   private images = new Map<string, HTMLImageElement>();
   private segmenter: ImageSegmenter | null = null;
+  private personFromBackground = false;
   private segmenterLoading: Promise<void> | null = null;
+  private smooth: Float32Array | null = null; // mask averaged over frames (less flicker)
   private raf = 0;
   private tickerX = STUDIO_W;
+  private breakingX = STUDIO_W;
+  private vnX = STUDIO_W;
   private lastTs = 0;
   onStatus?: (text: string) => void;
 
@@ -135,14 +160,22 @@ export class NewsStudio {
         try {
           const { FilesetResolver, ImageSegmenter } = await import("@mediapipe/tasks-vision");
           const fileset = await FilesetResolver.forVisionTasks(WASM);
-          const make = (delegate: "GPU" | "CPU") => ImageSegmenter.createFromOptions(fileset, {
-            baseOptions: { modelAssetPath: MODEL, delegate },
-            runningMode: "VIDEO",
-            outputConfidenceMasks: true,
-            outputCategoryMask: false,
-          });
-          this.segmenter = await make("GPU").catch(() => make("CPU"));
-          this.onStatus?.("");
+          for (const model of MODELS) {
+            for (const delegate of ["GPU", "CPU"] as const) {
+              try {
+                this.segmenter = await ImageSegmenter.createFromOptions(fileset, {
+                  baseOptions: { modelAssetPath: model.url, delegate },
+                  runningMode: "VIDEO",
+                  outputConfidenceMasks: true,
+                  outputCategoryMask: false,
+                });
+                this.personFromBackground = model.personFromBackground;
+                this.onStatus?.("");
+                return;
+              } catch { /* try the next option */ }
+            }
+          }
+          throw new Error("no segmentation model could be loaded");
         } catch (e: any) {
           this.onStatus?.(`Background replacement is not available on this device (${e?.message ?? e}). Using the camera as is.`);
         } finally {
@@ -152,14 +185,29 @@ export class NewsStudio {
     }
   }
 
-  // camera frame placement: fill the frame for "camera as is"; keep a portrait phone camera whole
-  // (full height, centred) when the background is replaced, so the presenter is not cropped
+  // camera frame placement: fill the frame; keep a portrait phone camera whole (full height,
+  // centred) when the background is replaced, so the presenter is not cropped
   private placement(fill: boolean) {
     const vw = this.video.videoWidth || STUDIO_W, vh = this.video.videoHeight || STUDIO_H;
     const portrait = vh > vw;
     const scale = fill || !portrait ? Math.max(STUDIO_W / vw, STUDIO_H / vh) : STUDIO_H / vh;
     const w = vw * scale, h = vh * scale;
     return { x: (STUDIO_W - w) / 2, y: STUDIO_H - h, w, h };
+  }
+
+  private stripes(color: string, alpha: number) {
+    const { ctx } = this;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 26;
+    for (let x = -STUDIO_H; x < STUDIO_W; x += 120) {
+      ctx.beginPath();
+      ctx.moveTo(x, STUDIO_H);
+      ctx.lineTo(x + STUDIO_H, 0);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   private drawBrand() {
@@ -170,16 +218,8 @@ export class NewsStudio {
     g.addColorStop(1, "#0b1020");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, STUDIO_W, STUDIO_H);
+    this.stripes("#fff", 0.08);
     ctx.save();
-    ctx.globalAlpha = 0.08;
-    ctx.strokeStyle = "#fff";
-    ctx.lineWidth = 26;
-    for (let x = -STUDIO_H; x < STUDIO_W; x += 120) {
-      ctx.beginPath();
-      ctx.moveTo(x, STUDIO_H);
-      ctx.lineTo(x + STUDIO_H, 0);
-      ctx.stroke();
-    }
     ctx.globalAlpha = 0.13;
     ctx.fillStyle = "#fff";
     ctx.font = "900 150px Arial, sans-serif";
@@ -188,6 +228,76 @@ export class NewsStudio {
     ctx.font = `700 64px ${TE}`;
     ctx.fillText("తెలుగు వార్తలు", STUDIO_W - 48, 290);
     ctx.restore();
+  }
+
+  private drawBreaking() {
+    const { ctx } = this;
+    const g = ctx.createRadialGradient(STUDIO_W / 2, STUDIO_H / 2, 80, STUDIO_W / 2, STUDIO_H / 2, STUDIO_W * 0.75);
+    g.addColorStop(0, "#dc2626");
+    g.addColorStop(0.55, "#7f1d1d");
+    g.addColorStop(1, "#111827");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, STUDIO_W, STUDIO_H);
+    this.stripes("#000", 0.12);
+    // light rays + big repeated words behind the presenter
+    ctx.save();
+    ctx.globalAlpha = 0.12 + 0.05 * Math.sin(performance.now() / 600);
+    ctx.fillStyle = "#fff";
+    ctx.font = "900 120px Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("BREAKING NEWS", STUDIO_W / 2, 230);
+    ctx.font = `900 96px ${TE}`;
+    ctx.fillText("బ్రేకింగ్ న్యూస్", STUDIO_W / 2, 350);
+    ctx.restore();
+    ctx.fillStyle = "#facc15";
+    ctx.fillRect(0, 0, STUDIO_W, 6);
+  }
+
+  /** Confidence mask → alpha: average over frames, keep only the largest person shape, soft edges. */
+  private buildMask(conf: Float32Array, w: number, h: number) {
+    const n = w * h;
+    if (!this.smooth || this.smooth.length !== n) this.smooth = new Float32Array(n);
+    const sm = this.smooth;
+    for (let i = 0; i < n; i++) {
+      const p = this.personFromBackground ? 1 - conf[i] : conf[i];
+      sm[i] = sm[i] * 0.45 + p * 0.55;
+    }
+    // largest connected region above 0.4: drops stray patches such as lamps or posters
+    const label = new Int32Array(n);
+    const queue = new Int32Array(n);
+    let best = 0, bestSize = 0, next = 0;
+    for (let i = 0; i < n; i++) {
+      if (label[i] || sm[i] < 0.4) continue;
+      next++;
+      let head = 0, tail = 0, size = 0;
+      queue[tail++] = i;
+      label[i] = next;
+      while (head < tail) {
+        const k = queue[head++];
+        size++;
+        const x = k % w, y = (k - x) / w;
+        if (x > 0 && !label[k - 1] && sm[k - 1] >= 0.4) { label[k - 1] = next; queue[tail++] = k - 1; }
+        if (x < w - 1 && !label[k + 1] && sm[k + 1] >= 0.4) { label[k + 1] = next; queue[tail++] = k + 1; }
+        if (y > 0 && !label[k - w] && sm[k - w] >= 0.4) { label[k - w] = next; queue[tail++] = k - w; }
+        if (y < h - 1 && !label[k + w] && sm[k + w] >= 0.4) { label[k + w] = next; queue[tail++] = k + w; }
+      }
+      if (size > bestSize) { bestSize = size; best = next; }
+    }
+    if (this.mask.width !== w || this.mask.height !== h) { this.mask.width = w; this.mask.height = h; }
+    const mctx = this.mask.getContext("2d")!;
+    const data = mctx.createImageData(w, h);
+    for (let i = 0; i < n; i++) {
+      // inside the main shape: soft ramp; a thin halo just outside it keeps edges smooth
+      let a = 0;
+      if (label[i] === best) a = Math.min(1, (sm[i] - 0.4) / 0.3 + 0.35);
+      else if (sm[i] > 0.15 && sm[i] < 0.4) {
+        const x = i % w;
+        const near = (x > 0 && label[i - 1] === best) || (x < w - 1 && label[i + 1] === best) || label[i - w] === best || label[i + w] === best;
+        if (near) a = sm[i];
+      }
+      data.data[i * 4 + 3] = a * 255;
+    }
+    mctx.putImageData(data, 0, 0);
   }
 
   private draw() {
@@ -199,7 +309,7 @@ export class NewsStudio {
 
     const cutOut = bg.kind !== "camera" && this.segmenter && ready;
     if (!cutOut) {
-      if (bg.kind === "brand" && !ready) this.drawBrand();
+      if (!ready) bg.kind === "breaking" ? this.drawBreaking() : this.drawBrand();
       if (ready) {
         const p = this.placement(true);
         ctx.drawImage(video, p.x, p.y, p.w, p.h);
@@ -216,6 +326,8 @@ export class NewsStudio {
         const img = this.images.get(bg.url!);
         if (img?.complete && img.naturalWidth) ctx.drawImage(img, 0, 0, STUDIO_W, STUDIO_H);
         else this.drawBrand();
+      } else if (bg.kind === "breaking") {
+        this.drawBreaking();
       } else {
         this.drawBrand();
       }
@@ -225,22 +337,16 @@ export class NewsStudio {
       const result = this.segmenter!.segmentForVideo(video, ts);
       const m = result.confidenceMasks?.[0];
       if (m) {
-        const conf = m.getAsFloat32Array();
-        if (this.mask.width !== m.width || this.mask.height !== m.height) { this.mask.width = m.width; this.mask.height = m.height; }
-        const mctx = this.mask.getContext("2d")!;
-        const data = mctx.createImageData(m.width, m.height);
-        for (let i = 0; i < conf.length; i++) {
-          const a = Math.min(1, Math.max(0, (conf[i] - 0.35) / 0.3)); // soft edge
-          data.data[i * 4 + 3] = a * 255;
-        }
-        mctx.putImageData(data, 0, 0);
+        this.buildMask(m.getAsFloat32Array(), m.width, m.height);
         const p = this.placement(bg.kind === "blur");
         const pctx = this.person.getContext("2d")!;
         pctx.globalCompositeOperation = "source-over";
         pctx.clearRect(0, 0, STUDIO_W, STUDIO_H);
         pctx.drawImage(video, p.x, p.y, p.w, p.h);
         pctx.globalCompositeOperation = "destination-in";
+        pctx.filter = "blur(2px)"; // feather the upscaled mask edge
         pctx.drawImage(this.mask, p.x, p.y, p.w, p.h);
+        pctx.filter = "none";
         pctx.globalCompositeOperation = "source-over";
         ctx.drawImage(this.person, 0, 0);
       }
@@ -249,11 +355,32 @@ export class NewsStudio {
     this.overlays();
   }
 
+  /** A scrolling text line clipped to a box; returns the new x offset. */
+  private scroll(text: string, x: number, left: number, top: number, height: number, font: string, color: string, speed: number, baseline: number) {
+    const { ctx } = this;
+    ctx.font = font;
+    const tw = Math.max(ctx.measureText(text).width, 200);
+    x -= speed;
+    if (x < left - tw) x += tw;
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(left, top, STUDIO_W - left, height);
+    ctx.clip();
+    ctx.fillStyle = color;
+    for (let xx = x; xx < STUDIO_W; xx += tw) ctx.fillText(text, xx, top + baseline);
+    ctx.restore();
+    return x;
+  }
+
   private overlays() {
     const { ctx } = this;
     const s = this.settings;
-    const tickerH = 58;
-    const tickerY = STUDIO_H - tickerH;
+    // bottom-up layout: VaartaNow headlines line, news ticker, breaking band, name strap
+    let bottom = STUDIO_H;
+    const vnH = 42, tickerH = 58, breakingH = 104;
+    const vnY = s.vnTicker ? (bottom -= vnH) : bottom;
+    const tickerY = s.ticker ? (bottom -= tickerH) : bottom;
+    const breakingY = s.breaking ? (bottom -= breakingH + 10) : bottom;
 
     if (s.logo) {
       ctx.fillStyle = "#dc2626";
@@ -262,6 +389,20 @@ export class NewsStudio {
       ctx.fillStyle = "#fff";
       ctx.font = "800 26px Arial, sans-serif";
       ctx.fillText("VaartaNow", 50, 61);
+    }
+
+    if (s.live) {
+      const x = s.logo ? 244 : 32;
+      ctx.fillStyle = "#dc2626";
+      roundRect(ctx, x, 28, 112, 48, 10);
+      ctx.fill();
+      ctx.fillStyle = `rgba(255,255,255,${0.55 + 0.45 * Math.abs(Math.sin(performance.now() / 400))})`;
+      ctx.beginPath();
+      ctx.arc(x + 24, 52, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.font = "800 24px Arial, sans-serif";
+      ctx.fillText("LIVE", x + 42, 61);
     }
 
     if (s.clock) {
@@ -276,43 +417,49 @@ export class NewsStudio {
       ctx.fillText(text, STUDIO_W - 32 - w + 16, 59);
     }
 
-    if (s.strap && (s.presenter || s.strapLine)) {
-      const y = (s.ticker ? tickerY : STUDIO_H) - 118;
+    if (s.strap) {
+      const y = bottom - 104;
       const w = 760;
       ctx.fillStyle = "#dc2626";
       ctx.fillRect(40, y, 10, 92);
       ctx.fillStyle = "rgba(255,255,255,0.96)";
       ctx.fillRect(50, y, w, 50);
       ctx.fillStyle = "#111827";
-      const name = fitText(ctx, s.presenter || "VaartaNow", w - 40, 30, 20, 800);
-      ctx.fillText(name, 70, y + 36);
+      ctx.fillText(fitText(ctx, displayName(s.presenter), w - 40, 30, 20, 800), 70, y + 36);
       ctx.fillStyle = "rgba(11,16,32,0.92)";
       ctx.fillRect(50, y + 50, w, 42);
       ctx.fillStyle = "#fff";
-      const line = fitText(ctx, s.strapLine || "VaartaNow ప్రతినిధి", w - 40, 23, 15, 600);
-      ctx.fillText(line, 70, y + 79);
+      ctx.fillText(fitText(ctx, s.strapLine || "VaartaNow", w - 40, 23, 15, 600), 70, y + 79);
+    }
+
+    if (s.breaking) {
+      const y = breakingY;
+      // big white band with the headline scrolling in large letters
+      ctx.fillStyle = "rgba(255,255,255,0.97)";
+      ctx.fillRect(0, y, STUDIO_W, breakingH);
+      const labelW = 250;
+      this.breakingX = this.scroll(`${(s.breakingText || s.tickerText || "VaartaNow").trim()}      ●      `, this.breakingX, labelW, y, breakingH, `900 46px ${TE}`, "#111827", 3, 68);
+      // flashing red/yellow label block
+      const flash = Math.floor(performance.now() / 700) % 2 === 0;
+      ctx.fillStyle = flash ? "#dc2626" : "#b91c1c";
+      ctx.fillRect(0, y, labelW, breakingH);
+      ctx.fillStyle = "#facc15";
+      ctx.fillRect(0, y, STUDIO_W, 6);
+      ctx.fillStyle = "#fff";
+      ctx.font = "900 26px Arial, sans-serif";
+      ctx.fillText("BREAKING", 26, y + 44);
+      ctx.fillStyle = "#facc15";
+      ctx.font = `900 30px ${TE}`;
+      ctx.fillText("బ్రేకింగ్ న్యూస్", 22, y + 86);
     }
 
     if (s.ticker) {
       ctx.fillStyle = "rgba(11,16,32,0.95)";
       ctx.fillRect(0, tickerY, STUDIO_W, tickerH);
-      // scrolling text (clipped right of the label)
       const label = s.tickerLabel || TICKER_LABELS[0];
       ctx.font = `800 24px ${TE}`;
       const labelW = ctx.measureText(label).width + 48;
-      const text = `${(s.tickerText || "VaartaNow తెలుగు వార్తలు").trim()}     ●     `;
-      ctx.font = `600 25px ${TE}`;
-      const tw = Math.max(ctx.measureText(text).width, 200);
-      this.tickerX -= 2.4;
-      if (this.tickerX < labelW - tw) this.tickerX += tw;
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(labelW, tickerY, STUDIO_W - labelW, tickerH);
-      ctx.clip();
-      ctx.fillStyle = "#fff";
-      for (let x = this.tickerX; x < STUDIO_W; x += tw) ctx.fillText(text, x, tickerY + 38);
-      ctx.restore();
-      // label block
+      this.tickerX = this.scroll(`${(s.tickerText || "VaartaNow తెలుగు వార్తలు").trim()}     ●     `, this.tickerX, labelW, tickerY, tickerH, `600 25px ${TE}`, "#fff", 2.4, 38);
       ctx.fillStyle = "#dc2626";
       ctx.fillRect(0, tickerY, labelW, tickerH);
       ctx.fillStyle = "#facc15";
@@ -320,6 +467,23 @@ export class NewsStudio {
       ctx.fillStyle = "#fff";
       ctx.font = `800 24px ${TE}`;
       ctx.fillText(label, 24, tickerY + 38);
+    }
+
+    if (s.vnTicker) {
+      ctx.fillStyle = "#facc15";
+      ctx.fillRect(0, vnY, STUDIO_W, vnH);
+      const items = (s.headlines ?? []).filter(Boolean);
+      const text = `${(items.length ? items : ["VaartaNow · తాజా తెలుగు వార్తలు"]).join("   ◆   ")}   ◆   `;
+      ctx.font = "900 22px Arial, sans-serif";
+      const labelW = ctx.measureText("VaartaNow").width + 40;
+      this.vnX = this.scroll(text, this.vnX, labelW, vnY, vnH, `700 21px ${TE}`, "#111827", 1.8, 29);
+      ctx.fillStyle = "#111827";
+      ctx.fillRect(0, vnY, labelW, vnH);
+      ctx.fillStyle = "#fff";
+      ctx.font = "900 22px Arial, sans-serif";
+      ctx.fillText("Vaarta", 20, vnY + 29);
+      ctx.fillStyle = "#ef4444";
+      ctx.fillText("Now", 20 + ctx.measureText("Vaarta").width, vnY + 29);
     }
   }
 }

@@ -3,7 +3,8 @@ import {
   CheckCircle2, XCircle, Save, Mic, Video, Square, RotateCcw, Upload, Trash2, ExternalLink,
   ClipboardCheck, RefreshCw, ScrollText, Camera, Clapperboard, X,
 } from "lucide-react";
-import { NewsStudio, STUDIO_BACKGROUNDS, TICKER_LABELS, type StudioSettings } from "@/lib/news-studio";
+import { NewsStudio, STUDIO_BACKGROUNDS, TICKER_LABELS, backgroundSwatch, type StudioSettings } from "@/lib/news-studio";
+import { useLatestHeadlines } from "@/components/admin/LiveStudio";
 import { supabase } from "@/lib/supabase";
 import { Button, Input } from "@/components/ui";
 import { categories } from "@/lib/categories";
@@ -64,8 +65,8 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
     let saved: Partial<StudioSettings> = {};
     try { saved = JSON.parse(localStorage.getItem("vn-studio") || "{}"); } catch { /* private mode */ }
     return {
-      background: "studio-red", logo: true, clock: true, strap: true, ticker: true, tickerLabel: TICKER_LABELS[0],
-      ...saved, tickerText: draft.title, strapLine: draft.title, presenter,
+      background: "studio-red", logo: true, clock: true, strap: true, ticker: true, tickerLabel: TICKER_LABELS[0], breaking: false, vnTicker: false,
+      ...saved, tickerText: draft.title, strapLine: draft.title, breakingText: draft.title, presenter,
     };
   });
   const setStudioField = <K extends keyof StudioSettings>(k: K, v: StudioSettings[K]) => setStudio((st) => ({ ...st, [k]: v }));
@@ -82,10 +83,12 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
 
   // keep the studio in step with the form; remember the look (not the texts) for next time
   useEffect(() => { setStudio((st) => ({ ...st, presenter })); }, [presenter]);
+  const headlines = useLatestHeadlines();
+  useEffect(() => { setStudio((st) => ({ ...st, headlines })); }, [headlines]);
   useEffect(() => {
     studioRef.current?.update(studio);
-    const { background, logo, clock, strap, ticker, tickerLabel } = studio;
-    try { localStorage.setItem("vn-studio", JSON.stringify({ background, logo, clock, strap, ticker, tickerLabel })); } catch { /* private mode */ }
+    const { background, logo, clock, strap, ticker, tickerLabel, breaking, vnTicker } = studio;
+    try { localStorage.setItem("vn-studio", JSON.stringify({ background, logo, clock, strap, ticker, tickerLabel, breaking, vnTicker })); } catch { /* private mode */ }
   }, [studio]);
 
   // the studio runs while the camera is open in video mode
@@ -291,20 +294,18 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
               >
                 <div
                   className="aspect-video w-full bg-cover bg-center"
-                  style={b.url ? { backgroundImage: `url(${b.url})` } : {
-                    background: b.kind === "brand" ? "linear-gradient(135deg,#7f1d1d,#b91c1c 55%,#0b1020)" : b.kind === "blur" ? "linear-gradient(135deg,#94a3b8,#cbd5e1,#64748b)" : "#1e293b",
-                  }}
+                  style={b.url ? { backgroundImage: `url(${b.url})` } : { background: backgroundSwatch(b) }}
                 >
-                  {!b.url && <span className="flex h-full items-center justify-center text-[10px] font-black text-white/90">{b.kind === "brand" ? "VaartaNow" : b.kind === "blur" ? "Blur" : "Camera"}</span>}
+                  {!b.url && <span className="flex h-full items-center justify-center text-[10px] font-black text-white/90">{b.kind === "brand" ? "VaartaNow" : b.kind === "breaking" ? "BREAKING" : b.kind === "blur" ? "Blur" : "Camera"}</span>}
                 </div>
                 <span className="block truncate bg-[hsl(var(--card))] px-1.5 py-1 text-[10.5px] font-bold">{b.label}</span>
               </button>
             ))}
           </div>
           <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-bold">
-            {([["logo", "VaartaNow logo"], ["clock", "Date & time"], ["strap", "Name strap"], ["ticker", "Scrolling news ticker"]] as const).map(([k, label]) => (
+            {([["logo", "VaartaNow logo"], ["clock", "Date & time"], ["strap", "Name strap"], ["breaking", "Big breaking headline"], ["ticker", "Scrolling news ticker"], ["vnTicker", "VaartaNow headlines ticker"]] as const).map(([k, label]) => (
               <label key={k} className="flex items-center gap-1.5">
-                <input type="checkbox" checked={studio[k]} onChange={(e) => setStudioField(k, e.target.checked)} className="accent-rose-600" /> {label}
+                <input type="checkbox" checked={!!studio[k]} onChange={(e) => setStudioField(k, e.target.checked)} className="accent-rose-600" /> {label}
               </label>
             ))}
           </div>
@@ -315,6 +316,9 @@ function Recorder({ draft, presenter, onAttached }: { draft: Draft; presenter: s
               </select>
               <Input value={studio.tickerText} onChange={(e) => setStudioField("tickerText", e.target.value)} placeholder="Ticker text" className="h-9 rounded-lg text-xs" />
             </div>
+          )}
+          {studio.breaking && (
+            <Input value={studio.breakingText ?? ""} onChange={(e) => setStudioField("breakingText", e.target.value)} placeholder="Big breaking headline (scrolls in large letters)" className="h-9 rounded-lg text-xs font-bold" />
           )}
           {studio.strap && (
             <Input value={studio.strapLine} onChange={(e) => setStudioField("strapLine", e.target.value)} placeholder="Second line of the name strap (e.g. the headline)" className="h-9 rounded-lg text-xs" />
