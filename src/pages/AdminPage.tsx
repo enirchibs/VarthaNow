@@ -4,7 +4,7 @@ import {
   BarChart3, Edit3, Eye, Search, Star, Trash2, Sparkles, Upload, Activity,
   Plus, RefreshCw, Play, CheckCircle2, XCircle, Clock, AlertTriangle, ListFilter,
   ArrowRight, ShieldCheck, User, LogOut, ChevronRight, Volume2, Briefcase, Globe,
-  Image as ImageIcon, LayoutDashboard
+  Image as ImageIcon, LayoutDashboard, Wand2, Clapperboard, Bot
 } from "lucide-react";
 import type { BlogPost, NewsCategory } from "@/types/news";
 import { createPost, deletePost, getAdminPosts, updatePost } from "@/lib/news-api";
@@ -17,12 +17,11 @@ import { isAdminUser } from "@/hooks/useIsAdmin";
 import { TTSAdminDashboard } from "@/components/admin/TTSAdminDashboard";
 import { DailyShareAdminDashboard } from "@/components/admin/DailyShareAdminDashboard";
 import { JobsAdminDashboard } from "@/components/jobs/JobsAdminDashboard";
-import { VideoNewsAdminDashboard } from "@/components/admin/VideoNewsAdminDashboard";
 import { SEOAdminDashboard } from "@/components/admin/SEOAdminDashboard";
 import { AnalyticsAdminDashboard } from "@/components/admin/AnalyticsAdminDashboard";
-import { ImageLibraryAdminDashboard } from "@/components/admin/ImageLibraryAdminDashboard";
 import { ReviewQueueDashboard } from "@/components/admin/ReviewQueueDashboard";
 import { NewsroomOverview, useNewsroomCounts } from "@/components/admin/NewsroomOverview";
+import { ChatGptGallery, ImageGallery, VideoGallery } from "@/components/admin/MediaGalleries";
 import { compressImage, extensionFor } from "@/lib/image-compression";
 
 interface RssFeed {
@@ -54,7 +53,7 @@ interface PipelineJob {
   created_at: string;
 }
 
-type TabType = "overview" | "review" | "articles" | "images" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
+type TabType = "overview" | "chatgpt" | "review" | "articles" | "images" | "writer" | "daily_share" | "jobs" | "video_news" | "seo" | "analytics" | "feeds" | "queue" | "tts";
 
 export function AdminPage() {
   const navigate = useNavigate();
@@ -585,16 +584,18 @@ export function AdminPage() {
 
   const navItems: ({ group: string } | { id: TabType; label: string; icon: typeof BarChart3; badge?: number })[] = [
     { id: "overview", label: "Overview", icon: LayoutDashboard },
+    { id: "writer", label: "AI News Generator", icon: Wand2 },
     { group: "Newsroom" },
     { id: "review", label: "Review Queue", icon: CheckCircle2, badge: counts.drafts + counts.reports },
     { id: "articles", label: "Articles & Posts", icon: ListFilter },
-    { id: "writer", label: "AI Generator", icon: Sparkles },
-    { id: "video_news", label: "Video News & Shorts", icon: Play },
     { id: "daily_share", label: "Daily WhatsApp & Media", icon: Upload },
+    { group: "Galleries" },
+    { id: "images", label: "Image Gallery", icon: ImageIcon, badge: counts.photos },
+    { id: "chatgpt", label: "ChatGPT Gallery", icon: Bot },
+    { id: "video_news", label: "Video Gallery", icon: Clapperboard },
     { group: "Pipeline" },
     { id: "feeds", label: "RSS Feeds", icon: Activity, badge: feeds.filter((f) => f.consecutive_failures > 0).length },
     { id: "queue", label: "Queue Monitor", icon: Clock, badge: jobStats.failed + jobStats.dead },
-    { id: "images", label: "Image Library", icon: ImageIcon, badge: counts.photos },
     { id: "tts", label: "Telugu TTS Engine", icon: Volume2 },
     { group: "Growth" },
     { id: "analytics", label: "Analytics & Traffic", icon: BarChart3 },
@@ -606,8 +607,11 @@ export function AdminPage() {
   const subtitles: Partial<Record<TabType, string>> = {
     overview: `తెలుగు న్యూస్‌రూమ్ · ${new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}`,
     review: "AI drafts and citizen reports waiting for an editor",
-    images: "Photo library, licensed photos and review",
+    images: "AI images, licensed photos and every article image",
     feeds: "News sources read by the pipeline",
+    writer: "Write a full Telugu news article with Gemini from a headline or topic",
+    chatgpt: "Images made in ChatGPT, ready for news stories",
+    video_news: "Editor recordings, citizen videos and YouTube shorts",
   };
   const openTab = (id: TabType) => {
     setActiveTab(id);
@@ -836,7 +840,8 @@ export function AdminPage() {
         {activeTab === "review" && <ReviewQueueDashboard editorEmail={user?.email} />}
 
         {/* ==================== TAB: IMAGE LIBRARY ==================== */}
-        {activeTab === "images" && <ImageLibraryAdminDashboard editorEmail={user?.email} />}
+        {activeTab === "images" && <ImageGallery editorEmail={user?.email} />}
+        {activeTab === "chatgpt" && <ChatGptGallery editorEmail={user?.email} />}
 
         {/* ==================== TAB 2: AI NEWS GENERATOR ==================== */}
         {activeTab === "writer" && (
@@ -1386,7 +1391,7 @@ export function AdminPage() {
         {activeTab === "jobs" && <JobsAdminDashboard />}
 
         {/* ==================== TAB: VIDEO NEWS & SHORTS MANAGER ==================== */}
-        {activeTab === "video_news" && <VideoNewsAdminDashboard />}
+        {activeTab === "video_news" && <VideoGallery />}
 
         {/* ==================== TAB: SEO & META ENGINE ==================== */}
         {activeTab === "seo" && <SEOAdminDashboard />}

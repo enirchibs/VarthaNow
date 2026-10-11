@@ -57,7 +57,12 @@ export interface ImageLibraryItem {
   reviewed_at?: string | null;
 }
 
-export function ImageLibraryAdminDashboard({ editorEmail }: { editorEmail?: string | null } = {}) {
+export function ImageLibraryAdminDashboard({ editorEmail, provider, emptyText }: {
+  editorEmail?: string | null;
+  /** Show only images from one generator, e.g. "openai" for the ChatGPT gallery. */
+  provider?: string;
+  emptyText?: string;
+} = {}) {
   const [items, setItems] = useState<ImageLibraryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -148,6 +153,8 @@ export function ImageLibraryAdminDashboard({ editorEmail }: { editorEmail?: stri
 
     return items
       .filter((item) => {
+        if (provider && item.generation_provider !== provider) return false;
+
         // Filter by kind
         if (selectedKind !== "all" && item.kind !== selectedKind) return false;
         
@@ -180,15 +187,16 @@ export function ImageLibraryAdminDashboard({ editorEmail }: { editorEmail?: stri
         const bCodeMatch = (b.asset_code || "").toLowerCase().includes(q) ? 10 : 0;
         return bCodeMatch - aCodeMatch;
       });
-  }, [items, searchQuery, selectedKind, selectedCategory, selectedType, selectedReview]);
+  }, [items, searchQuery, selectedKind, selectedCategory, selectedType, selectedReview, provider]);
 
   const stats = useMemo(() => {
-    const total = items.length;
-    const aiCount = items.filter((i) => i.is_ai_generated).length;
+    const scoped = provider ? items.filter((i) => i.generation_provider === provider) : items;
+    const total = scoped.length;
+    const aiCount = scoped.filter((i) => i.is_ai_generated).length;
     const realCount = total - aiCount;
-    const pendingCount = items.filter((i) => i.review_status === "pending").length;
+    const pendingCount = scoped.filter((i) => i.review_status === "pending").length;
     return { total, aiCount, realCount, pendingCount };
-  }, [items]);
+  }, [items, provider]);
 
   return (
     <div className="space-y-6">
@@ -370,7 +378,7 @@ export function ImageLibraryAdminDashboard({ editorEmail }: { editorEmail?: stri
           <ImageIcon className="size-12 text-zinc-500 mx-auto mb-3 opacity-40" />
           <h3 className="font-black text-lg">No Images Found</h3>
           <p className="text-xs text-[hsl(var(--muted-foreground))] font-bold mt-1">
-            Try adjusting your search keywords or filter settings.
+            {emptyText ?? "Try adjusting your search keywords or filter settings."}
           </p>
         </div>
       ) : (
