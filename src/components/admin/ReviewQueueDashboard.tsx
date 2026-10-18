@@ -7,6 +7,8 @@ import { youtubeDetails } from "@/lib/youtube-details";
 import { youtubeIdOf } from "@/lib/videos-api";
 import { NewsStudio, SCROLL_SPEEDS, STUDIO_BACKGROUNDS, TICKER_LABELS, backgroundSwatch, type PresenterSide, type StudioSettings } from "@/lib/news-studio";
 import { useLatestHeadlines } from "@/components/admin/LiveStudio";
+import { DevicePicker } from "@/components/admin/DevicePicker";
+import { useMediaDevices } from "@/hooks/useMediaDevices";
 import { supabase } from "@/lib/supabase";
 import { Button, Input } from "@/components/ui";
 import { categories } from "@/lib/categories";
@@ -93,6 +95,21 @@ export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraf
     stream?.getTracks().forEach((t) => t.stop());
     setStream(null);
   }, [stream]);
+  const devices = useMediaDevices();
+
+  // Switching camera/microphone while the camera is open (not recording) reopens it with the new device.
+  const devicesReady = useRef(false);
+  useEffect(() => {
+    if (!devicesReady.current) { devicesReady.current = true; return; }
+    if (!stream || recording) return;
+    stream.getTracks().forEach((t) => t.stop());
+    devices.open(mode === "video").then(setStream).catch((e: any) => {
+      setStream(null);
+      setError(e?.message || "Could not open the selected camera.");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [devices.cameraId, devices.micId]);
+
 
   useEffect(() => () => { stream?.getTracks().forEach((t) => t.stop()); }, [stream]);
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl); }, [previewUrl]);
@@ -136,10 +153,7 @@ export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraf
     return () => clearInterval(t);
   }, [recording, autoScroll]);
 
-  const openMedia = () => navigator.mediaDevices.getUserMedia({
-    audio: { echoCancellation: true, noiseSuppression: true },
-    video: mode === "video" ? { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } } : false,
-  });
+  const openMedia = () => devices.open(mode === "video");
 
   /** Video mode: open the camera first so the editor can set up the studio before recording. */
   async function openCamera() {
@@ -291,6 +305,10 @@ export function Recorder({ draft, presenter, onAttached }: { draft: RecorderDraf
             </div>
           )}
 
+          {!blob && (
+            <DevicePicker devices={devices} video={mode === "video"} disabled={recording}
+              onBackgroundAsIs={() => setStudioField("background", "camera")} />
+          )}
           <div className="flex flex-wrap items-center gap-2">
             {mode === "video" && !stream && !recording && !blob && (
               <Button onClick={openCamera} className="h-10 rounded-xl bg-slate-900 px-4 text-xs font-bold text-white">

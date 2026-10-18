@@ -9,6 +9,8 @@ PUBLIC_ROUTES = [
     "/search?q=test", "/login", "/jobs", "/jobs/government", "/jobs/fresher-jobs",
     "/about", "/contact", "/privacy", "/terms", "/disclaimer", "/safety",
     "/grievance", "/report-abuse", "/legal-agreements",
+    "/customer-terms", "/provider-terms", "/provider-code-of-conduct", "/citizen-journalist",
+    "/health/tips", "/daily-share", "/category/devotional", "/category/viralshorts",
 ]
 
 # Network noise outside the app's control. Supabase availability is covered separately
@@ -55,9 +57,10 @@ def test_unknown_article_is_not_fabricated(page: Page, base_url):
 
 
 def test_search_with_no_matches_returns_no_demo_posts(page: Page, base_url):
+    # Search results are cards without <a href> links, so count the per-card share buttons instead.
     page.goto(base_url + "/search?q=zzqqxxnomatch987", wait_until="domcontentloaded")
     page.wait_for_timeout(3000)
-    assert page.locator("a[href^='/news/']").count() == 0
+    assert page.locator("main").get_by_role("button", name="Share on WhatsApp").count() == 0
 
 
 def test_homepage_shows_articles_and_opens_one(page: Page, base_url, errors):
@@ -69,3 +72,22 @@ def test_homepage_shows_articles_and_opens_one(page: Page, base_url, errors):
     page.wait_for_timeout(2000)
     expect(page.locator("h1").first).to_be_visible()
     assert errors["page"] == []
+
+
+REDIRECTS = {
+    "/mahila-market": "/", "/matrimony": "/", "/raitu-bazar": "/", "/rythu-bazar": "/", "/raitu": "/",
+    "/services-rental": "/services", "/sevalu-addelu": "/services",
+    "/category/health": "/health", "/category/daily-share": "/daily-share", "/category/whatsapp-status": "/daily-share",
+}
+
+
+@pytest.mark.parametrize("old,new", REDIRECTS.items())
+def test_legacy_urls_redirect(page: Page, base_url, old, new):
+    page.goto(base_url + old, wait_until="domcontentloaded")
+    page.wait_for_url(base_url + new, timeout=5000)
+
+
+def test_404_page_sets_title(page: Page, base_url):
+    page.goto(base_url + "/no/such/page", wait_until="domcontentloaded")
+    page.wait_for_timeout(1000)
+    assert page.title().startswith("404")

@@ -1,5 +1,6 @@
 """Backend health: fails loudly when Supabase is down or restricted (e.g. over quota)."""
 import json
+import pytest
 import os
 import re
 from pathlib import Path
@@ -18,6 +19,7 @@ def _env():
     return vals
 
 
+@pytest.mark.live
 def test_supabase_blog_posts_reachable():
     env = _env()
     url, key = env.get("VITE_SUPABASE_URL"), env.get("VITE_SUPABASE_ANON_KEY")

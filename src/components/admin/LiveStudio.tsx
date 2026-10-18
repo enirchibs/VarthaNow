@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { categories } from "@/lib/categories";
 import { Button, Input } from "@/components/ui";
+import { DevicePicker } from "@/components/admin/DevicePicker";
+import { useMediaDevices } from "@/hooks/useMediaDevices";
 import { CITIZEN_BACKGROUNDS, NewsStudio, SCROLL_SPEEDS, STUDIO_BACKGROUNDS, TICKER_LABELS, backgroundSwatch, type PresenterSide, type StudioSettings } from "@/lib/news-studio";
 
 /** Latest published VaartaNow headlines, for the studio's headlines ticker. */
@@ -75,6 +77,21 @@ export function LiveStudio({ editorEmail, mode = "staff", reporter }: {
   const previewUrl = blob ? URL.createObjectURL(blob) : null;
   const headlines = useLatestHeadlines();
   const set = <K extends keyof StudioSettings>(k: K, v: StudioSettings[K]) => setStudio((st) => ({ ...st, [k]: v }));
+  const devices = useMediaDevices();
+
+  // Switching camera/microphone while the camera is open (not recording) reopens it with the new device.
+  const devicesReady = useRef(false);
+  useEffect(() => {
+    if (!devicesReady.current) { devicesReady.current = true; return; }
+    if (!stream || recording) return;
+    stream.getTracks().forEach((t) => t.stop());
+    devices.open(true).then(setStream).catch((e: any) => {
+      setStream(null);
+      setError(e?.message || "Could not open the selected camera.");
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [devices.cameraId, devices.micId]);
+
 
   // the graphics follow the form: headline on the strap and ticker, presenter on the strap
   const effective: StudioSettings = {
@@ -113,10 +130,7 @@ export function LiveStudio({ editorEmail, mode = "staff", reporter }: {
   const openCamera = async () => {
     setError("");
     try {
-      setStream(await navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true },
-        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
-      }));
+      setStream(await devices.open(true));
     } catch (e: any) {
       setError(e?.name === "NotAllowedError" ? "Camera/microphone permission was denied." : e?.message || "Could not open the camera.");
     }
@@ -263,6 +277,9 @@ export function LiveStudio({ editorEmail, mode = "staff", reporter }: {
             )}
           </div>
           {status && <p className="text-[11px] font-bold text-amber-600">{status}</p>}
+          {!blob && (
+            <DevicePicker devices={devices} video disabled={recording} onBackgroundAsIs={() => set("background", "camera")} />
+          )}
           <div className="flex flex-wrap gap-2">
             {!stream && !blob && (
               <Button onClick={openCamera} className="h-11 rounded-xl bg-slate-900 px-5 text-sm font-bold text-white"><Camera className="mr-1.5 size-4" /> Open camera & studio</Button>

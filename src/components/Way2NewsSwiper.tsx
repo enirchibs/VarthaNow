@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { decodeEntities } from "@/lib/news-api";
 import {
   ArrowLeft,
   BookOpen,
@@ -44,7 +45,7 @@ const FLIP_MAX_WORDS = 80;
 const FLIP_TARGET_WORDS = 75;
 
 function cleanFlipText(input: string): string {
-  return stripFAQ(input || "")
+  return stripFAQ(decodeEntities(input || ""))
     .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
     .replace(/^#{1,6}\s+/gm, "")

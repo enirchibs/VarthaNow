@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { decodeEntities } from "@/lib/news-api";
 import {
   Bookmark,
   BookmarkCheck,
@@ -34,7 +36,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 function cleanFlipText(input: string): string {
-  return stripFAQ(input || "")
+  return stripFAQ(decodeEntities(input || ""))
     .replace(/!\[[^\]]*\]\([^)]+\)/g, " ")
     .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
     .replace(/^#{1,6}\s+/gm, "")
@@ -227,7 +229,10 @@ function SnapCard({
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-2 pt-4">
         <h2 className="text-[1.12rem] font-black leading-snug text-[#1f2937] sm:text-[1.3rem]">
-          {post.title}
+          {/* A real link so readers can open the full story and crawlers can follow listings to articles. */}
+          <Link to={`/news/${post.slug}`} draggable={false} className="hover:underline focus-visible:underline">
+            {post.title}
+          </Link>
         </h2>
         <p className="mt-3 text-[0.97rem] font-medium leading-[1.75] text-[#334155] sm:text-[1.04rem]">
           {body || post.excerpt}

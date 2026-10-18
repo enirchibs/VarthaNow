@@ -91,6 +91,11 @@ export function videoStructuredData(video: { id: string; title: string; caption:
   });
 }
 
+/** Remove page-specific JSON-LD left behind by a previous page (e.g. an article's NewsArticle). */
+export function clearJsonLd() {
+  document.getElementById("varthanow-jsonld")?.remove();
+}
+
 function upsertJsonLd(data: object) {
   const id = "varthanow-jsonld";
   let element = document.getElementById(id) as HTMLScriptElement | null;

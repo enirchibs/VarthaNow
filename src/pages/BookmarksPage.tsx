@@ -3,7 +3,7 @@ import { NewsGrid } from "@/components/NewsGrid";
 import { setMeta } from "@/lib/seo";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useBookmarks } from "@/hooks/useBookmarks";
-import { getPostBySlug } from "@/lib/news-api";
+import { cleanPosts, getPostBySlug } from "@/lib/news-api";
 import { supabase } from "@/lib/supabase";
 import type { BlogPost } from "@/types/news";
 import { Bookmark } from "lucide-react";
@@ -16,10 +16,11 @@ async function fetchBookmarkedPosts(slugs: string[]): Promise<BlogPost[]> {
       const { data, error } = await supabase
         .from("blog_posts")
         .select("*")
+        .eq("published", true)
         .in("slug", slugs);
 
       if (!error && data?.length) {
-        const bySlug = new Map((data as BlogPost[]).map((p) => [p.slug, p]));
+        const bySlug = new Map(cleanPosts(data as BlogPost[]).map((p) => [p.slug, p]));
         return slugs
           .map((slug) => bySlug.get(slug) || null)
           .filter(Boolean) as BlogPost[];

@@ -1,10 +1,21 @@
 import { SITE_URL, SITE_HOST } from "@/lib/site";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sparkles, Mail, Phone, MapPin, Send, CheckCircle2, ShieldCheck, FileText, Info } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { clearJsonLd, setMeta } from "@/lib/seo";
+
+// Each legal page sets its own title/description/canonical. Without this, a reader who opens /about
+// after an article keeps that article's title, OG tags, canonical and NewsArticle JSON-LD.
+function usePageMeta(title: string, description: string, path: string) {
+  useEffect(() => {
+    setMeta({ title: `${title} | VaartaNow`, description, canonical: path, image: `${SITE_URL}/og-image.png` });
+    clearJsonLd();
+  }, [title, description, path]);
+}
 
 // About Us Component
 export function AboutPage() {
+  usePageMeta("మా గురించి (About Us)", "VaartaNow గురించి: ఆంధ్రప్రదేశ్, తెలంగాణ తాజా తెలుగు వార్తలు అందించే మా లక్ష్యం, సంపాదకీయ విధానం మరియు బృందం.", "/about");
   const { lang } = useLanguage();
   return (
     <main className="container-shell py-8 max-w-4xl space-y-6">
@@ -54,6 +65,7 @@ export function AboutPage() {
 
 // Contact Us Component
 export function ContactPage() {
+  usePageMeta("మమ్మల్ని సంప్రదించండి (Contact Us)", "VaartaNow బృందాన్ని సంప్రదించండి: వార్తల సూచనలు, సవరణలు, ప్రకటనలు మరియు సహాయం కోసం ఈమెయిల్ లేదా ఫారం ద్వారా.", "/contact");
   const { lang } = useLanguage();
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
@@ -179,6 +191,7 @@ export function ContactPage() {
 
 // Privacy Policy Component (AdSense Specific)
 export function PrivacyPage() {
+  usePageMeta("గోప్యతా విధానం (Privacy Policy)", "VaartaNow గోప్యతా విధానం: మేము సేకరించే సమాచారం, కుకీలు, Google ప్రకటనలు మరియు మీ డేటా హక్కుల వివరాలు.", "/privacy");
   const { lang } = useLanguage();
   return (
     <main className="container-shell py-8 max-w-4xl space-y-6">
@@ -240,6 +253,7 @@ export function PrivacyPage() {
 
 // Terms & Conditions Component
 export function TermsPage() {
+  usePageMeta("నిబంధనలు మరియు షరతులు (Terms & Conditions)", "VaartaNow వెబ్‌సైట్ మరియు సేవలను ఉపయోగించడానికి వర్తించే నిబంధనలు మరియు షరతులు.", "/terms");
   const { lang } = useLanguage();
   return (
     <main className="container-shell py-8 max-w-4xl space-y-6">
@@ -290,6 +304,7 @@ export function TermsPage() {
 
 // Disclaimer Component
 export function DisclaimerPage() {
+  usePageMeta("నిరాకరణ ప్రకటన (Disclaimer)", "VaartaNow నిరాకరణ: వార్తల సమాచారం, AI సహాయంతో రాసిన కథనాలు మరియు బాహ్య లింకుల బాధ్యతపై వివరణ.", "/disclaimer");
   const { lang } = useLanguage();
   return (
     <main className="container-shell py-8 max-w-4xl space-y-6">
@@ -337,6 +352,7 @@ export function DisclaimerPage() {
 
 // 📄 Customer / User Terms (Versioned v1.0)
 export function CustomerTermsPage() {
+  usePageMeta("కస్టమర్ నిబంధనలు (Customer Terms)", "VaartaNow సేవలు మరియు మార్కెట్‌ను ఉపయోగించే కస్టమర్లు, సేవలు కోరేవారికి వర్తించే నిబంధనలు.", "/customer-terms");
   return (
     <main className="container-shell py-8 max-w-4xl space-y-6 animate-in fade-in duration-300">
       <section className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 md:p-8 space-y-6">
@@ -380,6 +396,7 @@ export function CustomerTermsPage() {
 
 // 📄 Service Provider Terms (Versioned v1.0)
 export function ProviderTermsPage() {
+  usePageMeta("సర్వీస్ ప్రొవైడర్ నిబంధనలు (Provider Terms)", "VaartaNow లో సేవలు, వ్యాపారాలు లిస్ట్ చేసే ప్రొవైడర్లు మరియు విక్రేతలకు వర్తించే నిబంధనలు.", "/provider-terms");
   return (
     <main className="container-shell py-8 max-w-4xl space-y-6 animate-in fade-in duration-300">
       <section className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 md:p-8 space-y-6">
@@ -423,6 +440,7 @@ export function ProviderTermsPage() {
 
 // 📄 Service Provider Code of Conduct
 export function ProviderCodeOfConductPage() {
+  usePageMeta("ప్రొవైడర్ ప్రవర్తనా నియమావళి (Code of Conduct)", "VaartaNow సర్వీస్ ప్రొవైడర్లు కస్టమర్లతో పాటించాల్సిన ప్రవర్తనా నియమాలు మరియు భద్రతా ప్రమాణాలు.", "/provider-code-of-conduct");
   return (
     <main className="container-shell py-8 max-w-4xl space-y-6 animate-in fade-in duration-300">
       <section className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 md:p-8 space-y-6">
@@ -452,6 +470,7 @@ export function ProviderCodeOfConductPage() {
 
 // 📄 Safety Tips Page
 export function SafetyTipsPage() {
+  usePageMeta("భద్రతా సూచనలు (Safety Tips)", "స్థానిక సేవలు, పనివాళ్లు, డ్రైవర్లను ఉపయోగించేటప్పుడు మిమ్మల్ని మరియు కుటుంబాన్ని రక్షించుకునే భద్రతా సూచనలు.", "/safety");
   return (
     <main className="container-shell py-8 max-w-4xl space-y-6 animate-in fade-in duration-300">
       <section className="rounded-3xl border border-slate-800 bg-slate-900/95 p-6 md:p-8 text-white space-y-6 shadow-2xl">
@@ -492,6 +511,7 @@ export function SafetyTipsPage() {
 
 // 📄 Grievance Redressal Officer (India IT Rules Compliance)
 export function GrievancePage() {
+  usePageMeta("ఫిర్యాదుల పరిష్కార అధికారి (Grievance Officer)", "VaartaNow ఫిర్యాదుల పరిష్కార అధికారి వివరాలు మరియు ఫిర్యాదు సమర్పించే విధానం (IT నిబంధనలు 2021).", "/grievance");
   return (
     <main className="container-shell py-8 max-w-4xl space-y-6 animate-in fade-in duration-300">
       <section className="rounded-3xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-6 md:p-8 space-y-6">

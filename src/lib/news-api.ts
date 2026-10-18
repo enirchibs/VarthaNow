@@ -7,24 +7,26 @@ import { expandCategorySlugs, postMatchesCategory } from "@/lib/categories";
 // Ingested titles often carry HTML entities (e.g. "Kohli &#8211; Rohit", "&#8216;Shiva&#8217;").
 // Decode them once here so every page shows clean text.
 const NAMED_ENTITIES: Record<string, string> = { amp: "&", quot: '"', apos: "'", lt: "<", gt: ">", nbsp: " ", ndash: "–", mdash: "—", lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”", hellip: "…" };
-const decodeEntities = (text: string) =>
+export const decodeEntities = (text: string) =>
   text.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (match, code: string) => {
     if (code[0] !== "#") return NAMED_ENTITIES[code.toLowerCase()] ?? match;
     const n = code[1].toLowerCase() === "x" ? parseInt(code.slice(2), 16) : parseInt(code.slice(1), 10);
     return Number.isFinite(n) && n > 0 && n <= 0x10ffff ? String.fromCodePoint(n) : match;
   });
 
-function cleanPost<T extends BlogPost | null>(post: T): T {
+export function cleanPost<T extends BlogPost | null>(post: T): T {
   if (!post) return post;
   return {
     ...post,
     title: post.title && decodeEntities(post.title),
     excerpt: post.excerpt && decodeEntities(post.excerpt),
+    // Body is rendered as plain text (never as HTML), so decoding entities here is safe.
+    content: post.content && decodeEntities(post.content),
     meta_title: post.meta_title && decodeEntities(post.meta_title),
     meta_description: post.meta_description && decodeEntities(post.meta_description)
   };
 }
-const cleanPosts = (posts: BlogPost[]) => posts.map(cleanPost);
+export const cleanPosts = (posts: BlogPost[]) => posts.map(cleanPost);
 
 export const PAGE_SIZE = 25;
 
