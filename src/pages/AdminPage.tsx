@@ -113,7 +113,6 @@ export function AdminPage() {
   const editFileRef = useRef<HTMLInputElement>(null);
 
   // Manual Trigger Loaders
-  const [triggeringIngest, setTriggeringIngest] = useState<string | null>(null);
   const [triggeringAi, setTriggeringAi] = useState(false);
   const [triggeringSocial, setTriggeringSocial] = useState(false);
 
@@ -439,28 +438,9 @@ export function AdminPage() {
     setEditingFeed(null);
   };
 
-  // --- Manual Workers Execution Triggers ---
-  const triggerIngestPoll = async (category: string | null) => {
-    if (!supabase) return;
-    const catName = category || "All Categories";
-    setTriggeringIngest(category || "all");
-    setErrorMsg("");
-    setMessage("");
-
-    try {
-      const { data, error } = await supabase.functions.invoke("ingest-rss?force=true", {
-        body: category ? { category } : {}
-      });
-      if (error) throw error;
-      setMessage(`RSS Ingest triggered for ${catName}! Status: ${data?.ok ? "Success" : "Failed"}. Stats: ${JSON.stringify(data?.stats || {})}`);
-      refreshAllData();
-    } catch (err: any) {
-      console.error("Ingest trigger error:", err);
-      setErrorMsg(`Trigger failed: ${err.message}`);
-    } finally {
-      setTriggeringIngest(null);
-    }
-  };
+  // News is fetched and written by the GitHub Actions pipeline (scripts/news-shorts.ts, every 3 hours),
+  // which saves drafts for the Review Queue. Admins can also start it by hand from GitHub.
+  const NEWS_PIPELINE_URL = "https://github.com/enirchibs/VarthaNow/actions/workflows/news-pipeline.yml";
 
   const triggerAiProcessor = async () => {
     if (!supabase) return;
@@ -1108,14 +1088,16 @@ export function AdminPage() {
               </div>
 
               <div className="flex gap-2 w-full sm:w-auto shrink-0">
-                <Button 
-                  onClick={() => triggerIngestPoll(null)}
-                  disabled={triggeringIngest !== null}
+                <a
+                  href={NEWS_PIPELINE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title="Opens GitHub Actions: click “Run workflow”. New stories arrive as drafts in the Review Queue."
                   className="h-11 px-4 text-xs font-bold rounded-2xl flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm flex-1 sm:flex-none justify-center"
                 >
-                  <RefreshCw className={`size-3.5 ${triggeringIngest === "all" ? "animate-spin" : ""}`} />
-                  Poll All Feeds
-                </Button>
+                  <RefreshCw className="size-3.5" />
+                  Run news pipeline
+                </a>
 
                 <Button 
                   onClick={() => {
@@ -1130,27 +1112,10 @@ export function AdminPage() {
               </div>
             </div>
 
-            {/* Ingestion Trigger Blocks */}
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 border border-[hsl(var(--border))]/40 p-3 bg-[hsl(var(--muted))]/10 rounded-[1.3rem]">
-              <span className="col-span-2 sm:col-span-5 text-[10px] font-black uppercase text-[hsl(var(--muted-foreground))] tracking-wider px-1">Quick Force Polls</span>
-              {[
-                { label: "Breaking", value: "breaking" },
-                { label: "Politics", value: "politics" },
-                { label: "Cinema", value: "cinema" },
-                { label: "Business", value: "business" },
-                { label: "Health", value: "health" }
-              ].map(cat => (
-                <button
-                  key={cat.value}
-                  onClick={() => triggerIngestPoll(cat.value)}
-                  disabled={triggeringIngest !== null}
-                  className="h-9 text-xs font-bold border border-[hsl(var(--border))]/50 hover:bg-[hsl(var(--muted))] active:scale-95 transition-all rounded-xl flex items-center justify-center gap-1.5 bg-[hsl(var(--card))]"
-                >
-                  <Play className={`size-3 text-emerald-500 ${triggeringIngest === cat.value ? "animate-ping" : ""}`} />
-                  {cat.label}
-                </button>
-              ))}
-            </div>
+            <p className="text-[11px] font-bold text-[hsl(var(--muted-foreground))] px-1">
+              The news pipeline runs on GitHub Actions every 3 hours and saves new stories as drafts in the Review Queue.
+              Nothing is published until an editor approves it.
+            </p>
 
             {/* RSS Add/Edit Form Form */}
             {isFeedFormOpen && (

@@ -86,3 +86,15 @@ def test_session_survives_reload(page: Page, base_url):
     page.reload(wait_until="networkidle")
     expect(page.get_by_text("Owner · Admin").first).to_be_attached(timeout=10000)
     expect(page.get_by_text("Published today").first).to_be_visible()
+
+
+def test_admin_runs_news_pipeline_on_github_not_server_functions(page: Page, base_url, backend):
+    page.set_viewport_size({"width": 1366, "height": 900})  # admin sidebar is hidden on phones
+    login(page, base_url, "admin@vaartanow.test", "Admin#12345")
+    expect(page).not_to_have_url(f"{base_url}/login")
+    open_page(page, base_url, "/admin")
+    page.get_by_text("RSS Feeds", exact=True).first.click()
+    run = page.get_by_role("link", name="Run news pipeline")
+    expect(run).to_have_attribute("href", "https://github.com/enirchibs/VarthaNow/actions/workflows/news-pipeline.yml")
+    expect(page.get_by_text("Quick Force Polls")).to_have_count(0)
+    assert not [c for c in backend.function_calls if c["name"].startswith(("ingest-rss", "auto-news"))]

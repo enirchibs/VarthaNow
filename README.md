@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # VarthaNow Telugu AI News
 
 Production-grade React + Supabase + Gemini AI Telugu news platform.
@@ -17,13 +16,19 @@ Production-grade React + Supabase + Gemini AI Telugu news platform.
 
 ```mermaid
 flowchart LR
-  A["Google News RSS"] --> B["Supabase Edge Function: auto-news"]
-  B --> C["Gemini Rewrite + Telugu SEO"]
-  C --> D["Duplicate slug check"]
-  D --> E["Supabase blog_posts"]
-  E --> F["React Frontend"]
-  F --> G["SEO news pages"]
+  A["Telugu news RSS feeds (rss_feeds table)"] --> B["GitHub Actions: news-pipeline.yml, every 3 hours"]
+  B --> C["scripts/news-shorts.ts: pair 2 outlets on the same event, Gemini writes in our own words"]
+  C --> D["Our own photo: library / licensed / PIB / generated"]
+  D --> E["Draft in blog_posts"]
+  E --> F["Admin Review Queue: editor approves"]
+  F --> G["Published: 60–90 word card + full article, source credits at the end"]
 ```
+
+- Nothing is published automatically. Every story is a draft until an editor approves it.
+- Each story ends with "మూలం (Source):": the original outlets' names, small site icons and links
+  (`src/lib/sources.ts`). Outlets' photos are never reused.
+- Run the pipeline by hand from GitHub → Actions → "VaartaNow News Pipeline" → Run workflow, or from the
+  admin RSS Feeds tab ("Run news pipeline").
 
 ## Setup
 
@@ -48,31 +53,11 @@ GEMINI_API_KEY=
 
 Run [supabase/schema.sql](supabase/schema.sql) in Supabase SQL editor. It creates the `blog_posts` table, indexes, public read policy, and admin management policy.
 
-## Edge Function
+## Server functions
 
-Deploy:
-
-```bash
-supabase functions deploy auto-news
-supabase secrets set GEMINI_API_KEY=your-key SUPABASE_URL=your-url SUPABASE_SERVICE_ROLE_KEY=your-service-role
-```
-
-Invoke manually:
-
-```bash
-supabase functions invoke auto-news
-```
-
-## Cron
-
-Run [supabase/cron.sql](supabase/cron.sql) after setting these database settings in Supabase:
-
-```sql
-alter database postgres set app.supabase_url = 'https://PROJECT.supabase.co';
-alter database postgres set app.supabase_service_role_key = 'SERVICE_ROLE_KEY';
-```
-
-The cron schedule runs every 15 minutes.
+Edge functions in `supabase/functions` serve the website live (Gemini proxy, cricket scores, YouTube,
+OTP, social posting). News fetching is not one of them: it runs on GitHub Actions (see above).
+Database changes for aapstack.tech live in `supabase/aapstack/*.sql`, applied in order.
 
 ## SEO
 
@@ -82,8 +67,11 @@ The cron schedule runs every 15 minutes.
 
 ## Copyright Safety
 
-The `auto-news` function only uses RSS metadata as input. Gemini rewrites original Telugu summaries, headings, bullet points, FAQs and conclusions. It does not copy full copyrighted articles.
-=======
-# VarthaNow
-ai powered telugu news platform
->>>>>>> b93777b50252445cc29e44699f81a7300ac44b37
+The pipeline reads the source reports only to learn the facts. Gemini writes the story in original Telugu,
+and a check rejects drafts that reuse more than 15% of a source's phrasing. Photos come from our own
+library, licensed or government sources, or are generated; source outlets' photos are never used.
+Sources are credited by name, small site icon and link (see the Disclaimer page).
+
+## Tests
+
+End-to-end tests (pytest + Playwright) run on every push: see [tests/README.md](tests/README.md).
