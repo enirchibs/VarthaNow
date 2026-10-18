@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { decodeEntities } from "@/lib/news-api";
 import {
   ArrowLeft,
@@ -21,6 +21,7 @@ import { categoryCoverImages } from "@/lib/demo-data";
 import { markArticleAsRead } from "@/lib/read-tracker";
 import { stripFAQ, timeAgo } from "@/lib/format";
 import type { BlogPost } from "@/types/news";
+import { SourceCredits } from "@/components/SourceCredits";
 
 export const SWIPE_FEED_STORAGE_KEY = "vaartanow-swipe-feed";
 
@@ -40,9 +41,9 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 /** Short news flip body: keep ~70–80 words (Way2News-style brief) */
-const FLIP_MIN_WORDS = 70;
-const FLIP_MAX_WORDS = 80;
-const FLIP_TARGET_WORDS = 75;
+const FLIP_MIN_WORDS = 60;
+const FLIP_MAX_WORDS = 90;
+const FLIP_TARGET_WORDS = 80;
 
 function cleanFlipText(input: string): string {
   return stripFAQ(decodeEntities(input || ""))
@@ -247,6 +248,31 @@ function NewsSwipeCard({
 
   const avatar = publisherAvatar(post);
   const body = shortNewsFlipBody(post);
+
+  // Fit the 60–90 word story into the card (the text area cannot scroll, so vertical swipes keep working):
+  // step the font down until it fits, never below a readable size; "పూర్తి కథనం" opens the rest.
+  const textBoxRef = useRef<HTMLDivElement | null>(null);
+  const bodyRef = useRef<HTMLParagraphElement | null>(null);
+  const [bodyScale, setBodyScale] = useState(1);
+  useLayoutEffect(() => {
+    setBodyScale(1);
+  }, [body]);
+  useLayoutEffect(() => {
+    const box = textBoxRef.current, p = bodyRef.current;
+    if (!box || !p) return;
+    const overflows = p.offsetTop + p.offsetHeight > box.offsetTop + box.clientHeight + 1;
+    if (overflows && bodyScale > 0.84) setBodyScale((s) => Math.round((s - 0.04) * 100) / 100);
+  }, [bodyScale, body]);
+  useEffect(() => {
+    const box = textBoxRef.current;
+    if (!box || typeof ResizeObserver === "undefined") return;
+    let last = box.clientHeight;
+    const ro = new ResizeObserver(() => {
+      if (Math.abs(box.clientHeight - last) > 8) { last = box.clientHeight; setBodyScale(1); }
+    });
+    ro.observe(box);
+    return () => ro.disconnect();
+  }, []);
   const shortCode = post.slug.slice(0, 8);
   const hasVideo = Boolean(post.video_url?.trim());
 
@@ -351,11 +377,12 @@ function NewsSwipeCard({
       </div>
 
       {/* Story text — readable Telugu on phone; no nested scroll so swipe works */}
-      <div className="min-h-0 flex-1 overflow-hidden px-4 pb-3 pt-3.5 sm:px-5 sm:pt-4">
+      <div ref={textBoxRef} className="min-h-0 flex-1 overflow-hidden px-4 pb-3 pt-3.5 sm:px-5 sm:pt-4">
         <h1 className="text-[1.2rem] font-black leading-[1.35] tracking-tight text-[#111827] sm:text-[1.35rem]">
           {post.title}
         </h1>
-        <p className="mt-2.5 text-[1.02rem] font-medium leading-[1.7] text-[#1e293b] sm:mt-3 sm:text-[1.08rem] sm:leading-[1.75]">
+        <p ref={bodyRef} style={bodyScale < 1 ? { fontSize: `${bodyScale}em`, lineHeight: 1.6 } : undefined}
+          className="mt-2.5 text-[1.02rem] font-medium leading-[1.7] text-[#1e293b] sm:mt-3 sm:text-[1.08rem] sm:leading-[1.75]">
           {body || post.excerpt}
         </p>
       </div>
@@ -365,6 +392,7 @@ function NewsSwipeCard({
         className="shrink-0 border-t border-slate-200 bg-white px-3 pt-2"
         style={{ paddingBottom: "max(0.65rem, env(safe-area-inset-bottom))" }}
       >
+        <div className="mb-2"><SourceCredits post={post} strip /></div>
         {(
           <div className="no-scrollbar mb-2 flex items-center gap-1.5 overflow-x-auto">
             <button
@@ -677,6 +705,10 @@ export function saveSwipeFeed(posts: BlogPost[], startSlug: string) {
           ai_assisted: p.ai_assisted,
           author_name: p.author_name,
           source_logo: p.source_logo,
+          source_article_url: p.source_article_url,
+          source_url: p.source_url,
+          review_status: p.review_status,
+          image_credits: p.image_credits,
           language: p.language,
           published: p.published,
           featured: p.featured,

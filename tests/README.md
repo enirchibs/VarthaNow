@@ -49,6 +49,8 @@ Test logins (mock mode only): `admin@vaartanow.test / Admin#12345`, `editor@vaar
 | `test_resilience.py` | Backend 500/503/offline/slow: pages degrade without crashing |
 | `test_ui.py` | `lang="te"`, dark theme persists, titles/descriptions, alt text, button names, no horizontal scroll at 360/768/1366px, category nav |
 | `test_pwa.py` | Manifest + icons, `sw.js`, service worker registers |
+| `test_sources.py` | Source credits: outlet name, site icon and "పూర్తి కథనం" link on cards and the full article; Google News redirects skipped; never the outlet's photo; Disclaimer section |
+| `test_recorder.py` | Camera/microphone picker (e.g. OBS Virtual Camera) in Live Studio; missing saved camera falls back to default |
 | `test_ads_readiness.py` | ads.txt, robots, sitemap, policy pages (AdSense review) |
 | `test_backend.py` | `live`: real backend reachable with published posts |
 

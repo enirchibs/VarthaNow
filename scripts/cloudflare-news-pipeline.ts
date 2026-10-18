@@ -165,7 +165,8 @@ async function runPipeline(env: Env) {
 
         // Step 4: Extract source logo and featured image candidate from the original HTML if available
         const sourceName = extractSourceName(item.title);
-        const imageUrl = extractOgImage(originalHtml) || `https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800`; // Fallback news image
+        // Never reuse the source outlet's photo (copyright); the editor picks one from our library in review.
+        const imageUrl = `https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800`;
 
         // Step 5: Send content to Gemini to rewrite in original Telugu words
         console.log(`[Gemini Request] Sending text to Gemini 2.0 Flash for rewriting...`);
@@ -204,7 +205,9 @@ async function runPipeline(env: Env) {
           og_image: imageUrl,
           author_name: sourceName,
           language: "te",
-          published: true,
+          // every story goes to the admin Review Queue; an editor approves it before it is published
+          published: false,
+          review_status: "draft",
           source_article_url: resolvedUrl
         };
 

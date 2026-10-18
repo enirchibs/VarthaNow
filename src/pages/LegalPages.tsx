@@ -344,6 +344,16 @@ export function DisclaimerPage() {
           <p>
             The content, including share prices, property rates, gold/silver prices, or real estate trends shown on VaartaNow, is compiled dynamically for educational and informational tracking purposes only. None of this information constitutes investment, legal, or professional financial advice. Always consult a certified financial advisor or property surveyor before making major purchasing or investment decisions.
           </p>
+
+          <h3 className="text-sm font-black text-[hsl(var(--foreground))] border-b border-[hsl(var(--border))]/40 pb-1 mt-4">
+            4. Sources, Credits and Publisher Logos
+          </h3>
+          <p>
+            VaartaNow news is written in our own words from several published reports and checked by our editors before it appears. At the end of each story we credit the original reports with the publisher&apos;s name, its small site icon and a link to the full article. Publisher names, logos and icons belong to their respective owners and are shown only to identify the source. VaartaNow is not affiliated with, sponsored by or endorsed by these publishers. Photos on VaartaNow come from our own library, licensed or government sources, or are generated for illustration; we do not reuse publishers&apos; photos. If you own a source and want your logo shown as text only, or see an error in a credit, write to contact@vaartanow.in and we will correct it promptly.
+          </p>
+          <p>
+            మూలాల గుర్తింపు: ప్రతి వార్త చివర, ఆ వార్తకు ఆధారమైన కథనాల ప్రచురణ సంస్థ పేరు, చిన్న లోగో మరియు అసలు కథనం లింకును ఇస్తాము. ఆ పేర్లు, లోగోలు వాటి యజమానులవే; మూలాన్ని తెలపడానికి మాత్రమే చూపిస్తాము. ఆ సంస్థలతో VaartaNow కు ఎలాంటి అనుబంధం లేదు.
+          </p>
         </div>
       </section>
     </main>

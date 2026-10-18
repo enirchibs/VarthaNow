@@ -109,7 +109,8 @@ serve(async (request) => {
         };
 
         let chosenImageUrl = categoryFallbacks[item.category] || "/og-image.png";
-        const scrapedImg = await fetchOgImage(resolvedUrl);
+        // Never reuse the source outlet's photo (copyright): the editor picks one from our library in review.
+        const scrapedImg: string | null = null;
         if (scrapedImg) {
           const uploadedUrl = await uploadImageToStorage(supabase, scrapedImg, slug);
           if (uploadedUrl) {
@@ -132,7 +133,9 @@ serve(async (request) => {
           og_image: chosenImageUrl,
           author_name: "VarthaNow AI Desk",
           language: item.language,
-          published: true,
+          // every story goes to the admin Review Queue; an editor approves it before it is published
+          published: false,
+          review_status: "draft",
           featured: false,
           reading_time_min: 3,
           published_at: new Date().toISOString()

@@ -67,7 +67,9 @@ type Short = { title: string; summary: string; body: string; category: string; t
 type Job = { sources: Candidate[] }; // 2 outlets on the same event, or 1 when no pair was found
 
 const MIN_WORDS = 150, MAX_WORDS = 300; // article body
-const SUMMARY_MIN = 25, SUMMARY_MAX = 70; // swipe-card summary
+// swipe-card summary (Way2News-style short news): ask for 60–90 words, accept a small margin either side
+const SUMMARY_TARGET_MIN = 60, SUMMARY_TARGET_MAX = 90;
+const SUMMARY_MIN = 55, SUMMARY_MAX = 95;
 
 // Outlet names must never appear in our articles (English and Telugu spellings).
 const OUTLETS = ["tv9", "tv 9", "etv", "ntv", "sakshi", "eenadu", "andhra jyothy", "andhrajyothy", "abn", "hmtv", "v6", "10tv", "10 tv",
@@ -198,7 +200,7 @@ Rules:
   1) what happened (who, what, where, when), 2) the important details and numbers, 3) background or context,
   4) what it means for readers in Andhra Pradesh / Telangana (only if the reports support it; never invent impact).
   Entirely in your own words: do not copy sentences or phrases from any report; rephrase every fact.
-- "summary": ${SUMMARY_MIN + 10} to ${SUMMARY_MAX - 10} words in Telugu: the key facts of the story for a quick read.
+- "summary": ${SUMMARY_TARGET_MIN} to ${SUMMARY_TARGET_MAX} words in Telugu: a complete short news item for a swipe card (what happened, who, where, when, why it matters), in your own words.
 - Only facts stated in the report${many ? "s. If the reports disagree on a detail (a number, name or date), leave that detail out" : ""}. No opinions, no speculation, no clickbait, no emojis.
 - Answer who, what, where, when and why it matters. Keep names, numbers and places exactly right.
 - Never mention any TV channel, newspaper, website or news agency (for example TV9, ETV, NTV, Sakshi, Eenadu), and never write "according to reports".
@@ -265,7 +267,7 @@ async function main() {
         const reason = problem.startsWith("body")
           ? `the body had ${words(s.body ?? "").length} words but must have ${MIN_WORDS}-${MAX_WORDS}`
           : problem.startsWith("summary")
-            ? `the summary had ${words(s.summary ?? "").length} words but must have ${SUMMARY_MIN + 10}-${SUMMARY_MAX - 10}`
+            ? `the summary had ${words(s.summary ?? "").length} words but must have ${SUMMARY_TARGET_MIN}-${SUMMARY_TARGET_MAX}`
             : `it ${problem}; use completely different wording`;
         s = await writeArticle(inputs, knownTags, reason);
         problem = checkArticle(s, texts);
@@ -286,7 +288,7 @@ async function main() {
         meta_description: s.summary.trim().slice(0, 160),
         author_name: "VaartaNow Desk",
         publisher: "VaartaNow",
-        // kept for fact-checking and corrections; never shown on the site
+        // the original reports: credited with name, site icon and link at the end of the story (never their photos)
         source_article_url: links[0],
         source_url: links[1] ?? links[0],
         language: "te",

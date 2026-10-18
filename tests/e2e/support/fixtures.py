@@ -48,9 +48,14 @@ def _post(n, slug, title, category, hours, *, excerpt=None, featured=False, publ
 def blog_posts():
     return [
         _post(1, "amaravati-capital-works-resume", "అమరావతి రాజధాని పనులు మళ్లీ ప్రారంభం", "andhra-pradesh", 1, featured=True,
-              tags=["andhra-pradesh", "amaravati"]),
+              tags=["andhra-pradesh", "amaravati"],
+              source_article_url="https://www.eenadu.net/telugu-news/andhra-pradesh/amaravati-works/0700/125000001",
+              source_url="https://www.sakshi.com/telugu-news/andhra-pradesh/amaravati-capital-2026"),
         _post(2, "hyderabad-metro-phase-two", "హైదరాబాద్ మెట్రో రెండో దశకు ఆమోదం", "telangana", 2, tags=["telangana", "hyderabad"]),
-        _post(3, "pushpa-three-shooting-update", "&#8216;పుష్ప 3&#8217; షూటింగ్ అప్‌డేట్ &amp; విడుదల తేదీ", "cinema", 3, featured=True),
+        _post(3, "pushpa-three-shooting-update", "&#8216;పుష్ప 3&#8217; షూటింగ్ అప్‌డేట్ &amp; విడుదల తేదీ", "cinema", 3, featured=True,
+              # a Google News redirect does not name the outlet, so only TV9 is credited
+              source_article_url="https://news.google.com/rss/articles/CBMiXYZ?oc=5",
+              source_url="https://tv9telugu.com/entertainment/pushpa-3-shooting-update-1234567.html"),
         _post(4, "india-wins-vizag-test", "విశాఖ టెస్టులో భారత్ ఘన విజయం", "cricket", 4, tags=["cricket", "vizag"]),
         _post(5, "vizag-beach-festival", "విశాఖ బీచ్ ఉత్సవం ఈ వారాంతం", "vizag", 5, tags=["vizag", "visakhapatnam"]),
         _post(6, "tirumala-darshan-tickets", "తిరుమల దర్శనం టికెట్ల విడుదల", "devotional", 6, tags=["devotional", "tirupati"]),

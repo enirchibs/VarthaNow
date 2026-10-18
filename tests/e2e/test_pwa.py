@@ -36,8 +36,13 @@ def test_index_links_manifest_and_theme_color(page: Page, base_url):
     assert page.locator("head meta[name=theme-color]").count() >= 1
 
 
-def test_service_worker_registers(page: Page, base_url):
-    page.goto(base_url + "/", wait_until="load")
-    page.wait_for_timeout(2500)
-    scope = page.evaluate("navigator.serviceWorker.getRegistration().then(r => r ? r.scope : null)")
-    assert scope == base_url + "/", f"service worker not registered (scope={scope})"
+def test_service_worker_registers(browser, base_url):
+    ctx = browser.new_context(service_workers="allow")  # the default test context blocks service workers
+    try:
+        page = ctx.new_page()
+        page.goto(base_url + "/", wait_until="load")
+        page.wait_for_timeout(2500)
+        scope = page.evaluate("navigator.serviceWorker.getRegistration().then(r => r ? r.scope : null)")
+        assert scope == base_url + "/", f"service worker not registered (scope={scope})"
+    finally:
+        ctx.close()

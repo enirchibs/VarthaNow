@@ -22,10 +22,11 @@ import { categoryCoverImages } from "@/lib/demo-data";
 import { stripFAQ, timeAgo } from "@/lib/format";
 import type { BlogPost } from "@/types/news";
 import { Skeleton } from "@/components/ui";
+import { SourceCredits } from "@/components/SourceCredits";
 
-const FLIP_MIN_WORDS = 70;
-const FLIP_MAX_WORDS = 80;
-const FLIP_TARGET_WORDS = 75;
+const FLIP_MIN_WORDS = 60;
+const FLIP_MAX_WORDS = 90;
+const FLIP_TARGET_WORDS = 80;
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -237,6 +238,7 @@ function SnapCard({
         <p className="mt-3 text-[0.97rem] font-medium leading-[1.75] text-[#334155] sm:text-[1.04rem]">
           {body || post.excerpt}
         </p>
+        <div className="mt-3"><SourceCredits post={post} /></div>
       </div>
 
       <div className="shrink-0 border-t border-slate-200 bg-white px-3 pb-2 pt-2">

@@ -27,6 +27,12 @@ try {
   }
 } catch {}
 
+// Disabled: copying the source outlet's photo onto our stories is a copyright risk (crediting is not
+// permission). Stories use our own library, licensed/PIB photos or generated images instead
+// (scripts/lib/news-images.ts → storyImage). Kept only for reference.
+console.error("backfill-source-images is disabled: VaartaNow does not reuse source outlets' photos. Use scripts/image-library.ts or the admin Image Gallery.");
+process.exit(1);
+
 const arg = (name: string) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split("=")[1];
 const DRY_RUN = process.argv.includes("--dry-run");
 const LIMIT = Number(arg("limit") ?? Infinity);

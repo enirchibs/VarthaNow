@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { X, Mic, Sparkles } from "lucide-react";
 import type { BlogPost } from "@/types/news";
+import { SourceCredits } from "@/components/SourceCredits";
 import { embedUrl, youtubeIdOf } from "@/lib/videos-api";
 
 /** Our own recordings (news-media bucket) play inline. */
@@ -112,6 +113,8 @@ export function ArticleSheet({ post, lang, onClose, autoPlayVideo = false }: {
                 : "Written with AI assistance from multiple news reports; facts checked and reviewed by the VaartaNow desk before publishing."}
             </p>
           )}
+
+          <SourceCredits post={post} full />
         </div>
       </article>
     </div>,

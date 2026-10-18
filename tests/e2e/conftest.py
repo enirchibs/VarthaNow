@@ -48,6 +48,9 @@ def browser_context_args(browser_context_args):
         "has_touch": True,
         "locale": "te-IN",
         "timezone_id": "Asia/Kolkata",
+        # The PWA service worker fetches on the page's behalf; older Playwright versions cannot intercept
+        # those requests, so the mock backend would be bypassed. test_pwa.py checks registration separately.
+        "service_workers": "block",
     }
 
 

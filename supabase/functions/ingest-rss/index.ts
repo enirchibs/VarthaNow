@@ -188,7 +188,8 @@ serve(async (req) => {
           // Extract OG image
           let chosenImageUrl = CATEGORY_PLACEHOLDERS[feed.category] || "/og-image.png";
           let storagePath: string | null = null;
-          const ogImageCandidate = await scrapeOgImage(resolvedUrl, item.enclosureUrl);
+          // Never reuse the source outlet's photo (copyright): the editor picks one from our library in review.
+          const ogImageCandidate: string | null = null;
           if (ogImageCandidate) {
             const upload = await uploadToStorage(supabase, ogImageCandidate, baseSlug);
             if (upload) {
@@ -223,7 +224,9 @@ serve(async (req) => {
             og_image: chosenImageUrl,
             author_name: feed.publisher,
             language: "te",
-            published: true,
+            // every story goes to the admin Review Queue; an editor approves it before it is published
+            published: false,
+            review_status: "draft",
             featured: importanceScore >= 85,
             reading_time_min: 2,
             published_at: new Date(item.pubDate).toISOString(),

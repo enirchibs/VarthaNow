@@ -43,6 +43,9 @@ export type BlogPost = {
   review_status?: "draft" | "approved" | "rejected";
   author_name: string;
   source_logo?: string | null;
+  /** Links to the original reports this story was written from (shown as credits). */
+  source_article_url?: string | null;
+  source_url?: string | null;
   language: "te" | "en" | "hi" | "ta" | "kn";
   published: boolean;
   featured: boolean;

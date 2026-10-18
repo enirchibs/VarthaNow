@@ -29,3 +29,10 @@ def meta(page: Page, attr: str, name: str) -> str | None:
 
 def assert_no_page_errors(errors):
     assert errors["page"] == [], f"uncaught errors: {errors['page']}"
+
+
+def dismiss_prompts(page: Page):
+    """Close the location (GPS) prompt that floats over the bottom of the page, if it is showing."""
+    close = page.get_by_role("button", name="Close GPS prompt")
+    if close.count() and close.first.is_visible():
+        close.first.click()
