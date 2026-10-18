@@ -147,18 +147,6 @@ export const categories: { slug: NewsCategory; label: Record<Language, string>; 
     rssQuery: "national news india"
   },
   {
-    slug: "vizag",
-    label: {
-      te: "విశాఖ",
-      en: "Visakhapatnam",
-      hi: "विशाखापट्टनम",
-      ta: "விசாக்கபட்டினம்",
-      kn: "ವಿಶಾಖಪಟ್ಟಣ"
-    },
-    short: "విశాఖ",
-    rssQuery: "visakhapatnam vizag"
-  },
-  {
     // citizen reporters: local news sent in by readers, published after editorial review
     slug: "local",
     label: {
@@ -337,9 +325,9 @@ export function detectCategoryFromTitleAndContent(post: {
     return "devotional";
   }
 
-  // 7. Vizag
+  // 7. Visakhapatnam stories belong to Andhra Pradesh (there is no separate Vizag section)
   if (/vizag|visakhapatnam|విశాఖ|విశాఖపట్నం|గాజువాక|మధురవాడ|రుషికొండ/i.test(text)) {
-    return "vizag";
+    return "andhra-pradesh";
   }
 
   // 8. Telangana
@@ -391,6 +379,9 @@ const CATEGORY_CANONICAL: Record<string, NewsCategory> = {
   spiritual: "devotional",
   "whatsapp-status": "daily-share",
   "daily-share": "daily-share",
+  // the Vizag section was folded into Andhra Pradesh
+  vizag: "andhra-pradesh",
+  visakhapatnam: "andhra-pradesh",
 };
 
 /**
@@ -424,9 +415,9 @@ export function expandCategorySlugs(slug: string | undefined | null): string[] {
     health: ["health"],
     jobs: ["jobs"],
     education: ["education"],
-    "andhra-pradesh": ["andhra-pradesh"],
+    // older stories may still be stored as "vizag"
+    "andhra-pradesh": ["andhra-pradesh", "vizag", "visakhapatnam"],
     telangana: ["telangana"],
-    vizag: ["vizag", "visakhapatnam"],
     viralshorts: ["viralshorts"],
   };
 

@@ -169,6 +169,12 @@ def test_bookmarks_page_decodes_entities(page: Page, base_url):
     assert "&#8216;" not in page.locator("main").first.inner_text()
 
 
+@pytest.mark.mock_only
+def test_old_vizag_stories_appear_under_andhra_pradesh(page: Page, base_url):
+    open_page(page, base_url, "/category/andhra-pradesh")
+    expect(page.locator("main").first).to_contain_text("విశాఖ బీచ్ ఉత్సవం ఈ వారాంతం")
+
+
 def test_empty_bookmarks_page_shows_no_stories(page: Page, base_url):
     open_page(page, base_url, "/bookmarks")
     text = _main_text(page) if page.locator("main").count() else ""

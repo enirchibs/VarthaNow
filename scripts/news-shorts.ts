@@ -59,7 +59,7 @@ const supabase = createClient(supabaseUrl!, serviceKey!, { auth: { persistSessio
 const gemini = new GoogleGenerativeAI(geminiKey!).getGenerativeModel({ model: MODEL });
 const parser = new Parser({ timeout: 15_000, headers: { "User-Agent": "Mozilla/5.0 (compatible; VaartaNowBot/1.0)" } });
 
-const CATEGORIES = ["andhra-pradesh", "telangana", "national", "politics", "cinema", "cricket", "business", "technology", "health", "jobs", "devotional", "vizag"];
+const CATEGORIES = ["andhra-pradesh", "telangana", "national", "politics", "cinema", "cricket", "business", "technology", "health", "jobs", "devotional"];
 
 type Feed = { url: string; category: string; publisher: string; priority_tier: number | null };
 type Candidate = { title: string; link: string; publishedAt: number; feed: Feed };

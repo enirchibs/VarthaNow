@@ -91,3 +91,11 @@ def test_404_page_sets_title(page: Page, base_url):
     page.goto(base_url + "/no/such/page", wait_until="domcontentloaded")
     page.wait_for_timeout(1000)
     assert page.title().startswith("404")
+
+
+def test_vizag_section_is_folded_into_andhra_pradesh(page: Page, base_url):
+    page.goto(base_url + "/category/vizag", wait_until="domcontentloaded")
+    page.wait_for_url(base_url + "/category/andhra-pradesh", timeout=5000)
+    page.goto(base_url + "/", wait_until="domcontentloaded")
+    page.wait_for_timeout(1500)
+    assert page.locator("a[href='/category/vizag']").count() == 0, "Vizag still linked in the menu"

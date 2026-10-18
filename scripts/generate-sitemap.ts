@@ -44,7 +44,6 @@ const STATIC_ROUTES = [
   { url: "/category/education", changefreq: "daily", priority: "0.75" },
   { url: "/category/devotional", changefreq: "daily", priority: "0.7" },
   { url: "/category/viralshorts", changefreq: "hourly", priority: "0.8" },
-  { url: "/category/vizag", changefreq: "hourly", priority: "0.8" },
   { url: "/jobs", changefreq: "daily", priority: "0.7" },
   { url: "/about", changefreq: "monthly", priority: "0.4" },
   { url: "/contact", changefreq: "monthly", priority: "0.4" },

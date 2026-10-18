@@ -75,6 +75,7 @@ const router = createBrowserRouter([
       { path: "/health", element: <HealthPortal /> },
       { path: "/health/:subpage", element: <HealthPortal /> },
       { path: "/bookmarks", element: <BookmarksPage /> },
+      { path: "/category/vizag", element: <Navigate to="/category/andhra-pradesh" replace /> },
       { path: "/category/:category", element: <CategoryPage /> },
       { path: "/news/:slug", element: <NewsPage /> },
       { path: "/videos/:id", element: <VideoPage /> },
